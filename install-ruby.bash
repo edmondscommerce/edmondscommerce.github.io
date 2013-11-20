@@ -3,16 +3,16 @@ echo "
 Grabbing rbenv Repo"
 cd ~
 git clone git://github.com/sstephenson/rbenv.git .rbenv
-echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
-echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(rbenv init -)"' >> ~/.bashrc
 git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
-source ~/.bash_profile
+source ~/.bashrc
 echo "done.."
 
 echo "
 Installing Ruby 1.9.3"
 rbenv install 1.9.3-p0
-rbenv local 1.9.3-p0
+rbenv global 1.9.3-p0
 rbenv rehash
 echo "done.."
 
