@@ -1,36 +1,51 @@
 #!/bin/bash
 
+set -e
+
 HOST=$1
 USER=$2
 PASS=$3
 DBNAME=$4
+PREFIX=$5
 
-function install_package(){
-	local PACKAGE='$@'
+if [ "" == "$DBNAME" ]
+then
+	echo "please run import-wordpress.bash HOST USER PASS DBNAME PREFIX"
+	exit 1
+fi
+
+
+
+
+function ec_install_mysql-dev(){
 	local YUM_CMD=$(which yum)
 	local APT_GET_CMD=$(which apt-get)
 	if [[ ! -z $YUM_CMD ]]; then
-		sudo yum install $PACKAGE
+		sudo yum install mysql-devel
 	elif [[ ! -z $APT_GET_CMD ]]; then
-		sudo apt-get install $PACKAGE
+		sudo apt-get install libmysqlclient-dev
 	else
 		echo "error can't install package $PACKAGE"
     exit 1;
  fi
 }
 
-install_package libmysqlclient-dev
+ec_install_mysql-dev
+
 gem install mysql2
 gem install sequel
 gem install jekyll-import --pre
-rbenv rehash
+if [ "" != "$(which rbenv)" ]
+then
+	rbenv rehash
+fi
 ruby -rubygems -e "require 'jekyll-import';
     JekyllImport::Importers::WordPress.run({
-      'dbname'   => '',
-      'user'     => '',
-      'password' => '',
-      'host'     => 'localhost',
-      'prefix'   => 'wp_',
+      'dbname'   => '$DBNAME',
+      'user'     => '$USER',
+      'password' => '$PASS',
+      'host'     => '$HOST',
+      'prefix'   => '$PREFIX',
       'clean_entities' => true,
       'comments'       => false,
       'categories'     => true,
