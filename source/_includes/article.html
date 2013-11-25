@@ -1,29 +1,39 @@
 {% unless page.no_header %}
-  <header>
-    {% if index %}
-      <h1 class="entry-title"><a href="{{ root_url }}{{ post.url }}">{% if site.titlecase %}{{ post.title | titlecase }}{% else %}{{ post.title }}{% endif %}</a></h1>
-    {% else %}
-      <h1 class="entry-title">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
-    {% endif %}
-    {% unless page.meta == false %}
-      <p class="meta">
-        {% include post/date.html %}{{ time }}
-        {% if site.disqus_short_name and page.comments != false and post.comments != false and site.disqus_show_comment_count == true %}
-           | <a href="{% if index %}{{ root_url }}{{ post.url }}{% endif %}#disqus_thread"
-             data-disqus-identifier="{% if post.meta.disqus_id %}{{ post.meta.disqus_id }}{% else %}{{ site.url }}{{ post.url }}{% endif %}">Comments</a>
-        {% endif %}
-      </p>
-    {% endunless %}
-  </header>
-{% endunless %}
 {% if index %}
-  <div class="entry-content">{{ content | excerpt }}</div>
-  {% capture excerpted %}{{ content | has_excerpt }}{% endcapture %}
-  {% if excerpted == 'true' %}
-    <footer>
-      <a rel="full-article" href="{{ root_url }}{{ post.url }}">{{ site.excerpt_link }}</a>
-    </footer>
-  {% endif %}
+  <div class="row-fluid">
+    <div class="span2 post-meta">
+	  <h5 class="date-time">{% include post/date.html %}<i class="icon-calendar-empty"></i> {{ time }}</h5>
+          <div class="row-fluid">
+          {% if site.disqus_short_name and page.comments != false and post.comments != false and site.disqus_show_comment_count == true %}
+          <a href="{% if index %}{{ site.url }}{{ root_url }}{{ post.url }}{% endif %}#disqus_thread">Comments </a> <span class="fui-bubble-16"></span>
+          {% endif %}
+          </div>
+          {% if post.categories %}
+          <div class="row-fluid">
+          {% for category in post.categories %}
+          <a href="{{ root_url }}/{{ site.category_dir }}/{{ category | split: " " | join: "-" | downcase }}/"><span class="badge">{{ category }}</span></a>
+          {% endfor %}
+          </div>
+          {% endif %}
+    </div>
+    <div class="span10 post-container">
+      <h1 class="link"><a href="{{ root_url }}{{ post.url }}">{{ post.title }}</a></h1>
+      {{ content | excerpt }}
+      {% capture excerpted %}{{ content | has_excerpt }}{% endcapture %}
+      {% if excerpted == 'true' %} <a href="{{ root_url }}{{ post.url }}">{{ site.excerpt_link }}</a> {% endif %}
+    </div>
+  </div>
 {% else %}
-<div class="entry-content">{{ content }}</div>
+  <header>
+  <div class="jumbotron">
+    {% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}
+	<h5>{% include post/date.html %}<i class="icon-calendar-empty"></i> {{ time }}</h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      {{ content }}
+    </div>
+  </div>
 {% endif %}
+{% endunless %}
