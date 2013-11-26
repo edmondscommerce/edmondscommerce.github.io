@@ -1,7 +1,12 @@
 .highlight, html .gist .gist-file .gist-syntax .gist-highlight {
   table td.code { width: 100%; }
-  border: 1px solid $pre-border !important;
+  //border: 1px solid $pre-border !important;
+  @include border-radius(5px);
 }
+figcaption + .highlight, html figcaption + .gist .gist-file .gist-syntax .gist-highlight {
+  @include border-top-radius(0);
+}
+
 .highlight .line-numbers, html .gist .gist-file .gist-syntax .highlight .line_numbers {
   text-align: right;
   font-size: 13px;
@@ -28,7 +33,11 @@ figure.code, .gist-file, pre {
 }
 
 .gist .highlight, figure.code .highlight {
-  @include selection(adjust-color($base03, $lightness: 23%, $saturation: -65%), $text-shadow: $base03 0 1px);
+   @if $solarized == light {
+     @include selection(adjust-color($base00, $lightness: 23%, $saturation: -65%), $text-shadow: $base00 0 1px);
+   } @else {
+     @include selection(adjust-color($base03, $lightness: 23%, $saturation: -65%), $text-shadow: $base03 0 1px);
+   }
 }
 html .gist .gist-file {
   margin-bottom: 1.8em;
@@ -71,7 +80,7 @@ html .gist .gist-file {
     a[href*='#file'] {
       position: absolute; top: 0; left:0; right:-10px;
       color: #474747 !important;
-      @extend .code-title;
+      //@extend .code-title;
       &:hover { color: $link-color !important; }
     }
     a[href*=raw]{
@@ -80,41 +89,9 @@ html .gist .gist-file {
     }
   }
 }
-pre {
-  background: $pre-bg $noise-bg;
-  @include border-radius(.4em);
-  @extend .mono;
-  border: 1px solid $pre-border;
-  line-height: 1.45em;
-  font-size: 13px;
-  margin-bottom: 2.1em;
-  padding: .8em 1em;
-  color: $pre-color;
-  overflow: auto;
-}
-h3.filename {
-  @extend .code-title;
-  + pre { @include border-top-radius(0px); }
-}
-
-p, li {
-  code {
-    @extend .mono;
-    display: inline-block;
-    white-space: no-wrap;
-    background: #fff;
-    font-size: .8em;
-    line-height: 1.5em;
-    color: #555;
-    border: 1px solid #ddd;
-    @include border-radius(.4em);
-    padding: 0 .3em;
-    margin: -1px 0;
-  }
-  pre code { font-size: 1em !important; background: none; border: none; }
-}
 
 .pre-code {
+  white-space: pre;
   font-family: $mono !important;
   overflow: scroll;
   overflow-y: hidden;
@@ -196,7 +173,7 @@ p, li {
 .highlight, .gist-highlight {
   pre { background: none; @include border-radius(0px); border: none; padding: 0; margin-bottom: 0; }
   margin-bottom: 1.8em;
-  background: $base03;
+  background: $base03 $noise-bg;
   overflow-y: hidden;
   overflow-x: auto;
 }
@@ -219,12 +196,12 @@ pre, .highlight, .gist-highlight {
 figure.code {
   background: none;
   padding: 0;
-  border: 0;
+  //border: 0;
   margin-bottom: 1.5em;
   pre { margin-bottom: 0; }
   figcaption {
     position: relative;
-    @extend .code-title;
+    //@extend .code-title;
     a { @extend .download-source; }
   }
   .highlight {
@@ -251,11 +228,34 @@ figure.code {
 }
 
 .download-source {
+  top: 0.9em;
   position: absolute; right: .8em;
   @include hover-link;
-  color: #666 !important;
+  //color: #666 !important;
   z-index: 1;
   font-size: 13px;
-  text-shadow: #cbcccc 0 1px 0;
+  //text-shadow: #cbcccc 0 1px 0;
   padding-left: 3em;
+}
+
+figure.code:not(.panel) {
+    /* unpatched code_block or include_code plugin */
+    border: 1px solid #ddd;
+    @include border-radius(5px);
+    .highlight {
+        border-top: 1px solid #ddd;
+        @include border-radius(5px);
+        @include border-top-radius(0);
+    }
+    figcaption {
+        padding: 10px 15px;
+        color: #333;
+        background-color: #f5f5f5;
+        @include border-radius(5px);
+        span {
+            font-size: 16px;
+            line-height: 1.1;
+            font-weight: bold;
+        }
+    }
 }

@@ -113,6 +113,7 @@ task :new_post, :title do |t, args|
     post.puts "categories: "
     post.puts "---"
   end
+  exec("vim #{filename}")
 end
 
 # usage rake new_page[my-new-page] or rake new_page[my-new-page.html] or rake new_page (defaults to "new-page.markdown")
@@ -151,7 +152,8 @@ task :new_page, :filename do |t, args|
     end
   else
     puts "Syntax error: #{args.filename} contains unsupported characters"
-  end
+  end  
+  exec("vim #{file}")
 end
 
 # usage rake isolate[my-post]
