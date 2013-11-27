@@ -44,4 +44,4 @@ Tools->Options->PHP->Unit Test
 
 eg /opt/lampp/bin/phpunit --stderr
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2012/02/Screenshot.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-600x323.png %}" alt="" title="Screenshot" width="600" height="323" class="aligncenter size-medium wp-image-2985" /></a>
+{% img  /assets/Screenshot-600x323.png %}

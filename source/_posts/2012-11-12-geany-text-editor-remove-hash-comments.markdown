@@ -38,4 +38,4 @@ And replace with:
 
 And of course tick the regex box.
 
-<img src="{% img  ({{ site.url }}/assets/geany.png %}" alt="geany regex replace" title="geany" width="549" height="282" class="alignnone size-full wp-image-3613" />
+{% img  /assets/geany.png %}

@@ -40,6 +40,6 @@ The aim of this project was to upgrade a store from 1.3 to 1.5, without losing t
 Love My Frames is run by highly trained technicians with over 40 years' optical experience, offering the kind of personal service you would normally expect from a high street opticians. Offering the best for considerably less, professional service and door-to-door delivery, they give their customers the ultimate shopping experience online plus the opportunity to purchase the <a href=”http://www.lovemyframes.com/” >very latest designs at a great price</a>.
 
 
-<h3><a href="{% img  ({{ site.url }}/assets/lovemyframes.jpg %}"><img src="{% img  ({{ site.url }}/assets/lovemyframes.jpg %}" alt="" title="lovemyframes" width="600" height="341" class="alignright size-full wp-image-2460" /></a></h3>
+{% img  /assets/lovemyframes.jpg %}
 
 The project asked for a clean install and then rewrite of the existing store. The biggest part of the project was taking the existing layered navigation and rewriting it to work on all pages with a custom design.

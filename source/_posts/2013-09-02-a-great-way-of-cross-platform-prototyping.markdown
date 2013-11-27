@@ -27,7 +27,7 @@ Here at Edmonds Commerce we are always looking for new techniques and tools that
 
 Just found this awesome c<a href=" http://www.invisionapp.com/" title="Invisionapp - cross platform prototyping tool" target="_blank">ross-platform mockup and interactive prototyping tool - Invision</a> - which has an amazing feedback feature which could replace long email conversations. It is filled with lots of  active guides and how-to's which makes it really understandable for clients. Actually, I find this part the most important about all the application. So far there have been a serious struggle with this particular phase - work showoff, iterations and final sign off. That is a long journey for traditional email conversations.
 
-<a href="http://www.invisionapp.com/" target="_blank"><img src="{% img  ({{ site.url }}/assets/InvisionApp-Design.png %}" alt="InvisionApp interface" width="667" height="434" class="size-full wp-image-4500" /></a> InvisionApp interface
+{% img  /assets/InvisionApp-Design.png %} InvisionApp interface
 
 I've spent just a few moments with it, but it looks like 135.004 people in 70 countries aren't trusting this awesome tool just for fun. (as it is stated on <a href="http://www.invisionapp.com/" title="invisionapp homepage" target="_blank">invisionapp homepage</a> when writing this post) Feels like I've finally found a well designed tool which has the most of the essential features. 
 

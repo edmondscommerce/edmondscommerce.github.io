@@ -47,7 +47,7 @@ Example:
     }
 </code>
 This example lets NetBeans know that removeItem's one parameter should be an integer and that it returns an object of type Mage_Checkout_Model_Cart.
-<a href="{% img  ({{ site.url }}/assets/autocompleate1.png %}"><img src="{% img  ({{ site.url }}/assets/autocompleate1.png %}" alt="" title="Type Autocompleation" width="556" height="362" class="alignleft size-full wp-image-2621" /></a>
+{% img  /assets/autocompleate1.png %}
 
 The other type of type comment tells NetBeans that a particular variable is of a specific type.
 For example:
@@ -65,4 +65,4 @@ class RemeberNumber {
 
 Because of the /** @var $theNumber int */ auto completion will now use that as the type else where with in the scope of that variable definition.
 
-<a href="{% img  ({{ site.url }}/assets/autocompleate2.png %}"><img src="{% img  ({{ site.url }}/assets/autocompleate2.png %}" alt="" title="Auto Compleation Example" width="555" height="378" class="alignleft size-full wp-image-2622" /></a>
+{% img  /assets/autocompleate2.png %}

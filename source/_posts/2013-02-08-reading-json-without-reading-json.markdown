@@ -39,26 +39,26 @@ Example JSON:
 <tr>
 <td>
 Firefox with Firebug:
-<a href="http://www.edmondscommerce.co.uk/programming/reading-json-without-reading-json/attachment/firefoxjson/" rel="attachment wp-att-3918"><img src="{% img  ({{ site.url }}/assets/firefoxjson-600x328.png %}" alt="" title="firefoxjson" width="600" height="328" class="alignnone size-medium wp-image-3918" /></a>
+{% img  /assets/firefoxjson-600x328.png %}
 </td>
 </tr>
 <tr>
 <td>
 Chrome:
-<a href="http://www.edmondscommerce.co.uk/programming/reading-json-without-reading-json/attachment/chromejson/" rel="attachment wp-att-3921"><img src="{% img  ({{ site.url }}/assets/chromejson-600x313.png %}" alt="" title="chromejson" width="600" height="313" class="alignnone size-medium wp-image-3921" /></a>
+{% img  /assets/chromejson-600x313.png %}
 </td>
 </tr>
 <tr>
 <td>
 Opera:
-<a href="http://www.edmondscommerce.co.uk/programming/reading-json-without-reading-json/attachment/bhtajti/" rel="attachment wp-att-3920"><img src="{% img  ({{ site.url }}/assets/bhtAjti.png %}" alt="" title="bhtAjti" width="524" height="337" class="alignnone size-full wp-image-3920" /></a>
+{% img  /assets/bhtAjti.png %}
 </td>
 </tr>
 <tr>
 <td>
 Internet Explorer 9:
 Note: To see this structure you need to click the "Add watcher" link displayed upon running the code.
-<a href="http://www.edmondscommerce.co.uk/programming/reading-json-without-reading-json/attachment/ie9json/" rel="attachment wp-att-3919"><img src="{% img  ({{ site.url }}/assets/ie9json.png %}" alt="" title="ie9json" width="547" height="290" class="alignnone size-full wp-image-3919" /></a>
+{% img  /assets/ie9json.png %}
 </td>
 </tr>
 </table>

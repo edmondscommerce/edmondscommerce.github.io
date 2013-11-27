@@ -17,7 +17,7 @@ tags:
 - analytics
 - conversion rates
 ---
-<a href="{% img  ({{ site.url }}/assets/conversion_rates_cover.png %}"><img src="{% img  ({{ site.url }}/assets/conversion_rates_cover.png %}" alt="conversion_rates_cover" width="671" height="290" class="alignleft size-full wp-image-4387" /></a>
+{% img  /assets/conversion_rates_cover.png %}
 
 Every e-commerce web site owner would like to improve sales and one clear strategy to do this is to focus on increasing the conversion rate by effective use of website analytics leading to tested content changes that improve conversion.
 
@@ -33,7 +33,7 @@ Check against these questions to make sure you do enough to catch and improve th
 <li>Are your conversion rates increasing?</li>
 </ul>
 
-<a href="{% img  ({{ site.url }}/assets/conversion_strategy.png %}"><img src="{% img  ({{ site.url }}/assets/conversion_strategy.png %}" alt="conversion_strategy" width="671" height="290" class="alignleft size-full wp-image-4388" /></a>
+{% img  /assets/conversion_strategy.png %}
 
 <h3>The Strategy in a Nutshell</h3>
 Analytics enable you to track every important aspect of your conversion funnel and any additional funnels that generates or somehow supports the main conversion. By proper use of analytics you can track even the smallest action in great detail, it helps to understand the actual user behaviour and make improvements. Most commonly the process is to:
@@ -62,7 +62,7 @@ Difference Between Improving Conversion and Increasing Traffic
 The goals are the same - to increase the bottom line of your ecommerce business. However, the set of actions are completely different and they must come together to increase your income.
 
 
-<a href="{% img  ({{ site.url }}/assets/conversion_rates.png %}"><img src="{% img  ({{ site.url }}/assets/conversion_rates.png %}" alt="conversion_rates" width="671" height="290" class="alignleft size-full wp-image-4386" /></a>
+{% img  /assets/conversion_rates.png %}
 
 
 By improving conversion rate your website will benefit more from the traffic it gets because more of the traffic will be converted. For example if you are getting:

@@ -37,7 +37,7 @@ SELECT eea.*, ea.attribute_code FROM eav_entity_attribute AS eea JOIN eav_attrib
 ```
 
 Here we are using the group_id of 4 which gives the following result
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2012/04/screenshot2.png"><img src="{% img  ({{ site.url }}/assets/screenshot2-600x234.png %}" alt="" title="Mysql result" width="600" height="234" class="aligncenter size-medium wp-image-3090" /></a>
+{% img  /assets/screenshot2-600x234.png %}
 
 The sort_order is the attribute that you need to change to move the attributes around the page. If the sort order is sequential then a simple trick to add some padding is to run the following command
 ```mysql

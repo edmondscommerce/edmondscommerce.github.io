@@ -34,6 +34,6 @@ Aston's of London required that their Magento site be upgraded from 1.3 CE to th
 
 Aston's of London is an eCommerce company specialising in the sale of <a href="http://astonsoflondon.co.uk/">luxury jewellery, comfort items and gifts</a>.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/astonsoflondon1.png"><img src="{% img  ({{ site.url }}/assets/astonsoflondon1-600x450.png %}" alt="Screen Shot of Astons of London Home Page" title="Astons of London Home Page" width="600" height="450" class="alignleft size-medium wp-image-2432" /></a>
+{% img  /assets/astonsoflondon1-600x450.png %}
 
 This project was a standard upgrade from an older version of Magento to current dealing with issues related to the sites theme and extensions.

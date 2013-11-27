@@ -22,7 +22,7 @@ tags:
 ---
 As part of our retainer services we offer Ritesim.com an ongoing monthly support service for their busy Magento site. This includes assistance with things like upgrades and bug fixes along with phone support and much more.
 
-<img src="{% img  ({{ site.url }}/assets/screenshot-thumb2.png %}" alt="ritesim screenshot" width="450" height="280" class="alignleft size-full wp-image-3993" />
+{% img  /assets/screenshot-thumb2.png %}
 
 Ritesim.com International Phone Cards
 

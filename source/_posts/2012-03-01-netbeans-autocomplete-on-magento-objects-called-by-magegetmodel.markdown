@@ -111,4 +111,4 @@ $customerForm = Mage::getModel('customer/form');
 
 <b>And it works!</b>
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2012/03/screenshot4.png"><img src="{% img  ({{ site.url }}/assets/screenshot4-600x475.png %}" alt="" title="screenshot4" width="600" height="475" class="aligncenter size-medium wp-image-3020" /></a>
+{% img  /assets/screenshot4-600x475.png %}

@@ -33,6 +33,6 @@ This project asked for new functionality to be added to an existing magento site
 
 The Bent Gay Shop is the UK's <a href="http://shop.bent.com">premier gay sex shop</a>. With almost 2000 products on offer there is most certainly something for all gay men. 
 
-<a href="{% img  ({{ site.url }}/assets/B-Shop.jpg %}"><img src="{% img  ({{ site.url }}/assets/B-Shop.jpg %}" alt="B-Shop" title="B-Shop" width="600" height="364" class="alignright size-full wp-image-2493" /></a>
+{% img  /assets/B-Shop.jpg %}
 
 The project needed a lot of jQuery work to get the various different parts of the site working as they should. jQuery is a Javascript framework that makes implementing impressive effects and functionality a breeze. I really enjoyed working with it on this project.

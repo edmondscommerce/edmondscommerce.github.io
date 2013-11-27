@@ -26,12 +26,12 @@ You should probably look up more recent blog posts related to the subject you ar
 Another simple and clean Magento based store we have done that was really nice to work on. Focus-eyewear is just one of the three stores built on this multi-store Magento project. The other stores includes the Germany version of the store at (optik-focus.de) and the US version at (focus-online.com). Please see few images below and the full site at <a href='http://www.focus-eyewear.co.uk'>www.focus-eyewear.co.uk</a>
 
 <b>Homepage:</b>
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/03/Screenshot-2.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-2-298x300.png %}" alt="" title="Screenshot-2" width="298" height="300" class="aligncenter size-medium wp-image-2173" /></a>
+{% img  /assets/Screenshot-2-298x300.png %}
 
-<br/><a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/03/Screenshot-1.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-1-300x177.png %}" alt="" title="Screenshot-1" width="300" height="177" class="aligncenter size-medium wp-image-2175" /></a>
+{% img  /assets/Screenshot-1-300x177.png %}
 
 
 <br/><b>Category page</b>
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/03/Screenshot-Chanel-Womens-Sunglasses-Focus-Eyewear-Mozilla-Firefox.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-Chanel-Womens-Sunglasses-Focus-Eyewear-Mozilla-Firefox-300x158.png %}" alt="" title="Screenshot-Chanel Women&#039;s Sunglasses | Focus Eyewear - Mozilla Firefox" width="300" height="158" class="aligncenter size-medium wp-image-2177" /></a>
+{% img  /assets/Screenshot-Chanel-Womens-Sunglasses-Focus-Eyewear-Mozilla-Firefox-300x158.png %}
 
-<br/><a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/03/Screenshot-3.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-3-300x210.png %}" alt="" title="Screenshot-3" width="300" height="210" class="aligncenter size-medium wp-image-2178" /></a>
+{% img  /assets/Screenshot-3-300x210.png %}

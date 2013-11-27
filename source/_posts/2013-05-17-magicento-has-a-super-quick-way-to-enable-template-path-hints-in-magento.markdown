@@ -21,8 +21,8 @@ Magento's Template Path Hints feature can be super handy for working out which t
 
 No more! Magicento has an entry in its menu to enable these at the click of a menu item.
 
-<a href="{% img  ({{ site.url }}/assets/MagicentoMenu.png %}"><img src="{% img  ({{ site.url }}/assets/MagicentoMenu.png %}" alt="MagicentoMenu" width="207" height="334" class="alignnone size-full wp-image-4261" /></a>
+{% img  /assets/MagicentoMenu.png %}
 
 There's a couple of settings which need to be enabled (see below) but once set up, it works great.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2013/05/MagicentoSettings.png"><img src="{% img  ({{ site.url }}/assets/MagicentoSettings-600x317.png %}" alt="MagicentoSettings" width="600" height="317" class="alignnone size-medium wp-image-4262" /></a>
+{% img  /assets/MagicentoSettings-600x317.png %}

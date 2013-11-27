@@ -34,4 +34,4 @@ Stephen said
 
 here is a screenshot:
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2012/03/Screenshot.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-600x320.png %}" alt="" title="Screenshot" width="600" height="320" class="aligncenter size-medium wp-image-3049" /></a>
+{% img  /assets/Screenshot-600x320.png %}

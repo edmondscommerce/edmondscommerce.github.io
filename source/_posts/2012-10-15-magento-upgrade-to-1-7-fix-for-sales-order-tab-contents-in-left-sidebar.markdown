@@ -16,7 +16,7 @@ tags:
 - edmondscommerce
 ---
 If following an upgrade to Magento 1.7 you're having a problem that the Sales Order View tab contents are stuck in the sidebar (see below) you're likely ripping your hair out as to why this is happening
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2012/10/Sales-Order-View-Problem.png"><img src="{% img  ({{ site.url }}/assets/Sales-Order-View-Problem-502x600.png %}" alt="" title="Sales Order View Problem" width="502" height="600" class="aligncenter size-medium wp-image-3453" /></a>
+{% img  /assets/Sales-Order-View-Problem-502x600.png %}
 
 In the page you'll find a line of Javascript:
 <code>sales_order_view_tabsJsTabs = new varienTabs('sales_order_view_tabs', 'sales_order_view', 'sales_order_view_tabs_order_info', []);</code>

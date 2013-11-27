@@ -28,7 +28,7 @@ This is a post that was written a long time ago and is only being kept here for 
 You should probably look up more recent blog posts related to the subject you are researching
 </p>
 </div>
-<img src="{% img  ({{ site.url }}/assets/bage-solution-silver.jpg %}" alt="Magento Sliver Solution Partner" title="Magento Sliver Solution Partner" width="135" height="135" class="alignleft size-full wp-image-3748" align="left"/>
+{% img  /assets/bage-solution-silver.jpg %}
 Magento have a partner programme which agencies such as ourselves can register with to become partners. 
 
 Edmonds Commerce are Silver Magento Partners. This means that we specialise in both Magento Community and Magento Enterprise projects for clients ranging from SME to PLC level.

@@ -24,4 +24,4 @@ This is a post that was written a long time ago and is only being kept here for 
 You should probably look up more recent blog posts related to the subject you are researching
 </p>
 </div>
-This project required a change in the design of the footer by grouping the links into four main categories, it also include adding the predominant credit card logos that appropriately fits with the theme of the site.</br></br><a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/07/Screenshot.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-600x337.png %}" alt="Harraca-USA Footer" title="Harraca-USA" width="600" height="337" class="aligncenter size-medium wp-image-2507" /></a>
+This project required a change in the design of the footer by grouping the links into four main categories, it also include adding the predominant credit card logos that appropriately fits with the theme of the site.{% img  /assets/Screenshot-600x337.png %}

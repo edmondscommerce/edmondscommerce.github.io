@@ -38,6 +38,6 @@ The Grass Seeds Store wants to migrate away from OSCommerce to Magento in order 
 
 The Grass Seed Store specialises in the sale of a many different types of <a href="http://www.thegrassseedstore.co.uk/">grass seed, fertiliser and live stock pasture</a>.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/grassseed.png"><img src="{% img  ({{ site.url }}/assets/grassseed-300x205.png %}" alt="Screen Short of Grass Seed Store Magento Product" title="Grass Seed Store Magento Product" width="300" height="205" class="alignleft size-medium wp-image-2402" /></a>
+{% img  /assets/grassseed-300x205.png %}
 
 This project is a great example of customising Magento to be compliant with an industry governing body and shows that Magento can be used in almost any for the sale of any type of product. The project is currently a work in progress and the Magento implementation is currently only a wire frame demonstrating the functionality that is ultimately required.

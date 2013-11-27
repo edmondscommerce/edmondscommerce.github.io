@@ -30,13 +30,13 @@ To access a mobile version of a site simply open Chrome and navigate to the site
 
 Then hit F12 to bring up the developer tools. Alternatively you can go to the right hand menu and select developer tools under the tools menu. This should bring up a screen looking similar to this:
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2013/06/Screenshot-from-2013-06-03-162921.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-from-2013-06-03-162921-600x475.png %}" alt="Screenshot from 2013-06-03 16:29:21" width="600" height="475" class="alignleft size-medium wp-image-4322" /></a>
+{% img  /assets/Screenshot-from-2013-06-03-162921-600x475.png %}
 
 In the bottom right hand corner of this screen you will see a little cog icon, please click that:
 
-<a href="{% img  ({{ site.url }}/assets/Screenshot-from-2013-06-03-162956.png %}"><img src="{% img  ({{ site.url }}/assets/Screenshot-from-2013-06-03-162956.png %}" alt="Screenshot from 2013-06-03 16:29:56" width="234" height="156" class="alignleft size-full wp-image-4323" /></a>
+{% img  /assets/Screenshot-from-2013-06-03-162956.png %}
 
-This gives you the overrides menu where you can select the phone you want to emulate. You can also tick the device metrics box so that the displayable area corresponds to that of the phone giving you a good emultation of the phone experience.<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2013/06/Screenshot-from-2013-06-03-163013.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-from-2013-06-03-163013-600x354.png %}" alt="Screenshot from 2013-06-03 16:30:13" width="600" height="354" class="alignleft size-medium wp-image-4324" /></a>
+This gives you the overrides menu where you can select the phone you want to emulate. You can also tick the device metrics box so that the displayable area corresponds to that of the phone giving you a good emultation of the phone experience.{% img  /assets/Screenshot-from-2013-06-03-163013-600x354.png %}
 
 Tick the box next to User Agent and choose a phone.
 

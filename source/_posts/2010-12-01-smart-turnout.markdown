@@ -27,4 +27,4 @@ Apart from implementing the new design from the PSD file, the tool we created pr
 
 You can see the site <a href='http://www.smartturnout.co.uk/'>here</a>.
 
-<br/><a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2010/12/Screenshot.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-300x282.png %}" alt="" title="Screenshot" width="300" height="282" class="aligncenter size-medium wp-image-1950" /></a>
+{% img  /assets/Screenshot-300x282.png %}

@@ -24,4 +24,4 @@ You should probably look up more recent blog posts related to the subject you ar
 </p>
 </div>
 The new gmail look certainly makes it look the same as many of Google's other services, but it's quite space in efficient by default. Fortunately Google thought of that and made it's space efficiency configurable! There is a button in the top right of gmail that allows you to change it.
-<a href="{% img  ({{ site.url }}/assets/gmail.png %}"><img src="{% img  ({{ site.url }}/assets/gmail.png %}" alt="" title="gmail" width="247" height="275" class="aligncenter size-full wp-image-2718" /></a>
+{% img  /assets/gmail.png %}

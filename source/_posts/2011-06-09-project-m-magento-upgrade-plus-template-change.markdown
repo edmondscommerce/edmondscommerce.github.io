@@ -37,10 +37,10 @@ Despite challenges especially from the size of the database the project was nice
 You can also browse a few screenshots of the site below.
 
 <h2>Homepage</h2>
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/pmhome.png"><img src="{% img  ({{ site.url }}/assets/pmhome-256x300.png %}" alt="" title="pmhome" width="256" height="300" class="alignleft size-medium wp-image-2415" /></a>
+{% img  /assets/pmhome-256x300.png %}
 
 <h2>Category Page</h2>
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/projrctm_category.png"><img src="{% img  ({{ site.url }}/assets/projrctm_category-300x282.png %}" alt="" title="projrctm_category" width="300" height="282" class="alignleft size-medium wp-image-2417" /></a>
+{% img  /assets/projrctm_category-300x282.png %}
 
 <h2>Product Page</h2>
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/Projectm_Product.png"><img src="{% img  ({{ site.url }}/assets/Projectm_Product-281x300.png %}" alt="" title="Projectm_Product" width="281" height="300" class="alignleft size-medium wp-image-2418" /></a>
+{% img  /assets/Projectm_Product-281x300.png %}

@@ -38,6 +38,6 @@ Stage Gear needed a number of aspects of their OSCommerce site improving, includ
 
 Stage Gear is a company that specialise in retailing <a href="http://www.sound-light-company.co.uk/">sound and lighting equipment</a> for use by clubs, pubs, bands and DJs.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/stagegear.png"><img src="{% img  ({{ site.url }}/assets/stagegear-300x224.png %}" alt="Screenshot of Stage Gear web site" title="Stage Gear Web Site" width="300" height="224" class="alignleft size-medium wp-image-2392" /></a>
+{% img  /assets/stagegear-300x224.png %}
 
 This project was terrific as it demonstrates that OSCommerce is still fully capable of running a modern web site.

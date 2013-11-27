@@ -20,7 +20,7 @@ tags:
 - responsive
 - design tools
 ---
-<a href="http://www.adobe.com/EdgeReflow" target="_blank"><img src="{% img  ({{ site.url }}/assets/Reflow.png %}" alt="Edge Reflow" width="667" height="395" class="alignleft size-full wp-image-4466" /></a>
+{% img  /assets/Reflow.png %}
 
 Got my hands on these two marvellous responsive design tools from Adobe - <a href="http://www.adobe.com/EdgeReflow" title="Adobe Edge Reflow Homepage" target="_blank">Edge Reflow</a> and <a href="http://www.adobe.com/EdgeInspect‎" title="Adboe Edge Inspect" target="_blank">Edge Inspect</a>. 
 
@@ -29,7 +29,7 @@ Although Reflow is still in Beta, it has brilliant concept. Never the less <u>it
 There are plenty of good resources available that will get you started in no time. The effort of learning it is definitely worth every minute you spend. The most useful resource that I've found so far is the <a href="http://http://www.adobe.com/devnet/edge-reflow/articles/edge-reflow-getting-started.html" title="Edge Reflow Guide for Beginners" target="_blank">original Edge Reflow guide from Adobe itself</a> It is a beginner level guide. Once you understand the core principles everything else is dead easy.
 
 
-<a href="http://tv.adobe.com/watch/adobe-edge-reflow/creating-layouts-in-reflow/" target="_blank"><img src="{% img  ({{ site.url }}/assets/reflow_inspect.png %}" alt="A screenshot of a how-to video from Paul Trani. " width="667" height="395" class="size-full wp-image-4467" /></a><i> A screenshot of a how-to video from Paul Trani. About Edge Inspect and Reflow from about 7th minute</i> 
+{% img  /assets/reflow_inspect.png %} 
 
 
 Remember, that it is still in beta. Let's help Adobe team to create more remarkable products and post our ideas of improvements it <a href="http://forums.adobe.com/community/edge_reflow_preview?view=idea" title="Edge Reflow Forum" target="_blank">Edge Reflow forum.</a>

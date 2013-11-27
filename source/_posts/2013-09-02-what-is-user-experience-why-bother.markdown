@@ -42,7 +42,7 @@ they found your site or offer to be. As for those who need a definition - <a hre
 
 <h2>So, what elements the user experience should contain?</h2>
 
-<a href="{% img  ({{ site.url }}/assets/UserExperience.png %}"><img src="{% img  ({{ site.url }}/assets/UserExperience.png %}" alt="User Experience (UX)" width="667" height="397" class="alignleft size-full wp-image-4510" /></a>
+{% img  /assets/UserExperience.png %}
 
 <h3>Valuable</h3>
 The solution must deliver measurable value for site owners or interested group. It can be conversions, leads, subscriptions, etc.

@@ -37,6 +37,6 @@ Blind Express required that their customers be able to easily request free sampl
 
 Blind Express specialise in supplying made to measure and custom window <a href="http://www.blindexpress.co.uk">blinds</a>.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/blindexpress.png"><img src="{% img  ({{ site.url }}/assets/blindexpress-300x206.png %}" alt="Screen Shot of Blind Express&#039;s Sample List" title="Blind Express&#039;s Sample List" width="300" height="206" class="alignleft size-medium wp-image-2372" /></a>
+{% img  /assets/blindexpress-300x206.png %}
 
 This project was a good challenge as the extension had to be integrated with previously existing custom product configuration.

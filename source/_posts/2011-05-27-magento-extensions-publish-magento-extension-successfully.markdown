@@ -40,7 +40,7 @@ Once there, please follow the following steps.
 
 <h2>Package Info:</h2>
 Here is where you will need to provide the details of your extension.
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/05/Packaging_info.png" target='_blank'><img src="{% img  ({{ site.url }}/assets/Packaging_info-300x296.png %}" alt="" title="Packaging_info" width="300" height="296" class="aligncenter size-medium wp-image-2273" /></a>
+{% img  /assets/Packaging_info-300x296.png %}
 
 <b>The supported release works like this.</b>
 	<ul>
@@ -55,24 +55,24 @@ Here is where you will need to provide the details of your extension.
 
 <h2>Release</h2>
 Specify your extension release details. Straight forward matters.
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/05/Screenshot.png" target='_blank'><img src="{% img  ({{ site.url }}/assets/Screenshot-300x231.png %}" alt="" title="Screenshot" width="300" height="231" class="aligncenter size-medium wp-image-2277" /></a>
+{% img  /assets/Screenshot-300x231.png %}
 
 <b>Release Version is the version of your extension.</b>
 
 <h2>Authors</h2>
 Here you will need to list the author names of the extension. 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/05/Screenshot-1.png" target='_blank'><img src="{% img  ({{ site.url }}/assets/Screenshot-1-300x28.png %}" alt="" title="Screenshot-1" width="300" height="28" class="aligncenter size-medium wp-image-2278" /></a>
+{% img  /assets/Screenshot-1-300x28.png %}
 
 <b>Note:</b> The user field, MUST be the same as the name on your Magento Account. This is NOT your screen name, it is the user name as found in My Account on your Magento account.
 
 <h2>Dependencies:</h2>
 Most likely you will only need to specify the PHP versions dependencies. However, if your extension depends on other extensions/packages or other libraries, here is the place for your to specify.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/05/Dependence.png" target='_blank'><img src="{% img  ({{ site.url }}/assets/Dependence-300x74.png %}" alt="" title="Dependence" width="300" height="74" class="aligncenter size-medium wp-image-2279" /></a>
+{% img  /assets/Dependence-300x74.png %}
 
 <h2>Contents</h2>
 Here is the place you tell Extension packager where the extension files are. Below I specified the relative paths to the target field. 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/05/Screenshot-2.png" target='_blank'><img src="{% img  ({{ site.url }}/assets/Screenshot-2-300x36.png %}" alt="" title="Screenshot-2" width="300" height="36" class="aligncenter size-medium wp-image-2280" /></a>
+{% img  /assets/Screenshot-2-300x36.png %}
 
 The path field, is where you will enter the path to the directory of files relative to the Target. The relative folders to the targets are
 

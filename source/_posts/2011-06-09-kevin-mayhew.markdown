@@ -37,6 +37,6 @@ Kevin Mayhew Ltd. required their Magento site to be upgraded from Enterprise 1.7
 
 Kevin Mayhew is a Christian religious product and music retailer, Christian church resource supplier and Christian book publisher.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/kevinmayhew1.png"><img align="left" src="{% img  ({{ site.url }}/assets/kevinmayhew1-300x216.png %}" alt="Screen shot of Kevin Mayhew&#039;s main web site" title="Kevin Mayhew Main Site" width="300" height="216" class="alignleft size-medium wp-image-2340" /></a><a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/kevinmayhew2.png"><img align="left" src="{% img  ({{ site.url }}/assets/kevinmayhew2-300x216.png %}" alt="Screen shot of Keivn Mayhew&#039;s digital site" title="Kevin Mayhew Digital Site" width="300" height="216" class="alignleft size-medium wp-image-2341" /></a>
+{% img  /assets/kevinmayhew1-300x216.png %}
 
 This project went really well with the pushing to live been successful. With the site now running the latest version of Magento the company can look forward toward to expanding the functionality of the site as well as resolving issues the old site was having.

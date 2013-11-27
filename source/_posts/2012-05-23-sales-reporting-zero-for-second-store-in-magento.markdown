@@ -22,5 +22,5 @@ tags:
 - conversion
 - orders
 ---
-<a href="{% img  ({{ site.url }}/assets/base_rate.png %}"><img src="{% img  ({{ site.url }}/assets/base_rate.png %}" alt="" title="base_rate" width="415" height="197" class="aligncenter size-full wp-image-3105" /></a>
+{% img  /assets/base_rate.png %}
 If you are running multi site Magento with different currencies and are finding that the sales reports on the stores that don't use the Magento default currency all show zero this probably means the currency conversion rates have not been configured. Due to the way Magento orders work existing orders will not have there conversion rate updated. There is no way to do this from the admin, the only real option is to update the orders directly in the database.

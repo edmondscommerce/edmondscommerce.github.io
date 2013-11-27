@@ -64,6 +64,6 @@ Here is a quote from Mark at Cinder Block:
 
 Here is a screen shot of one of the product pages including the MP3 previews and also a related products carousel which we threw into the project for free.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/03/screenshot-thumb.png"><img src="{% img  ({{ site.url }}/assets/screenshot-thumb-150x150.png %}" alt="" title="Cinder Block Flogging Molly Download Page" width="150" height="150" class="aligncenter size-thumbnail wp-image-3213" /></a>
+{% img  /assets/screenshot-thumb-150x150.png %}
 
 You can see the live page <a href="http://floggingmolly.cinderblock.com/flogging-molly-swagger-album-download.html">here</a>.

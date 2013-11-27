@@ -34,6 +34,6 @@ Abordage required a Magento Upgrade from 1.3 to the latest version. This was to 
 
 Abordage specialises in the production of quality <a href="http://www.abordage.com/">scale wooden ship models</a> and matching display cases.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/abordage.png"><img src="{% img  ({{ site.url }}/assets/abordage-600x432.png %}" alt="Screen shot of Abordage Homepage" title="Abordage Homepage" width="600" height="432" class="alignleft size-medium wp-image-2456" /></a>
+{% img  /assets/abordage-600x432.png %}
 
 Implementing multiple languages can be interesting as it has to integrate well with existing site configuration. The implementation used works well.

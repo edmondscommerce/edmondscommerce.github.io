@@ -38,6 +38,6 @@ Over Board wished to move away from OSCommerce due to limitations encountered wh
 
 Over Board are an eCommerce company specialising in the sales of <a href="http://www.over-board.co.uk/">water proof device cases and bags</a>.
 
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/06/overboards.png"><img src="{% img  ({{ site.url }}/assets/overboards-300x224.png %}" alt="Screen Shot of Over Board Home Page" title="Over Board Home Page" width="300" height="224" class="alignleft size-medium wp-image-2398" /></a>
+{% img  /assets/overboards-300x224.png %}
 
 This project was terrific as it demonstrates the ability to move away from a relativity old system to a new system and at the same time enabling a lot more functionality and flexibility.

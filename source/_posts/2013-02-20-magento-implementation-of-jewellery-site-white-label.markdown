@@ -30,4 +30,4 @@ As part of our white label service we provided the development and design implem
 
 The site required some customised functionality along with a full bespoke design implementation.
 
-<img src="{% img  ({{ site.url }}/assets/screenshot-thumb1.png %}" alt="" title="screenshot-thumb" width="450" height="280" class="alignleft size-full wp-image-3976" />
+{% img  /assets/screenshot-thumb1.png %}

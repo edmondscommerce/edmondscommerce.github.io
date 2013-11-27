@@ -23,7 +23,7 @@ Magento's product images come with a workable, although somewhat unusual image z
 
 But instead of manually installing and configuring the Javascript yourself, <a href="http://www.magictoolbox.com/magiczoom/modules/magento/" target="_blank">MagicZoom has its own Magento MagicZoom extension</a> which can be dropped straight in and integrates beautifully with Magento
 
-<a href="http://www.edmondscommerce.co.uk/javascript/boost-your-magento-stores-image-display-with-magiczoom/attachment/magiczoommagento-2/" rel="attachment wp-att-3483"><img class="alignnone size-full wp-image-3483" title="MagicZoomMagento" src="{% img  ({{ site.url }}/assets/MagicZoomMagento1.png %}" alt="" width="437" height="250" /></a>
+{% img  /assets/MagicZoomMagento1.png %}
 <h2>Some highlights MagicZoom's Magento extension</h2>
 <ul>
 	<li>Automatically inserts the product title onto the zoomed box</li>
@@ -32,6 +32,6 @@ But instead of manually installing and configuring the Javascript yourself, <a h
 	<li>Per-theme customisation</li>
 	<li>An insane amount of user-configurable options without touching a line of code (see below)</li>
 </ul>
-<a href="http://www.edmondscommerce.co.uk/javascript/boost-your-magento-stores-image-display-with-magiczoom/attachment/magentomagiczoomconfig/" rel="attachment wp-att-3484"><img class="alignnone size-full wp-image-3484" title="MagentoMagicZoomConfig" src="{% img  ({{ site.url }}/assets/MagentoMagicZoomConfig.png %}" alt="" width="308" height="400" /></a>
+{% img  /assets/MagentoMagicZoomConfig.png %}
 <h2>Installation</h2>
 MagicZoom's extension comes with its own installer, although for me it was perfectly sufficient to simply drop in the files

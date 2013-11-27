@@ -19,7 +19,7 @@ tags:
 - wireframing
 - prototyping
 ---
-<img src="{% img  ({{ site.url }}/assets/ProtoIO.png %}" alt="Mobile Prototyping" width="667" height="713" class="size-full wp-image-4440" />
+{% img  /assets/ProtoIO.png %}
 
 As a designer who is keen on usability and user centric, well tested web systems I was in a desperate need of silly fast and useful mobile prototyping system. Up until recently I’ve used paper prototyping and later uploading images on various smart phones (always struggling with inaccurate representation of actual interface size, look and feel of the interactions). 
 

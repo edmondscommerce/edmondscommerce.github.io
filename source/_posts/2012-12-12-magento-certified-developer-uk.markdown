@@ -26,7 +26,7 @@ tags:
 - qualified
 - expert
 ---
-<img src="{% img  ({{ site.url }}/assets/Magento-Certified-Developer.png %}" alt="Magento Certified Developer Logo" title="Magento-Certified-Developer" width="92" height="150" class="alignleft size-full wp-image-3790" style="margin: 10px;" align="left"/> I'm really happy to announce that two of our team have now taken and passed the Magento Certified Developer exam. This means that they are now officially "Magento Certified Developers".
+{% img  /assets/Magento-Certified-Developer.png %} I'm really happy to announce that two of our team have now taken and passed the Magento Certified Developer exam. This means that they are now officially "Magento Certified Developers".
 
 What that means for you is that you can be assured that we have the in house skills and experience to work the right way with Magento and really help you get the most out of the platform.
 

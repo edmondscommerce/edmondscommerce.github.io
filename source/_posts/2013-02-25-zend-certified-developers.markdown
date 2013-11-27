@@ -31,7 +31,7 @@ Edmonds Commerce employs a team of specialist PHP web developers who are all Zen
 
 All of the e-commerce platforms, such as Magento and OpenCart are written in PHP and so the first thing to be sure of when you have a developer working on your projects is that they are very skilled in PHP itself as well as having an expert knowledge of the platform.
 
-<img src="{% img  ({{ site.url }}/assets/screenshot-thumb3.png %}" alt="ZCE screenshot" width="450" height="280" class="alignleft size-full wp-image-4004" />
+{% img  /assets/screenshot-thumb3.png %}
 
 You can read all about the <a href="http://www.zend.com/services/certification/php-5-certification/" title="ZCE information" target="_blank">ZCE exam here</a>.
 

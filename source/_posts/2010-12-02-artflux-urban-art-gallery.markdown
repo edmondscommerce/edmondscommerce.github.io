@@ -30,4 +30,4 @@ We have also enjoyed, as with many of our clients, a close and mutual relationsh
 You can see the site <a href="http://www.artflux.com">www.artflux.com</a>.
 
 Here is a snapshot of the homepage!
-<a href="http://www.artflux.com"><img src="{% img  ({{ site.url }}/assets/artflux-167x300.png %}" alt="" title="artflux" width="167" height="300" class="aligncenter size-medium wp-image-1955" /></a> 
+{% img  /assets/artflux-167x300.png %} 

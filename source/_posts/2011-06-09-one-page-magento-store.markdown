@@ -37,6 +37,6 @@ The aim of this project was to condense a Magento store into a single page, offe
 Run by Roseanna Leaton, one of the leading practitioners of self-improvement. A keen 9-handicap golfer, Roseanna combined her knowledge of the game and the mind mechanism to create the acclaimed Golfer Within recordings which enable any player to <a href=”http://www.golferwithin.com/”>lower their handicap</a>
 
 
-<h3><a href="{% img  ({{ site.url }}/assets/golferwithin.jpg %}"><img src="{% img  ({{ site.url }}/assets/golferwithin.jpg %}" alt="The Golfer Within PAge" title="golferwithin" width="600" height="402" class="alignleft size-full wp-image-2386" /></a></h3>
+{% img  /assets/golferwithin.jpg %}
 
 This project asked for a one click option method linking Magento to PayPal and then back again, without having to use the normal checkout pages. This required creating custom magento controllers so the method wouldn't interfere with the other stores running off the same back end.

@@ -39,6 +39,6 @@ Discs Like New  offer a professional, effective and affordable <a href=”http:/
 
 
 <h3>
-<a href="{% img  ({{ site.url }}/assets/code_snippet.jpg %}"><img src="{% img  ({{ site.url }}/assets/code_snippet.jpg %}" alt="A Picture of some Code" title="code_snippet" width="600" height="451" class="alignleft size-full wp-image-2377" /></a></h3>
+{% img  /assets/code_snippet.jpg %}
 The project is interesting as it wants to be run from both a web browser, so it can be set up and product files can be uploaded; and from the command line so it can quietly run in the background. This means that it will have to detect this state and modify what it outputs accordingly.
 

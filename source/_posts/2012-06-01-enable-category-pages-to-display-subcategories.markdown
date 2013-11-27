@@ -23,6 +23,6 @@ tags:
 - image
 - script
 ---
-Thinking of being able to set different Magento Categories to display its sub-categories which can be controllable in the Magento admin i.e. <p><strong>from</strong> &nbsp; &nbsp;<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2012/06/Screenshot-New-Category-Manage-Categories-Categories-Catalog-Magento-Admin-Chromium.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-New-Category-Manage-Categories-Categories-Catalog-Magento-Admin-Chromium-150x150.png %}" alt="" title="before" width="150" height="150" class="aligncenter size-thumbnail wp-image-3130" /></a> <strong> &nbsp; &nbsp;to this; &nbsp; &nbsp;</strong> <a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2012/06/Screenshot-1.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-1-150x150.png %}" alt="" title="Screenshot-1" width="150" height="150" class="aligncenter size-thumbnail wp-image-3129" /></a>
+Thinking of being able to set different Magento Categories to display its sub-categories which can be controllable in the Magento admin i.e. {% img  /assets/Screenshot-New-Category-Manage-Categories-Categories-Catalog-Magento-Admin-Chromium-150x150.png %}
 </p>
 You might be interested in using or viewing the zipped file here;<a href='http://www.edmondscommerce.co.uk/wp-content/uploads/2012/06/subcat.zip'>subcat</a>

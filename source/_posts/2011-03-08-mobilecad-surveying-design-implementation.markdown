@@ -30,8 +30,8 @@ We did some work on SEO, Implementing Hello Theme design and migrating clean up 
 <h3>Here are some screen shots of the final Magento theme.</h3>
 
 <b>Homepage:</b><br/>
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/03/Homepage.png"><img src="{% img  ({{ site.url }}/assets/Homepage-265x300.png %}" alt="" title="Homepage" width="265" height="300" class="aligncenter size-medium wp-image-2184" /></a>
+{% img  /assets/Homepage-265x300.png %}
 
 
 <br/><b>Category Page:</b>
-<a href="http://www.edmondscommerce.co.uk/wp-content/uploads/2011/03/Screenshot.png"><img src="{% img  ({{ site.url }}/assets/Screenshot-252x300.png %}" alt="" title="Screenshot" width="252" height="300" class="aligncenter size-medium wp-image-2185" /></a>
+{% img  /assets/Screenshot-252x300.png %}

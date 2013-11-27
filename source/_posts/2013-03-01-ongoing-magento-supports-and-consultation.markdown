@@ -54,4 +54,4 @@ Here is a quote from Mark Noble, IT Manager at Buckley Jewellery:
 
 <em>“Buckley Jewellery originally approached <a href="http://www.edmondscommerce.co.uk">Edmonds Commerce</a> to take our existing site and develop it onto a <a href="http://www.edmondscommerce.co.uk/platforms/magento/">Magento platform</a>. Since this first project we have used Joseph and his team for a further website and additional work to develop & expand our ecommerce business. The offer of installing the Magento patch across our websites was typical of a company who provide an honest and refreshing approach to website design. I would not hesitate to recommend Edmonds Commerce for any ecommerce development and advice”. </em>
 
-<a href="{% img  ({{ site.url }}/assets/screenshot-thumb1.png %}"><img src="{% img  ({{ site.url }}/assets/screenshot-thumb1.png %}" alt="screenshot-thumb" width="450" height="280" class="alignnone size-full wp-image-4038" /></a>
+{% img  /assets/screenshot-thumb1.png %}
