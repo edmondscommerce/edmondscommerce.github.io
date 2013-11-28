@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: amtu | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/amtu/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[CentOS + Sun Java + Amazon AMTU 2]]></title>
+    <link href="http://edmondscommerce.github.io/amazon/centos-sun-java-amazon-amtu-2.html"/>
+    <updated>2012-08-14T17:33:31+01:00</updated>
+    <id>http://edmondscommerce.github.io/amazon/centos-sun-java-amazon-amtu-2</id>
+    <content type="html"><![CDATA[<p>In a follow up to our popular blog post describing the process of getting AMTU 1 set up on a Centos server, this post describes how to get the latest version 2 of AMTU running.</p>
+
+<p>Things have moved on and thankfully it is a lot easier than it was.</p>
+
+<p>Firstly get Sun Java installed. You will need to get the URL for downloading the RPM from here:
+<a href="http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html">http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html</a></p>
+
+<p>Accept the agreement, download the correct RPM version and then pause it. Copy the download URL and paste it into this command:
+```bash</p>
+
+<p>cd /tmp
+wget [paste-url]-here]
+rpm &ndash; jre [hit tab to complete]</p>
+
+<p>```</p>
+
+<p>Now check the correct java version is being used:</p>
+
+<p>```bash</p>
+
+<p>java -version</p>
+
+<p>```</p>
+
+<p>You should get something looking like:</p>
+
+<p>```</p>
+
+<p>[root@94 tmp]# java -version
+java version &quot;1.7.0_05&quot;
+Java&trade; SE Runtime Environment (build 1.7.0_05-b06)
+Java HotSpot&trade; 64-Bit Server VM (build 23.1-b03, mixed mode)</p>
+
+<p>```</p>
+
+<p>Now you can install AMTU</p>
+
+<p>```bash</p>
+
+<p>wget <a href="https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh">https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh</a>
+chmod +x AMTU_unix.sh
+./AMTU_unix.sh</p>
+
+<p>```</p>
+
+<p>Keep hitting enter to get to the bottom of the terms and then agree, agree to all the other options. That is AMTU installed.</p>
+
+<p>The final step is to configure this using the CLI configure utitlity.</p>
+
+<p>You need to create an xml file for the AMTU configuration. You can see a sample file in /opt/amtu/xml/sample.xml.</p>
+
+<p>Lets copy that file and then edit it accordingly.</p>
+
+<p>```bash</p>
+
+<p>cd /opt/amtu/xml
+cp sample.xml configuration.xml
+vim configuration.xml</p>
+
+<p>```</p>
+
+<p>You do need to be signed up for MWS to get some of the keys etc that are required. If not already, go to this page and hit the sign up button.
+<a href="https://developer.amazonservices.co.uk/index.html">https://developer.amazonservices.co.uk/index.html</a></p>
+
+<p>Once you have updated the XML configuration you run this command to apply it:
+```bash</p>
+
+<p>/opt/amtu/Utilities/configure SETUP /opt/amtu/xml/configuration.xml</p>
+
+<p>```</p>
+
+<p>If you get some error messages at this point, edit the configuration and try again. Once you have the configuration set you can start the daemon.</p>
+
+<p>```bash</p>
+
+<p>/opt/AMTU/Utilities/amtu_daemon start</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[AMTU Not Recognizing Files + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/linux/amtu-not-recognizing-files-solution.html"/>
+    <updated>2011-08-03T18:30:17+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/amtu-not-recognizing-files-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>I&rsquo;ve recently had to upgrade a shop that lists products on amazon. They wanted to automatically add new products and keep their inventory up to date, so I set up a feed generating system and installed AMTU to send the data through to amazon.</p>
+
+<p>After putting together a test run I saw that the Inventory Uploader was being sent to to the failed folder. The only clue about this was in the audit logs where it said
+<code>
+2011-08-03 16:02:20,062 INFO  Could not recognize file amazon_amtu_price_quantity.txt &ndash; ignoring.
+</code></p>
+
+<p>After a lot of looking around, it appears that AMTU require the top line on the feeds that starts TemplateType=&hellip; If this is missing the system flags the file as unknown, and refuses to send it. To make things worse, trying to get round this by using a different template type causes amazon to reject the file on their end.</p>
+
+<p>To fix this I started to look online to find a solution. Everything that I could find referenced the 1.0.9 AMTU version that I was using, and it was only by accident that I discovered that Amazon had quietly released an update to the program earlier this year. This new, AMTU 2.0, accepts all of the new file types, offers more intergration with the fulfilment by amazon service and is simple to install.</p>
+
+<p>So others don&rsquo;t have to spend as much time as I did, this is what you need to do to install it.</p>
+
+<p>Stop and uninstall your previous version of AMTU. To do this you need to ensure that the JAVA_HOME variable is set in bash. To check this type
+<code>
+echo $JAVA_HOME
+</code>
+If something is displayed, then the variable is set, if not then you will need to set it. Find where your java home directory is, mine was in /usr/java/latest/, if yours is not there type the following
+<code>
+find / -name java 2>/dev/null
+</code>
+This will give you a list of directories, you&rsquo;re looking for one that a /bin folder inside it.</p>
+
+<p>Now that you have the directory, you need to set the variable. The best way is to edit /root/.bash_profile and add in the following line
+<code>
+export JAVA_HOME=&ldquo;/path/to/dir/&rdquo;
+</code>
+However this require you to log out, or restart the server. If this isn&rsquo;t possible, type the same line on the command line and it will set the variable for the rest of the session.</p>
+
+<p>Once everything is set up, go to your AMTU folder, /opt/amtu/ in my case, and run the uninstall.sh script. This will remove amtu, but leave the files you&rsquo;ve already generated.</p>
+
+<p>Next download the appropriate version from this <a href="https://sellercentral.amazon.co.uk/gp/help/help-page.html/ref=ag_16481_cont_32911?isLink=1&itemID=16481">page</a>, or if setting up on a server use the following code
+<code>wget <a href="https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh">https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh</a></code></p>
+
+<p>make sure the file is executable and then run it. Fill in the information that is asked for and you&rsquo;re good to go. When you set it up, you&rsquo;ll be asked for your MWS details. If you are running the installation on a desktop, then it will provide you with a link that you can click and register. Once you have set everything up, you can export your settings, by running the following command
+<code>
+/path/to/amtu/Utilities/configure EXPORT /tmp/config.xml
+</code>
+you can then move the config file onto the server and run import the file, using SETUP instead of EXPORT.</p>
+
+<p>Once all of this is done, your system is ready to go. I hope this will save someone some time</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Setting Up Amazon's AMTU on a Linux Server]]></title>
+    <link href="http://edmondscommerce.github.io/ecommerce/setting-up-amazons-amtu-on-a-linux-server.html"/>
+    <updated>2009-03-23T16:52:54+00:00</updated>
+    <id>http://edmondscommerce.github.io/ecommerce/setting-up-amazons-amtu-on-a-linux-server</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Amazon helpfully supply a java package called AMTU which does the grunt work of the XML integration for Amazon marketplace. With AMTU you can easily update products, stock levels, prices and also grab order info etc.</p>
+
+<p>Being based on Java, AMTU can run on pretty much any operating system. It uses a &ldquo;hot folder&rdquo; system so integration with client systems is as simple as dropping files into certain folders.</p>
+
+<p>There are some good instructions for setting up AMTU on windows. That&rsquo;s great if you want to run it on your desktop (or a windows server if you are that way inclinded&hellip;. :&ndash;) ). However if you are one of my clients you are running a Linux server and need it setting up on there.</p>
+
+<p>Unfortunately the documentation for AMTU on Linux is pretty lightweight. This blog post aims to help out anyone struggling with getting AMTU working on their server.</p>
+
+<p>Before you start. Open up the README file (just download the package to your local machine). Have a quick read through and then understand that the README is simply wrong. It is a guide at best, but not strict instructions. They definitely haven&rsquo;t made it easy for us.</p>
+
+<p>Speaking to Amazon about this, it is apparent that AMTU was developed by someone who is no longer around to support it. They have released it as open source software and basically left us to it. They are not willing to support it themselves.</p>
+
+<p>Here&rsquo;s my instructions:</p>
+
+<p><strong>1. Log into SSH as root on your server.</strong>
+Using your favourite SSH client. If you use linux you can just use the terminal, definitely my favourite way of handling SSH.</p>
+
+<p><strong>2. Navigate to the root folder that you want to install AMTU to.</strong>
+<code>
+cd /opt
+</code></p>
+
+<p><strong>3. Download the AMTU Files</strong>
+```</p>
+
+<p>mkdir amtu</p>
+
+<p>cd amtu</p>
+
+<p>wget <a href="http://freefr.dl.sourceforge.net/sourceforge/amtu/amtu-linux-1.0.9.tar.gz">http://freefr.dl.sourceforge.net/sourceforge/amtu/amtu-linux-1.0.9.tar.gz</a></p>
+
+<p>```</p>
+
+<p><strong>4. Unpack the Archive</strong>
+```</p>
+
+<p>tar -xvf amtu-linux-1.0.9.tar.gz</p>
+
+<p>```</p>
+
+<p><strong>5. Edit the config files</strong></p>
+
+<pre><code>&lt;strong&gt;5.1&lt;/strong&gt; Find your JAVA_HOME
+
+This may change depending on what version of Linux you are using. If you are not sure then use the following command to find out:
+
+```
+</code></pre>
+
+<p>cat /etc/issue
+```</p>
+
+<pre><code>The following command will show you which Java version you are running. If you are it doesn't work then it looks like you don't have Java installed. Please see &lt;a href="#aa"&gt;&lt;b&gt;Apendix A&lt;/b&gt;&lt;/a&gt; for Java install instructions.
+
+```
+</code></pre>
+
+<p> java -version
+```</p>
+
+<pre><code>You need to find out the exact path for java. You can use this command:
+
+```
+</code></pre>
+
+<p>find / -name java
+```</p>
+
+<pre><code>This will display a few lines. There is usually only one Java folder though with the others being symlinks (shortcuts kind of ) to the Java folder.
+
+&lt;strong&gt;5.2 Edit the Install.sh File&lt;/strong&gt;
+
+First get into the AMTU folder:
+
+```
+</code></pre>
+
+<p> cd /opt/amtu/
+```</p>
+
+<pre><code>Now make sure you have your path to the JRE noted down somewhere and open up the install.sh for editing. For me the path is /usr/bin/java
+
+```
+</code></pre>
+
+<p> vi install.sh
+```</p>
+
+<pre><code>(vi is a text editor for linux. If you are not familiar with it simply search for "vi common commands or something like that).
+
+Now go to the top of the file and add a new line. Replace /usr/bin/java with your own path to Java.
+
+```
+
+export JAVA_HOME=/usr/bin/java
+</code></pre>
+
+<p>```</p>
+
+<p><strong>6. Run the Install Script</strong></p>
+
+<p>First we need to make the install script executable.
+<code>
+ chmod a+x install.sh
+</code></p>
+
+<p>Now run the install script.
+<code>
+./install.sh
+</code></p>
+
+<p><strong>7. Configure AMTU</strong></p>
+
+<p>This is where it gets interesting. AMTU is installed, but you haven&rsquo;t given it any kind of information regarding your Amazon account so how will it be able to connect to your specific account??</p>
+
+<p>You need to use the configure.sh script to do this. For me this wouldn&rsquo;t work until I edited it and ran it manually. There is a configure.sh in the root amtu folder, however all this seems to do is run the configure script in the service folder.</p>
+
+<p>Lets go straight to the service folder and get that one working.</p>
+
+<p>```</p>
+
+<p>cd /opt/amtu/service/bin</p>
+
+<p>vi configure.sh</p>
+
+<p>```</p>
+
+<p>In this file they are mixing up the JAVA_HOME variable and appending /bin/java to it. I&rsquo;m not really sure why they would do this.</p>
+
+<p>First of all try running the script</p>
+
+<p>```</p>
+
+<p>./configure.sh</p>
+
+<p>```</p>
+
+<p>If you get an error like:</p>
+
+<p>./configure.sh: line 3: /bin/java: No such file or directory</p>
+
+<p>Then you will need to edit the file. For me to get it to work I had to remove the following:</p>
+
+<blockquote>$JAVA_HOME/bin/java</blockquote>
+
+
+<p>and simply replace it with my path to Java which is:</p>
+
+<blockquote>/usr/bin/java</blockquote>
+
+
+<p>Then run the script again and it will ask you a bunch of questions. For most questions the default answers seem fine to me. You will need to know your SMTP details. You will want to log into your seller central account as well so that you can copy relevant details from there.</p>
+
+<p>If it is all successful you should get a message similar to the following:</p>
+
+<blockquote>Please standby while your account details are verified...
+Ping was successful
+Updating configuration... done!
+
+To alter this configuration, please use the Configuration Utility in the directory you installed this application.
+
+Exiting Application</blockquote>
+
+
+<p><strong>8. Starting the AMTU and Monitor services</strong>
+To start the amt and amt_monitor services you need to manually start them. You can also check the status of these processes.</p>
+
+<p>First get into the bin folder
+```</p>
+
+<p>cd /opt/amtu/service/bin</p>
+
+<p>```</p>
+
+<p>check status
+```</p>
+
+<p>./amt status</p>
+
+<p>./amt_monitor status</p>
+
+<p>```</p>
+
+<p>If they are not started simply run the start commands
+```</p>
+
+<p>./amt start</p>
+
+<p>./amt_monitor start</p>
+
+<p>```</p>
+
+<p>Running these two commands should have created some folders in your DocumentTransport folder. To check this out simply go to the folder and check
+```</p>
+
+<p>cd /opt/amtu/DocumentTransport</p>
+
+<p>ls</p>
+
+<p>```</p>
+
+<p>You should see a folder called logs and a folder called production. The production folder contains our Hot Folder for sending files up to Amazon.</p>
+
+<p><strong>7. Set up symlinks</strong>
+Once everything is working nicely, you will probably want to create symlinks from folders accessible by PHP.</p>
+
+<p>Navigate to the place that PHP can access and which you would like to place a symlink to the production/outgoing folder. Then use the following command &ndash; replace the details as necessary</p>
+
+<p>```</p>
+
+<p>cd /home/path/to/php/accessible</p>
+
+<p>ln -s /opt/amtu/DocumentTransport/production/outgoing my_amtu_symlink_folder_name</p>
+
+<p>```</p>
+
+<p><strong>8. Test it Out</strong>
+All you need to do to test it out is to drop a file into the /opt/amtu/DocumentTransport/production/outgoing folder (or the symlink to this folder that you have just created). Then wait 5 minutes (cup of tea time) and come back. Now browse through the production folders. If the file is in the /sent folder then your upload has worked OK. If it is in the /failed folder then something has gone wrong.</p>
+
+<p>If like me it didn&rsquo;t work (surprise surprise) then you need to examine the log files to find out what the problem is. The best log to look in to start with is the audit_log.</p>
+
+<p>```</p>
+
+<p>cd /opt/amtu/DocumentTransport/logs
+vi amtu_audit.log</p>
+
+<p>```</p>
+
+<p>To go to the bottom of the file use the vi shortcut ```shift
++[g]</p>
+
+<p>As for figuring out exactly why AMTU doesn&rsquo;t like your feed file, I leave that bit to you.</p>
+
+<hr>
+
+
+<p><a name="aa"></a>
+<strong>Appendix</strong></p>
+
+<p><strong>A. Install Java</strong></p>
+
+<p>These are instructions for a CentOS Linux install. Your Linux might be a different flavour. Simply search around for instructions for your specific setup.</p>
+
+<p><strong>A.1 Download JRE</strong></p>
+
+<pre><code>Go &lt;a href="http://java.sun.com/javase/downloads/index.jsp"&gt;to the Java downloads page&lt;/a&gt;
+Find the link to the Linux Java JRE bin. (For CentOS you need the rpm version). Copy the link to your clipboard
+
+[code]
+cd opt
+wget {link from clipboard for JRE download}
+</code></pre>
+
+<p>```</p>
+
+<pre><code>This will download the file. However as it is accessed via a script, it will give it a crazy long filename. Lets just rename that first. To rename a file with special characters simply wrap the filename in "" otherwise it won't work.
+
+```
+
+ls
+</code></pre>
+
+<p>```</p>
+
+<pre><code>now copy the filename to your clipboard
+
+now paste it into this command 
+
+```
+</code></pre>
+
+<p> mv &ldquo;filename from clipboard&rdquo; jre-rpm.bin
+```</p>
+
+<pre><code>Now we need to set the file as executable
+
+```
+</code></pre>
+
+<p> chmod a+x jre-rpm.bin</p>
+
+<p>```</p>
+
+<pre><code>Now we install it 
+
+```
+
+./jre-rpm.bin
+</code></pre>
+
+<p>```</p>
+
+<pre><code>This will then flash up a bunch of terms and conditions. Just hold down [return] until you get to the bottom, then type "yes".
+
+To check its all installed use the command 
+```
+</code></pre>
+
+<p> java -version
+```</p>
+
+<pre><code>You should get something similar to the following:
+
+java version "1.6.0_12"
+Java(TM) SE Runtime Environment (build 1.6.0_12-b04)
+Java HotSpot(TM) Server VM (build 11.2-b01, mixed mode)
+</code></pre>
+
+<p><b>References</b>
+<a href="http://blog.sixsigns.com/2008/02/12/installing-the-latest-jre-6-on-centos-5/" rel="nofollow">installing the latest jre on centos 5</a>
+<a href="http://amtu.sourceforge.net/" rel="nofollow">AMTU Homepage</a>
+<a href="http://sourceforge.net/forum/forum.php?forum_id=405856" rel="nofollow">AMTU Forum &ndash; not much of use in there unfortunately</a></p>
+
+<h4>More...</h4>
+
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://www.scottfillmer.com/2009/03/05/amazon-marketplace-sellers-no-more/" rel="nofollow"&gt;&lt;b&gt;Amazon Marketplace&lt;/b&gt; Sellers No More | Scott Fillmer :: Serving &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.articlegenesis.com/blog/2009/03/23/how-does-amazons-shipping-policy-work-for-marketplace-books/" rel="nofollow"&gt;ArticleGenesis - A PLR Articles Library » Blog Archive » How does &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://novirusthanks.org/blog/?p=531" rel="nofollow"&gt;Trojan.Win32.Dialer spread through IE7 0-Day Exploit&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.kevinblake.co.uk/getting-document-reports-from-amazon-seller-central-soap-services-c/457/" rel="nofollow"&gt;Getting document reports from Amazon &lt;b&gt;Seller Central&lt;/b&gt; SOAP services &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.smallbusinessgrowthblog.com/your-own-business/how-do-i-find-something-to-sell/" rel="nofollow"&gt;How do I Find Something to Sell?&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.kevinblake.co.uk/travel-map-countries-visited/460/" rel="nofollow"&gt;Travel map - countries visited » Kevin Blake&amp;#39;s Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://motivated-sellers.net/blog/?p=1" rel="nofollow"&gt;What are motivated sellers?&lt;/a&gt;&lt;br&gt;&lt;a href="http://grqscamsrevealed.com/blog/?p=55" rel="nofollow"&gt;How do I Find Something to Sell?&lt;/a&gt;&lt;br&gt;&lt;a href="http://coenraets.org/blog/2009/03/springblazeds-integration-test-drive-m2-update-available/" rel="nofollow"&gt;Christophe Coenraets » Blog Archive » Spring/BlazeDS &lt;b&gt;Integration&lt;/b&gt; &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: attribute sets | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/attribute-sets/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Update Magento category attribute sort order from the database]]></title>
+    <link href="http://edmondscommerce.github.io/magento/update-magento-category-attribute-sort-order-from-the-database.html"/>
+    <updated>2012-04-18T17:48:13+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/update-magento-category-attribute-sort-order-from-the-database</id>
+    <content type="html"><![CDATA[<p>If you have written your own modules, and need to rearrange the order that your attributes or displayed in, or change anything else, you can use the following SQL statements to fix their order.</p>
+
+<p>First you need to get the attribute group that the attributes are under. This can be done by running the following
+```mysql</p>
+
+<p>SELECT attribute_group_id,  attribute_group_name FROM eav_attribute_group</p>
+
+<p>```</p>
+
+<p>This will give all of the different tabs for categories as well as the products. Find the group ID that you need and then run the following command to see all of the attributes associated with it
+```mysql</p>
+
+<p>SELECT eea.*, ea.attribute_code FROM eav_entity_attribute AS eea JOIN eav_attribute AS ea ON eea.attribute_id = ea.attribute_id WHERE eea.attribute_group_id = 4</p>
+
+<p>```</p>
+
+<p>Here we are using the group_id of 4 which gives the following result
+<img src="/assets/screenshot2-600x234.png"></p>
+
+<p>The sort_order is the attribute that you need to change to move the attributes around the page. If the sort order is sequential then a simple trick to add some padding is to run the following command
+```mysql</p>
+
+<p>UPDATE eav_entity_attribute SET sort_order = (sort_order*10) WHERE attribute_group_id = 4;</p>
+
+<p>```</p>
+
+<p>Which will multiple each sort order by 10 allowing you to move the attributes around easier.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Attributes and Attribute Sets - An Explanation]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-attributes-and-attribute-sets-an-explanation.html"/>
+    <updated>2009-07-25T10:37:58+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-attributes-and-attribute-sets-an-explanation</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>One of the really cool and powerful features of Magento compared to other more traditional ecommerce platforms is the way that product information is handled. On a traditional system you will likely have one or a small number of tables to store product information. For each element of product information there is a column on these tables. This might be things like price, weight, model code etc etc.</p>
+
+<p>But lets imagine that you sell T shirts. So you decide that you want to add a new column to your system to store the following bits of info:</p>
+
+<p>size
+material
+male/female</p>
+
+<p>Ok no problem, you add these columns to your table, modify your administration system and front end to display this extra info. Easy enough. You also decide to modify your search page so that people can search by T shirt size, material or mens/womens so your search is much easier to use.</p>
+
+<p>However, lets say you find a new supplier for footwear. You want to add all these new products to your system but you also want to be able to store the extra information related to shoes, for example:</p>
+
+<p>UK Size
+European Size
+Upper
+Sole</p>
+
+<p>Of course you can go ahead and add a bunch more columns to your table and store this info. However, now you have the issue that you need to edit your front end to only display the shoe related info for shoes and only the T shirt related info for T shirts. You can probably figure out a way to handle this, but I&rsquo;m sure you can start to see the problem. This approach doesn&rsquo;t scale well. Lets say instead of 2 main product types you have 200 or even 2000.</p>
+
+<p>In the end what ends up happening is that you only store basic specific information about a product and then all the finer details go into the product description. Thats fine, but its not great. Also you have to lose your nice new search functionality.</p>
+
+<p>Magento deals with this in an entirely different way. Instead of having the traditional spreadsheet like database table relationships (1 row for each product), Magento does things differently and stores 1 item of information per row (over simplified but enough to illustrate my point). This means that there is no limit to how many elements of information can be stored for each product.</p>
+
+<p>Magento Groups these attributes (as it calls them) into attribute sets. An attribute set is simply enough a collection of attributes. There is a default attribute set which you would generally make a copy of and then customise for each kind of product you want to have custom attributes for. So continuing our T shirts and shoes example, you would make a new attribute set called T shirts, based on the Default set, and also one for shoes.</p>
+
+<p>The T shirts attribute set will contain all the standard attributes (such as price, title etc) inherited from the default set, but we can also add in our custom attributes. Same goes for the shoes.</p>
+
+<p>Then when we want to add a new product (lets say a T shirt) we select the T shirts attribute set so that we then have fields to enter information for our custom T shirt attributes.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: netbeans | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/netbeans/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Netbeans Xdebug "Waiting for connection" Ubuntu 12.04 Mint13 +SOLUTION]]></title>
+    <link href="http://edmondscommerce.github.io/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution.html"/>
+    <updated>2012-06-21T17:07:20+01:00</updated>
+    <id>http://edmondscommerce.github.io/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution</id>
+    <content type="html"><![CDATA[<p>If you have issues with netbeans and xdebug not connecting on recent distros, you might find that netbeans is listening on tcp6 and xdebug connecting on plain tcp.</p>
+
+<p>To check if this is the case, run the following command whilst netbeans is &ldquo;waiting for connection&rdquo; (change 9000 if you&rsquo;ve set a different port) :&ndash;</p>
+
+<p><code>netstat -aln | grep 9000</code></p>
+
+<p>if you get a line similar to the following (specifically tcp6 and not just tcp), it may well be that xdebug can&rsquo;t connect over ipv6 :&ndash;
+<code>tcp6       0      0 :::9000                 :::*                    LISTEN</code></p>
+
+<p>One solution is to disable ipv6, which can be done by creating the file /etc/sysctl.d/10-disable-ipv6.conf with the following contents :&ndash;
+<code>net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1</code></p>
+
+<p>then run (as root or sudo)
+<code>sysctl -p /etc/sysctl.d/10-disable-ipv6.conf</code>
+and restart netbeans.  Suddenly, netbeans will listen on tcp (ipv4) and xdebug will connect.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Linux Mint 13 (MATE) Fix Ugly Netbeans (or other Java)]]></title>
+    <link href="http://edmondscommerce.github.io/netbeans/linux-mint-13-mate-fix-ugly-netbeans-or-other-java.html"/>
+    <updated>2012-06-12T16:26:12+01:00</updated>
+    <id>http://edmondscommerce.github.io/netbeans/linux-mint-13-mate-fix-ugly-netbeans-or-other-java</id>
+    <content type="html"><![CDATA[<p>If you are using a Java application on your nice new Linux Mint desktop and are wondering why its so damn ugly, this might be your solution.</p>
+
+<p>It looks like there is an issue with Java detecting your standard system style, fonts etc so it reverts to something pretty hideous.</p>
+
+<p>One easy solution to at least get it looking alright (and also fixing a bug with menus and maximisation) is to set your netbeans conf to the following.</p>
+
+<p>Simply go to your netbeans folder and look for an etc folder.</p>
+
+<p>Inside there is a file called netbeans.conf</p>
+
+<p>Back that up (rename to netbeans.conf.backup) and create a new file called netbeans.conf</p>
+
+<p>Then paste this in:</p>
+
+<p>```</p>
+
+<h1>${HOME} will be replaced by JVM user.home system property</h1>
+
+<p>netbeans_default_userdir=&ldquo;${HOME}/.netbeans/7.1.2&rdquo;</p>
+
+<h1>Options used by NetBeans launcher by default, can be overridden by explicit</h1>
+
+<h1>command line switches:</h1>
+
+<p>netbeans_default_options=&ldquo;-J-client -J-Xss2m -J-Xms32m -J-XX:PermSize=32m -J-Dapple.laf.useScreenMenuBar=true -J-Dapple.awt.graphics.UseQuartz=true -J-Dsun.java2d.noddraw=true -J-Dsun.zip.disableMemoryMapping=true&rdquo;</p>
+
+<h1>trying to fix teh UGLY</h1>
+
+<p>netbeans_default_options=&ldquo;${netbeans_default_options} &mdash;laf Nimbus -J-Dswing.aatext=true -J-Dawt.useSystemAAFontSettings=lcd&rdquo;</p>
+
+<h1>Note that default -Xmx and -XX:MaxPermSize are selected for you automatically.</h1>
+
+<h1>You can find these values in var/log/messages.log file in your userdir.</h1>
+
+<h1>The automatically selected value can be overridden by specifying -J-Xmx or</h1>
+
+<h1>-J-XX:MaxPermSize= here or on the command line.</h1>
+
+<h1>If you specify the heap size (-Xmx) explicitly, you may also want to enable</h1>
+
+<h1>Concurrent Mark &amp; Sweep garbage collector. In such case add the following</h1>
+
+<h1>options to the netbeans_default_options:</h1>
+
+<h1>-J-XX:+UseConcMarkSweepGC -J-XX:+CMSClassUnloadingEnabled -J-XX:+CMSPermGenSweepingEnabled</h1>
+
+<h1>(see <a href="http://wiki.netbeans.org/FaqGCPauses">http://wiki.netbeans.org/FaqGCPauses</a>)</h1>
+
+<h1>Default location of JDK, can be overridden by using &mdash;jdkhome <dir>:</h1>
+
+<p>netbeans_jdkhome=&ldquo;/opt/java/64/jre1.7.0_04&rdquo;</p>
+
+<h1>Additional module clusters, using ${path.separator} (&lsquo;;&rsquo; on Windows or &lsquo;:&rsquo; on Unix):</h1>
+
+<h1>netbeans_extraclusters=&ldquo;/absolute/path/to/cluster1:/absolute/path/to/cluster2&rdquo;</h1>
+
+<h1>If you have some problems with detect of proxy settings, you may want to enable</h1>
+
+<h1>detect the proxy settings provided by JDK5 or higher.</h1>
+
+<h1>In such case add -J-Djava.net.useSystemProxies=true to the netbeans_default_options.</h1>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Netbeans Uppercase, Lowercase and Switch Case - useful key combo]]></title>
+    <link href="http://edmondscommerce.github.io/netbeans/netbeans-uppercase-lowercase-and-switch-case-useful-key-combo.html"/>
+    <updated>2012-05-14T11:34:13+01:00</updated>
+    <id>http://edmondscommerce.github.io/netbeans/netbeans-uppercase-lowercase-and-switch-case-useful-key-combo</id>
+    <content type="html"><![CDATA[<p>So, this is documented in the manual, but isn&rsquo;t obvious in any menu :&ndash;</p>
+
+<p>To uppercase a selection, press Control+U then U.
+To lowercase a selection, press Control+U then L.
+and to reverse case in the selection (for when you have typed a whole line of code without checking your caps lock!), press Control+U then S.</p>
+
+<p>Really useful but not well known.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Netbeans to generate PHP class methods]]></title>
+    <link href="http://edmondscommerce.github.io/netbeans/using-netbeans-to-generate-php-class-methods.html"/>
+    <updated>2012-03-08T14:31:19+00:00</updated>
+    <id>http://edmondscommerce.github.io/netbeans/using-netbeans-to-generate-php-class-methods</id>
+    <content type="html"><![CDATA[<p>One of the features that I was previously unaware of in Netbeans is its ability to automatically generate common class methods. This post is a quick guide of how this works for future reference.</p>
+
+<p>To get the system to work, first load up a php class. For this example I&rsquo;m going to be extending the Magento Product Model. This basic class can be seen here, with a couple of extra properties added.
+<img src="/assets/screenshot5-600x166.png"></p>
+
+<p>To start generating the methods you need to press [Alt] &amp; [Insert] and you will be presented with a menu similar to the one below</p>
+
+<p><img src="/assets/screenshot6.png"></p>
+
+<p>This lists all of the common methods that do not currently exist within the class. The first thing that we&rsquo;ll do is to generate a constructor, which gives us the following options</p>
+
+<p><img src="/assets/screenshot7.png"></p>
+
+<p>Here you can select which of the class properties you want to be set using the constructor. Pick the ones you want and click OK, and the following code is generated</p>
+
+<p><img src="/assets/screenshot8-600x368.png"></p>
+
+<p>The Getters and Setters work in the same way, and the Override &amp; Implement provides you with a list of all of the methods that the class can override from its parents. Using these together can help you to quickly all of the methods you need in minutes, as shown below.</p>
+
+<p><img src="/assets/screenshot14-600x547.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Netbeans Disable Transparent Undocked Windows]]></title>
+    <link href="http://edmondscommerce.github.io/netbeans/netbeans-disable-transparent-undocked-windows.html"/>
+    <updated>2012-02-07T17:14:39+00:00</updated>
+    <id>http://edmondscommerce.github.io/netbeans/netbeans-disable-transparent-undocked-windows</id>
+    <content type="html"><![CDATA[<p>If you have a dual monitor setup you might decide to undock some of your Netbeans windows, for example for running XDebug sessions or PHPUnit testing.</p>
+
+<p>However you will find that by default, Netbeans sets the transparency of these windows to unreadable levels when they are not active.</p>
+
+<p>This really defeats the object and is quite irritating.</p>
+
+<p>I spent a long time under the false impression that this was some errant compiz setting and trying to figure it out that way.</p>
+
+<p>Turns out that this is a Netbeans &ldquo;feature&rdquo; and you can disable it with a single untick of a box.</p>
+
+<p>Tools->Options->Miscellaneous->Appearance</p>
+
+<p>untick the &ldquo;Transparent floating windows&rdquo; box</p>
+
+<p>Enjoy lots of usable desk space in Netbeans!</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: mysql dump split | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/mysql-dump-split/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Updated MySQL Dump Splitter and Cleaner]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/php/updated-mysql-dump-splitter-and-cleaner.html"/>
+    <updated>2009-02-10T13:58:27+00:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/php/updated-mysql-dump-splitter-and-cleaner</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>My MySQL dump splitting script has come in handy countless times. Recently I also needed to remove keys from an SQL dump to enable me to import a dump that had keys associated with text columns.</p>
+
+<p>Here is the updated script</p>
+
+<p>*note &ndash; now updated again to strip out any drop table statements if splitting</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+/<em>MySQL Dump Split to Tables
+* script supplied by Edmonds Commerce
+* www.edmondscommerce.co.uk
+* if you like it, please link back with a do-follow
+*
+* Now updated with better regex and also the ability to strip out keys other than the primary
+</em>/
+echo &lsquo;<h1>MySQL Dump Split to Tables + Remove Keys</h1>&rsquo;;
+set_time_limit(600);
+if(!isset($_GET[&lsquo;dump_file&rsquo;])){</p>
+
+<pre><code>echo '&lt;form&gt;&lt;b&gt;Dump File Path:&lt;/b&gt; &lt;input name="dump_file"&gt; &lt;input type="submit" value="go"&gt;&lt;select name="operation"&gt;&lt;option value="split"&gt;split by tables&lt;/option&gt;&lt;option value="keys"&gt;remove keys other than primary&lt;/option&gt;&lt;option value="both"&gt;both&lt;/option&gt;&lt;/select&gt;&lt;/form&gt;';
+</code></pre>
+
+<p>}else{</p>
+
+<pre><code>if(preg_match('%keys|both%', $_GET['operation'])){
+    $contents = file_get_contents($_GET['dump_file']);
+    $pattern = '%,(s+?)KEY(.*?))%si';
+    $nokeys = preg_replace($pattern, '', $contents);        
+    $_GET['dump_file'] = 'nokeys.sql';
+    file_put_contents('nokeys.sql', $nokeys);
+}
+if(preg_match('%split|both%',$_GET['operation'])){
+    echo '&lt;h3&gt;Splitting File&lt;/h3&gt;';
+    flush();
+    $handle = fopen($_GET['dump_file'], "r") or die('failed openeing source file ' . $_GET['dump_file']);
+    if ($handle) {
+        while (!feof($handle)) {
+            $line = fgets($handle); 
+            if(preg_match('%^drop table(.+?);%i', $line)){
+                continue;
+            }                   
+            if(stristr($line, 'CREATE TABLE')){
+                echo '. ';
+                if(isset($out)){
+                    fclose($out);
+                    unset($out);
+                }
+                preg_match('%CREATE TABLE (`|)(w+)(`|)(s+)($%i', $line, $matches);
+                $table_name = $matches[2];
+                $out = fopen('output/'.$table_name . '.sql', 'w') or die('failed to create file ' . $table_name . '.sql');
+                fwrite($out, $line . "n") or die('failed writing to file ' . $table_name . '.sql');
+            }else{
+                if(isset($out)){
+                    fwrite($out, $line . "n");
+                }
+            }       
+        }
+        fclose($out);
+        fclose($handle);
+    }else{
+        echo 'no handle on file - does it exist - permissions...';
+    }
+}
+</code></pre>
+
+<p>}
+echo &lsquo;<h1>Done</h1>&rsquo;
+?></p>
+
+<p>```<h4>More&hellip;</h4><a href="http://www.edmondscommerce.co.uk/blog/mysql/updated-mysql-dump-splitter-and-cleaner/" rel="nofollow">Updated <b>MySQL Dump</b> Splitter and Cleaner | Edmonds Commerce Blog</a><br><a href="http://www.branedy.net/?p=790" rel="nofollow">Branedy » Blog Archive » Wordpress <b>MySQL</b> exercises</a><br><a href="http://blog.drawcode.com/2009/02/10/python-script-to-backup-mysql-databases-wordpress-or-other-databases/" rel="nofollow">Python Script to Backup MySql Databases (Wordpress or other databases)</a><br><a href="http://www.philaahzophy.com/2008/12/24/importing-large-mysql-databases-with-bigdump/" rel="nofollow">Importing Large MySQL Databases With BigDump</a><br><a href="http://garagetechblog.com/2009/03/03/mysql-upgrade-1and1-is-not-the-best-host-in-the-world/" rel="nofollow"><b>MySQL</b> Upgrade: 1and1 is not the best host in the world | TheGarage <b>&hellip;</b></a><br></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: zend form remove error messages | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/zend-form-remove-error-messages/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Zend Form Remove Error Messages]]></title>
+    <link href="http://edmondscommerce.github.io/zend%20framework/zend-form-remove-error-messages.html"/>
+    <updated>2009-04-09T07:59:24+01:00</updated>
+    <id>http://edmondscommerce.github.io/zend%20framework/zend-form-remove-error-messages</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Sometimes you don&rsquo;t want to display the error messages for a form. I have tried to find the proper solution to remove validtion error messages and haven&rsquo;t found what I would regard as the proper solution.</p>
+
+<p>However what does work for me is to loop through any elements that I want to remove the error messages for and remove the error message decorator like this:</p>
+
+<p>```php</p>
+
+<p> foreach($subforms[&lsquo;empty&rsquo;] as $sf){</p>
+
+<pre><code>$elements = $sf-&gt;getElements();
+    foreach($elements as $e){
+        $e-&gt;removeDecorator('Errors');
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>In this context I have filtered out all the subforms where all inputs are empty and will then remove the error messages from those sub forms.</p>
+
+<p>If you are interested, here is the method I use to validate subforms and separate out valid, invalid and totally empty sub forms.</p>
+
+<p>```php</p>
+
+<p>public function validateSubForms($data){</p>
+
+<pre><code>$subforms = $this-&gt;getSubForms();
+foreach($subforms as $sf){
+    if($sf-&gt;isValid($data)){
+        $valid[]=$sf;
+    }else{
+        $error_other_than_empty = false;
+        $elements = $sf-&gt;getElements();
+        foreach($elements as $e){
+            $errors = $e-&gt;getErrors();
+            foreach($errors as $er){
+               // EC_Debug::diedump($er);
+                if($er !='isEmpty'){
+                    $error_other_than_empty = true;
+                    break(2);
+                }
+            }
+        }
+        if($error_other_than_empty){
+            $invalid[]=$sf;
+        }else{
+            $empty[]=$sf;
+        }
+    }
+}
+return array(
+    'valid' =&gt; $valid,
+    'empty'=&gt;$empty,
+    'invalid' =&gt; $invalid
+);
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<h4>More...</h4>
+
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://zendguru.wordpress.com/2009/04/02/zend-framework-using-json-and-prototype-for-filling-form-on-fly/" rel="nofollow"&gt;&lt;b&gt;Zend&lt;/b&gt; Framework: using JSon and Prototype for filling &lt;b&gt;form&lt;/b&gt; on fly &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://zendguru.wordpress.com/2009/03/04/zend-framework-creating-custom-zend-form/" rel="nofollow"&gt;&lt;b&gt;Zend&lt;/b&gt; Framework: Creating custom &lt;b&gt;Zend form&lt;/b&gt; « &lt;b&gt;Zend&lt;/b&gt; Framework&lt;/a&gt;&lt;br&gt;&lt;a href="http://zendguru.wordpress.com/2008/12/05/grouping-form-errors-for-display-purpose/" rel="nofollow"&gt;Grouping Form errors for display purpose in Zend Framework&lt;/a&gt;&lt;br&gt;&lt;a href="http://zendguru.wordpress.com/2008/12/04/handling-zend-framework-form-error-messages/" rel="nofollow"&gt;Handling Zend Framework Form error messages&lt;/a&gt;&lt;br&gt;&lt;a href="http://zendguru.wordpress.com/2009/02/10/zend-framework-dojo-form-decorators-example-and-usage/" rel="nofollow"&gt;&lt;b&gt;Zend&lt;/b&gt; Framework Dojo &lt;b&gt;Form&lt;/b&gt; decorators example and usage « &lt;b&gt;Zend&lt;/b&gt; Framework&lt;/a&gt;&lt;br&gt;&lt;a href="http://zendguru.wordpress.com/2008/12/04/handling-zend-framework-form-error-messages/" rel="nofollow"&gt;Handling Zend Framework Form &lt;b&gt;error messages&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://libertini.net/libertus/2009/03/11/playing-with-zend-framework/" rel="nofollow"&gt;Playing with Zend Framework&lt;/a&gt;&lt;br&gt;&lt;a href="http://zendguru.wordpress.com/2008/12/05/grouping-form-errors-for-display-purpose/" rel="nofollow"&gt;Grouping &lt;b&gt;Form&lt;/b&gt; errors for display purpose in &lt;b&gt;Zend&lt;/b&gt; Framework « &lt;b&gt;Zend&lt;/b&gt; &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.naumann.cc/?p=24" rel="nofollow"&gt;Installing apache 2.2, proftpd, fcgi and mysql&lt;/a&gt;&lt;br&gt;&lt;a href="http://ec2-174-129-218-53.compute-1.amazonaws.com/archives/soap-xmlrpc-and-rest-with-the-zend-framework/" rel="nofollow"&gt;Soap, XmlRpc, PHP, Rest API, Trading, ZF, &lt;b&gt;Zend&lt;/b&gt; Framework &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: menus | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/menus/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fix for Magento Admin Menus Disappearing in Opera]]></title>
+    <link href="http://edmondscommerce.github.io/magento/fix-for-magento-admin-menus-disappearing-in-opera.html"/>
+    <updated>2013-02-01T18:08:17+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/fix-for-magento-admin-menus-disappearing-in-opera</id>
+    <content type="html"><![CDATA[<p>Users of Opera might find that mousing down menus makes them disappear from underneath the cursor, making for a very frustrating experience.</p>
+
+<p>From searching round the internet I understand the problem to be around the onmousevent on the li elements. So instead of using these events to show and hide menus we can just use CSS (as it should be) to show and hide the menus.</p>
+
+<p>Methods to add the CSS include a custom user stylesheet (Right-click > Edit Site Preferences > Display tab), or the Stylish extension. The CSS to add is very simple:</p>
+
+<p>```</p>
+
+<h1>nav li:hover > ul {</h1>
+
+<p>  left:auto;
+  z-index:999999;
+}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Create a scrollable menu with an onHover effect]]></title>
+    <link href="http://edmondscommerce.github.io/jquery/create-a-scrollable-menu-with-an-onhover-effect.html"/>
+    <updated>2012-01-31T14:51:37+00:00</updated>
+    <id>http://edmondscommerce.github.io/jquery/create-a-scrollable-menu-with-an-onhover-effect</id>
+    <content type="html"><![CDATA[<p>I was recently asked by a client to create a scrollable, navigation menu for their site. However, they wanted it to have an onHover submenu that expanded to the side, over the top of the scrollbar.</p>
+
+<p>The problem with this is that there is noway to do this using normal css, over the overflow:scroll hides the sub menu. If you put the submenus into a different div outside the scrollable area, then you can run into problems with the onHover thinking you&rsquo;ve left the target.</p>
+
+<p>To get round this I put together the following jQuery, HTML and CSS, which I hope will help someone.</p>
+
+<p>```html</p>
+
+<div class="categories">
+    <ul>
+        <li class="level0 first parent">
+            <a href="path/to/link">
+            <p>First Item</p>
+            </a>
+            <ul style="display:none">
+                <li class="level1 first parent">
+                    <a href="path/to/link">
+                        <p>sublevel-1</p>
+                    </a>
+                    <ul style="display:none">
+                        <li class="level2 first">
+                            <a href="path/to/link">
+                                <p>sub-sublevel1</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li class="level0">
+            <a href="path/to/link">
+                <p>Second Item</p>
+            </a>
+        </li>
+    </ul>
+    <div id="hoverMenu" style="display: none; ">
+        <div id="subHoverMenu" style="display: none; "></div>
+    </div>
+</div>
+
+
+<p>```</p>
+
+<p>```css</p>
+
+<p>.categories{background:white;height:310px;overflow:scroll;overflow-x:hidden;}
+.categories .active{background:red;}
+.categories ul{padding:9px 10px 0 10px;}
+.categories ul li a{color:black;height:21px;line-height:21px;}
+.categories ul li a p{font-size:13px;padding:0 0 0 0;margin:0 0 0 0;white-space:nowrap;}
+.categories #hoverMenu{background:white;height:auto;position:absolute;width:auto;z-index:150;}
+.categories #hoverMenu .active{background:red;}
+.categories #hoverMenu li{padding:5px 10px 5px 20px;}
+.categories #hoverMenu p{color:black;font-size:13px;white-space:nowrap;}
+.categories #hoverMenu #subHoverMenu{background:white;width:auto;height:auto;position:absolute;z-index:150;}
+.categories #hoverMenu #subHoverMenu .active{background:red;}</p>
+
+<p>```</p>
+
+<p>```javascript</p>
+
+<pre><code>jQuery(document).ready(function() {
+    jQuery(".categories li.level0").mouseenter(function() {
+        jQuery(this).siblings().removeClass('active');
+        jQuery(this).addClass('active');
+        if(jQuery(this).hasClass('parent')) {
+            jQuery('#hoverMenu ul').remove();
+            var pos = jQuery(this).position(); 
+            var mouseX = pos.left + 175;
+            var mouseY = pos.top; 
+            var subMenu=jQuery(this).children('ul:first')
+            subMenu.clone(true, true).show().appendTo('#hoverMenu');
+            jQuery('#hoverMenu').css({'top':mouseY,'left':mouseX});
+            jQuery('#hoverMenu').show();
+        } else {
+            jQuery('#hoverMenu ul').remove();
+            jQuery('#hoverMenu').hide();
+        }
+    })
+
+    jQuery(".categories li.level1").bind('mouseenter', function() {
+        jQuery(this).siblings().removeClass('active');
+        jQuery(this).addClass('active');
+        if(jQuery(this).children('ul').length) {
+            jQuery('#subHoverMenu').empty();
+            var subPos = jQuery(this).position();
+            var subMouseX = jQuery(this).outerWidth();
+            var subMouseY = subPos.top; 
+            var subSubMenu=jQuery(this).children('ul:first')
+            subSubMenu.clone(true, true).show().appendTo('#subHoverMenu');
+            jQuery('#subHoverMenu').css({'top':subMouseY,'left':subMouseX});
+            jQuery('#subHoverMenu').show();
+        } else {
+            jQuery('#subHoverMenu').empty().hide();
+        }
+    })
+
+    jQuery(".categories li.level2").bind('mouseenter', function() {
+        jQuery(this).siblings().removeClass('active');
+        jQuery(this).addClass('active');
+    })
+
+    jQuery('#hoverMenu').mouseleave(function(){
+        jQuery('#hoverMenu ul').remove();
+        jQuery('#hovermenu').hide();
+        jQuery('#subHoverMenu').empty().hide();
+    })
+
+    jQuery('#subHoverMenu').mouseleave(function(){
+        jQuery(this).empty().hide();
+    })
+
+    jQuery('.categories').mouseleave(function() {
+        jQuery('#hoverMenu ul').remove();
+        jQuery('#hoverMenu').hide();
+        jQuery('#subHoverMenu').empty().hide();
+        jQuery(".col-left .category-list .categories li").removeClass('active');
+    })
+})
+</code></pre>
+
+<p>```</p>
+
+<p>Obviously, change styles and content as required</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Flash covers html menus +solution]]></title>
+    <link href="http://edmondscommerce.github.io/web%20development/flash-covers-html-menus-solution.html"/>
+    <updated>2011-09-02T13:41:51+01:00</updated>
+    <id>http://edmondscommerce.github.io/web%20development/flash-covers-html-menus-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you&rsquo;ve ever had that annoying problem where someone has asked you to put a flash banner on a site and it covers up your nice dropdown or pop-out menus, you&rsquo;ll be glad to know that the current versions of flash don&rsquo;t do that if you set the right parameter!  Yes that even includes flash on Linux browsers!</p>
+
+<p>The parameter is called &ldquo;wmode&rdquo; and needs to be set to &ldquo;transparent&rdquo; for the z-index problem to go away.</p>
+
+<p>Don&rsquo;t forget that search engines don&rsquo;t read the text in flash files so you don&rsquo;t want to use flash where you don&rsquo;t have to, but when a banner is required and is provided by a third party it&rsquo;s not always possible to avoid it.</p>
+]]></content>
+  </entry>
+  
+</feed>

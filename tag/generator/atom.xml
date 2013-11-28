@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: generator | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/generator/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html"/>
+    <updated>2012-12-04T12:21:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys</id>
+    <content type="html"><![CDATA[<p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php
+```php</p>
+
+<p>/**</p>
+
+<pre><code> * Generate a nice unique block cache key
+ *
+ * @param Mage_Core_Block_Abstract $block
+ * @return string
+ */
+public function ecCacheKey(Mage_Core_Block_Abstract $block){
+    $class = get_class($block);
+    $template = $block-&gt;getTemplateFile();
+    $md5 = md5(var_export($block-&gt;getData(), true));
+    $params = trim(implode(",", $block-&gt;getRequest()-&gt;getParams()), ',');
+    $category=($block-&gt;getCurrentCategory())?$block-&gt;getCurrentCategory()-&gt;getName():'no-category';
+    $store_id = Mage::app()-&gt;getStore()-&gt;getId();
+    return 'edmondscommerce-'. $params . '-'. $category . '-' . $store_id . '-' . $class.'-'.$template.'-'.$md5;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:
+```php</p>
+
+<pre><code>public function _construct(){
+    parent::_construct();
+    $this-&gt;addData(array(
+        'cache_lifetime' =&gt; 999999999,
+        'cache_tags' =&gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),
+        'cache_key' =&gt; Mage::helper('blockcaching')-&gt;ecCacheKey($this)
+    ));
+
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Easily Create Colour Schemes]]></title>
+    <link href="http://edmondscommerce.github.io/web%20design/easily-create-colour-schemes.html"/>
+    <updated>2009-11-03T13:06:27+00:00</updated>
+    <id>http://edmondscommerce.github.io/web%20design/easily-create-colour-schemes</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Just came across Kuler &ndash; by Adobe.</p>
+
+<p>A nice little flash app for creating colour schemes</p>
+
+<p><a href="http://kuler.adobe.com/"><a href="http://kuler.adobe.com/">http://kuler.adobe.com/</a></a></p>
+]]></content>
+  </entry>
+  
+</feed>

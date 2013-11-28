@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: optimisation | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/optimisation/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fast E-Commerce Search Solution]]></title>
+    <link href="http://edmondscommerce.github.io/fast-e-commerce-search-solution.html"/>
+    <updated>2013-04-29T10:59:11+01:00</updated>
+    <id>http://edmondscommerce.github.io/fast-e-commerce-search-solution</id>
+    <content type="html"><![CDATA[<p>One of the trickiest parts of any e-commerce store to get running quickly is the search results. The problem is compounded for large or complex stores where a database query based search for a multi word search phrase can become a real behemoth of a database query that has to search for each word in a multitude of database tables and columns. Then throw in other issues such as table locking and the performance issues can start to hurt the site as a whole.</p>
+
+<h3>Caching for Performance</h3>
+
+
+<p>One common solution to scaling up e-commerce stores is to use a variety of methods and levels of caching, from a database query cache right up to a full page caching system perhaps powered by Varnish. This solution works well for product and category pages for which there is a finite number. When it comes to search results pages though, each possible search phrase is a completely separate set of pages. You might be able to keep a warm cache for your most popular search phrases but anything else will be raw results. It will show your server at its worst performance.</p>
+
+<h3>Alternative Enterprise Search Engine</h3>
+
+
+<p>In this scenario it is time to start looking at other search solutions. If you want a turnkey professional solution then check out Google Commerce Search. This premium offering gives you a powerful search engine that is entirely outsourced and uses Google technology to deliver great quality results. As you can probably imagine though, this premium product comes with a premium and enduringly high subscription fee.</p>
+
+<h3>Enterprise Open Source</h3>
+
+
+<p>Instead what we are now recommending to our larger clients is to look at implementing the Solr search engine. <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> is an enterprise level search engine. It is used in a wide variety of impressive sites &ndash; <a href="http://wiki.apache.org/solr/PublicServers" target="_blank">you can see a list here</a>. Names like Netflix, The Guardian and eBay really underline the fact that this is serious and powerful technology.</p>
+
+<h3>Advanced Search Functionality</h3>
+
+
+<p>The great thing is that it is also pretty easy to set up and get running. To get a basic search engine working is no more than a few hours of work. There are many possibilities with the search engine including spelling suggestions, parametric (faceted in Solr speak) search, synoyms, auto suggest and loads more. Depending on exactly how you want this to work will determine exactly how much work is involved.</p>
+
+<p>Solr provides a huge amount of configurability and tuning. For this reason we would always expect a new install of Solr to be followed up with a bit of tweaking to make sure you are getting the right results. Once the right configuration has been determined we can then expect the engine to work tirelessly, serving up lightning fast and excellent quality results without any further investment from your business.</p>
+
+<h3>Implement Solr Search Today</h3>
+
+
+<p>If you would like your site to be fitted out with a Solr based search system by a professional UK based e-commerce web development agency then get in touch with Edmonds Commerce today. Simply fill out the form below and we will be in touch to discuss how we can take your web site search functionality to the next level.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html"/>
+    <updated>2012-12-04T12:21:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys</id>
+    <content type="html"><![CDATA[<p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php
+```php</p>
+
+<p>/**</p>
+
+<pre><code> * Generate a nice unique block cache key
+ *
+ * @param Mage_Core_Block_Abstract $block
+ * @return string
+ */
+public function ecCacheKey(Mage_Core_Block_Abstract $block){
+    $class = get_class($block);
+    $template = $block-&gt;getTemplateFile();
+    $md5 = md5(var_export($block-&gt;getData(), true));
+    $params = trim(implode(",", $block-&gt;getRequest()-&gt;getParams()), ',');
+    $category=($block-&gt;getCurrentCategory())?$block-&gt;getCurrentCategory()-&gt;getName():'no-category';
+    $store_id = Mage::app()-&gt;getStore()-&gt;getId();
+    return 'edmondscommerce-'. $params . '-'. $category . '-' . $store_id . '-' . $class.'-'.$template.'-'.$md5;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:
+```php</p>
+
+<pre><code>public function _construct(){
+    parent::_construct();
+    $this-&gt;addData(array(
+        'cache_lifetime' =&gt; 999999999,
+        'cache_tags' =&gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),
+        'cache_key' =&gt; Mage::helper('blockcaching')-&gt;ecCacheKey($this)
+    ));
+
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[osCommerce PHP 5.2 Upgrade - You Really Should Get onto PHP 5.3 ASAP]]></title>
+    <link href="http://edmondscommerce.github.io/oscommerce/oscommerce-php-5-2-upgrade-you-really-should-get-onto-php-5-3-asap.html"/>
+    <updated>2012-11-26T17:36:22+00:00</updated>
+    <id>http://edmondscommerce.github.io/oscommerce/oscommerce-php-5-2-upgrade-you-really-should-get-onto-php-5-3-asap</id>
+    <content type="html"><![CDATA[<p>Many of our clients use <a href="http://edmondscommerce.github.io/platforms/oscommerce">osCommerce</a> for their online store. osCommerce was very popular a few years ago and to date still powers a really large number of stores. Due to a variety of technical reasons, many osCommerce stores are still hosting on PHP version 5.2.</p>
+
+<p>The latest version of PHP is 5.4 and 5.5 is due out fairly soon. Most hosting companies will now regard PHP 5.3 to be the minimum version they will support. By switching to PHP 5.3 they get better performance and better security. Unfortunately if you are running an osCommerce store and your hosting company decides to upgrade PHP then you might find that your entire store stops working.</p>
+
+<p>The first instinct here is to get your store back online as quickly as possible and that is entirely understandable. These days though we really think that osCommerce store owners should be running on PHP 5.3. It is entirely possible to do this and does not necessarily entail a large amount of work depending on which contributions you are running.</p>
+
+<p>The last release for PHP 5.2 was <a href="http://www.php.net/archive/2010.php#id2010-12-16-1" target="_blank">version 5.2.16 released back in 2010</a>. In software terms that is really quite a long time ago and really underlines how much of an issue this is.</p>
+
+<p>You can read about some of the performance gains of switching to PHP 5.3 or greater on <a href="http://php.net/manual/en/features.gc.performance-considerations.php" target="_blank">this page</a>.</p>
+
+<p>If you would like some help getting your osCommerce store working on an up to date version of PHP then <b><a href="http://edmondscommerce.github.io/contact-us">get in touch with Edmonds Commerce today</a></b>.</p>
+
+<p>Of course another option is to think about moving away from osCommerce and onto a more up to date platform such as <a href="http://edmondscommerce.github.io/platforms/oscommerce">osCommerce</a> or <a href="http://edmondscommerce.github.io/platforms/opencart">OpenCart</a>. If you are thinking of ugprading then 5.3 compatability will be a bonus. If you are not thinking of upgrading platform any time soon though you really do need to schedule in an upgrade to PHP 5.3 at the earliest opportunity.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Profiler Improved - Aoe_Profiler by Fabrizio Branca]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca.html"/>
+    <updated>2012-08-17T15:31:32+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca</id>
+    <content type="html"><![CDATA[<p>The Magento profiler is useful when you are trying to discover what potential bottlenecks are in place in a specific Magento implementation that are slowing down the performance of the site. Often when doing this kind of analysis you might find that a particular block or extension is responsible for more than 70% of the total page load time. At this point you would choose to either optimise, cache or disable the block altogether to remove this performance bottleneck and improve page speed significantly.</p>
+
+<p>If you have ever tried to use Magento&rsquo;s built in profiler you will no doubt agree with Fabrizio&rsquo;s comments that, when you have it working, the output is hard to read and not really very useful in terms of seeing what is actually going on.</p>
+
+<p>To aid with this process and give us a nice colourful and friendly user interface to the Magento profiler, Fabrizio has built a Magento module that extends the default profiler and makes it a much more useful tool.</p>
+
+<p>You can download the extension from <a href="https://github.com/fbrnc/Aoe_Profiler" title="Magento Aoe Profiler on Git Hub" target="_blank">git hub here</a>.</p>
+
+<p>Read the full blog story <a href="http://www.fabrizio-branca.de/magento-profiler.html" title="Fabrizio Branch blog" target="_blank">here</a>.</p>
+
+<p>If you would like some help optimising the performance of your Magento store, feel free to get in touch with Edmonds Commerce today and we can assist in getting the very best performance from your Magento web site.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How 10,000 Geeks break the UK's biggest distributors, RS and Farnell (Raspberry Pi)]]></title>
+    <link href="http://edmondscommerce.github.io/ecommerce/how-10000-geeks-break-the-uks-biggest-distributors-rs-and-farnell-raspberry-pi.html"/>
+    <updated>2012-02-29T06:50:10+00:00</updated>
+    <id>http://edmondscommerce.github.io/ecommerce/how-10000-geeks-break-the-uks-biggest-distributors-rs-and-farnell-raspberry-pi</id>
+    <content type="html"><![CDATA[<p>So, 6am this morning (Wed 29 2012), a bunch of geeks eagerly awaiting the Raspberry Pi have killed the websites of both RS Components and Farnell</p>
+
+<p>Why, you ask? Because the servers were not prepared for the influx of visitors that such an announcement brings.  Raspberry Pi themselves (a UK Foundation, like a Charity) were well prepared and are presently serving up a static page.</p>
+
+<p>So, if you&rsquo;re running an eCommerce site, like Magento or osCommerce, and are warned by one of your suppliers, or your manufacturing department that you&rsquo;re launching a new product, be prepared.  Raspberry Pi certainly were and provided their suppliers with the information that they would be getting a huge amount of traffic, unfortunately those suppliers didn&rsquo;t listen hard enough.</p>
+
+<p>This is to all intents a DDoS attack, but not an intentional attack.  Well done for keeping everyone updated via twitter though @raspberrypi, we know it isn&rsquo;t your fault.</p>
+]]></content>
+  </entry>
+  
+</feed>

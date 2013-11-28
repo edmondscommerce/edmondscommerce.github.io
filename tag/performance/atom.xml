@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: performance | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/performance/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fast E-Commerce Search Solution]]></title>
+    <link href="http://edmondscommerce.github.io/fast-e-commerce-search-solution.html"/>
+    <updated>2013-04-29T10:59:11+01:00</updated>
+    <id>http://edmondscommerce.github.io/fast-e-commerce-search-solution</id>
+    <content type="html"><![CDATA[<p>One of the trickiest parts of any e-commerce store to get running quickly is the search results. The problem is compounded for large or complex stores where a database query based search for a multi word search phrase can become a real behemoth of a database query that has to search for each word in a multitude of database tables and columns. Then throw in other issues such as table locking and the performance issues can start to hurt the site as a whole.</p>
+
+<h3>Caching for Performance</h3>
+
+
+<p>One common solution to scaling up e-commerce stores is to use a variety of methods and levels of caching, from a database query cache right up to a full page caching system perhaps powered by Varnish. This solution works well for product and category pages for which there is a finite number. When it comes to search results pages though, each possible search phrase is a completely separate set of pages. You might be able to keep a warm cache for your most popular search phrases but anything else will be raw results. It will show your server at its worst performance.</p>
+
+<h3>Alternative Enterprise Search Engine</h3>
+
+
+<p>In this scenario it is time to start looking at other search solutions. If you want a turnkey professional solution then check out Google Commerce Search. This premium offering gives you a powerful search engine that is entirely outsourced and uses Google technology to deliver great quality results. As you can probably imagine though, this premium product comes with a premium and enduringly high subscription fee.</p>
+
+<h3>Enterprise Open Source</h3>
+
+
+<p>Instead what we are now recommending to our larger clients is to look at implementing the Solr search engine. <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> is an enterprise level search engine. It is used in a wide variety of impressive sites &ndash; <a href="http://wiki.apache.org/solr/PublicServers" target="_blank">you can see a list here</a>. Names like Netflix, The Guardian and eBay really underline the fact that this is serious and powerful technology.</p>
+
+<h3>Advanced Search Functionality</h3>
+
+
+<p>The great thing is that it is also pretty easy to set up and get running. To get a basic search engine working is no more than a few hours of work. There are many possibilities with the search engine including spelling suggestions, parametric (faceted in Solr speak) search, synoyms, auto suggest and loads more. Depending on exactly how you want this to work will determine exactly how much work is involved.</p>
+
+<p>Solr provides a huge amount of configurability and tuning. For this reason we would always expect a new install of Solr to be followed up with a bit of tweaking to make sure you are getting the right results. Once the right configuration has been determined we can then expect the engine to work tirelessly, serving up lightning fast and excellent quality results without any further investment from your business.</p>
+
+<h3>Implement Solr Search Today</h3>
+
+
+<p>If you would like your site to be fitted out with a Solr based search system by a professional UK based e-commerce web development agency then get in touch with Edmonds Commerce today. Simply fill out the form below and we will be in touch to discuss how we can take your web site search functionality to the next level.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Log File Analysis Script]]></title>
+    <link href="http://edmondscommerce.github.io/bash/apache-log-file-analysis-script.html"/>
+    <updated>2013-03-14T14:17:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/apache-log-file-analysis-script</id>
+    <content type="html"><![CDATA[<p>Here is a little bash script we knocked together to track down some malicious activity on a clients server.</p>
+
+<p>Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.</p>
+
+<p>Here is the script:</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<h6>SETUP</h6>
+
+<p>LOG_FOLDER=/var/www/vhosts/domain.co.uk/statistics/logs
+ACCESS_LOG=$LOG_FOLDER/access_log</p>
+
+<p>HOW_MANY_ROWS=20000</p>
+
+<h6>### FUNCTIONS</h6>
+
+<p>function title() {</p>
+
+<pre><code>echo "
+</code></pre>
+
+<hr />
+
+<h2>$@</h2>
+
+<p>&ldquo;
+}</p>
+
+<p>function urls_by_ip() {</p>
+
+<pre><code>local IP=$1
+tail -5000 $ACCESS_LOG | awk -v ip=$IP ' $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20
+</code></pre>
+
+<p>}</p>
+
+<p>function ip_addresses_by_user_agent(){</p>
+
+<pre><code>local USERAGENT_STRING="$1"
+local TOP_20_IPS="`tail  -$HOW_MANY_ROWS $ACCESS_LOG | grep "${USERAGENT_STRING}"  | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20`"
+echo "$TOP_20_IPS"
+</code></pre>
+
+<p>}</p>
+
+<h6># RUN REPORTS</h6>
+
+<p>title &ldquo;top 20 URLs&rdquo;
+TOP_20_URLS=&ldquo;<code>tail -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS&rdquo;</p>
+
+<p>title &ldquo;top 20 URLS excluding POST data&rdquo;
+TOP_20_URLS_WITHOUT_POST=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk -F"[ ?]" '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS_WITHOUT_POST&rdquo;</p>
+
+<p>title &ldquo;top 20 IPs&rdquo;
+TOP_20_IPS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_IPS&rdquo;</p>
+
+<p>title &ldquo;top 20 user agents&rdquo;
+TOP_20_USER_AGENTS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_USER_AGENTS&rdquo;</p>
+
+<p>title &ldquo;IP Addresses for Top 3 User Agents&rdquo;</p>
+
+<p>for ((I=1; I&lt;=3; I++))
+do</p>
+
+<pre><code>UA="`echo "$TOP_20_USER_AGENTS" | head -n $I | tail -n 1 | awk '{$1=""; print $0}'`"
+echo "$UA"
+echo "~~~~~~~~~~~~~~~~~~"
+ip_addresses_by_user_agent "$UA"
+echo "
+"
+</code></pre>
+
+<p>done</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html"/>
+    <updated>2012-12-04T12:21:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys</id>
+    <content type="html"><![CDATA[<p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php
+```php</p>
+
+<p>/**</p>
+
+<pre><code> * Generate a nice unique block cache key
+ *
+ * @param Mage_Core_Block_Abstract $block
+ * @return string
+ */
+public function ecCacheKey(Mage_Core_Block_Abstract $block){
+    $class = get_class($block);
+    $template = $block-&gt;getTemplateFile();
+    $md5 = md5(var_export($block-&gt;getData(), true));
+    $params = trim(implode(",", $block-&gt;getRequest()-&gt;getParams()), ',');
+    $category=($block-&gt;getCurrentCategory())?$block-&gt;getCurrentCategory()-&gt;getName():'no-category';
+    $store_id = Mage::app()-&gt;getStore()-&gt;getId();
+    return 'edmondscommerce-'. $params . '-'. $category . '-' . $store_id . '-' . $class.'-'.$template.'-'.$md5;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:
+```php</p>
+
+<pre><code>public function _construct(){
+    parent::_construct();
+    $this-&gt;addData(array(
+        'cache_lifetime' =&gt; 999999999,
+        'cache_tags' =&gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),
+        'cache_key' =&gt; Mage::helper('blockcaching')-&gt;ecCacheKey($this)
+    ));
+
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Extending a Modules CSS within a Theme in PrestaShop]]></title>
+    <link href="http://edmondscommerce.github.io/prestashop/extending-a-modules-css-within-a-theme-in-prestashop.html"/>
+    <updated>2012-11-28T17:26:39+00:00</updated>
+    <id>http://edmondscommerce.github.io/prestashop/extending-a-modules-css-within-a-theme-in-prestashop</id>
+    <content type="html"><![CDATA[<p>PrestaShop has a really nice structure for handling all the CSS that will appear in a site. It starts by splitting the CSS so that the CSS is split up per modules. There is a global CSS sheet but this should only be used for things that genuinely appear on all pages.</p>
+
+<p>Extending the CSS of a module in PrestaShop is easy. All you need to do is create a CSS file that matches the naming convention of the module you are looking to extend.</p>
+
+<p>For example if you wanted to change the CSS of the “Wishlist block” module (a.k.a. blockwishlist) in your theme, you would create the file themes/mytheme/css/modules/blockwishlist/blockwishlist.css. This file will then be included on every page that the CSS from the blockwishlist module appears on.</p>
+
+<p>This system is good because it minimises the amount of CSS the browser has to load and also splits the concern of CSS into separate files making it much easier to manage. It also makes adding to a modules CSS with in a theme much easier.</p>
+
+<p>One problem with this method of handling CSS is that by default a PrestaShop site may want the browser to download ten or more individual CSS files which is quite a overhead. Fortunately since PrestaShop 1.4 it has supported CCS merging (referred to as CCC in the admin) which causes the CSS for a page to be merged into a single file on the server to prevent the client having to download tens of CSS files.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[osCommerce PHP 5.2 Upgrade - You Really Should Get onto PHP 5.3 ASAP]]></title>
+    <link href="http://edmondscommerce.github.io/oscommerce/oscommerce-php-5-2-upgrade-you-really-should-get-onto-php-5-3-asap.html"/>
+    <updated>2012-11-26T17:36:22+00:00</updated>
+    <id>http://edmondscommerce.github.io/oscommerce/oscommerce-php-5-2-upgrade-you-really-should-get-onto-php-5-3-asap</id>
+    <content type="html"><![CDATA[<p>Many of our clients use <a href="http://edmondscommerce.github.io/platforms/oscommerce">osCommerce</a> for their online store. osCommerce was very popular a few years ago and to date still powers a really large number of stores. Due to a variety of technical reasons, many osCommerce stores are still hosting on PHP version 5.2.</p>
+
+<p>The latest version of PHP is 5.4 and 5.5 is due out fairly soon. Most hosting companies will now regard PHP 5.3 to be the minimum version they will support. By switching to PHP 5.3 they get better performance and better security. Unfortunately if you are running an osCommerce store and your hosting company decides to upgrade PHP then you might find that your entire store stops working.</p>
+
+<p>The first instinct here is to get your store back online as quickly as possible and that is entirely understandable. These days though we really think that osCommerce store owners should be running on PHP 5.3. It is entirely possible to do this and does not necessarily entail a large amount of work depending on which contributions you are running.</p>
+
+<p>The last release for PHP 5.2 was <a href="http://www.php.net/archive/2010.php#id2010-12-16-1" target="_blank">version 5.2.16 released back in 2010</a>. In software terms that is really quite a long time ago and really underlines how much of an issue this is.</p>
+
+<p>You can read about some of the performance gains of switching to PHP 5.3 or greater on <a href="http://php.net/manual/en/features.gc.performance-considerations.php" target="_blank">this page</a>.</p>
+
+<p>If you would like some help getting your osCommerce store working on an up to date version of PHP then <b><a href="http://edmondscommerce.github.io/contact-us">get in touch with Edmonds Commerce today</a></b>.</p>
+
+<p>Of course another option is to think about moving away from osCommerce and onto a more up to date platform such as <a href="http://edmondscommerce.github.io/platforms/oscommerce">osCommerce</a> or <a href="http://edmondscommerce.github.io/platforms/opencart">OpenCart</a>. If you are thinking of ugprading then 5.3 compatability will be a bonus. If you are not thinking of upgrading platform any time soon though you really do need to schedule in an upgrade to PHP 5.3 at the earliest opportunity.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: apache | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/apache/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Mod Rewrite and Escaped Hashes (and other characters)]]></title>
+    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html"/>
+    <updated>2013-04-22T13:57:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters</id>
+    <content type="html"><![CDATA[<p>If you are having issues with mod rewrite apparently abandoning sections of variables after encoded hashes then this could be your solution.</p>
+
+<p>The use case is particularly clear when using mod_rewrite in front of a search engine (such as Solr which I am really enjoying working with at the moment).</p>
+
+<p>Imagine someone search for a partcode ABC#123</p>
+
+<p>This gets encoded to search/abc%23123</p>
+
+<p>Your rewritten search term will then be mangled by Apache and your search script will only actually see ABC. That is of course a problem and the solution is not really clear.</p>
+
+<p>After a bit of searching around I found the solution is to add a B flag to your mod_rewrite rule so that mod_rewrite will escape these characters so that they are cleanly passed through.</p>
+
+<p>For example:</p>
+
+<p>```php</p>
+
+<p>RewriteRule ^(.<em>)search/(.</em>)$ advanced_search_result.php?keywords=$2 [L,B]</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Mod Rewrite Escaped Slashes Problem + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html"/>
+    <updated>2013-04-11T11:05:20+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution</id>
+    <content type="html"><![CDATA[<p>As part of our Magento SEO service, the first thing we do is to make sure there are no issues with the crawlability and general health of the clients web site.</p>
+
+<p>Whilst working on the Google Webmaster Tools crawl errors for a client I noticed one specific and intruiging problem for which I couldn&rsquo;t immediately see the reason, everything looked to be set up perfectly.</p>
+
+<p>Certain URLs were getting 404 responses. The URL was being parsed by mod_rewrite but everything looked fine so why was apache giving a 404?</p>
+
+<p>The problem turns out to be that the URLs contain escaped slashes (eg search/KTA-mb667k2%2F2g),</p>
+
+<p>The problem is that Apache actually handles the escaped slash and helpfully converts it to a real slash. That then means that it is trying to look in a sub folder that does not exist and hence the 404.</p>
+
+<p>Chances are you don&rsquo;t want escaped slashes to really be thought of as real directory separating slashes, especially if you are using mod_rewrite.</p>
+
+<p>The answer is a simple one liner to be added to your vhost.conf or httpd.conf.</p>
+
+<p>```</p>
+
+<p>AllowEncodedSlashes On</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Plesk Wildcard Subdomains]]></title>
+    <link href="http://edmondscommerce.github.io/apache/plesk-wildcard-subdomains.html"/>
+    <updated>2009-07-22T11:48:37+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/plesk-wildcard-subdomains</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Want to setup wildcard subdomains on a Plesk box?</p>
+
+<p><a href="http://rackerhacker.com/2007/08/10/using-wildcard-subdomains-in-plesk/"><a href="http://rackerhacker.com/2007/08/10/using-wildcard-subdomains-in-plesk/">http://rackerhacker.com/2007/08/10/using-wildcard-subdomains-in-plesk/</a></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Plesk + Mod Security]]></title>
+    <link href="http://edmondscommerce.github.io/apache/plesk-mod-security.html"/>
+    <updated>2009-06-15T09:55:37+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/plesk-mod-security</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are trying to modify your mod_security configuration on a plesk server and have tried using htaccess files you have probably realised that it won&rsquo;t work. That&rsquo;s a good thing, it makes it harder for people to screw up your server by turning off this protection.</p>
+
+<p>Instead the way to do it is to edit the vhost.conf file located in the conf folder in the domain / sub domain root (the folder containing the httpdocs folder).</p>
+
+<p>You can apply any settings you want to this file and then run the following command to get Plesk to rebuild your httpd configuration including your new settings. This is working with Plesk the way it was intended to be used and is a better solution that the htaccess file approach.</p>
+
+<p>The command to rebuild your Apache configuration when you make a change to the vhost.conf ssl_vhost.conf file is:
+```</p>
+
+<pre><code>    /usr/local/psa/admin/bin/websrvmng -a -v
+</code></pre>
+
+<p>```
+This rebuilds the configuration for ALL virtual hosts. It shouldn&rsquo;t take more than a few seconds, obviously you then need to restart Apache.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache, mod_rewrite and SEO]]></title>
+    <link href="http://edmondscommerce.github.io/search%20engine%20optimisation/mod_rewrite/apache/apache-mod_rewrite-and-seo.html"/>
+    <updated>2008-03-04T11:26:55+00:00</updated>
+    <id>http://edmondscommerce.github.io/search%20engine%20optimisation/mod_rewrite/apache/apache-mod_rewrite-and-seo</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Dynamic database driven web sites tend to use various GET variables to define which content to display on that particular page. This is perfectly normal and reasonable. However it does make things a little confusing for search engine spiders as not every GET variable pertains to alternative content. Often GET is used for session, or maybe referrer tracking &ndash; or pretty much any piece of information which your web site may use.</p>
+
+<p>This can mean that your product page about fluffy banana shaped teddy bears has the address
+```</p>
+
+<p>mysite.com/index.php?cat=123&amp;product=333&amp;breadcrumb=123_43_2&amp;session_id=89o7324kjhlef8y234h</p>
+
+<p>```
+Not only does this make life difficult for search engine spiders, but its not exactly the most memorable url for your visitors either.</p>
+
+<p>There is a solution and its called mod_rewrite.</p>
+
+<p>Apache is part of the LAMP stack which is one of the most popular software and operating system combinations used to power web servers. Mod_rewrite is a particular plugin for Apache which allows you to create rules which will rewrite urls when they meet specific criteria.</p>
+
+<p>The only really tricky part about setting up rewrite rules is that by neccessity they rely on regular expressions. Regular expressions can seem like a dark art at first, and often even for a seasoned coder familiar with a bit of regex, decoding someone elses expression can take a bit of brain power to say the least!</p>
+
+<p>However there is no real reason to worry as all you really need to do is to learn how to achieve what you want. You do not need to learn the ins and outs of every particular regex function or operator.</p>
+
+<p>For example take this</p>
+
+<p>```</p>
+
+<p>RewriteEngine On</p>
+
+<p>RewriteRule ^(.<em>).p(.</em>).html$ product.php?products_id=$2&amp;%{QUERY_STRING} [L]</p>
+
+<p>```</p>
+
+<p>This rewrite rule will take a url in the form of:
+mysite.com/whatever-you-want-here.p.[products_id].html</p>
+
+<p>And automatically convert it so that to your web system it is the url:
+mysite.com/product.php?products_id=[products_id]</p>
+
+<p>All you need to do now is devise a nice way of dynamically generating all of those nice keyword rich urls for your product pages and you are in business.</p>
+
+<p>If you want any help enabling the power of mod_rewrite to give your web site properly search engine friendly URLS, get in touch today.</p>
+]]></content>
+  </entry>
+  
+</feed>

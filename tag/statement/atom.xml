@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: statement | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/statement/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:20:54+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[MySQL Triggers - A Quick Guide]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/mysql-triggers-a-quick-guide.html"/>
+    <updated>2011-01-15T12:26:09+00:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/mysql-triggers-a-quick-guide</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>MySQL has a nice feature that you may well not have used called Triggers.</p>
+
+<p>These are little SQL statements that are tied to events on table and then perform some extra work.</p>
+
+<p>The idea being that you will check the values for a row and if they meet some conditions you will take some further action. You might usually do this kind of thing in code but if you really must be certain that in a certain circumstance a certain action will be taken, then triggers are a good option because regardless which bit of code makes the change you can be sure your rules will be enforced.</p>
+
+<p>Of course this ties you to a specific DB platform so its not something you should over use. There can also be performance issues so you need to bear that in mind.</p>
+
+<p>Anyway, assuming you know what you are letting yourself in for and have read the <a href="http://www.google.com/search?hl=en&q=site%3Adev.mysql.com+triggers+5.0&aq=f&aqi=&aql=&oq=">documentation</a> here is my little summary.</p>
+
+<p>First you need to give your trigger a name. Choose something descriptive.</p>
+
+<p>Then you need to associate it to an even (UPDATE, INSERT etc) and also decide whether to do it BEFORE or AFTER. If you are not sure, use BEFORE &ndash; it&rsquo;s generally the one you want to use.</p>
+
+<p>```sql</p>
+
+<p>CREATE TRIGGER do_something BEFORE UPDATE ON table
+&hellip;</p>
+
+<p>```</p>
+
+<p>The next bit is boiler plate as far as I can gather, just whack it in. It delimits your actual statement and tells it to be run for each updated row.</p>
+
+<p>```sql</p>
+
+<p>  FOR EACH ROW BEGIN</p>
+
+<p>```</p>
+
+<p>Then do your test</p>
+
+<p>```sql</p>
+
+<p>IF ((NEW.column &lt; 1) AND (OLD.column >=1)) THEN</p>
+
+<p>```</p>
+
+<p>Note the NEW and OLD keywords there.</p>
+
+<p>You have a choice of using the NEW and OLD keyword to access existing (OLD) and about to be set (NEW) data for each column.</p>
+
+<p>Note also, this is only possible if you use the BEFORE event as opposed to AFTER, hence generally just sticking to using BEFORE</p>
+
+<p>Now, enforce your requirements
+```sql</p>
+
+<p>SET NEW.another_column = 0;
+SET NEW.and_another_column = 0;
+SET NEW.and_another = &lsquo;cheese&rsquo;;</p>
+
+<p>```</p>
+
+<p>Then wrap it up</p>
+
+<p>```sql</p>
+
+<p> END IF;
+END;</p>
+
+<p>```</p>
+
+<p>That&rsquo;s it&hellip;</p>
+
+<p>BUT WAIT</p>
+
+<p>There&rsquo;s another bit that I totally missed which caused me issues &ndash; you need to wrap the whole thing in a delimiter statement:</p>
+
+<p>```sql</p>
+
+<p>delimiter //
+&hellip; the statement
+END;//
+delimiter;</p>
+
+<p>```</p>
+
+<p>So the full final thing should look like this:</p>
+
+<p>```sql</p>
+
+<p>delimiter //
+CREATE TRIGGER do_something BEFORE UPDATE ON table
+  FOR EACH ROW BEGIN</p>
+
+<pre><code>IF ((NEW.column &lt; 1) AND (OLD.column &gt;=1)) THEN
+    SET NEW.another_column = 0;
+    SET NEW.and_another_column = 0;
+    SET NEW.and_another = 'cheese';
+END IF;
+</code></pre>
+
+<p>END; //
+delimiter;</p>
+
+<p>```</p>
+
+<p>Another point to mention is &ndash; just use the CLI for handling these, don&rsquo;t try to use phpMyAdmin etc &ndash; it doesn&rsquo;t really work.</p>
+]]></content>
+  </entry>
+  
+</feed>
