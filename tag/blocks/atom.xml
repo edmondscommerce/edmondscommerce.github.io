@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: blocks | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/blocks/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T13:58:53+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Adding custom variables to Magento Static Blocks]]></title>
+    <link href="http://edmondscommerce.github.io/magento/adding-custom-variables-to-magento-static-blocks.html"/>
+    <updated>2012-01-16T16:02:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/adding-custom-variables-to-magento-static-blocks</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently been asked to customise the front page of a magento store. The client wanted the ability to specify a different set of top links depending on whether the customer was logged in or not, and they wanted to be able to changes these links from the admin section. They also wanted the logged in links to display the customers name.</p>
+
+<p>The problem with this is that the standard magento CMS static blocks don&rsquo;t provide access to the customer by default, so I thought I was going to have to build an extension to pass the variables in. However after a little bit of digging, I discovered that this functionality is available as standard in Magento, you just need to set it up!</p>
+
+<p>The way to do this is as follows. Within you template file add in the following code:</p>
+
+<p>```php</p>
+
+<p>$blockToDisplay = $this->getLayout()&ndash;>createBlock(&lsquo;cms/block&rsquo;)&ndash;>setBlockId(&lsquo;static_block_id_to_display&rsquo;);
+/<em>*
+* Here we create an array of custom variables that will be passed to the static block. You can set as many as you
+* need and call them whatever makes sense. The important part is in the Static Block you call these like this
+* 
+* Note there are no spaces between the braces and the characters &ndash; this is something that caught me out
+</em>/
+$customVariables = array();
+$customVariables[&lsquo;customer_name&rsquo;] = Mage::helper(&lsquo;customer&rsquo;)&ndash;>getCustomerName();
+$filter = Mage::getModel(&lsquo;core/email_template_filter&rsquo;);
+$filter->setVariables($customVariables);
+echo $filter->filter($blockToDisplay->toHtml());</p>
+
+<p>```</p>
+
+<p>This will then display the static block with your variables expanded to values you&rsquo;ve set.</p>
+]]></content>
+  </entry>
+  
+</feed>

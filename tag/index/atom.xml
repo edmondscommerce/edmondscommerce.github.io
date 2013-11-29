@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: index | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/index/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T13:58:53+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Flush Everything Cache, Index, Images, JS, CSS in One Go]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-flush-everything-cache-index-images-js-css-in-one-go.html"/>
+    <updated>2012-03-03T16:26:59+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-flush-everything-cache-index-images-js-css-in-one-go</id>
+    <content type="html"><![CDATA[<p>If you are developing a Magento store and you would like a method you can call to completely clear everything out that might be cached or indexed etc then you will like this little snippet:</p>
+
+<p>```php</p>
+
+<p>public function flushEverything() {</p>
+
+<pre><code>    Mage::app()-&gt;getCacheInstance()-&gt;flush();
+    Mage::getModel('core/design_package')-&gt;cleanMergedJsCss();
+    Mage::getModel('catalog/product_image')-&gt;clearCache();
+    $indexer    = Mage::getSingleton('index/indexer');
+    /* @var $indexer Mage_Index_Model_Indexer */
+    foreach($indexer-&gt;getProcessesCollection() as $process){
+          $process-&gt;reindexEverything();
+    }  
+}
+</code></pre>
+
+<p>```</p>
+
+<p>This flushes the cache storage, removes merged JS/CSS files, flushes the product image cache then loops through each index and reindexes.</p>
+
+<p>Perhaps overkill but sometimes there&rsquo;s nothing like the use of excessive force!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Arrays Maintain Index After Removing Exsisting]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-arrays-maintain-index-after-removing-exsisting.html"/>
+    <updated>2012-02-22T14:57:41+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-arrays-maintain-index-after-removing-exsisting</id>
+    <content type="html"><![CDATA[<p>One of the features that makes PHP such a powerful language is it&rsquo;s arrays. They allow for really complex data structures to be stored and worked on really easy. One interesting aspect of them is that they maintain there index if emptied one element at a time.</p>
+
+<p>Taken from php.net: <a href="http://php.net/manual/en/language.types.array.php"><a href="http://php.net/manual/en/language.types.array.php">http://php.net/manual/en/language.types.array.php</a></a></p>
+
+<p>```php</p>
+
+<p>&lt;?php
+// Create a simple array.
+$array = array(1, 2, 3, 4, 5);
+print_r($array);</p>
+
+<p>// Now delete every item, but leave the array itself intact:
+foreach ($array as $i => $value) {</p>
+
+<pre><code>unset($array[$i]);
+</code></pre>
+
+<p>}
+print_r($array);</p>
+
+<p>// Append an item (note that the new key is 5, instead of 0).
+$array[] = 6;
+print_r($array);</p>
+
+<p>// Re-index:
+$array = array_values($array);
+$array[] = 7;
+print_r($array);
+?></p>
+
+<p>```</p>
+
+<p>Will output:
+```
+Array
+(</p>
+
+<pre><code>[0] =&gt; 1
+[1] =&gt; 2
+[2] =&gt; 3
+[3] =&gt; 4
+[4] =&gt; 5
+</code></pre>
+
+<p>)
+Array
+(
+)
+Array
+(</p>
+
+<pre><code>[5] =&gt; 6
+</code></pre>
+
+<p>)
+Array
+(</p>
+
+<pre><code>[0] =&gt; 6
+[1] =&gt; 7
+</code></pre>
+
+<p>)</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Refresh all magento indexes]]></title>
+    <link href="http://edmondscommerce.github.io/magento/refresh-all-magento-indexes.html"/>
+    <updated>2011-06-17T15:10:02+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/refresh-all-magento-indexes</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>The indexes for your Magento site should be refreshed on a regular basis. To help you do this you can put the below code in a PHP file in the root of your web site and setup a scheduled task to call it periodically.</p>
+
+<p>```php</p>
+
+<p>require_once &lsquo;app/Mage.php&rsquo;;
+$app = Mage::app(&lsquo;admin&rsquo;);
+umask(0);
+for ($i = 1; $i &lt;= 8; $i++) {</p>
+
+<pre><code>$process = Mage::getModel('index/process')-&gt;load($i);
+$process-&gt;reindexAll();
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

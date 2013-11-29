@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: object | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/object/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T13:58:53+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHPStorm Regex Convert Array to Object Syntax]]></title>
+    <link href="http://edmondscommerce.github.io/php/phpstorm-regex-convert-array-to-object-syntax.html"/>
+    <updated>2013-08-27T14:40:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/phpstorm-regex-convert-array-to-object-syntax</id>
+    <content type="html"><![CDATA[<p>If you are converting some code from using array syntax to object property syntax then you might like this little snippet of regex.</p>
+
+<p>This is design to paste straight into the find/replace dialogue in PHPStorm</p>
+
+<p>Find:
+```</p>
+
+<p>\$(\w+)[&lsquo;([^&rsquo;]+)&lsquo;]</p>
+
+<p>```</p>
+
+<p>Replace:
+```</p>
+
+<p>\\$$1->$2</p>
+
+<p>```</p>
+
+<p>And that is it</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP PDO Fetch Object and Columns with Spaces]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-pdo-fetch-object-and-columns-with-spaces.html"/>
+    <updated>2013-05-24T17:39:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-pdo-fetch-object-and-columns-with-spaces</id>
+    <content type="html"><![CDATA[<p>If you use PDO and Fetch Object, it might not be clear exactly to access row properties that are based on columns that have spaces.</p>
+
+<p>I know I searched for things like:</p>
+
+<p>PDO Columns with spaces
+PDO::fetchObject spaces
+and PDO spaces in column names</p>
+
+<p>I eventually found what I was looking for in the depths of the PHP.net comments however hopefully this post will be a little bit easier to find thanks to a bit of primitive SEO up there.</p>
+
+<p>The solution to using columns with spaces is simply this:</p>
+
+<p>```php</p>
+
+<p>$sql=&ldquo;select * from table_with_spaces_in_column_names &rdquo;;
+$statement = $myPDOObject->prepare($sql);
+$statement->execute();
+$row = $statement->fetchObject();
+$ColumnWithSpaces = $row->{&lsquo;Column With Spaces&rsquo;}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Netbeans Autocomplete on Class Properties Using PHPDoc]]></title>
+    <link href="http://edmondscommerce.github.io/netbeans/netbeans-autocomplete-on-class-properties-using-phpdoc.html"/>
+    <updated>2010-05-12T11:26:41+01:00</updated>
+    <id>http://edmondscommerce.github.io/netbeans/netbeans-autocomplete-on-class-properties-using-phpdoc</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are using netbeans for PHP classes and you have some of your class properties are instances of other objects and you want to get autocomplete working for them, then you might struggle to figure out which PHPDoc syntax to use to get autocomplete working.</p>
+
+<p>Here is the answer:</p>
+
+<p>```php</p>
+
+<p>/<em>*
+* @property MyObject $myObject
+* @property AnotherObject $anotherObject
+</em>/
+class MyClass{</p>
+
+<pre><code> protected $myObject;
+ protected $anotherObject;
+
+ public function __construct($myObject, $anotherObject){
+     $this-&gt;myObject=$myObject;
+     $this-&gt;anotherObject=$anotherObject;
+ }
+
+ public function autocomplete(){
+     $this-&gt;myObject-&gt;//autocomplete works here
+ }
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP, __get() and empty() Not Working As You Expect? - Solution]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-__get-and-empty-not-working-as-you-expect-solution.html"/>
+    <updated>2010-03-19T10:57:32+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-__get-and-empty-not-working-as-you-expect-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are tearing your hair out trying to figure out why empty($object->property) = true when var_dump($object->property) outputs a value &ndash; this might be the problem.</p>
+
+<p>It arises if you are using the magic __get() method to serve up object properties.</p>
+
+<p>Apparently PHP&rsquo;s empty() function actually uses isset() to determine if the property is empty or not. To get this to work properly, you also need to declare a magic __isset() method.</p>
+
+<p>This is how I got around this problem:</p>
+
+<p>```php</p>
+
+<p>public function __get($key){</p>
+
+<pre><code>if(/* some condition to return your key */){
+    return $this-&gt;$key;
+}
+return null;
+</code></pre>
+
+<p>}</p>
+
+<p>public function __isset($key){</p>
+
+<pre><code>if(null===$this-&gt;__get($key)){
+    return false;
+}
+return true;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>thanks to Janci&rsquo;s comment <a href="http://www.php.net/manual/en/function.empty.php#93117">here</a>, I&rsquo;m not sure how long that would have taken me to figure out on my own, but for sure you saved me a LOT of time. I hope this blog post helps out someone else who hits this same issue.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Javascript Associate Arrays / Objects with Dynamic Key Access]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/javascript-associate-arrays-objects-with-dynamic-key-access.html"/>
+    <updated>2009-09-26T18:19:24+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/javascript-associate-arrays-objects-with-dynamic-key-access</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are trying to use associative arrays in Javascript, the first thing is to not use the Array type and instead just use objects.</p>
+
+<p>The weird and wonderful thing is that if you create your array as an object, you can still use the array style square brackets to access object properties.</p>
+
+<p>So for example take this:</p>
+
+<p>```javascript</p>
+
+<p>var assocArrayObject = {&ldquo;key1&rdquo;:&ldquo;value1&rdquo;, &ldquo;key2&rdquo;:&ldquo;value2&rdquo;};</p>
+
+<p>alert(assocArrayObject[&ldquo;key1&rdquo;);</p>
+
+<p>```</p>
+
+<p>You can also access object properties by using a dynamic key this way as well, but not via the normal method, for example</p>
+
+<p>```javascript</p>
+
+<p>var dynamicKey = &ldquo;key1&rdquo;;</p>
+
+<p>//doesnt work
+alert(assocArrayObject.dynamicKey);</p>
+
+<p>//does work
+alert(assocArrayObject[dynamicKey]);</p>
+
+<p>```</p>
+
+<p>easy when you know how, took me a while to clear this one up :)</p>
+]]></content>
+  </entry>
+  
+</feed>

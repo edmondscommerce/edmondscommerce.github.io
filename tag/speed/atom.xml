@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: speed | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/speed/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T13:58:53+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html"/>
+    <updated>2012-12-04T12:21:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys</id>
+    <content type="html"><![CDATA[<p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php
+```php</p>
+
+<p>/**</p>
+
+<pre><code> * Generate a nice unique block cache key
+ *
+ * @param Mage_Core_Block_Abstract $block
+ * @return string
+ */
+public function ecCacheKey(Mage_Core_Block_Abstract $block){
+    $class = get_class($block);
+    $template = $block-&gt;getTemplateFile();
+    $md5 = md5(var_export($block-&gt;getData(), true));
+    $params = trim(implode(",", $block-&gt;getRequest()-&gt;getParams()), ',');
+    $category=($block-&gt;getCurrentCategory())?$block-&gt;getCurrentCategory()-&gt;getName():'no-category';
+    $store_id = Mage::app()-&gt;getStore()-&gt;getId();
+    return 'edmondscommerce-'. $params . '-'. $category . '-' . $store_id . '-' . $class.'-'.$template.'-'.$md5;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:
+```php</p>
+
+<pre><code>public function _construct(){
+    parent::_construct();
+    $this-&gt;addData(array(
+        'cache_lifetime' =&gt; 999999999,
+        'cache_tags' =&gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),
+        'cache_key' =&gt; Mage::helper('blockcaching')-&gt;ecCacheKey($this)
+    ));
+
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Profiler Improved - Aoe_Profiler by Fabrizio Branca]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca.html"/>
+    <updated>2012-08-17T15:31:32+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca</id>
+    <content type="html"><![CDATA[<p>The Magento profiler is useful when you are trying to discover what potential bottlenecks are in place in a specific Magento implementation that are slowing down the performance of the site. Often when doing this kind of analysis you might find that a particular block or extension is responsible for more than 70% of the total page load time. At this point you would choose to either optimise, cache or disable the block altogether to remove this performance bottleneck and improve page speed significantly.</p>
+
+<p>If you have ever tried to use Magento&rsquo;s built in profiler you will no doubt agree with Fabrizio&rsquo;s comments that, when you have it working, the output is hard to read and not really very useful in terms of seeing what is actually going on.</p>
+
+<p>To aid with this process and give us a nice colourful and friendly user interface to the Magento profiler, Fabrizio has built a Magento module that extends the default profiler and makes it a much more useful tool.</p>
+
+<p>You can download the extension from <a href="https://github.com/fbrnc/Aoe_Profiler" title="Magento Aoe Profiler on Git Hub" target="_blank">git hub here</a>.</p>
+
+<p>Read the full blog story <a href="http://www.fabrizio-branca.de/magento-profiler.html" title="Fabrizio Branch blog" target="_blank">here</a>.</p>
+
+<p>If you would like some help optimising the performance of your Magento store, feel free to get in touch with Edmonds Commerce today and we can assist in getting the very best performance from your Magento web site.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento admin backend slow (quick speed tip)]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-admin-backend-slow-quick-speed-tip.html"/>
+    <updated>2011-11-14T12:48:00+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-admin-backend-slow-quick-speed-tip</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>One of the things that can catch you out if you have a paranoid server admin is that various magento extensions will contact external servers (such as SagePay or Mailchimp).</p>
+
+<p>If the server admin has blocked outbound web traffic (to avoid DDoS attacks and other malicious traffic), these extensions will slow you down at every step.</p>
+
+<p>Simple answer, if you&rsquo;re running magento, ensure you have outbound traffic enabled.  Also, don&rsquo;t assume that just because you can use lynx, apt-get et al at the command prompt that you can as the web server user.  IPTables and pf both have checks for outbound user, so be sure to test as www-user or apache.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Hosting Optimisation Tips]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-hosting-optimisation-tips.html"/>
+    <updated>2011-09-19T17:23:44+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-hosting-optimisation-tips</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are looking to gain the most out of your Magento hosting and to optimise your Magento hosting stack, here are a few top tips that you can try.</p>
+
+<p><b>1. Ensure Caching is Enabled</b>
+It may sound obvious, but if you do not have caching enabled then the performance of your Magento store is going to suffer massively.</p>
+
+<p>Generally whilst developing, caching will need to be at least partially disabled to ensure that changes are reflected. Unfortunately some times when a site goes live, enabling caching is a forgotten step.</p>
+
+<p><b>2. Upgrade your Magento</b>
+More recent versions of Magento offer much better performance than earlier versions. If you are running a Magento version older than 1.4 then you should definitely look to upgrade as soon as possible as there are vast improvements to be made in terms of performance.</p>
+
+<p><b>3. Disable or Improve Bad Extensions</b>
+Some custom modules or forum inspired template hacks can be functionally fine but absolutely terrible in terms of performance. Fancy a best sellers list? Lets calculate the top ten products on every single page load and display the results in the right hand column!</p>
+
+<p><b>4. Use Block Caching</b>
+In order to deal with the above scenario, it is fairly easy to use block caching &ndash; something built into Magento as standard &ndash; to cache the html output of a block and serve from the cache rather than doing lots of heavy processing on an unnecessarily regular basis.</p>
+
+<p><b>5. Move Hosts</b>
+Some times you just have to accept  that your hardware or hosting is no up to scratch. A well optimised LAMP stack can out perform an unoptimised standard stack by a surprising degree. Combine that with some choice extensions such as opcode caching etc and the performance difference can be really quite significant &ndash; and without any hardware upgrades. If you are running a VPS or dedicated server then it is possible to optimise the stack yourselves, or hire an agency like us to help you with this. Alternatively you can try to move hosts to a more specialist Magento hosting company that will provide this service as standard.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Optimised Hosting]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-optimised-hosting.html"/>
+    <updated>2011-09-15T07:17:03+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-optimised-hosting</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Edmonds Commerce have been with Magento since the beginning. If you would like us to optimise your VPS or dedicated server for Magento then please <a href="http://edmondscommerce.github.io/contact-us/">get in touch today</a>.</p>
+
+<p>Back then the speed of Magento was one of its main drawbacks. Since that time, the code has improved a lot and things have generally got a lot better but one thing that has become clear over the years is that Magento really does require a well optimised hosting platform to perform the best. Conversely, hosting Magento on a badly configured or none optimised hosting stack will have a really detrimental effect on the performance of the store.</p>
+
+<p>If you are using shared hosting then you are a bit stuck. Magento optimised shared hosting is available and there are some good companies out there that we would be happy to recommend for you. If your current store is not performing well though and you are on shared hosting then the likelihood is that the only solution is to either upgrade to some kind of dedicated or virtual private server, commonly shortened to VPS.</p>
+
+<p>A VPS or VDS as they are some times called is what is known as a virtual machine. It is a full instance of an operating system (Linux) running on hardware that is actually running multiple virtual machines from one real server. In some respects this is like shared hosting, however the difference is that on a VPS you have a fully dedicated, private and customisable operating system that can be configured and optimised as required.</p>
+
+<p>Of course if you have a real dedicated server then you have the same benefits of a VPS and also enjoy dedicated hardware.</p>
+
+<p>Either way, as soon as you have a dedicated operating system you are free to configure your database, web server and PHP however you wish. Generally though this is too technical for most people. This is where we come in.</p>
+
+<p>We are happy to provide for you a full VPS or dedicated server Magento optimisation service. Our Magento hosting optimisation service will ensure you are getting the best out of your current hosting package. It means that you are not required to move hosts if you are generally happy them, but you can be assured that you are running on a highly optimised Magento stack.</p>
+
+<p>If that sounds interesting and you would like to discuss this in more detail, simply <a href="http://edmondscommerce.github.io/contact-us/">get in touch today</a></p>
+]]></content>
+  </entry>
+  
+</feed>

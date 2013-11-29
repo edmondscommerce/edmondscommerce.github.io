@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: api | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/api/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T13:58:53+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Base64 Decode if Encoded Otherwise Leave Intact]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-base64-decode-if-encoded-otherwise-leave-intact.html"/>
+    <updated>2013-07-25T15:05:08+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-base64-decode-if-encoded-otherwise-leave-intact</id>
+    <content type="html"><![CDATA[<p>I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).</p>
+
+<p>However to really make things interesting, they didn&rsquo;t always do this so you couldn&rsquo;t just go and decode everything.</p>
+
+<p>Here is the solution I came up with:</p>
+
+<p>First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:</p>
+
+<p>```php</p>
+
+<p>preg_replace_callback(&lsquo;%>([^&lt;]+?)&lt;%&rsquo;, array($this, &lsquo;_decode&rsquo;), $response)</p>
+
+<p>```</p>
+
+<p>Then the callback function is a method on the same object hence the use of array($this, &lsquo;_decode&rsquo;)</p>
+
+<p>```php</p>
+
+<pre><code>/**
+ * Decode from bas64 if it actually is base64 encoded in the first place
+ *
+ * If not return the raw string
+ *
+ * @param $matches
+ * @return string
+ */
+protected function _decode($matches)
+{
+    $raw=$matches[1];
+    $decoded = base64_decode($raw, true);
+    $return=$decoded;
+    if(false === $decoded){
+        $return=$raw;
+    }elseif(base64_encode($decoded) != $raw){
+        $return=$raw;
+    }
+    return '&gt;&lt;![CDATA[' . $return . ']]&gt;&lt;';
+}
+</code></pre>
+
+<p>```</p>
+
+<p>What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.</p>
+
+<p>If it doesn&rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.</p>
+
+<p>By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.</p>
+
+<p>Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.</p>
+
+<p>However &ndash; one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&rsquo;t mind compromising the data a little which I didn&rsquo;t for my purposes) then you can do the following:</p>
+
+<p>```php</p>
+
+<p>//have to utf8 encode it to fix the fact its not properly encoded at their end
+$xml = simplexml_load_string(utf8_encode($response));</p>
+
+<p>```</p>
+
+<p>And that&rsquo;s it, another crazy API defeated and bent to my will!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP SOAP Client Basic Template]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-soap-client-basic-template.html"/>
+    <updated>2013-07-08T08:28:17+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-soap-client-basic-template</id>
+    <content type="html"><![CDATA[<p>Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&rsquo;m just unlucky?</p>
+
+<p>In my experience decent API&rsquo;s don&rsquo;t use SOAP.</p>
+
+<p>Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&rsquo;t work), I&rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+/<em>*
+ * Class Template Soap Client Consuming Class
+ </em>/</p>
+
+<p>class EdmondsCommerceSoap
+{</p>
+
+<pre><code>protected $username = 'edmondscommerce';
+
+protected $pass = 'NotReallyMyPassw0rd';
+
+
+public function test($wsdl)
+{
+    $options["connection_timeout"] = 25;
+    $options["location"] = $wsdl; 
+    $options['trace'] = 1; //this is important if you want to be able to use the soapDebug method
+    try {
+        $client = new SoapClient($wsdl, $options);
+        $client = $this-&gt;setAuthHeader($client);
+        $client-&gt;Method();
+    } catch (SoapFault $e) {
+        echo '&lt;h1&gt;SoapFault: ' . $e-&gt;getMessage() . '&lt;/h1&gt;';
+        echo '&lt;pre&gt;' . $e-&gt;getTraceAsString() . '&lt;/pre&gt;';
+    }
+    echo '&lt;h2&gt;Debug Info:&lt;/h2&gt;';
+    var_dump($this-&gt;soapDebug($client));
+}
+
+/**
+* This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers
+**/
+protected function setAuthHeader(SoapClient $client)
+{
+    $auth = array(
+        'username' =&gt; $this-&gt;username,
+        'MessageId' =&gt; md5(time()),
+        'password' =&gt; $this-&gt;password
+    );
+    foreach($auth as $k=&gt;$v){
+        $headers[] = new SoapHeader('Header', $k, $v, false);
+    }
+    $client-&gt;__setSoapHeaders($headers);
+    return $client;
+}
+
+/**
+ *  This method gathers all debug info into a handy array ready for var_dump, log etc etc
+ **/
+protected function soapDebug(SoapClient $client)
+{
+    $debug = array();
+    $debug['request']['headers'] = $client-&gt;__getLastRequestHeaders();
+    $debug['request']['body'] = $client-&gt;__getLastRequest();
+    $debug['request']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastRequest());
+    $debug['response']['headers'] = $client-&gt;__getLastResponseHeaders();
+    $debug['response']['body'] = $client-&gt;__getLastResponse();
+    $debug['response']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastResponse());
+    return $debug;
+}
+
+
+/**
+ * This method is purely to assist the debug method and simply makes generated XML readable
+ **/
+protected function formatXmlString($xml)
+{
+    $xml = preg_replace('/(&gt;)(&lt;)(\/*)/', "$1\n$2$3", $xml);
+    $token = strtok($xml, "\n");
+    $result = '';
+    $pad = 0;
+    $matches = array();
+    while ($token !== false) :
+        if (preg_match('/.+&lt;\/\w[^&gt;]*&gt;$/', $token, $matches)) :
+            $indent = 0; elseif (preg_match('/^&lt;\/\w/', $token, $matches)) :
+            $pad--;
+            $indent = 0; elseif (preg_match('/^&lt;\w[^&gt;]*[^\/]&gt;.*$/', $token, $matches)) :
+            $indent = 1; else :
+            $indent = 0;
+        endif;
+        $line = str_pad($token, strlen($token) + $pad, ' ', STR_PAD_LEFT);
+        $result .= $line . "\n";
+        $token = strtok("\n");
+        $pad += $indent;
+    endwhile;
+    return $result;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Add Jquery to Any Page via Console]]></title>
+    <link href="http://edmondscommerce.github.io/jquery/add-jquery-to-any-page-via-console.html"/>
+    <updated>2013-03-26T18:44:22+00:00</updated>
+    <id>http://edmondscommerce.github.io/jquery/add-jquery-to-any-page-via-console</id>
+    <content type="html"><![CDATA[<p>Sometimes you might want to do a little on the fly DOM editing using your favourite Javascript library &ndash; jQuery.</p>
+
+<p>To do this you might need to include jQuery on the page, you can do this by pasting these lines into your console in Chrome or Firebug in Firefox.</p>
+
+<pre class="lang:js decode:true " title="Run this in your console" >var jq = document.createElement('script');
+jq.src = "http://code.jquery.com/jquery-latest.min.js";
+document.getElementsByTagName('head')[0].appendChild(jq);
+jQuery.noConflict();
+</pre>
+
+
+<p></p>
+
+<p>And there you have it, the full power of jQuery at your fingertips</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Release SagePay Form Orders via API]]></title>
+    <link href="http://edmondscommerce.github.io/sagepay/release-sagepay-form-orders-via-api.html"/>
+    <updated>2013-03-19T17:54:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/sagepay/release-sagepay-form-orders-via-api</id>
+    <content type="html"><![CDATA[<p>If you use SagePay Form integration then you might think that it is impossible to release orders created via this integration system via the API.</p>
+
+<p>Historically this was true however thanks to the new admin and reporting API you can now grab all of the details you need to perform the kind of admin side integration previously only possible via Server and Direct integrations.</p>
+
+<p>This does take a bit of work but if you like the fact that Form alleviates PCI compliance issues, allows your customers to use the nice easy to use Form interface and also gives you easy PayPal integration then this is a great solution.</p>
+
+<p>Thanks goes out to SagePay&rsquo;s technical support who have proved really helpful in ironing out the kinks in getting this working.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP API Development Logging and Debugging]]></title>
+    <link href="http://edmondscommerce.github.io/php/4145.html"/>
+    <updated>2013-03-14T14:53:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/4145</id>
+    <content type="html"><![CDATA[<p>If you are ever working with API integrations, either in or out bound, then it might be useful to set up a simple dumb logging system to assist you with developing and debugging things.</p>
+
+<p>Here is a really simple snippet to help you along with that.</p>
+
+<p>It literally takes exactly what it has received and logs it with no messing about. Brilliant!</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+$log[&lsquo;raw_input&rsquo;]=file_get_contents(&lsquo;php://input&rsquo;);
+$log[&lsquo;<em>POST&rsquo;]=$</em>POST;
+$log[&lsquo;<em>GET&rsquo;]=$</em>GET;</p>
+
+<p>file_put_contents(&lsquo;inboundXML.log&rsquo;, var_export($log, true));</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

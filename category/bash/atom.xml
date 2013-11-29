@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: bash | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/bash/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T13:58:53+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Automatically convert old PHP file to camelCase ]]></title>
+    <link href="http://edmondscommerce.github.io/bash/automatically-convert-old-php-file-to-camelcase.html"/>
+    <updated>2013-10-17T10:53:15+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/automatically-convert-old-php-file-to-camelcase</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently been working with an old project that uses a combination of different coding styles.</p>
+
+<p>One of the more trivial annoyances with this is that the variables used through the project are a combination of $camelCase and $snake_case which throws of the coding standards tools that I use.</p>
+
+<p>To get round this I have put a little script together that will convert $snake_case to $camelCase automatically.</p>
+
+<p>Obviously, you will need to check the results of this to make sure that there are not variables that should not be changed, but it has saved me a lot of time doing this manually.</p>
+
+<p>I&rsquo;ve added this to my .bash_allias file, though it could easily be turned into a standalone script if required</p>
+
+<p>```bash</p>
+
+<h1>Fix legacy code</h1>
+
+<p> cammelCase() {
+   vim -E -s $@ &lt;&lt;-EOF
+   :%s#\%($\%(\k+))\@&lt;=_(\k)#\u\1#g
+   :update
+   :quit
+EOF</p>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tab Complete for SSH and SCP]]></title>
+    <link href="http://edmondscommerce.github.io/magento/bash/tab-complete-for-ssh-and-scp.html"/>
+    <updated>2013-07-26T10:31:41+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/bash/tab-complete-for-ssh-and-scp</id>
+    <content type="html"><![CDATA[<p>If you are required to connect to different servers, then remembering and typing in all of the details can become tiresome.</p>
+
+<p>Thankfully there is simple solution to this, using the SSH config file.</p>
+
+<p>To make use of this, create the following file ~/.ssh/config</p>
+
+<p>In there add the following details</p>
+
+<p>```bash</p>
+
+<p>Host easyToRememberName</p>
+
+<pre><code>HostName 127.0.0.1
+Port 2020
+User ross
+</code></pre>
+
+<p>```</p>
+
+<p>You will then can tab completion on ssh and scp commands. You can see more of the options that can be set in the file <a href="http://linux.die.net/man/5/ssh_config" title="ssh config man page">here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Side by Side diff on the command line]]></title>
+    <link href="http://edmondscommerce.github.io/bash/side-by-side-diff-on-the-command-line.html"/>
+    <updated>2013-07-09T17:25:18+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/side-by-side-diff-on-the-command-line</id>
+    <content type="html"><![CDATA[<p>I have recently discovered a handy trick when comparing files on the command line.</p>
+
+<p>Adding the -y command line options to diff will display the files side by side.</p>
+
+<p>Using this with the <a href="http://www.colordiff.org/" title="Color Diff" target="_blank">Color Diff</a> tool will help you transform this</p>
+
+<p><img src="/assets/normal-diff.png"></p>
+
+<p>To this</p>
+
+<p><img src="/assets/color-diff-600x200.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Log File Analysis Script]]></title>
+    <link href="http://edmondscommerce.github.io/bash/apache-log-file-analysis-script.html"/>
+    <updated>2013-03-14T14:17:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/apache-log-file-analysis-script</id>
+    <content type="html"><![CDATA[<p>Here is a little bash script we knocked together to track down some malicious activity on a clients server.</p>
+
+<p>Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.</p>
+
+<p>Here is the script:</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<h6>SETUP</h6>
+
+<p>LOG_FOLDER=/var/www/vhosts/domain.co.uk/statistics/logs
+ACCESS_LOG=$LOG_FOLDER/access_log</p>
+
+<p>HOW_MANY_ROWS=20000</p>
+
+<h6>### FUNCTIONS</h6>
+
+<p>function title() {</p>
+
+<pre><code>echo "
+</code></pre>
+
+<hr />
+
+<h2>$@</h2>
+
+<p>&ldquo;
+}</p>
+
+<p>function urls_by_ip() {</p>
+
+<pre><code>local IP=$1
+tail -5000 $ACCESS_LOG | awk -v ip=$IP ' $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20
+</code></pre>
+
+<p>}</p>
+
+<p>function ip_addresses_by_user_agent(){</p>
+
+<pre><code>local USERAGENT_STRING="$1"
+local TOP_20_IPS="`tail  -$HOW_MANY_ROWS $ACCESS_LOG | grep "${USERAGENT_STRING}"  | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20`"
+echo "$TOP_20_IPS"
+</code></pre>
+
+<p>}</p>
+
+<h6># RUN REPORTS</h6>
+
+<p>title &ldquo;top 20 URLs&rdquo;
+TOP_20_URLS=&ldquo;<code>tail -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS&rdquo;</p>
+
+<p>title &ldquo;top 20 URLS excluding POST data&rdquo;
+TOP_20_URLS_WITHOUT_POST=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk -F"[ ?]" '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS_WITHOUT_POST&rdquo;</p>
+
+<p>title &ldquo;top 20 IPs&rdquo;
+TOP_20_IPS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_IPS&rdquo;</p>
+
+<p>title &ldquo;top 20 user agents&rdquo;
+TOP_20_USER_AGENTS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_USER_AGENTS&rdquo;</p>
+
+<p>title &ldquo;IP Addresses for Top 3 User Agents&rdquo;</p>
+
+<p>for ((I=1; I&lt;=3; I++))
+do</p>
+
+<pre><code>UA="`echo "$TOP_20_USER_AGENTS" | head -n $I | tail -n 1 | awk '{$1=""; print $0}'`"
+echo "$UA"
+echo "~~~~~~~~~~~~~~~~~~"
+ip_addresses_by_user_agent "$UA"
+echo "
+"
+</code></pre>
+
+<p>done</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bash timeout and copying text in vim]]></title>
+    <link href="http://edmondscommerce.github.io/bash/bash-timeout-and-copying-text-in-vim.html"/>
+    <updated>2013-03-14T12:59:42+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/bash-timeout-and-copying-text-in-vim</id>
+    <content type="html"><![CDATA[<p>I have been working with a server that had been configured differently from the way that I prefer.</p>
+
+<p>The two biggest complaints that I had about it were that the timeout was set very low, meaning that the connection would break off every five minutes, and that vim had been set up so if you selected text using the mouse you could not copy it.</p>
+
+<p>The solutions to these two problems are as follows.</p>
+
+<p>You can tell the terminal not to timeout with the following command</p>
+
+<p>```bash</p>
+
+<p>export TMOUT=0</p>
+
+<p>```</p>
+
+<p>Be aware that this will only work for the terminal that you are working with.</p>
+
+<p>The issue with vim is that the mouse was triggering visual mode.</p>
+
+<p>To get round this hold down shift when selecting text and everything will work as expected</p>
+]]></content>
+  </entry>
+  
+</feed>

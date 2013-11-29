@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: urls | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/urls/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T13:58:53+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Reduce Catalog URL Rewrites Time in Magento]]></title>
+    <link href="http://edmondscommerce.github.io/magento/reduce-catalog-url-rewrites-time-in-magento.html"/>
+    <updated>2012-10-22T16:40:10+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/reduce-catalog-url-rewrites-time-in-magento</id>
+    <content type="html"><![CDATA[<p>I recently had a client that wanted to remove the category structure from their product urls.</p>
+
+<p>There is a option to do this in the admin, but they wanted to redirect all of the existing urls to the shorter one.</p>
+
+<p>The way that I wanted to do this was to truncate the current core_url_rewrite table and regenerate the urls with the &ldquo;Use Categories Path for Product URLs&rdquo; set to no, and then override the 404 controller to redirect to the correct url.</p>
+
+<p>However, after the urls were generated, I found that all of the urls including the category path were still included, which meant that the override would not work.</p>
+
+<p>After spending quite a bit of time looking for a way to get round this, I put together a simple override to prevent the category path urls from getting generated.</p>
+
+<p>This had the added benefit of reducing the number of entries in the core_url_rewite table from ~2k entries to under 500, which cut the amount of time that was needed to generate it.</p>
+
+<p>The code is below for anyone else that needs to use this in the future. There are three files in total, set up like this</p>
+
+<p>```php</p>
+
+<p>EdmondsCommerce/
+`&mdash; Redirects</p>
+
+<pre><code>|-- controllers
+|   `-- Cms
+|       `-- IndexController.php
+|-- etc
+|   `-- config.xml
+`-- Model
+    `-- Catalog
+        `-- Url.php
+</code></pre>
+
+<p>```</p>
+
+<p>This is the code for the Model</p>
+
+<p>```php</p>
+
+<p>class EdmondsCommerce_Redirects_Model_Catalog_Url
+  extends Mage_Catalog_Model_Url {</p>
+
+<pre><code>/**
+ * This method is called each time that a url 
+ * is generated for a product. It is called for the 
+ * root category and each category that the product is in.
+ * 
+ * This code checks to see if the category passed to it is
+ * the root category. If it is it will 
+ * add the url rewrite as normal. If not it does nothing
+ * 
+ * @param Varien_Object $product
+ * @param Varien_Object $category
+ */
+protected function _refreshProductRewrite(Varien_Object $product, Varien_Object $category) {
+    $rootCategory = $this-&gt;getStoreRootCategory($category-&gt;getStoreId());
+    if($category-&gt;getId() == $rootCategory-&gt;getId()) {
+        parent::_refreshProductRewrite($product, $category);
+    }
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>If you want to redirect from the existing urls to the new ones, you will need to use the following controller</p>
+
+<p>```php</p>
+
+<p>include_once(&lsquo;Mage/Cms/controllers/IndexController.php&rsquo;);</p>
+
+<p>class EdmondsCommerce_Redirects_Cms_IndexController
+extends Mage_Cms_IndexController {</p>
+
+<pre><code>/**
+ * This checks to see if the site can redirect
+ * before displaying a 404
+ * @param type $coreRoute
+ */
+public function noRouteAction($coreRoute = null) {
+    // Get the request
+    $request = $_SERVER['REQUEST_URI'];
+    // Strip off get params if there are any
+    if (strpos($request, '?') !== FALSE) {
+        $request = substr($request, 0, strpos($request, '?'));
+    }
+    /**
+     *  This makes sure that no part of the request is included
+     *  in the base url. This should help
+     *  the system work if it is running from a sub folder
+     */
+    $parts = explode('/', Mage::getBaseUrl());
+    foreach ($parts AS $part) {
+        $request = str_replace(array($part, '//'), '', $request);
+    }
+    /*
+     * Combine the request with the base path to get the full url
+     * and remove any trailing slashes
+     */
+    $path = trim(str_replace('http:/', 'http://', str_replace('//', '/', Mage::getBaseUrl() . $request)), '/');
+    //Get the last section which should be the product title
+    $cleanedPath = explode('/', $path);
+    $key = array_pop($cleanedPath);
+    //Here we find url keys like the title
+    $collection = Mage::getModel('catalog/product')-&gt;getCollection();
+    $collection-&gt;addAttributeToSelect('url_key');
+    $collection-&gt;addFieldToFilter(array(
+        array('attribute' =&gt; 'url_key', 'like' =&gt; "$key")));
+    $products = $collection-&gt;load();
+    /*
+     * Proceed if there is only 1 result, if there are more we
+     * don't know which one is correct
+     */
+    if (count($products) == 1) {
+        foreach ($products AS $product) {
+            $url = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $product-&gt;getUrlKey();
+            //Check to make sure the url is not the same as the path, should prevent infinite redirects
+            if ($path != $url) {
+                header('HTTP/1.1 301 Moved Permanently');
+                header('Location: ' . $url);
+                die();
+            }
+        }
+    }
+    // Could not find a suitable url carry out the 404
+    parent::noRouteAction($coreRoute);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>Then use the following xml file</p>
+
+<p>```xml</p>
+
+<p>&lt;?xml version=&ldquo;1.0&rdquo;?>
+<config></p>
+
+<pre><code>&lt;modules&gt;
+    &lt;EdmondsCommerce_Redirects&gt;
+        &lt;version&gt;0.1.0&lt;/version&gt;
+        &lt;depends&gt;&lt;/depends&gt;
+    &lt;/EdmondsCommerce_Redirects&gt;
+&lt;/modules&gt;
+&lt;global&gt;
+    &lt;models&gt;
+        &lt;redirects&gt;
+            &lt;class&gt;EdmondsCommerce_Redirects_Model&lt;/class&gt;
+        &lt;/redirects&gt;
+        &lt;catalog&gt;
+            &lt;rewrite&gt;
+                &lt;url&gt;EdmondsCommerce_Redirects_Model_Catalog_Url&lt;/url&gt;
+            &lt;/rewrite&gt;
+        &lt;/catalog&gt;
+    &lt;/models&gt;
+&lt;/global&gt;
+&lt;frontend&gt;
+    &lt;routers&gt;
+        &lt;cms&gt;
+            &lt;args&gt;
+                &lt;modules&gt;
+                    &lt;EdmondsCommerce_Redirects before="Mage_Cms"&gt;EdmondsCommerce_Redirects_Cms&lt;/EdmondsCommerce_Redirects&gt;
+                &lt;/modules&gt;
+            &lt;/args&gt;
+        &lt;/cms&gt;
+    &lt;/routers&gt;
+&lt;/frontend&gt;
+</code></pre>
+
+<p></config></p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Live Images on Staging Without Absolute URLs (but a bit of JS)]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html"/>
+    <updated>2012-03-27T11:05:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js</id>
+    <content type="html"><![CDATA[<p>If you have a staging copy of your site anywhere then you might not bother copying over your entire catalogue of product images etc.</p>
+
+<p>You might decide to drop in absolute URLs for those images so that they are pulled from live. However you really don&rsquo;t want absolute URLs in your code and you certainly don&rsquo;t want that to go live because it just adds unnecessary bloat.</p>
+
+<p>A nice trick you can do here is make a change to your staging site as follows. Of course ensure this change doesn&rsquo;t go live, but it should be just one file so that&rsquo;s easy to handle.</p>
+
+<p>(Note this assumes you already have jQuery available on your page)</p>
+
+<p>```javascript</p>
+
+<script type="text/javascript">
+$().ready(function(){
+    $('img').each(function(){
+        var src = $(this).attr('src')+'';        
+        if(-1 == src.indexOf('http')){
+            var new_src = 'http://www.LIVEDOMAIN.co.uk/'+src;
+            $(this).attr('src', new_src);
+        }
+    });
+});    
+</script>
+
+
+<p>```</p>
+
+<p>Don&rsquo;t forget to change LIVEDOMAIN to be your real live domain</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Stage Gear - General Site Improvements]]></title>
+    <link href="http://edmondscommerce.github.io/portfolio/stage-gear-general-site-improvements.html"/>
+    <updated>2011-06-09T16:46:41+01:00</updated>
+    <id>http://edmondscommerce.github.io/portfolio/stage-gear-general-site-improvements</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<h2>Stage Gear – General Site Improvements</h2>
+
+
+<p>Stage Gear needed a number of aspects of their OSCommerce site improving, including the look and feel, the addition of SEO URLs to improve site ranking, improving search on the site and adding basic Facebook integration.</p>
+
+<h3>Stage Gear</h3>
+
+
+<p>Stage Gear is a company that specialise in retailing <a href="http://www.sound-light-company.co.uk/">sound and lighting equipment</a> for use by clubs, pubs, bands and DJs.</p>
+
+<p><img src="/assets/stagegear-300x224.png"></p>
+
+<p>This project was terrific as it demonstrates that OSCommerce is still fully capable of running a modern web site.</p>
+]]></content>
+  </entry>
+  
+</feed>

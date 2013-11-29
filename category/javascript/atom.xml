@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: javascript | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/javascript/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T13:58:53+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Disable JavaScript alerts for a page]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/disable-javascript-alerts-for-a-page.html"/>
+    <updated>2013-08-28T09:21:30+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/disable-javascript-alerts-for-a-page</id>
+    <content type="html"><![CDATA[<p>If you encounter a webpage that is generating a lot of alerts, the following bookmark will prevent them from stealing focus but still allow you to see what is being said.</p>
+
+<p>```js</p>
+
+<p>javascript:alert = function ( text ) { console.log( text ); return true; };</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Boost your Magento store's image display with MagicZoom]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/php/magento/jquery/boost-your-magento-stores-image-display-with-magiczoom.html"/>
+    <updated>2012-11-02T16:09:03+00:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/php/magento/jquery/boost-your-magento-stores-image-display-with-magiczoom</id>
+    <content type="html"><![CDATA[<p>Magento&rsquo;s product images come with a workable, although somewhat unusual image zoom functionality. But many users want a lightbox which lets users click an image and see a large version. Of course, you can use just about any jQuery plugin in your templates &ndash; <a href="http://www.magictoolbox.com/magiczoom/" target="_blank">Magic Zoom</a> being one such perfect example.</p>
+
+<p>But instead of manually installing and configuring the Javascript yourself, <a href="http://www.magictoolbox.com/magiczoom/modules/magento/" target="_blank">MagicZoom has its own Magento MagicZoom extension</a> which can be dropped straight in and integrates beautifully with Magento</p>
+
+<p><img src="/assets/MagicZoomMagento1.png"></p>
+
+<h2>Some highlights MagicZoom's Magento extension</h2>
+
+
+<ul>
+    <li>Automatically inserts the product title onto the zoomed box</li>
+    <li>Automatically linking main image and thumbnails for navigation when zoomed</li>
+    <li>Visible on pretty much any area of the site, not just the product view page</li>
+    <li>Per-theme customisation</li>
+    <li>An insane amount of user-configurable options without touching a line of code (see below)</li>
+</ul>
+
+
+<p><img src="/assets/MagentoMagicZoomConfig.png"></p>
+
+<h2>Installation</h2>
+
+
+<p>MagicZoom&rsquo;s extension comes with its own installer, although for me it was perfectly sufficient to simply drop in the files</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[jQuery Plugin Not Loading + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/jquery-plugin-not-loading-solution.html"/>
+    <updated>2012-06-06T13:27:20+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/jquery-plugin-not-loading-solution</id>
+    <content type="html"><![CDATA[<p>If you are struggling to figure out why a perfectly good jQuery plugin that works elsewhere is not loading into jQuery for a particular page, this may well be your solution.</p>
+
+<p>This behaviour will happen if something reloads jQuery elsewhere on your page, below the script tag that calls the plugin.</p>
+
+<p>If this happens, jQuery is effectively reloaded and has lost all the extensions you have made to it.</p>
+
+<p>The solution of course is to simply remove the extra jQuery loads. If that is not very easy to do, you can at least try to modify it so that it won&rsquo;t reload it if it already exists:</p>
+
+<p>```javascript</p>
+
+<script type="text/javascript">
+    if (typeof jQuery == 'undefined') {
+        var script     = document.createElement('script');
+        script.setAttribute("type","text/javascript");
+        script.src = "jquery-latest.pack.js";
+        var head = document.getElementsByTagName('head')[0],
+        done = false;
+
+        // Attach handlers for all browsers
+        script.onload = script.onreadystatechange = function() {
+            if (!done && (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete')) {
+                done = true;
+                // callback function provided as param
+                onload_stuff();
+                script.onload = script.onreadystatechange = null;
+            };
+        };
+        head.appendChild(script);
+    }else{
+        onload_stuff();
+    }
+    onload_stuff = function(){
+         // your onload stuff goes here
+    }
+</script>
+
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Javascript late-loading trick]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/tip-javascript-late-loading-trick.html"/>
+    <updated>2012-03-30T14:36:08+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/tip-javascript-late-loading-trick</id>
+    <content type="html"><![CDATA[<p>Having issues with javascript dependencies or awkwardly structured html defining objects you need before run?</p>
+
+<p>This is a little trick I used combined with <a href="https://github.com/csnover/RoundRect">csnover&rsquo;s roundrect.js</a> to provide IE versions &lt; 9 with border-radius rounded corners.</p>
+
+<p>Create a separate source file e.g. mylateloader.js and in it include the following code :&ndash;
+```</p>
+
+<p>function myInArray(needle, haystack) {</p>
+
+<pre><code>var length = haystack.length;
+for(var i = 0; i &lt; length; i++) {
+    var str = jQuery(haystack[i]).attr('src');
+    if(typeof(str) != 'undefined' &amp;&amp; str.search('.*'+needle+'.*') &gt; -1) return str;
+}
+return false;
+</code></pre>
+
+<p>}</p>
+
+<p>jQuery(document).ready(function(){</p>
+
+<pre><code>var script = document.createElement('script');
+url = myInArray('mylateloader.js', document.getElementsByTagName('script'));
+script.src = url.replace('mylateloader.js','mycoolminifiedfile.min.js');
+document.getElementsByTagName('head')[0].appendChild(script);
+setTimeout("mycoolobject.run()",2000);
+</code></pre>
+
+<p>})</p>
+
+<p>```</p>
+
+<p>That way, at document.ready(), mycoolminifiedfile.min.js is loaded <em>from the same directory on the server as the late loader js</em> and 2 seconds later, the mycoolobject.run() is called.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Live Images on Staging Without Absolute URLs (but a bit of JS)]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html"/>
+    <updated>2012-03-27T11:05:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js</id>
+    <content type="html"><![CDATA[<p>If you have a staging copy of your site anywhere then you might not bother copying over your entire catalogue of product images etc.</p>
+
+<p>You might decide to drop in absolute URLs for those images so that they are pulled from live. However you really don&rsquo;t want absolute URLs in your code and you certainly don&rsquo;t want that to go live because it just adds unnecessary bloat.</p>
+
+<p>A nice trick you can do here is make a change to your staging site as follows. Of course ensure this change doesn&rsquo;t go live, but it should be just one file so that&rsquo;s easy to handle.</p>
+
+<p>(Note this assumes you already have jQuery available on your page)</p>
+
+<p>```javascript</p>
+
+<script type="text/javascript">
+$().ready(function(){
+    $('img').each(function(){
+        var src = $(this).attr('src')+'';        
+        if(-1 == src.indexOf('http')){
+            var new_src = 'http://www.LIVEDOMAIN.co.uk/'+src;
+            $(this).attr('src', new_src);
+        }
+    });
+});    
+</script>
+
+
+<p>```</p>
+
+<p>Don&rsquo;t forget to change LIVEDOMAIN to be your real live domain</p>
+]]></content>
+  </entry>
+  
+</feed>
