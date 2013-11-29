@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: mod_rewrite | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/mod-rewrite/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Mod Rewrite and Escaped Hashes (and other characters)]]></title>
+    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html"/>
+    <updated>2013-04-22T13:57:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters</id>
+    <content type="html"><![CDATA[<p>If you are having issues with mod rewrite apparently abandoning sections of variables after encoded hashes then this could be your solution.</p>
+
+<p>The use case is particularly clear when using mod_rewrite in front of a search engine (such as Solr which I am really enjoying working with at the moment).</p>
+
+<p>Imagine someone search for a partcode ABC#123</p>
+
+<p>This gets encoded to search/abc%23123</p>
+
+<p>Your rewritten search term will then be mangled by Apache and your search script will only actually see ABC. That is of course a problem and the solution is not really clear.</p>
+
+<p>After a bit of searching around I found the solution is to add a B flag to your mod_rewrite rule so that mod_rewrite will escape these characters so that they are cleanly passed through.</p>
+
+<p>For example:</p>
+
+<p>```php</p>
+
+<p>RewriteRule ^(.<em>)search/(.</em>)$ advanced_search_result.php?keywords=$2 [L,B]</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Mod Rewrite Escaped Slashes Problem + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html"/>
+    <updated>2013-04-11T11:05:20+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution</id>
+    <content type="html"><![CDATA[<p>As part of our Magento SEO service, the first thing we do is to make sure there are no issues with the crawlability and general health of the clients web site.</p>
+
+<p>Whilst working on the Google Webmaster Tools crawl errors for a client I noticed one specific and intruiging problem for which I couldn&rsquo;t immediately see the reason, everything looked to be set up perfectly.</p>
+
+<p>Certain URLs were getting 404 responses. The URL was being parsed by mod_rewrite but everything looked fine so why was apache giving a 404?</p>
+
+<p>The problem turns out to be that the URLs contain escaped slashes (eg search/KTA-mb667k2%2F2g),</p>
+
+<p>The problem is that Apache actually handles the escaped slash and helpfully converts it to a real slash. That then means that it is trying to look in a sub folder that does not exist and hence the 404.</p>
+
+<p>Chances are you don&rsquo;t want escaped slashes to really be thought of as real directory separating slashes, especially if you are using mod_rewrite.</p>
+
+<p>The answer is a simple one liner to be added to your vhost.conf or httpd.conf.</p>
+
+<p>```</p>
+
+<p>AllowEncodedSlashes On</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento URL Request Routing]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-url-request-routing.html"/>
+    <updated>2012-01-17T16:13:03+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-url-request-routing</id>
+    <content type="html"><![CDATA[<p>Magento is a typical PHP Model View Architecture (MVC) system which routes its URLs in ways not particularly different from other PHP MVC Frameworks like codeigniter, symphony etc. But the difference it has with other MVC architecture is that most of its routing directives or configurations are XML based i.e. found in one XML file or the other.</p>
+
+<p>For example, www.yourstore.co.uk/index.php/checkout/cart/index, tells Magento to use the checkout module found in app/code/Mage/,  use the cart controller (i.e. CartController.php) in app/code/Mage/Checkout/controller/ and run the index action method in the CartController.php, when the last &ldquo;index&rdquo; is omitted Magento still defaults to run the index action method, and every other value in the url after the first three url steps, Magento treats them as PHP GET parameters i.e. www.yourstore.co.uk/index.php/checkout/cart/index/store/1 would make $_GET[&lsquo;store&rsquo;]=1</p>
+
+<p>It is this action method that searches through the magneto xml configuration file using x-path to obtain information regarding this request e.g. the indexAction method found in app/code/Mage/Checkout/controller/CartController.php uses  Mage::getStoreConfig(&lsquo;sales/minimum_order/description&rsquo;) to get the value of the description node  in sales module, the minimum_order node and description child node, which can be found in system.xml in the Sales/etc/ folder.</p>
+
+<p>Its is worthwhile also knowing that Magento uses Apache&rsquo;s URL rewrite engine (mod_rewrite) to make its URLs SEO friendly i.e. www.yourstore.co.uk/index.php/catalog/product/view/id/1 could be routed to www.yourstore.co.uk/index.php/product1.html which can be regarded as an alias for  www.yourstore.co.uk/index.php/catalog/product/view/id/1 to make Google happy and improve the sites SEO.</p>
+
+<p>This basically describes how Magento decides what to do when accessed by a particular URL.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[mod_rewrite Strip Query String]]></title>
+    <link href="http://edmondscommerce.github.io/mod_rewrite/mod_rewrite-strip-query-string.html"/>
+    <updated>2010-02-03T10:24:06+00:00</updated>
+    <id>http://edmondscommerce.github.io/mod_rewrite/mod_rewrite-strip-query-string</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>To make your RewriteRule strip the query string, simply append a ? to the end of the rewrite path, eg:</p>
+
+<p>```</p>
+
+<h1>redirect all requests to a subfolder to the home page</h1>
+
+<h1>strips query string</h1>
+
+<p>RewriteEngine On
+RewriteBase /
+RewriteRule ^subfolder/.*$ /index.php? [L,R=301]</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

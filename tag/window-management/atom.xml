@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: window management | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/window-management/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Start windows on a specified workspace]]></title>
+    <link href="http://edmondscommerce.github.io/linux/start-windows-on-a-specified-workspace.html"/>
+    <updated>2012-01-31T14:04:27+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/start-windows-on-a-specified-workspace</id>
+    <content type="html"><![CDATA[<p>I rely on multiple desktops in order to keep my workflow organised. However each time I start up my computer I have to move these windows onto the correct desktop, which is a pain. Thankfully there is a way to place each window onto it&rsquo;s own desktop when your computer starts. This will explain the basics of doing this.</p>
+
+<p>First you need to install a tool called wmcrtl. On ubuntu you can do this by running this command</p>
+
+<p><code>
+sudo apt-get install wmctrl
+</code></p>
+
+<p>Once this is installed you need to see how it thinks you desktop is set up. You can do this by running this command</p>
+
+<p><code>
+wmctrl -d
+</code></p>
+
+<p>which give me the following result</p>
+
+<p><code>
+0  * DG: 13440x1050  VP: 0,0  WA: 0,24 3360x1002  Workspace 1
+</code></p>
+
+<p>The important part is the 13440x1050 &ndash; which corresponds to 8 1680x1050 desktops. Some versions of ubuntu put each desktop as a separate workspace, if so you&rsquo;ll need to modify the instructions slightly.</p>
+
+<p>At this point you can move you windows around so they are where you want them to be. Once you are happy with your layout, run the following command</p>
+
+<p><code>
+wmctrl -lG
+</code></p>
+
+<p>which will give you something similar to this
+```</p>
+
+<p>0x0340002e  0 3360 48   1680 1002 ross-desktop Add New Post ‹ Edmonds Commerce — WordPress &ndash; Chromium
+0x02a00077  0 23002 106  253  970  ross-desktop Buddy List
+0x02200004  0 0    58   1680 1021 ross-desktop Terminal
+0x06400003  0 6720 58   1680 1021 ross-desktop *untitled &ndash; Geany
+&hellip;</p>
+
+<p>```</p>
+
+<p>This can be broken down as follows
+```</p>
+
+<p>window-id   desktop-number  x-ofset y-ofset width   height  machine-name    window-title</p>
+
+<p>```</p>
+
+<p>Using this information you can put together a script that will run at startup to launch you windows.</p>
+
+<p><strong>NB This script relies on the window title to move a window. This works because the script will be run at startup and it is assumed that you will only have one instance of each program running. If you plan to have multiple windows open, then you will need to get the window-id, go through the man pages for ways of doing this.</strong></p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>geany /tmp/scratch.sql /tmp/scratch.php &amp;
+x-terminal-emulator &amp;</p>
+
+<h1>allow the windows to spawn before moving them</h1>
+
+<p>sleep 5</p>
+
+<h1>select and move the windows</h1>
+
+<h1>format wmctrl -r &ldquo;window to move&rdquo; -e gravity,x-pos,y-pos,width,height (-1 keeps the current value)</h1>
+
+<p>wmctrl -r &ldquo;scratch.php &ndash; /tmp &ndash; Geany&rdquo; -e 0,6720,0,-1,-1
+wmctrl -r &ldquo;Terminal&rdquo; -e 0,3360,0,-1,-1</p>
+
+<p>```</p>
+
+<p>save the file and make it executable, and then run it at startup to have your windows automatically appear where you want them. This is just scratching the surface of what wmctrl can do, so if you want to carry out more windows management from the command line go through the man pages and see if it can do what you want.</p>
+]]></content>
+  </entry>
+  
+</feed>

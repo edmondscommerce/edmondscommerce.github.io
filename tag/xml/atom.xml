@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: xml | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/xml/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Base64 Decode if Encoded Otherwise Leave Intact]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-base64-decode-if-encoded-otherwise-leave-intact.html"/>
+    <updated>2013-07-25T15:05:08+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-base64-decode-if-encoded-otherwise-leave-intact</id>
+    <content type="html"><![CDATA[<p>I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).</p>
+
+<p>However to really make things interesting, they didn&rsquo;t always do this so you couldn&rsquo;t just go and decode everything.</p>
+
+<p>Here is the solution I came up with:</p>
+
+<p>First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:</p>
+
+<p>```php</p>
+
+<p>preg_replace_callback(&lsquo;%>([^&lt;]+?)&lt;%&rsquo;, array($this, &lsquo;_decode&rsquo;), $response)</p>
+
+<p>```</p>
+
+<p>Then the callback function is a method on the same object hence the use of array($this, &lsquo;_decode&rsquo;)</p>
+
+<p>```php</p>
+
+<pre><code>/**
+ * Decode from bas64 if it actually is base64 encoded in the first place
+ *
+ * If not return the raw string
+ *
+ * @param $matches
+ * @return string
+ */
+protected function _decode($matches)
+{
+    $raw=$matches[1];
+    $decoded = base64_decode($raw, true);
+    $return=$decoded;
+    if(false === $decoded){
+        $return=$raw;
+    }elseif(base64_encode($decoded) != $raw){
+        $return=$raw;
+    }
+    return '&gt;&lt;![CDATA[' . $return . ']]&gt;&lt;';
+}
+</code></pre>
+
+<p>```</p>
+
+<p>What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.</p>
+
+<p>If it doesn&rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.</p>
+
+<p>By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.</p>
+
+<p>Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.</p>
+
+<p>However &ndash; one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&rsquo;t mind compromising the data a little which I didn&rsquo;t for my purposes) then you can do the following:</p>
+
+<p>```php</p>
+
+<p>//have to utf8 encode it to fix the fact its not properly encoded at their end
+$xml = simplexml_load_string(utf8_encode($response));</p>
+
+<p>```</p>
+
+<p>And that&rsquo;s it, another crazy API defeated and bent to my will!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP SOAP Client Basic Template]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-soap-client-basic-template.html"/>
+    <updated>2013-07-08T08:28:17+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-soap-client-basic-template</id>
+    <content type="html"><![CDATA[<p>Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&rsquo;m just unlucky?</p>
+
+<p>In my experience decent API&rsquo;s don&rsquo;t use SOAP.</p>
+
+<p>Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&rsquo;t work), I&rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+/<em>*
+ * Class Template Soap Client Consuming Class
+ </em>/</p>
+
+<p>class EdmondsCommerceSoap
+{</p>
+
+<pre><code>protected $username = 'edmondscommerce';
+
+protected $pass = 'NotReallyMyPassw0rd';
+
+
+public function test($wsdl)
+{
+    $options["connection_timeout"] = 25;
+    $options["location"] = $wsdl; 
+    $options['trace'] = 1; //this is important if you want to be able to use the soapDebug method
+    try {
+        $client = new SoapClient($wsdl, $options);
+        $client = $this-&gt;setAuthHeader($client);
+        $client-&gt;Method();
+    } catch (SoapFault $e) {
+        echo '&lt;h1&gt;SoapFault: ' . $e-&gt;getMessage() . '&lt;/h1&gt;';
+        echo '&lt;pre&gt;' . $e-&gt;getTraceAsString() . '&lt;/pre&gt;';
+    }
+    echo '&lt;h2&gt;Debug Info:&lt;/h2&gt;';
+    var_dump($this-&gt;soapDebug($client));
+}
+
+/**
+* This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers
+**/
+protected function setAuthHeader(SoapClient $client)
+{
+    $auth = array(
+        'username' =&gt; $this-&gt;username,
+        'MessageId' =&gt; md5(time()),
+        'password' =&gt; $this-&gt;password
+    );
+    foreach($auth as $k=&gt;$v){
+        $headers[] = new SoapHeader('Header', $k, $v, false);
+    }
+    $client-&gt;__setSoapHeaders($headers);
+    return $client;
+}
+
+/**
+ *  This method gathers all debug info into a handy array ready for var_dump, log etc etc
+ **/
+protected function soapDebug(SoapClient $client)
+{
+    $debug = array();
+    $debug['request']['headers'] = $client-&gt;__getLastRequestHeaders();
+    $debug['request']['body'] = $client-&gt;__getLastRequest();
+    $debug['request']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastRequest());
+    $debug['response']['headers'] = $client-&gt;__getLastResponseHeaders();
+    $debug['response']['body'] = $client-&gt;__getLastResponse();
+    $debug['response']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastResponse());
+    return $debug;
+}
+
+
+/**
+ * This method is purely to assist the debug method and simply makes generated XML readable
+ **/
+protected function formatXmlString($xml)
+{
+    $xml = preg_replace('/(&gt;)(&lt;)(\/*)/', "$1\n$2$3", $xml);
+    $token = strtok($xml, "\n");
+    $result = '';
+    $pad = 0;
+    $matches = array();
+    while ($token !== false) :
+        if (preg_match('/.+&lt;\/\w[^&gt;]*&gt;$/', $token, $matches)) :
+            $indent = 0; elseif (preg_match('/^&lt;\/\w/', $token, $matches)) :
+            $pad--;
+            $indent = 0; elseif (preg_match('/^&lt;\w[^&gt;]*[^\/]&gt;.*$/', $token, $matches)) :
+            $indent = 1; else :
+            $indent = 0;
+        endif;
+        $line = str_pad($token, strlen($token) + $pad, ' ', STR_PAD_LEFT);
+        $result .= $line . "\n";
+        $token = strtok("\n");
+        $pad += $indent;
+    endwhile;
+    return $result;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP API Development Logging and Debugging]]></title>
+    <link href="http://edmondscommerce.github.io/php/4145.html"/>
+    <updated>2013-03-14T14:53:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/4145</id>
+    <content type="html"><![CDATA[<p>If you are ever working with API integrations, either in or out bound, then it might be useful to set up a simple dumb logging system to assist you with developing and debugging things.</p>
+
+<p>Here is a really simple snippet to help you along with that.</p>
+
+<p>It literally takes exactly what it has received and logs it with no messing about. Brilliant!</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+$log[&lsquo;raw_input&rsquo;]=file_get_contents(&lsquo;php://input&rsquo;);
+$log[&lsquo;<em>POST&rsquo;]=$</em>POST;
+$log[&lsquo;<em>GET&rsquo;]=$</em>GET;</p>
+
+<p>file_put_contents(&lsquo;inboundXML.log&rsquo;, var_export($log, true));</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Parse XML Values in bash e.g. Magento local.xml]]></title>
+    <link href="http://edmondscommerce.github.io/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml.html"/>
+    <updated>2012-08-23T11:37:58+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml</id>
+    <content type="html"><![CDATA[<p>Not the most elegant way to do this, and probably could do with some extra tweaks but it works for our purposes, so presented here in case it fits yours :</p>
+
+<p>```bash</p>
+
+<h1>xml_value path/to/file node_key</h1>
+
+<p>function xml_value(){</p>
+
+<pre><code>grep "&lt;$2&gt;.*&lt;.$2&gt;" $1 | sed -e "s/&lt;\!\[CDATA\[//" | sed -e "s/\]\]&gt;//" | sed -e "s/^.*&lt;$2/&lt;$2/" | cut -f2 -d"&gt;"| cut -f1 -d"&lt;"
+</code></pre>
+
+<p>}
+```</p>
+
+<p>It also strips out the CDATA tags, which we needed to pull the database details from Magento&rsquo;s local.xml</p>
+
+<p>To use this to get, for example, the database host, you would use the following:</p>
+
+<p><code>bash
+DB_HOST=$(xml_value app/etc/local.xml host)
+</code></p>
+
+<p>To use this</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[CentOS + Sun Java + Amazon AMTU 2]]></title>
+    <link href="http://edmondscommerce.github.io/amazon/centos-sun-java-amazon-amtu-2.html"/>
+    <updated>2012-08-14T17:33:31+01:00</updated>
+    <id>http://edmondscommerce.github.io/amazon/centos-sun-java-amazon-amtu-2</id>
+    <content type="html"><![CDATA[<p>In a follow up to our popular blog post describing the process of getting AMTU 1 set up on a Centos server, this post describes how to get the latest version 2 of AMTU running.</p>
+
+<p>Things have moved on and thankfully it is a lot easier than it was.</p>
+
+<p>Firstly get Sun Java installed. You will need to get the URL for downloading the RPM from here:
+<a href="http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html">http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html</a></p>
+
+<p>Accept the agreement, download the correct RPM version and then pause it. Copy the download URL and paste it into this command:
+```bash</p>
+
+<p>cd /tmp
+wget [paste-url]-here]
+rpm &ndash; jre [hit tab to complete]</p>
+
+<p>```</p>
+
+<p>Now check the correct java version is being used:</p>
+
+<p>```bash</p>
+
+<p>java -version</p>
+
+<p>```</p>
+
+<p>You should get something looking like:</p>
+
+<p>```</p>
+
+<p>[root@94 tmp]# java -version
+java version &quot;1.7.0_05&quot;
+Java&trade; SE Runtime Environment (build 1.7.0_05-b06)
+Java HotSpot&trade; 64-Bit Server VM (build 23.1-b03, mixed mode)</p>
+
+<p>```</p>
+
+<p>Now you can install AMTU</p>
+
+<p>```bash</p>
+
+<p>wget <a href="https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh">https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh</a>
+chmod +x AMTU_unix.sh
+./AMTU_unix.sh</p>
+
+<p>```</p>
+
+<p>Keep hitting enter to get to the bottom of the terms and then agree, agree to all the other options. That is AMTU installed.</p>
+
+<p>The final step is to configure this using the CLI configure utitlity.</p>
+
+<p>You need to create an xml file for the AMTU configuration. You can see a sample file in /opt/amtu/xml/sample.xml.</p>
+
+<p>Lets copy that file and then edit it accordingly.</p>
+
+<p>```bash</p>
+
+<p>cd /opt/amtu/xml
+cp sample.xml configuration.xml
+vim configuration.xml</p>
+
+<p>```</p>
+
+<p>You do need to be signed up for MWS to get some of the keys etc that are required. If not already, go to this page and hit the sign up button.
+<a href="https://developer.amazonservices.co.uk/index.html">https://developer.amazonservices.co.uk/index.html</a></p>
+
+<p>Once you have updated the XML configuration you run this command to apply it:
+```bash</p>
+
+<p>/opt/amtu/Utilities/configure SETUP /opt/amtu/xml/configuration.xml</p>
+
+<p>```</p>
+
+<p>If you get some error messages at this point, edit the configuration and try again. Once you have the configuration set you can start the daemon.</p>
+
+<p>```bash</p>
+
+<p>/opt/AMTU/Utilities/amtu_daemon start</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

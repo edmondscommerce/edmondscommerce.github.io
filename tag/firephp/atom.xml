@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: firephp | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/firephp/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Zend Framework Easy SQL Info]]></title>
+    <link href="http://edmondscommerce.github.io/zend%20framework/zend-framework-easy-sql-info.html"/>
+    <updated>2009-07-13T13:47:52+01:00</updated>
+    <id>http://edmondscommerce.github.io/zend%20framework/zend-framework-easy-sql-info</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you develop using Zend Framework you will know that it is sometimes tricky to see exactly whats going on in terms of SQL queries. After trying a few different ideas including subclassing the database classes or other complex systems, the easiest I have found is this:</p>
+
+<ol>
+<li>Edit your app.ini config file and add a line:
+```</li>
+</ol>
+
+
+<p>db_profiling_enabled = false</p>
+
+<p>```</p>
+
+<p>Then in your development section in your ini file, set the same value to true</p>
+
+<ol>
+<li>Add the following lines to your bootstrap.php after the database adapter setup.</li>
+</ol>
+
+
+<p>```php</p>
+
+<p>// DATABASE ADAPTER &ndash; Setup the database adapter
+// Zend_Db implements a factory interface that allows developers to pass in an
+// adapter name and some parameters that will create an appropriate database
+// adapter object.  In this instance, we will be using the values found in the
+// &ldquo;database&rdquo; section of the configuration obj.
+$dbAdapter = Zend_Db::factory($configuration->database);
+//$dbAdapter = new EC_Db_Mysqli($configuration->database->params);</p>
+
+<p>if($configuration->db_profiling_enabled){</p>
+
+<pre><code>// create a new profiler
+$profiler = new Zend_Db_Profiler_Firebug('EdmondsCommerce DB Queries Debug');
+// enable profiling (this is only recommended in development mode, disable this in production mode)
+$profiler-&gt;setEnabled(true);
+// add the profiler to the database object
+$dbAdapter-&gt;setProfiler($profiler);
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>Note you may need to move this chunk above the database adapter section:
+```php</p>
+
+<p>// CONFIGURATION &ndash; Setup the configuration object
+// The Zend_Config_Ini component will parse the ini file, and resolve all of
+// the values for the given section.  Here we will be using the section name
+// that corresponds to the APP&rsquo;s Environment
+$configuration = new Zend_Config_Ini(</p>
+
+<pre><code>APPLICATION_PATH . '/config/app.ini', 
+APPLICATION_ENVIRONMENT
+</code></pre>
+
+<p>);</p>
+
+<p>```</p>
+
+<p>This is based on a modified quickstart layout for a project. If you have decided to use an alternative layout, you should be able to tell where the relevant code should be.</p>
+
+<p>You will need to have the Firebug firefox extension to view this output. If you also install the FirePHP extension for firebug then there are even more cool things that you can do.</p>
+]]></content>
+  </entry>
+  
+</feed>

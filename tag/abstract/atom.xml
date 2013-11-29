@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: abstract | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/abstract/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Shell Scripts and Memory Limit Woes + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-shell-scripts-and-memory-limit-woes-solution.html"/>
+    <updated>2012-12-19T11:53:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-shell-scripts-and-memory-limit-woes-solution</id>
+    <content type="html"><![CDATA[<p>OK so you love Magento&rsquo;s shell scripts! They are great for quickly putting together bulk processes that have full access to the Magento ORM.</p>
+
+<p>These kinds of shell scripts will often require above normal amounts of RAM for the kind of heavy lifting they lend themselves well to. If you are finding your script is banging against some mysterious memory limit that really shouldn&rsquo;t be there then perhaps this is your answer:</p>
+
+<p>You might see an error message such as this:</p>
+
+<p>```</p>
+
+<p>Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20 bytes)</p>
+
+<p>```</p>
+
+<p>The reason this might be happening is that one of the things the abstract shell class does is parse the .htaccess file and apply any PHP configuration it finds. This is pretty slick and I can definitely see the value of it however if you are not aware its happening and you have a memory limit defined in a .htaccess file then it will be applied to your shell environment.</p>
+
+<p>The solution is up to you, edit the htaccess file or override this method in your shell class so that it doesn&rsquo;t do things you do not want:</p>
+
+<p>```php</p>
+
+<pre><code>/**
+ * Parse .htaccess file and apply php settings to shell script
+ *
+ */
+protected function _applyPhpVariables()
+{
+    $htaccess = $this-&gt;_getRootPath() . '.htaccess';
+    if (file_exists($htaccess)) {
+        // parse htaccess file
+        $data = file_get_contents($htaccess);
+        $matches = array();
+        preg_match_all('#^\s+?php_value\s+([a-z_]+)\s+(.+)$#siUm', $data, $matches, PREG_SET_ORDER);
+        if ($matches) {
+            foreach ($matches as $match) {
+                @ini_set($match[1], $match[2]);
+            }
+        }
+        preg_match_all('#^\s+?php_flag\s+([a-z_]+)\s+(.+)$#siUm', $data, $matches, PREG_SET_ORDER);
+        if ($matches) {
+            foreach ($matches as $match) {
+                @ini_set($match[1], $match[2]);
+            }
+        }
+    }
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: layout | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/layout/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Layout ignore="1"]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-layout-ignore1.html"/>
+    <updated>2012-02-29T17:17:15+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-layout-ignore1</id>
+    <content type="html"><![CDATA[<p>If you are looking at your Layout XML when trying to debug missing blocks for example, you may see the attribute ignore=&ldquo;1&rdquo; being assigned to chunks of XML.</p>
+
+<p>These are set when some module or other is using the remove syntax to remove a block.</p>
+
+<p>For example I have just had some issues with Fontis Recaptcha and TBT Sweetooth extensions not playing nice together.</p>
+
+<p>The reason is that the Fontis extension is removing the entire customer_form_register handle and replacing it with a custom one however the Sweettooth module is still referring to the core Magento handle which then means its layout updates are not having any effect.</p>
+
+<p>The way to see this is find the layout sections with ignore=&ldquo;1&rdquo;</p>
+
+<p>```xml</p>
+
+<p><block type="core/text_list" name="left" as="left" ignore="1"/></p>
+
+<p>```</p>
+
+<p>and search your files for a corresponding</p>
+
+<p>```xml</p>
+
+<p><remove name="left"/></p>
+
+<p>```</p>
+
+<p>The name attribute is the one you need to look for the correlation on.</p>
+
+<p>For the sweettooth issue, the solutions was to simply add in the sweet tooth XML to the Fontis XML like this:</p>
+
+<p>```xml</p>
+
+<pre><code>&lt;customer_account_create&gt;
+    &lt;remove name="customer_form_register"/&gt;
+
+    &lt;reference name="content"&gt;
+        &lt;block type="customer/form_register" name="recaptcha_form_register" template="fontis/recaptcha/register.phtml"&gt;
+            &lt;block type="core/template" name="recaptcha.box" as="recaptcha_box" template="fontis/recaptcha/recaptcha.phtml"/&gt;
+            &lt;block type="rewardsref/field_register" name="rewards_referral" template="rewardsref/customer/register/fieldset.phtml" /&gt;
+        &lt;/block&gt;
+    &lt;/reference&gt;
+&lt;/customer_account_create&gt;
+</code></pre>
+
+<p>```</p>
+
+<p>Inspiration from this <a href="http://stackoverflow.com/questions/1087733/magento-my-account-layout-xml-problem">Stack Overflow</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Controller Action Return Json (for AJAX, API etc)]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-controller-action-return-json-for-ajax-api-etc.html"/>
+    <updated>2012-02-15T14:15:01+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-controller-action-return-json-for-ajax-api-etc</id>
+    <content type="html"><![CDATA[<p>If you have a controller action that is designed to be accessed by AJAX requests or perhaps as part of a custom API system then you might like this snippet.</p>
+
+<p>If you are working with the above scenario you likely would like to return pure JSON without any HTML etc. Also serving up the correct content type headers is going to be helpful, its not HTML, its JSON.</p>
+
+<p>```php</p>
+
+<pre><code>public function searchAction(){
+    $query = $this-&gt;getRequest()-&gt;getParam('query');
+    $json = Mage::getModel('mymodule/mymodel')-&gt;getSearchJson($query);
+    $this-&gt;getResponse()-&gt;setHeader('Content-type', 'application/json');
+    $this-&gt;getResponse()-&gt;setBody($json);
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Add Stylesheet to Head for Specific Category]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-add-stylesheet-to-head-for-specific-category.html"/>
+    <updated>2011-10-05T12:12:05+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-add-stylesheet-to-head-for-specific-category</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you want to include a custom stylesheet for a particular category you can do this very cleanly by specifying custom layout xml in the category admin.</p>
+
+<p>Simply find the category you want to apply this to and then hit the ```display settings
+ tab</p>
+
+<p>Then in the custom layout update  box, paste something like this:</p>
+
+<p>[xml]
+<reference name="head">
+<action method="addCss"><stylesheet>css/extra_styles.css</stylesheet></action>
+</reference></p>
+
+<p>```</p>
+
+<p>clear your cache and this stylesheet should be included in the head section for this category.</p>
+
+<p>You could of course do this in the layout XML files, however if you need somethign that the admin of the site can easily apply to any other new categories that needs the same treatment then this is a great solution.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento "Products per Page on Grid Allowed Values" Configuration Not Working + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-products-per-page-on-grid-allowed-values-configuration-not-working-solution.html"/>
+    <updated>2011-09-01T13:53:31+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-products-per-page-on-grid-allowed-values-configuration-not-working-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are getting a <i>little bit frustrated</i> trying to figure out why the admin configuration for the number of products to display on a page and the options in the products per page drop down are not working then this is quite possibly your soluiton.</p>
+
+<p>The template file in question is in catalog/product/list/toolbar.phtml</p>
+
+<p>You will see it refererences the block Mage_Catalog_Block_Product_List_Toolbar</p>
+
+<p>So far so good, it all looks like it should be working but it just isn&rsquo;t.</p>
+
+<p>The issue can be that in your theme&rsquo;s layout XML file, some values are being set for this with some XML that looks like this:</p>
+
+<p>```xml</p>
+
+<p><action method="setDefaultListPerPage"><limit>10</limit></action>
+<action method="setDefaultGridPerPage"><limit>8</limit></action>
+<action method="addPagerLimit"><mode>list</mode><limit>10</limit></action>
+<action method="addPagerLimit"><mode>list</mode><limit>20</limit></action>
+<action method="addPagerLimit"><mode>list</mode><limit>30</limit></action></p>
+
+<p>```</p>
+
+<p>If that XML is there, then these actions are being called against your block object with these parameters, effectively overwriting your admin values.</p>
+
+<p>To get the admin values to be respected, you need to comment out or totally remove this XML from your layout, clear your cache and you are in business.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento HomePage Layout All Messed Up + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-homepage-layout-all-messed-up-solution.html"/>
+    <updated>2010-12-01T11:47:06+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-homepage-layout-all-messed-up-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are making some design changes to your store and all of a sudden your home page has gone totally messed up then this might be your solution.</p>
+
+<p>When working with designs and design packages in Magento you must remember that design packages are referenced not only in the System->Configuration or System->Design sections, but also on a per product or per CMS page basis as well.</p>
+
+<p>So if you remove, rename or otherwise alter a design package then its going to cause problems.</p>
+
+<p>If you are having issues &ndash; remember to not just look at the layout files etc, but also look in the admin CMS section and check what design package settings you have there.</p>
+
+<p>This one is very simple to fix once you have figured out what&rsquo;s causing it, but can take hours of frustration if you get rail roaded into examining the files for the issue.</p>
+]]></content>
+  </entry>
+  
+</feed>

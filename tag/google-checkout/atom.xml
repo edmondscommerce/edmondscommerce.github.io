@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: google checkout | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/google-checkout/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Google Checkout, 501 Error with Mod Security + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/security/google-checkout-501-error-with-mod-security-solution.html"/>
+    <updated>2009-03-26T10:48:57+00:00</updated>
+    <id>http://edmondscommerce.github.io/security/google-checkout-501-error-with-mod-security-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are pulling your hair out trying to figure out why you are seeing a 501 error in your Google Checkout integration console I may well have the answer and solution for you.</p>
+
+<p>This is the error message you will see in the integration console.</p>
+
+<p>```</p>
+
+<pre><code>We encountered an error trying to access your server at https://domain.co.uk/googlecheckout/api/ -- the error we got is Sending failed with HTTP response code: 501. Response body was: &lt;HTML&gt; &lt;HEAD&gt; &lt;TITLE&gt;501 Not Implemented&lt;/TITLE&gt; &lt;/HEAD&gt; &lt;BODY&gt; &lt;H1&gt;Not Implemented&lt;/H1&gt; The page you are looking for cannot be displayed because a header value in the request does not match certain configuration settings on the Web server.&lt;P&gt; &lt;HR&gt; &lt;ADDRESS&gt; Web Server at domain.co.uk &lt;/ADDRESS&gt; &lt;/BODY&gt; &lt;/HTML&gt; &lt;!-- - Unfortunately, Microsoft has added a clever new - "feature" to Internet Explorer. If the text of - an error's message is "too small", specifically - less than 512 bytes, Internet Explorer returns - its own error message. You can turn that off, - but it's pretty tricky to find switch called - "smart error messages". That means, of course, - that short error messages are censored by default. - IIS always returns error messages that are long - enough to make Internet Explorer happy. The - workaround is pretty simple: pad the error - message with a big comment like this to push it - over the five hundred and twelve bytes minimum. - Of course, that's exactly what you're reading - right now. --&gt; 
+</code></pre>
+
+<p>```</p>
+
+<p>The first thing to do is log into your server via SSH and examine the error logs.</p>
+
+<p>find the error logs, open the file up in vi using this command:</p>
+
+<p>```</p>
+
+<p>vi error_log</p>
+
+<p>```</p>
+
+<p>Then go to the bottom of the file using the ```shift
+ + [g] shortcut. Then to search backwards in the log use the following command:</p>
+
+<p>[code]
+?ModSecurity</p>
+
+<p>```</p>
+
+<p>If you find something with this error message then you have mod security installed. If you search around you may well find an error message like this:</p>
+
+<blockquote>
+[Thu Mar 26 10:22:11 2009] [error] [client 94.229.166.12] ModSecurity: Access denied with code 501 (phase 2). Match of "rx (?:^(?:application\\/x-www-form-urlencoded(?:;(?:\\s?charset\\s?=\\s?[\\w\\d\\-]{1,18})?)??$|multipart/form-data;)|text/xml)" against "REQUEST_HEADERS:Content-Type" required. [file "/etc/httpd/modsecurity.d/modsecurity_crs_30_http_policy.conf"] [line "71"] [id "960010"] [msg "Request content type is not allowed by policy"] [severity "WARNING"] [tag "POLICY/ENCODING_NOT_ALLOWED"] [hostname "247electrical.co.uk"] [uri "/googlecheckout/api"] [unique_id "-UMIen8AAAEAAFsDLH4AAAAB"]
+</blockquote>
+
+
+<p>This error message tells us which particular rule is causing it to fail. What we need to do now is either edit this rule or disable it altogether. I will first try to edit it so that the request can get through, but the rule is still active. The rule we need to edit is in this rules file:</p>
+
+<p>modsecurity_crs_30_http_policy.conf</p>
+
+<p>and is on line 71.</p>
+
+<p>I&rsquo;m no mod security expert. Having had a quick look through the documentation I am not sure how to edit this rule to allow Google Checkout callbacks through. So for the time being I am going to disable this particular rule altogether by adding a  # in front of lines 70,71 and 72.</p>
+
+<p>If any mod security experts out there read this blog and know a better solution please do post it in the comments.</p>
+
+<h4>More...</h4>
+
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://www.edmondscommerce.co.uk/blog/php/online-ssl-checker-google-checkout/" rel="nofollow"&gt;Online SSL Checker (&lt;b&gt;Google Checkout&lt;/b&gt;) | Edmonds Commerce Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.prfriend.com/pr/2009/03/24/visionspecialists-introduces-google-checkout-and-a-brand-new-line-of-eyewear/" rel="nofollow"&gt;Visionspecialists introduces &lt;b&gt;Google Checkout&lt;/b&gt; and a brand new line &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.formspring.com/2009/03/13/google-checkout-and-nonprofits/" rel="nofollow"&gt;&lt;b&gt;Google Checkout&lt;/b&gt; and Nonprofits | FormSpring Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.prfriend.com/pr/2009/03/24/visionspecialists-introduces-google-checkout-and-a-brand-new-line-of-eyewear/" rel="nofollow"&gt;Visionspecialists introduces &lt;b&gt;Google Checkout&lt;/b&gt; and a brand new line &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.formspring.com/2009/03/13/google-checkout-and-nonprofits/" rel="nofollow"&gt;&lt;b&gt;Google Checkout&lt;/b&gt; and Nonprofits | FormSpring Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://novirusthanks.org/blog/2009/03/modsecurity-v259-released-fixed-a-potential-dos-vulnerability/" rel="nofollow"&gt;NoVirusThanks Blog » &lt;b&gt;ModSecurity&lt;/b&gt; v2.5.9 Released (fixed a &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://maxgarrick.com/8-modsecurity-tips/" rel="nofollow"&gt;maxgarrick.com » 8 &lt;b&gt;ModSecurity&lt;/b&gt; Tips for a Successful Roll-out&lt;/a&gt;&lt;br&gt;&lt;a href="http://community.nstalker.com/what-should-we-do-when-web-protection-mechanisms-fail" rel="nofollow"&gt;What should we do when web protection mechanisms fail? | N-Stalker &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://novirusthanks.org/blog/2009/02/modsecurity-257-for-apache-web-server/" rel="nofollow"&gt;NoVirusThanks Blog » &lt;b&gt;ModSecurity&lt;/b&gt; 2.5.7 for Apache Web Server&lt;/a&gt;&lt;br&gt;&lt;a href="http://novirusthanks.org/blog/2009/03/modsecurity-v259-released-fixed-a-potential-dos-vulnerability/" rel="nofollow"&gt;NoVirusThanks Blog » &lt;b&gt;ModSecurity&lt;/b&gt; v2.5.9 Released (fixed a &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://maxgarrick.com/8-modsecurity-tips/" rel="nofollow"&gt;maxgarrick.com » 8 &lt;b&gt;ModSecurity&lt;/b&gt; Tips for a Successful Roll-out&lt;/a&gt;&lt;br&gt;&lt;a href="http://novirusthanks.org/blog/2009/02/modsecurity-257-for-apache-web-server/" rel="nofollow"&gt;NoVirusThanks Blog » &lt;b&gt;ModSecurity&lt;/b&gt; 2.5.7 for Apache Web Server&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.microdevsys.com/WordPress/2009/01/14/apache-configuring-mod_security-modsecurity-for-apache-on-fedora/" rel="nofollow"&gt;Apache: Configuring &lt;b&gt;mod_security&lt;/b&gt; (&lt;b&gt;modsecurity&lt;/b&gt;) for Apache on Fedora.&lt;/a&gt;&lt;br&gt;&lt;a href="http://admin.jugamanusia.com/mod_security-what-is-and-how-to/" rel="nofollow"&gt;admin.jugamanusia.com » &lt;b&gt;Mod_Security&lt;/b&gt;.. what is and how to ?&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

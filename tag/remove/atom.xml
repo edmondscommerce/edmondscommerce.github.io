@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: remove | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/remove/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Installing Percona DB on a clean CentOS ]]></title>
+    <link href="http://edmondscommerce.github.io/percona/installing-percona-db-on-a-clean-centos.html"/>
+    <updated>2012-11-09T15:22:41+00:00</updated>
+    <id>http://edmondscommerce.github.io/percona/installing-percona-db-on-a-clean-centos</id>
+    <content type="html"><![CDATA[<p>Percona is a performance optimised fork of MySQL that has gained a lot of traction in the Magento-sphere as webmasters and sysadmins alike look to squeeze the most performance out of their hardware.</p>
+
+<p>If you read the <a href="http://edmondscommerce.github.io/platforms/magento">Magento</a> performance whitepaper then you will see they mention Percona DB there.</p>
+
+<p>To install Percona on a standard CentOS release 6.2 (Final) server you would need to run the following commands:</p>
+
+<p>First set up the repo:
+```bash</p>
+
+<p>rpm -Uhv <a href="http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm">http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm</a></p>
+
+<p>```</p>
+
+<p>This should give you output like this:
+```</p>
+
+<p>Retrieving <a href="http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm">http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm</a>
+Preparing&hellip;                ########################################### [100%]
+   1:percona-release        ########################################### [100%]</p>
+
+<p>```</p>
+
+<p>Then installing should be a simple case of running:
+```bash</p>
+
+<p>yum install Percona-Server-client-55 Percona-Server-server-55</p>
+
+<p>```</p>
+
+<p>However I found that this generated the following error:
+```</p>
+
+<p>Error: Percona-XtraDB-Cluster-client conflicts with Percona-Server-client-55</p>
+
+<p>```</p>
+
+<p>The problem is because MySQL is already installed and needs to be removed. You can do this with this command:</p>
+
+<p>```bash</p>
+
+<p>yum remove mysql*</p>
+
+<p>```</p>
+
+<p>At which point running the install should work smoothly.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Layout ignore="1"]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-layout-ignore1.html"/>
+    <updated>2012-02-29T17:17:15+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-layout-ignore1</id>
+    <content type="html"><![CDATA[<p>If you are looking at your Layout XML when trying to debug missing blocks for example, you may see the attribute ignore=&ldquo;1&rdquo; being assigned to chunks of XML.</p>
+
+<p>These are set when some module or other is using the remove syntax to remove a block.</p>
+
+<p>For example I have just had some issues with Fontis Recaptcha and TBT Sweetooth extensions not playing nice together.</p>
+
+<p>The reason is that the Fontis extension is removing the entire customer_form_register handle and replacing it with a custom one however the Sweettooth module is still referring to the core Magento handle which then means its layout updates are not having any effect.</p>
+
+<p>The way to see this is find the layout sections with ignore=&ldquo;1&rdquo;</p>
+
+<p>```xml</p>
+
+<p><block type="core/text_list" name="left" as="left" ignore="1"/></p>
+
+<p>```</p>
+
+<p>and search your files for a corresponding</p>
+
+<p>```xml</p>
+
+<p><remove name="left"/></p>
+
+<p>```</p>
+
+<p>The name attribute is the one you need to look for the correlation on.</p>
+
+<p>For the sweettooth issue, the solutions was to simply add in the sweet tooth XML to the Fontis XML like this:</p>
+
+<p>```xml</p>
+
+<pre><code>&lt;customer_account_create&gt;
+    &lt;remove name="customer_form_register"/&gt;
+
+    &lt;reference name="content"&gt;
+        &lt;block type="customer/form_register" name="recaptcha_form_register" template="fontis/recaptcha/register.phtml"&gt;
+            &lt;block type="core/template" name="recaptcha.box" as="recaptcha_box" template="fontis/recaptcha/recaptcha.phtml"/&gt;
+            &lt;block type="rewardsref/field_register" name="rewards_referral" template="rewardsref/customer/register/fieldset.phtml" /&gt;
+        &lt;/block&gt;
+    &lt;/reference&gt;
+&lt;/customer_account_create&gt;
+</code></pre>
+
+<p>```</p>
+
+<p>Inspiration from this <a href="http://stackoverflow.com/questions/1087733/magento-my-account-layout-xml-problem">Stack Overflow</a></p>
+]]></content>
+  </entry>
+  
+</feed>

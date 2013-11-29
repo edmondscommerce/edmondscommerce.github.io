@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: php | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/php/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHPStorm Regex Convert Array to Object Syntax]]></title>
+    <link href="http://edmondscommerce.github.io/php/phpstorm-regex-convert-array-to-object-syntax.html"/>
+    <updated>2013-08-27T14:40:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/phpstorm-regex-convert-array-to-object-syntax</id>
+    <content type="html"><![CDATA[<p>If you are converting some code from using array syntax to object property syntax then you might like this little snippet of regex.</p>
+
+<p>This is design to paste straight into the find/replace dialogue in PHPStorm</p>
+
+<p>Find:
+```</p>
+
+<p>\$(\w+)[&lsquo;([^&rsquo;]+)&lsquo;]</p>
+
+<p>```</p>
+
+<p>Replace:
+```</p>
+
+<p>\\$$1->$2</p>
+
+<p>```</p>
+
+<p>And that is it</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Base64 Decode if Encoded Otherwise Leave Intact]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-base64-decode-if-encoded-otherwise-leave-intact.html"/>
+    <updated>2013-07-25T15:05:08+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-base64-decode-if-encoded-otherwise-leave-intact</id>
+    <content type="html"><![CDATA[<p>I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).</p>
+
+<p>However to really make things interesting, they didn&rsquo;t always do this so you couldn&rsquo;t just go and decode everything.</p>
+
+<p>Here is the solution I came up with:</p>
+
+<p>First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:</p>
+
+<p>```php</p>
+
+<p>preg_replace_callback(&lsquo;%>([^&lt;]+?)&lt;%&rsquo;, array($this, &lsquo;_decode&rsquo;), $response)</p>
+
+<p>```</p>
+
+<p>Then the callback function is a method on the same object hence the use of array($this, &lsquo;_decode&rsquo;)</p>
+
+<p>```php</p>
+
+<pre><code>/**
+ * Decode from bas64 if it actually is base64 encoded in the first place
+ *
+ * If not return the raw string
+ *
+ * @param $matches
+ * @return string
+ */
+protected function _decode($matches)
+{
+    $raw=$matches[1];
+    $decoded = base64_decode($raw, true);
+    $return=$decoded;
+    if(false === $decoded){
+        $return=$raw;
+    }elseif(base64_encode($decoded) != $raw){
+        $return=$raw;
+    }
+    return '&gt;&lt;![CDATA[' . $return . ']]&gt;&lt;';
+}
+</code></pre>
+
+<p>```</p>
+
+<p>What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.</p>
+
+<p>If it doesn&rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.</p>
+
+<p>By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.</p>
+
+<p>Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.</p>
+
+<p>However &ndash; one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&rsquo;t mind compromising the data a little which I didn&rsquo;t for my purposes) then you can do the following:</p>
+
+<p>```php</p>
+
+<p>//have to utf8 encode it to fix the fact its not properly encoded at their end
+$xml = simplexml_load_string(utf8_encode($response));</p>
+
+<p>```</p>
+
+<p>And that&rsquo;s it, another crazy API defeated and bent to my will!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP SOAP Client Basic Template]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-soap-client-basic-template.html"/>
+    <updated>2013-07-08T08:28:17+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-soap-client-basic-template</id>
+    <content type="html"><![CDATA[<p>Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&rsquo;m just unlucky?</p>
+
+<p>In my experience decent API&rsquo;s don&rsquo;t use SOAP.</p>
+
+<p>Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&rsquo;t work), I&rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+/<em>*
+ * Class Template Soap Client Consuming Class
+ </em>/</p>
+
+<p>class EdmondsCommerceSoap
+{</p>
+
+<pre><code>protected $username = 'edmondscommerce';
+
+protected $pass = 'NotReallyMyPassw0rd';
+
+
+public function test($wsdl)
+{
+    $options["connection_timeout"] = 25;
+    $options["location"] = $wsdl; 
+    $options['trace'] = 1; //this is important if you want to be able to use the soapDebug method
+    try {
+        $client = new SoapClient($wsdl, $options);
+        $client = $this-&gt;setAuthHeader($client);
+        $client-&gt;Method();
+    } catch (SoapFault $e) {
+        echo '&lt;h1&gt;SoapFault: ' . $e-&gt;getMessage() . '&lt;/h1&gt;';
+        echo '&lt;pre&gt;' . $e-&gt;getTraceAsString() . '&lt;/pre&gt;';
+    }
+    echo '&lt;h2&gt;Debug Info:&lt;/h2&gt;';
+    var_dump($this-&gt;soapDebug($client));
+}
+
+/**
+* This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers
+**/
+protected function setAuthHeader(SoapClient $client)
+{
+    $auth = array(
+        'username' =&gt; $this-&gt;username,
+        'MessageId' =&gt; md5(time()),
+        'password' =&gt; $this-&gt;password
+    );
+    foreach($auth as $k=&gt;$v){
+        $headers[] = new SoapHeader('Header', $k, $v, false);
+    }
+    $client-&gt;__setSoapHeaders($headers);
+    return $client;
+}
+
+/**
+ *  This method gathers all debug info into a handy array ready for var_dump, log etc etc
+ **/
+protected function soapDebug(SoapClient $client)
+{
+    $debug = array();
+    $debug['request']['headers'] = $client-&gt;__getLastRequestHeaders();
+    $debug['request']['body'] = $client-&gt;__getLastRequest();
+    $debug['request']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastRequest());
+    $debug['response']['headers'] = $client-&gt;__getLastResponseHeaders();
+    $debug['response']['body'] = $client-&gt;__getLastResponse();
+    $debug['response']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastResponse());
+    return $debug;
+}
+
+
+/**
+ * This method is purely to assist the debug method and simply makes generated XML readable
+ **/
+protected function formatXmlString($xml)
+{
+    $xml = preg_replace('/(&gt;)(&lt;)(\/*)/', "$1\n$2$3", $xml);
+    $token = strtok($xml, "\n");
+    $result = '';
+    $pad = 0;
+    $matches = array();
+    while ($token !== false) :
+        if (preg_match('/.+&lt;\/\w[^&gt;]*&gt;$/', $token, $matches)) :
+            $indent = 0; elseif (preg_match('/^&lt;\/\w/', $token, $matches)) :
+            $pad--;
+            $indent = 0; elseif (preg_match('/^&lt;\w[^&gt;]*[^\/]&gt;.*$/', $token, $matches)) :
+            $indent = 1; else :
+            $indent = 0;
+        endif;
+        $line = str_pad($token, strlen($token) + $pad, ' ', STR_PAD_LEFT);
+        $result .= $line . "\n";
+        $token = strtok("\n");
+        $pad += $indent;
+    endwhile;
+    return $result;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP PDO Fetch Object and Columns with Spaces]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-pdo-fetch-object-and-columns-with-spaces.html"/>
+    <updated>2013-05-24T17:39:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-pdo-fetch-object-and-columns-with-spaces</id>
+    <content type="html"><![CDATA[<p>If you use PDO and Fetch Object, it might not be clear exactly to access row properties that are based on columns that have spaces.</p>
+
+<p>I know I searched for things like:</p>
+
+<p>PDO Columns with spaces
+PDO::fetchObject spaces
+and PDO spaces in column names</p>
+
+<p>I eventually found what I was looking for in the depths of the PHP.net comments however hopefully this post will be a little bit easier to find thanks to a bit of primitive SEO up there.</p>
+
+<p>The solution to using columns with spaces is simply this:</p>
+
+<p>```php</p>
+
+<p>$sql=&ldquo;select * from table_with_spaces_in_column_names &rdquo;;
+$statement = $myPDOObject->prepare($sql);
+$statement->execute();
+$row = $statement->fetchObject();
+$ColumnWithSpaces = $row->{&lsquo;Column With Spaces&rsquo;}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Weekly Email Newsletter Archive]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-weekly-email-newsletter-archive.html"/>
+    <updated>2013-03-19T09:16:30+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-weekly-email-newsletter-archive</id>
+    <content type="html"><![CDATA[<p>If you fancy some php reading and watching suggest you check out this PHP newsletter: <a href="http://phpweekly.info/archive/">http://phpweekly.info/archive/</a></p>
+]]></content>
+  </entry>
+  
+</feed>

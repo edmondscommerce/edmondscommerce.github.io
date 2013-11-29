@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: static | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/static/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Restrict Access Using .htaccess File Rules in PHP]]></title>
+    <link href="http://edmondscommerce.github.io/php/restrict-access-using-htaccess-file-rules-in-php.html"/>
+    <updated>2013-03-11T15:29:34+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/restrict-access-using-htaccess-file-rules-in-php</id>
+    <content type="html"><![CDATA[<p>The function below is one that we have used a few times to allow certain &ldquo;admin only&rdquo; assets to be accessed or visible on the front end of a website.</p>
+
+<p>The theory is that the htaccess file in the admin folder will be kept up to date and can therefore be used as the authoritative list of IP addresses that are allowed to access admin assets.</p>
+
+<p>This function is simple enough and should be useful anywhere that you use htaccess to protect a certain folder and would like to implement the same white list rules in other places without having to maintain a duplicate list of authorised IP addresses.</p>
+
+<p>The function also uses <a href="http://www.php.net/manual/en/language.variables.scope.php#language.variables.scope.static" title="PHP.net Static Variables" target="_blank">static variables</a> &ndash; a lesser known bit of PHP functionality which can be a nice easy performance optimisation when working with procedural PHP code. If a function will be called many times and will always return the same result in a single request, you can actually cache that result to a static variable and serve that on any subsequent requests.</p>
+
+<p>```php</p>
+
+<p>function isAllowedIp() {</p>
+
+<pre><code>static $pass = null;
+if ($pass !== null) {
+    return $pass;
+}
+$pass=false;
+$customer_ip = $_SERVER['REMOTE_ADDR'];    
+$htaccess = file_get_contents('admin/.htaccess');
+preg_match_all('%allow from ([0-9.]+)%', $htaccess, $matches);
+foreach ($matches[1] as $ip) {
+    if ($ip == $customer_ip) {
+        $pass = true; //this is stored statically for perfomance reasons
+        return true;
+    }
+}
+return false;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Static Analysis Tool for PHP]]></title>
+    <link href="http://edmondscommerce.github.io/php/static-analysis-tool-for-php.html"/>
+    <updated>2012-03-20T07:14:30+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/static-analysis-tool-for-php</id>
+    <content type="html"><![CDATA[<p>Static analysis is the process of parsing and searching through code without actually running it. It is the equivalent of someone opening your code base in their IDE and reading through it in detail.</p>
+
+<p>RIPS is a tool I have just come across for doing PHP static analysis. You just need a working Apache stack etc for it to work which any PHP dev is going to have.</p>
+
+<p><a href="http://rips-scanner.sourceforge.net/"><a href="http://rips-scanner.sourceforge.net/">http://rips-scanner.sourceforge.net/</a></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Adding custom variables to Magento Static Blocks]]></title>
+    <link href="http://edmondscommerce.github.io/magento/adding-custom-variables-to-magento-static-blocks.html"/>
+    <updated>2012-01-16T16:02:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/adding-custom-variables-to-magento-static-blocks</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently been asked to customise the front page of a magento store. The client wanted the ability to specify a different set of top links depending on whether the customer was logged in or not, and they wanted to be able to changes these links from the admin section. They also wanted the logged in links to display the customers name.</p>
+
+<p>The problem with this is that the standard magento CMS static blocks don&rsquo;t provide access to the customer by default, so I thought I was going to have to build an extension to pass the variables in. However after a little bit of digging, I discovered that this functionality is available as standard in Magento, you just need to set it up!</p>
+
+<p>The way to do this is as follows. Within you template file add in the following code:</p>
+
+<p>```php</p>
+
+<p>$blockToDisplay = $this->getLayout()&ndash;>createBlock(&lsquo;cms/block&rsquo;)&ndash;>setBlockId(&lsquo;static_block_id_to_display&rsquo;);
+/<em>*
+* Here we create an array of custom variables that will be passed to the static block. You can set as many as you
+* need and call them whatever makes sense. The important part is in the Static Block you call these like this
+* 
+* Note there are no spaces between the braces and the characters &ndash; this is something that caught me out
+</em>/
+$customVariables = array();
+$customVariables[&lsquo;customer_name&rsquo;] = Mage::helper(&lsquo;customer&rsquo;)&ndash;>getCustomerName();
+$filter = Mage::getModel(&lsquo;core/email_template_filter&rsquo;);
+$filter->setVariables($customVariables);
+echo $filter->filter($blockToDisplay->toHtml());</p>
+
+<p>```</p>
+
+<p>This will then display the static block with your variables expanded to values you&rsquo;ve set.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Virtual Machine - HipHop by Facebook]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-virtual-machine-hiphop-by-facebook.html"/>
+    <updated>2011-12-12T10:21:55+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-virtual-machine-hiphop-by-facebook</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>We told you about <a href="http://www.edmondscommerce.co.uk/php/php-into-compiled-c-hip-hop-by-facebook/">HipHop</a> a while back and we were pretty excited about it.</p>
+
+<p>Now Facebook have decided to develop a virtual machine to allow dynamic translation and faster results than their previous interpreter based approach. This is paving the way for further performance improvements and ease of development.</p>
+
+<p>You can read the full story <a href="http://www.facebook.com/note.php?note_id=10150415177928920">here</a>.</p>
+
+<p>We suspect it is still some way before this kind of thing will be more widely adopted but its certainly a good thing for PHP.</p>
+]]></content>
+  </entry>
+  
+</feed>

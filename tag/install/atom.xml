@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: install | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/install/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using Magento Database Migrations to Track Configuration Changes]]></title>
+    <link href="http://edmondscommerce.github.io/magento/using-magento-database-migrations-to-track-configuration-changes.html"/>
+    <updated>2013-05-21T09:11:44+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/using-magento-database-migrations-to-track-configuration-changes</id>
+    <content type="html"><![CDATA[<p>Often when working on a Magento site, there is a requirement to build custom functionality or implement new themes etc but to finish the job, the final step will be to perform some admin configuration.</p>
+
+<p>This manual step can introduce the possiblity of human error if a step is missed or not performed exactly correctly.</p>
+
+<p>Also if the configuration is to be applied multiple times across staging, pre production and final production then these risks increase.</p>
+
+<p>The only sure way to make sure that the correct configuration is applied and also to provide a proper audit trail for configuration changes is to use Magento&rsquo;s database migrations &ndash; install and upgrade scripts &ndash; to update the database programmatically with the required configuration changes.</p>
+
+<p>To assist with this, there is a nice simple module you can find on Git Hub:</p>
+
+<p><a href="https://github.com/danslo/MigrationHelper"><a href="https://github.com/danslo/MigrationHelper">https://github.com/danslo/MigrationHelper</a></a></p>
+
+<p>This module will automatically create the migration files for you which can be a real time saver.</p>
+
+<p>I would always suggest you create your own custom namespaced configuration migration module that is purely to track these configuration changes.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Installing Percona DB on a clean CentOS ]]></title>
+    <link href="http://edmondscommerce.github.io/percona/installing-percona-db-on-a-clean-centos.html"/>
+    <updated>2012-11-09T15:22:41+00:00</updated>
+    <id>http://edmondscommerce.github.io/percona/installing-percona-db-on-a-clean-centos</id>
+    <content type="html"><![CDATA[<p>Percona is a performance optimised fork of MySQL that has gained a lot of traction in the Magento-sphere as webmasters and sysadmins alike look to squeeze the most performance out of their hardware.</p>
+
+<p>If you read the <a href="http://edmondscommerce.github.io/platforms/magento">Magento</a> performance whitepaper then you will see they mention Percona DB there.</p>
+
+<p>To install Percona on a standard CentOS release 6.2 (Final) server you would need to run the following commands:</p>
+
+<p>First set up the repo:
+```bash</p>
+
+<p>rpm -Uhv <a href="http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm">http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm</a></p>
+
+<p>```</p>
+
+<p>This should give you output like this:
+```</p>
+
+<p>Retrieving <a href="http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm">http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm</a>
+Preparing&hellip;                ########################################### [100%]
+   1:percona-release        ########################################### [100%]</p>
+
+<p>```</p>
+
+<p>Then installing should be a simple case of running:
+```bash</p>
+
+<p>yum install Percona-Server-client-55 Percona-Server-server-55</p>
+
+<p>```</p>
+
+<p>However I found that this generated the following error:
+```</p>
+
+<p>Error: Percona-XtraDB-Cluster-client conflicts with Percona-Server-client-55</p>
+
+<p>```</p>
+
+<p>The problem is because MySQL is already installed and needs to be removed. You can do this with this command:</p>
+
+<p>```bash</p>
+
+<p>yum remove mysql*</p>
+
+<p>```</p>
+
+<p>At which point running the install should work smoothly.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[AMTU Not Recognizing Files + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/linux/amtu-not-recognizing-files-solution.html"/>
+    <updated>2011-08-03T18:30:17+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/amtu-not-recognizing-files-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>I&rsquo;ve recently had to upgrade a shop that lists products on amazon. They wanted to automatically add new products and keep their inventory up to date, so I set up a feed generating system and installed AMTU to send the data through to amazon.</p>
+
+<p>After putting together a test run I saw that the Inventory Uploader was being sent to to the failed folder. The only clue about this was in the audit logs where it said
+<code>
+2011-08-03 16:02:20,062 INFO  Could not recognize file amazon_amtu_price_quantity.txt &ndash; ignoring.
+</code></p>
+
+<p>After a lot of looking around, it appears that AMTU require the top line on the feeds that starts TemplateType=&hellip; If this is missing the system flags the file as unknown, and refuses to send it. To make things worse, trying to get round this by using a different template type causes amazon to reject the file on their end.</p>
+
+<p>To fix this I started to look online to find a solution. Everything that I could find referenced the 1.0.9 AMTU version that I was using, and it was only by accident that I discovered that Amazon had quietly released an update to the program earlier this year. This new, AMTU 2.0, accepts all of the new file types, offers more intergration with the fulfilment by amazon service and is simple to install.</p>
+
+<p>So others don&rsquo;t have to spend as much time as I did, this is what you need to do to install it.</p>
+
+<p>Stop and uninstall your previous version of AMTU. To do this you need to ensure that the JAVA_HOME variable is set in bash. To check this type
+<code>
+echo $JAVA_HOME
+</code>
+If something is displayed, then the variable is set, if not then you will need to set it. Find where your java home directory is, mine was in /usr/java/latest/, if yours is not there type the following
+<code>
+find / -name java 2>/dev/null
+</code>
+This will give you a list of directories, you&rsquo;re looking for one that a /bin folder inside it.</p>
+
+<p>Now that you have the directory, you need to set the variable. The best way is to edit /root/.bash_profile and add in the following line
+<code>
+export JAVA_HOME=&ldquo;/path/to/dir/&rdquo;
+</code>
+However this require you to log out, or restart the server. If this isn&rsquo;t possible, type the same line on the command line and it will set the variable for the rest of the session.</p>
+
+<p>Once everything is set up, go to your AMTU folder, /opt/amtu/ in my case, and run the uninstall.sh script. This will remove amtu, but leave the files you&rsquo;ve already generated.</p>
+
+<p>Next download the appropriate version from this <a href="https://sellercentral.amazon.co.uk/gp/help/help-page.html/ref=ag_16481_cont_32911?isLink=1&itemID=16481">page</a>, or if setting up on a server use the following code
+<code>wget <a href="https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh">https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh</a></code></p>
+
+<p>make sure the file is executable and then run it. Fill in the information that is asked for and you&rsquo;re good to go. When you set it up, you&rsquo;ll be asked for your MWS details. If you are running the installation on a desktop, then it will provide you with a link that you can click and register. Once you have set everything up, you can export your settings, by running the following command
+<code>
+/path/to/amtu/Utilities/configure EXPORT /tmp/config.xml
+</code>
+you can then move the config file onto the server and run import the file, using SETUP instead of EXPORT.</p>
+
+<p>Once all of this is done, your system is ready to go. I hope this will save someone some time</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Wordpress Bash Install Script]]></title>
+    <link href="http://edmondscommerce.github.io/wordpress/wordpress-bash-install-script.html"/>
+    <updated>2010-10-25T11:58:11+01:00</updated>
+    <id>http://edmondscommerce.github.io/wordpress/wordpress-bash-install-script</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Easy peasy:</p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>wget <a href="http://wordpress.org/latest.zip">http://wordpress.org/latest.zip</a>
+unzip latest.zip
+cp -rf ./wordpress/* ./</p>
+
+<p>```</p>
+
+<p>handy little bash script to install word press</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Install Git on Centos 5 - Install EPEL on Centos]]></title>
+    <link href="http://edmondscommerce.github.io/git/install-git-on-centos-5-install-epel-on-centos.html"/>
+    <updated>2010-08-25T16:35:23+01:00</updated>
+    <id>http://edmondscommerce.github.io/git/install-git-on-centos-5-install-epel-on-centos</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>To install Git on a Centos server you need to install something called EPEL first.</p>
+
+<p>This is an extra repository of apps which you need to have accessible in order to install Git.</p>
+
+<p>I tried other tutorials on the net that were quite extensive but didn&rsquo;t work. In the end its just two commands:</p>
+
+<ol>
+<li>Install EPEL:
+```</li>
+</ol>
+
+
+<p>rpm -Uvh <a href="http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-3.noarch.rpm">http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-3.noarch.rpm</a></p>
+
+<p>```
+<a href="http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F"><a href="http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F">http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F</a></a></p>
+
+<ol>
+<li>Install Git + Git Daemon
+```</li>
+</ol>
+
+
+<p>yum install git git-daemon</p>
+
+<p>```</p>
+
+<p>For me to get it to work, I had to manually change the epel.repo file because I had created a non functional one previously. I got the warning:</p>
+
+<p>warning: /etc/yum.repos.d/epel.repo created as /etc/yum.repos.d/epel.repo.rpmnew</p>
+
+<p>So I just did the following:</p>
+
+<p>```</p>
+
+<p>cd /etc/yum.repos.d/
+mv epel.repo epel.repo.old
+mv epel.repo.rpmnew epel.repo</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

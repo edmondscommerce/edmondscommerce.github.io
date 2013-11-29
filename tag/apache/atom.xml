@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: apache | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/apache/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fast E-Commerce Search Solution]]></title>
+    <link href="http://edmondscommerce.github.io/fast-e-commerce-search-solution.html"/>
+    <updated>2013-04-29T10:59:11+01:00</updated>
+    <id>http://edmondscommerce.github.io/fast-e-commerce-search-solution</id>
+    <content type="html"><![CDATA[<p>One of the trickiest parts of any e-commerce store to get running quickly is the search results. The problem is compounded for large or complex stores where a database query based search for a multi word search phrase can become a real behemoth of a database query that has to search for each word in a multitude of database tables and columns. Then throw in other issues such as table locking and the performance issues can start to hurt the site as a whole.</p>
+
+<h3>Caching for Performance</h3>
+
+
+<p>One common solution to scaling up e-commerce stores is to use a variety of methods and levels of caching, from a database query cache right up to a full page caching system perhaps powered by Varnish. This solution works well for product and category pages for which there is a finite number. When it comes to search results pages though, each possible search phrase is a completely separate set of pages. You might be able to keep a warm cache for your most popular search phrases but anything else will be raw results. It will show your server at its worst performance.</p>
+
+<h3>Alternative Enterprise Search Engine</h3>
+
+
+<p>In this scenario it is time to start looking at other search solutions. If you want a turnkey professional solution then check out Google Commerce Search. This premium offering gives you a powerful search engine that is entirely outsourced and uses Google technology to deliver great quality results. As you can probably imagine though, this premium product comes with a premium and enduringly high subscription fee.</p>
+
+<h3>Enterprise Open Source</h3>
+
+
+<p>Instead what we are now recommending to our larger clients is to look at implementing the Solr search engine. <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> is an enterprise level search engine. It is used in a wide variety of impressive sites &ndash; <a href="http://wiki.apache.org/solr/PublicServers" target="_blank">you can see a list here</a>. Names like Netflix, The Guardian and eBay really underline the fact that this is serious and powerful technology.</p>
+
+<h3>Advanced Search Functionality</h3>
+
+
+<p>The great thing is that it is also pretty easy to set up and get running. To get a basic search engine working is no more than a few hours of work. There are many possibilities with the search engine including spelling suggestions, parametric (faceted in Solr speak) search, synoyms, auto suggest and loads more. Depending on exactly how you want this to work will determine exactly how much work is involved.</p>
+
+<p>Solr provides a huge amount of configurability and tuning. For this reason we would always expect a new install of Solr to be followed up with a bit of tweaking to make sure you are getting the right results. Once the right configuration has been determined we can then expect the engine to work tirelessly, serving up lightning fast and excellent quality results without any further investment from your business.</p>
+
+<h3>Implement Solr Search Today</h3>
+
+
+<p>If you would like your site to be fitted out with a Solr based search system by a professional UK based e-commerce web development agency then get in touch with Edmonds Commerce today. Simply fill out the form below and we will be in touch to discuss how we can take your web site search functionality to the next level.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Mod Rewrite and Escaped Hashes (and other characters)]]></title>
+    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html"/>
+    <updated>2013-04-22T13:57:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters</id>
+    <content type="html"><![CDATA[<p>If you are having issues with mod rewrite apparently abandoning sections of variables after encoded hashes then this could be your solution.</p>
+
+<p>The use case is particularly clear when using mod_rewrite in front of a search engine (such as Solr which I am really enjoying working with at the moment).</p>
+
+<p>Imagine someone search for a partcode ABC#123</p>
+
+<p>This gets encoded to search/abc%23123</p>
+
+<p>Your rewritten search term will then be mangled by Apache and your search script will only actually see ABC. That is of course a problem and the solution is not really clear.</p>
+
+<p>After a bit of searching around I found the solution is to add a B flag to your mod_rewrite rule so that mod_rewrite will escape these characters so that they are cleanly passed through.</p>
+
+<p>For example:</p>
+
+<p>```php</p>
+
+<p>RewriteRule ^(.<em>)search/(.</em>)$ advanced_search_result.php?keywords=$2 [L,B]</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Mod Rewrite Escaped Slashes Problem + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html"/>
+    <updated>2013-04-11T11:05:20+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution</id>
+    <content type="html"><![CDATA[<p>As part of our Magento SEO service, the first thing we do is to make sure there are no issues with the crawlability and general health of the clients web site.</p>
+
+<p>Whilst working on the Google Webmaster Tools crawl errors for a client I noticed one specific and intruiging problem for which I couldn&rsquo;t immediately see the reason, everything looked to be set up perfectly.</p>
+
+<p>Certain URLs were getting 404 responses. The URL was being parsed by mod_rewrite but everything looked fine so why was apache giving a 404?</p>
+
+<p>The problem turns out to be that the URLs contain escaped slashes (eg search/KTA-mb667k2%2F2g),</p>
+
+<p>The problem is that Apache actually handles the escaped slash and helpfully converts it to a real slash. That then means that it is trying to look in a sub folder that does not exist and hence the 404.</p>
+
+<p>Chances are you don&rsquo;t want escaped slashes to really be thought of as real directory separating slashes, especially if you are using mod_rewrite.</p>
+
+<p>The answer is a simple one liner to be added to your vhost.conf or httpd.conf.</p>
+
+<p>```</p>
+
+<p>AllowEncodedSlashes On</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Log File Analysis Script]]></title>
+    <link href="http://edmondscommerce.github.io/bash/apache-log-file-analysis-script.html"/>
+    <updated>2013-03-14T14:17:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/apache-log-file-analysis-script</id>
+    <content type="html"><![CDATA[<p>Here is a little bash script we knocked together to track down some malicious activity on a clients server.</p>
+
+<p>Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.</p>
+
+<p>Here is the script:</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<h6>SETUP</h6>
+
+<p>LOG_FOLDER=/var/www/vhosts/domain.co.uk/statistics/logs
+ACCESS_LOG=$LOG_FOLDER/access_log</p>
+
+<p>HOW_MANY_ROWS=20000</p>
+
+<h6>### FUNCTIONS</h6>
+
+<p>function title() {</p>
+
+<pre><code>echo "
+</code></pre>
+
+<hr />
+
+<h2>$@</h2>
+
+<p>&ldquo;
+}</p>
+
+<p>function urls_by_ip() {</p>
+
+<pre><code>local IP=$1
+tail -5000 $ACCESS_LOG | awk -v ip=$IP ' $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20
+</code></pre>
+
+<p>}</p>
+
+<p>function ip_addresses_by_user_agent(){</p>
+
+<pre><code>local USERAGENT_STRING="$1"
+local TOP_20_IPS="`tail  -$HOW_MANY_ROWS $ACCESS_LOG | grep "${USERAGENT_STRING}"  | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20`"
+echo "$TOP_20_IPS"
+</code></pre>
+
+<p>}</p>
+
+<h6># RUN REPORTS</h6>
+
+<p>title &ldquo;top 20 URLs&rdquo;
+TOP_20_URLS=&ldquo;<code>tail -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS&rdquo;</p>
+
+<p>title &ldquo;top 20 URLS excluding POST data&rdquo;
+TOP_20_URLS_WITHOUT_POST=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk -F"[ ?]" '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS_WITHOUT_POST&rdquo;</p>
+
+<p>title &ldquo;top 20 IPs&rdquo;
+TOP_20_IPS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_IPS&rdquo;</p>
+
+<p>title &ldquo;top 20 user agents&rdquo;
+TOP_20_USER_AGENTS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_USER_AGENTS&rdquo;</p>
+
+<p>title &ldquo;IP Addresses for Top 3 User Agents&rdquo;</p>
+
+<p>for ((I=1; I&lt;=3; I++))
+do</p>
+
+<pre><code>UA="`echo "$TOP_20_USER_AGENTS" | head -n $I | tail -n 1 | awk '{$1=""; print $0}'`"
+echo "$UA"
+echo "~~~~~~~~~~~~~~~~~~"
+ip_addresses_by_user_agent "$UA"
+echo "
+"
+</code></pre>
+
+<p>done</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Access Logs Find Spiders by Counting Requests to IP Addresses]]></title>
+    <link href="http://edmondscommerce.github.io/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html"/>
+    <updated>2012-08-21T13:24:37+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses</id>
+    <content type="html"><![CDATA[<p>If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<p>LOG_FILE=/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+OUT_FILE=/tmp/spider_analysis</p>
+
+<h1>This generates a file with the top 20 IP addresses by number of requests</h1>
+
+<p>cat $LOG_FILE | awk &lsquo;{print $1}&rsquo; | sort | uniq -c | sort -nr | head -n 20 > $OUT_FILE</p>
+
+<p>echo &ldquo;Top 20 IP addresses by number of request&rdquo;
+cat $OUT_FILE</p>
+
+<h1>allow for loop to split on new line</h1>
+
+<p>IFS_BAK=$IFS
+IFS=&ldquo;
+&rdquo;</p>
+
+<p>for i in <code>cat $OUT_FILE</code>
+do</p>
+
+<pre><code>COUNT=`echo $i | awk '{print $1}'`
+IP_ADD=`echo $i | awk '{print $2}'`
+echo ""
+echo "---------------------------------"
+echo ""
+echo "$IP_ADD has made $COUNT requests"
+echo "Whois Information"
+whois $IP_ADD 
+#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around
+echo ""
+echo "---------------------------------"
+echo ""
+</code></pre>
+
+<p>done</p>
+
+<h1>set that back</h1>
+
+<p>IFS=$IFS_BAK
+IFS_BAK=</p>
+
+<p>```</p>
+
+<p>You would use this to give you some idea of which IPs are hitting the server a lot.</p>
+
+<p>Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.</p>
+]]></content>
+  </entry>
+  
+</feed>

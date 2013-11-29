@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: function | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/function/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Restrict Access Using .htaccess File Rules in PHP]]></title>
+    <link href="http://edmondscommerce.github.io/php/restrict-access-using-htaccess-file-rules-in-php.html"/>
+    <updated>2013-03-11T15:29:34+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/restrict-access-using-htaccess-file-rules-in-php</id>
+    <content type="html"><![CDATA[<p>The function below is one that we have used a few times to allow certain &ldquo;admin only&rdquo; assets to be accessed or visible on the front end of a website.</p>
+
+<p>The theory is that the htaccess file in the admin folder will be kept up to date and can therefore be used as the authoritative list of IP addresses that are allowed to access admin assets.</p>
+
+<p>This function is simple enough and should be useful anywhere that you use htaccess to protect a certain folder and would like to implement the same white list rules in other places without having to maintain a duplicate list of authorised IP addresses.</p>
+
+<p>The function also uses <a href="http://www.php.net/manual/en/language.variables.scope.php#language.variables.scope.static" title="PHP.net Static Variables" target="_blank">static variables</a> &ndash; a lesser known bit of PHP functionality which can be a nice easy performance optimisation when working with procedural PHP code. If a function will be called many times and will always return the same result in a single request, you can actually cache that result to a static variable and serve that on any subsequent requests.</p>
+
+<p>```php</p>
+
+<p>function isAllowedIp() {</p>
+
+<pre><code>static $pass = null;
+if ($pass !== null) {
+    return $pass;
+}
+$pass=false;
+$customer_ip = $_SERVER['REMOTE_ADDR'];    
+$htaccess = file_get_contents('admin/.htaccess');
+preg_match_all('%allow from ([0-9.]+)%', $htaccess, $matches);
+foreach ($matches[1] as $ip) {
+    if ($ip == $customer_ip) {
+        $pass = true; //this is stored statically for perfomance reasons
+        return true;
+    }
+}
+return false;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bash Terminal Rename Programmatically]]></title>
+    <link href="http://edmondscommerce.github.io/bash/bash-terminal-rename-programmatically.html"/>
+    <updated>2013-01-16T12:56:15+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/bash-terminal-rename-programmatically</id>
+    <content type="html"><![CDATA[<p>If you have a load of terminals open you might find it handy to be able to rename the window title on the fly.</p>
+
+<p>You can do this easily by copying this code into your ~/.bashrc file (or even pasting it into your terminal if you like)</p>
+
+<p>```bash</p>
+
+<p>function nameTerminal() {</p>
+
+<pre><code>[ &amp;quot;${TERM:0:5}&amp;quot; = &amp;quot;xterm&amp;quot; ]   &amp;amp;&amp;amp; local ansiNrTab=0
+[ &amp;quot;$TERM&amp;quot;       = &amp;quot;rxvt&amp;quot; ]    &amp;amp;&amp;amp; local ansiNrTab=61
+[ &amp;quot;$TERM&amp;quot;       = &amp;quot;konsole&amp;quot; ] &amp;amp;&amp;amp; local ansiNrTab=30 ansiNrWindow=0
+    # Change tab title
+[ $ansiNrTab ] &amp;amp;&amp;amp; echo -n $'\e'&amp;quot;]$ansiNrTab;$1&amp;quot;$'\a'
+    # If terminal support separate window title, change window title as well
+[ $ansiNrWindow -a &amp;quot;$2&amp;quot; ] &amp;amp;&amp;amp; echo -n $'\e'&amp;quot;]$ansiNrWindow;$2&amp;quot;$'\a'
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>If you have pasted this into your ~/.bashrc file you need to launch a new terminal or run:</p>
+
+<p>```bash</p>
+
+<p>source ~/.bashrc</p>
+
+<p>```</p>
+
+<p>From this point the function is now ready to use and you can run:</p>
+
+<p>```bash</p>
+
+<p>nameTerminal &quot;My Custom Terminal Window Title&quot;</p>
+
+<p>```</p>
+
+<p>Now you can easily choose the terminal you want based upon the window title.</p>
+
+<p>Of course this then opens the door to automatically changing the window title based on all kinds of events that you might like, isn&rsquo;t bash scripting fun!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Parse XML Values in bash e.g. Magento local.xml]]></title>
+    <link href="http://edmondscommerce.github.io/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml.html"/>
+    <updated>2012-08-23T11:37:58+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml</id>
+    <content type="html"><![CDATA[<p>Not the most elegant way to do this, and probably could do with some extra tweaks but it works for our purposes, so presented here in case it fits yours :</p>
+
+<p>```bash</p>
+
+<h1>xml_value path/to/file node_key</h1>
+
+<p>function xml_value(){</p>
+
+<pre><code>grep "&lt;$2&gt;.*&lt;.$2&gt;" $1 | sed -e "s/&lt;\!\[CDATA\[//" | sed -e "s/\]\]&gt;//" | sed -e "s/^.*&lt;$2/&lt;$2/" | cut -f2 -d"&gt;"| cut -f1 -d"&lt;"
+</code></pre>
+
+<p>}
+```</p>
+
+<p>It also strips out the CDATA tags, which we needed to pull the database details from Magento&rsquo;s local.xml</p>
+
+<p>To use this to get, for example, the database host, you would use the following:</p>
+
+<p><code>bash
+DB_HOST=$(xml_value app/etc/local.xml host)
+</code></p>
+
+<p>To use this</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Realpath for None Existant Paths]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-realpath-for-none-existant-paths.html"/>
+    <updated>2012-08-08T13:43:30+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-realpath-for-none-existant-paths</id>
+    <content type="html"><![CDATA[<p>If you want the functionality of realpath, to take a path containing relative elements such as /../ then this little function is exactly what you are looking for.</p>
+
+<p>PHP&rsquo;s built in realpath function will return false if the file or folder does not exist. Unfortunately when using complex paths then this can make debugging things a little complicated.</p>
+
+<p>To resolve this simply use this function:</p>
+
+<p>```php</p>
+
+<p>function normalizePath($path) {</p>
+
+<pre><code>return array_reduce(explode('/', $path), create_function('$a, $b', '
+        if($a === 0)
+            $a = &amp;quot;/&amp;quot;;
+
+        if($b === &amp;quot;&amp;quot; || $b === &amp;quot;.&amp;quot;)
+            return $a;
+
+        if($b === &amp;quot;..&amp;quot;)
+            return dirname($a);
+
+        return preg_replace(&amp;quot;/\/+/&amp;quot;, &amp;quot;/&amp;quot;, &amp;quot;$a/$b&amp;quot;);
+    '), 0);
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>For example:</p>
+
+<p>```php</p>
+
+<p>$path = dirname(<strong>FILE</strong>) . &lsquo;/../../../folder/&rsquo;;
+$path = normalizePath($path);
+echo $path; // /var/www/vhosts/domain.com/folder</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Create Category Method]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-create-category-method.html"/>
+    <updated>2012-03-02T18:30:04+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-create-category-method</id>
+    <content type="html"><![CDATA[<p>Ideal to drop into a helper, this is a simplified create category method.</p>
+
+<p>You need to specify the name, store_id and parent category id and can optionally set to active, anchor and change the display mode if you wish.</p>
+
+<p>```php</p>
+
+<p>public function createCategory($name, $store_id, $parent_id, $active = 0, $anchor = 0, $display_mode=&lsquo;PRODUCTS&rsquo;) {</p>
+
+<pre><code>    $parent = Mage::getModel('catalog/category')-&gt;load($parent_id);
+    if($parent-&gt;getId() != $parent_id){
+        Mage::helper('exception')-&gt;except('Failed to load parent category', 'Fatal');
+    }
+    $category = Mage::getModel('catalog/category');
+    /* @var $category Mage_Catalog_Model_Category */
+    $category
+            -&gt;setStoreId($store_id)
+            -&gt;setPath($parent-&gt;getPath())
+            -&gt;setName($name)
+            -&gt;setUrlKey($name)
+            -&gt;setIsActive($active)
+            -&gt;setIsAnchor($anchor)
+            -&gt;setDisplayMode($display_mode)
+            -&gt;setAttributeSetId($category-&gt;getDefaultAttributeSetId())
+    ;
+    $category-&gt;save();
+    return $category;
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

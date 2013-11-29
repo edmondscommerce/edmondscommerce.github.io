@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: zip | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/zip/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHP and Zip Files]]></title>
+    <link href="http://edmondscommerce.github.io/php/zip/php-and-zip-files.html"/>
+    <updated>2008-03-13T16:41:07+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/zip/php-and-zip-files</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>There aren&rsquo;t many things you can&rsquo;t do with PHP. One of the things you can do is deal with zip files.</p>
+
+<p>PHP has a built in class for dealing with zip files which allows you to create them, unpack them, add and delete things from them and generally use them within your scripts.</p>
+
+<p>Recently on a spidering / product feed integration job that I have been working on I needed to grab a load of image zip files and unpack them all into a folder called &lsquo;images/&rsquo; (surprisingly enough)</p>
+
+<p>Here is how I did it:</p>
+
+<p>```php</p>
+
+<p>function unpack_zips($directory, $destination = &lsquo;images/&rsquo;){</p>
+
+<pre><code>$files = dir_list($directory);
+//print_r($files);
+$zips = array();
+foreach($files as $k=&gt;$file){
+    if(stristr($file, '.zip')){
+        $zips[] = $directory . $file;
+    }
+}
+print_r($zips);
+$zip = new ZipArchive;
+foreach($zips as $z){
+    if ($zip-&gt;open($z) === TRUE) {
+        $zip-&gt;extractTo($directory . $destination);
+        $zip-&gt;close();
+        //echo "&lt;h3&gt;$z OK&lt;/h3&gt;";
+    } else {
+        echo"&lt;h3 style=\"color: red;\"&gt;$z Failed&lt;/h3&gt;";
+        bottom();
+    }   
+}
+</code></pre>
+
+<p>}</p>
+
+<p>function dir_list($directory){</p>
+
+<pre><code>echo $directory;
+if ($handle = opendir($directory)) {
+    while (false !== ($file = readdir($handle))) {
+        if($file != '.' &amp;&amp; $file != '..'){
+            $return[] = $file;
+        }
+    }
+    closedir($handle);
+    return $return;
+}else{      
+    return false;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>There are two functions. The first function is the one that deals with the Zip files. The second function is called by the first function and simply lists all files within a specified directory.</p>
+
+<p>These two functions combined allowed me to find all zip files in a particular folder and then unpack them all into a destination folder.</p>
+
+<p><b>Related Resources</b></p>
+
+<p><a href="http://www.phpclasses.org/browse/package/945.html" rel="nofollow"><a href="http://www.phpclasses.org/browse/package/945.html">http://www.phpclasses.org/browse/package/945.html</a></a></p>
+
+<p><a rel="nofollow" href="http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/"><a href="http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/">http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/</a></a></p>
+]]></content>
+  </entry>
+  
+</feed>

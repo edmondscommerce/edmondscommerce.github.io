@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: slash | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/slash/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Remove Double Slashes from URL without Breaking It]]></title>
+    <link href="http://edmondscommerce.github.io/php/remove-double-slashes-from-url-without-breaking-it.html"/>
+    <updated>2012-02-24T16:58:38+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/remove-double-slashes-from-url-without-breaking-it</id>
+    <content type="html"><![CDATA[<p>If you need to clean up a URL and remove any double (or more) slashes that might have crept in, but need to keep the :// bit intact you might like this little function</p>
+
+<p>```php</p>
+
+<pre><code>protected function removeDoubleSlash($in) {
+    return preg_replace('%([^:])(
+</code></pre>
+
+<p>```</p>
+
+<p>Handy :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Dataflow Images Not Working + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-dataflow-images-not-working-solution.html"/>
+    <updated>2011-02-17T16:03:49+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-dataflow-images-not-working-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are struggling to understand why Magento is not finding images that are definitely there, the problem may well be that you are not prefixing your image with a slash, i.e for a new image we would put:</p>
+
+<p>/image.jpg</p>
+
+<p>and the image would be in</p>
+
+<p>media/import/image.jpg</p>
+
+<p>Unfortunately whoever wrote the Dataflow product importer though it would be a good idea to silently capture all exceptions on image imports which removes any useful error messages that might occur (such as no image at media/importimage.jpg)</p>
+
+<p>If you would prefer to fix this, you can override Mage_Catalog_Model_Convert_Adapter_Product</p>
+
+<p>Copy the saveRow() method into your overriding class and then change this bit</p>
+
+<p>```php</p>
+
+<p>foreach ($imageData as $file => $fields) {</p>
+
+<pre><code>        try {
+            $filepath = Mage::getBaseDir('media') . DS . 'import' . trim($file);
+            $product-&gt;addImageToMediaGallery($filepath, $fields);
+        } catch (Exception $e) {}
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>To something like this</p>
+
+<p>```php</p>
+
+<p>foreach ($imageData as $file => $fields) {</p>
+
+<pre><code>        //try {
+            $filepath = Mage::getBaseDir('media') . DS . 'import' . trim($file);
+            $product-&gt;addImageToMediaGallery($filepath, $fields);
+       //} catch (Exception $e) {}
+    }
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

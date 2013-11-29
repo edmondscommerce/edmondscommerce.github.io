@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: flashmessenger | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/flashmessenger/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Flash Messenger Bug in Zend Framework + Patch]]></title>
+    <link href="http://edmondscommerce.github.io/php/flash-messenger-bug-in-zend-framework-patch.html"/>
+    <updated>2009-02-04T16:06:39+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/flash-messenger-bug-in-zend-framework-patch</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Arrgh am I going mad.. could something so simple really not work..?</p>
+
+<p>It turns out that I wasn&rsquo;t going mad, and Flash Messenger in Zend Framework really does have a bug. If its not working for you, the following patch may well fix things. You can check if this bug applies by setting your error reporting to E_ALL in your bootstrap.</p>
+
+<p>If you get the following error message then this patch should fix things for you.</p>
+
+<p>```</p>
+
+<p>Notice: Indirect modification of overloaded property Zend_Session_Namespace&hellip;..</p>
+
+<p>```</p>
+
+<p>To fix this problem and get FlashMessenger working correctly, you need to edit library/Zend/Controller/Action/Helper/FlashMessenger.php</p>
+
+<p>find this line
+```php</p>
+
+<p>self::$<em>session->{$this-></em>namespace}[] = $message;</p>
+
+<p>```</p>
+
+<p>and replace with this block
+```php</p>
+
+<p> //self::$<em>session->{$this-></em>namespace}[] = $message;
+$sessionMessages = self::$<em>session->{$this-></em>namespace};
+$sessionMessages[] = $message;
+self::$<em>session->{$this-></em>namespace} = $sessionMessages;</p>
+
+<p>```</p>
+
+<p>Apparently this issue only affects php 5.2 and so they have decided not to fix it and instead suggest upgrading the PHP version. If you need to get it working though the above will fix it for you.</p>
+
+<p><a href="http://framework.zend.com/issues/browse/ZF-1385;jsessionid=EF0F1B3DF6D09DC98918BBCCD06F0262?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel" rel="nofollow">more info</a></p>
+
+<p>If you want a nice tutorial about flash messenger, check out <a href="http://shabadeehoob.com/2008/08/24/setting-up-flash-messages-in-zend-framework/" rel="nofollow">this page</a></p>
+]]></content>
+  </entry>
+  
+</feed>

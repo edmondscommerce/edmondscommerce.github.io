@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: desktop | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/desktop/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-28T13:35:12+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Start windows on a specified workspace]]></title>
+    <link href="http://edmondscommerce.github.io/linux/start-windows-on-a-specified-workspace.html"/>
+    <updated>2012-01-31T14:04:27+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/start-windows-on-a-specified-workspace</id>
+    <content type="html"><![CDATA[<p>I rely on multiple desktops in order to keep my workflow organised. However each time I start up my computer I have to move these windows onto the correct desktop, which is a pain. Thankfully there is a way to place each window onto it&rsquo;s own desktop when your computer starts. This will explain the basics of doing this.</p>
+
+<p>First you need to install a tool called wmcrtl. On ubuntu you can do this by running this command</p>
+
+<p><code>
+sudo apt-get install wmctrl
+</code></p>
+
+<p>Once this is installed you need to see how it thinks you desktop is set up. You can do this by running this command</p>
+
+<p><code>
+wmctrl -d
+</code></p>
+
+<p>which give me the following result</p>
+
+<p><code>
+0  * DG: 13440x1050  VP: 0,0  WA: 0,24 3360x1002  Workspace 1
+</code></p>
+
+<p>The important part is the 13440x1050 &ndash; which corresponds to 8 1680x1050 desktops. Some versions of ubuntu put each desktop as a separate workspace, if so you&rsquo;ll need to modify the instructions slightly.</p>
+
+<p>At this point you can move you windows around so they are where you want them to be. Once you are happy with your layout, run the following command</p>
+
+<p><code>
+wmctrl -lG
+</code></p>
+
+<p>which will give you something similar to this
+```</p>
+
+<p>0x0340002e  0 3360 48   1680 1002 ross-desktop Add New Post ‹ Edmonds Commerce — WordPress &ndash; Chromium
+0x02a00077  0 23002 106  253  970  ross-desktop Buddy List
+0x02200004  0 0    58   1680 1021 ross-desktop Terminal
+0x06400003  0 6720 58   1680 1021 ross-desktop *untitled &ndash; Geany
+&hellip;</p>
+
+<p>```</p>
+
+<p>This can be broken down as follows
+```</p>
+
+<p>window-id   desktop-number  x-ofset y-ofset width   height  machine-name    window-title</p>
+
+<p>```</p>
+
+<p>Using this information you can put together a script that will run at startup to launch you windows.</p>
+
+<p><strong>NB This script relies on the window title to move a window. This works because the script will be run at startup and it is assumed that you will only have one instance of each program running. If you plan to have multiple windows open, then you will need to get the window-id, go through the man pages for ways of doing this.</strong></p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>geany /tmp/scratch.sql /tmp/scratch.php &amp;
+x-terminal-emulator &amp;</p>
+
+<h1>allow the windows to spawn before moving them</h1>
+
+<p>sleep 5</p>
+
+<h1>select and move the windows</h1>
+
+<h1>format wmctrl -r &ldquo;window to move&rdquo; -e gravity,x-pos,y-pos,width,height (-1 keeps the current value)</h1>
+
+<p>wmctrl -r &ldquo;scratch.php &ndash; /tmp &ndash; Geany&rdquo; -e 0,6720,0,-1,-1
+wmctrl -r &ldquo;Terminal&rdquo; -e 0,3360,0,-1,-1</p>
+
+<p>```</p>
+
+<p>save the file and make it executable, and then run it at startup to have your windows automatically appear where you want them. This is just scratching the surface of what wmctrl can do, so if you want to carry out more windows management from the command line go through the man pages and see if it can do what you want.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Path Tools Netbeans Open File in external program plus guake code]]></title>
+    <link href="http://edmondscommerce.github.io/ubuntu/path-tools-netbeans-open-file-in-external-program-plus-guake-code.html"/>
+    <updated>2012-01-10T16:30:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/ubuntu/path-tools-netbeans-open-file-in-external-program-plus-guake-code</id>
+    <content type="html"><![CDATA[<p>Not many people are aware of the Path Tools extension for netbeans, and even fewer know how to make it really useful.</p>
+
+<p>Effectively it provides 4 buttons &ndash; Copy Path, Open Folder, Open Terminal and Edit Path, the latter three being configurable.</p>
+
+<p>Its default for Open Folder is great (for gnome users) but that&rsquo;s the only one that has a default.</p>
+
+<p>I use Guake (a pull-down transparent terminal) and for the two options (For Folder and For File) I set to the following for a nice &ldquo;New tab in guake&rdquo; :&ndash;
+<code>
+guake --new-tab "{path}" -t
+</code>
+and
+<code>
+guake --new-tab "{parent-path}" -t
+</code></p>
+
+<p>And for the &ldquo;Edit Path&rdquo; button, I find it extremely useful to create a &ldquo;run external program&rdquo; script &ndash; sat in my personal bin directory ($HOME/bin/) containing the following code :&ndash;
+```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>ESCAPEDPARAMS=<code>echo $* | sed -e 's/\([[\/.*]\|\]\)/\\\&amp;/g'</code>
+MIME=<code>file --mime-type $* | cut -f2 -d: | cut -f2 -d' '</code>
+DESKTOPFILE=/usr/share/applications/<code>xdg-mime query default $MIME</code>
+EXEC=<code>grep '^Exec=' $DESKTOPFILE | cut -f2 -d=</code>
+COMMAND=<code>zenity --width 600 --entry --title="Path Tools" --text="Run Command : " --entry-text="$(echo $EXEC | sed s/'%U'/"$ESCAPEDPARAMS"/)"</code></p>
+
+<p>if [ &ldquo;$?&rdquo;==&ldquo;0&rdquo; ]; then
+  sh -c &ldquo;$COMMAND&rdquo;
+else
+  echo &ldquo;&rdquo;
+fi
+```
+and set that up as the command &ldquo;For Folder&rdquo; and &ldquo;For File&rdquo; with {path} for both (not {parent-path} notice).</p>
+
+<p>So, what does it do?</p>
+
+<ul>
+    <li>MIME variable is set to the mime-type of the file (e.g. image/jpeg)</li>
+    <li>DESKTOPFILE is set to the .desktop file that is associated with that mime-type (for my gnome setup this is /usr/share/applications/${DESKTOPFILE} )</li>
+    <li>EXEC is the command contained within that desktop file</li>
+    <li>COMMAND uses zenity to prompt for the commandline I want to run, pre-populated with the gnome default</li>
+</ul>
+
+
+<p>This means when I press the &ldquo;Edit Path&rdquo; button on a JPeg file, a popup asks for a commandline, prepopulated with my defaults (in this instance &ldquo;eog /path/to/file.jpg&rdquo;) and if I want I can change the command to gimp.  If I click OK in the box, the command is run.  If I just wanted to see the full path, I can maximise the box, look at it and click Cancel.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ubuntu Desktop Slideshow Recursive Folder]]></title>
+    <link href="http://edmondscommerce.github.io/python/ubuntu-desktop-slideshow-recursive-folder.html"/>
+    <updated>2011-01-08T11:50:22+00:00</updated>
+    <id>http://edmondscommerce.github.io/python/ubuntu-desktop-slideshow-recursive-folder</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you use Ubuntu, you probably use F-Spot for managing your photos. It&rsquo;s a nice app and it organises all your photos into a directory tree based on date.</p>
+
+<p>If you want to set up a desktop slideshow that shows images from this folder tree then you need to create a custom XML file that you can then set as the desktop background. Of course you need a system to create the slideshow.</p>
+
+<p>This script does just that:</p>
+
+<script type="text/javascript" src="http://snipt.net/embed/7cb620ed391c0a6e72548a0cc804fe3a"></script>
+
+
+<p>Inspired by a few scripts I found on the web, though <a href="http://royvandewater.com/blog/2009/12/ubuntu-wallpaper-slideshow/">this is the one I based it on</a>, simply modified to make it recursively pull images rather than just images in the current directory and also shuffle the resulting list.</p>
+
+<p>Place the script in the root of your ~/Photos directory, mark it as executable and then run it. It generates an XML file for you. You can now go to your desktop, right click and go to background then hit the [Add] button.</p>
+
+<p>Now navigate to your ~/Photos directory and select the generated XML file. Job done.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Great Desktop Wallpaper Collection]]></title>
+    <link href="http://edmondscommerce.github.io/ubuntu/great-desktop-wallpaper-collection.html"/>
+    <updated>2009-03-11T08:42:00+00:00</updated>
+    <id>http://edmondscommerce.github.io/ubuntu/great-desktop-wallpaper-collection</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>I always use this site for my desktop wallpaper..</p>
+
+<p>I love having a nice landscape shot of somewhere beautiful in the background.</p>
+
+<p><a href="http://interfacelift.com/wallpaper_beta/downloads/date/any/" rel="nofollow"><a href="http://interfacelift.com/wallpaper_beta/downloads/date/any/">http://interfacelift.com/wallpaper_beta/downloads/date/any/</a></a></p>
+
+<p>It&rsquo;s great because not only are the pictures really nice, but they are all available in all of the usual desktop resolutions eg 1680x1050.</p>
+
+<h4>More...</h4>
+
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://www.hecklerspray.com/tv-review-moving-wallpaper-itv1-0603/200921892.php" rel="nofollow"&gt;TV Review: Moving &lt;b&gt;Wallpaper&lt;/b&gt;, ITV1, 06/03 | Hecklerspray&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.shockya.com/news/2009/03/10/x-men-origins-wolverine-wallpaper-featuring-sabretooth/" rel="nofollow"&gt;X-Men Origins Wolverine &lt;b&gt;Wallpaper&lt;/b&gt; featuring Sabretooth | Shockya.com&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.shockya.com/news/2009/03/10/fast-and-furious-wallpaper-featuring-jordana-brewster/" rel="nofollow"&gt;Fast and Furious &lt;b&gt;Wallpaper&lt;/b&gt; Featuring Jordana Brewster | Shockya.com&lt;/a&gt;&lt;br&gt;&lt;a href="http://desktop.93vs.com/2009/03/10/space-wallpaper-world-wallpaper/" rel="nofollow"&gt;Space &lt;b&gt;wallpaper&lt;/b&gt;, world &lt;b&gt;wallpaper&lt;/b&gt; « Free &lt;b&gt;Wallpaper&lt;/b&gt;, desktop themes &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>
