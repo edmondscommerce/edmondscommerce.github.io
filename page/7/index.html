@@ -26,7 +26,16 @@
 
 
   <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
-  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-27853727-2', 'edmondscommerce.github.io');
+  ga('send', 'pageview');
+
+</script>
 
 </head>
 
@@ -99,6 +108,76 @@
   <div class="page-content col-md-9">
     <div class="blog-index">
       
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-02-21T15:06:39+00:00" pubdate data-updated="true">Feb 21<span>st</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/bash/simple-bash-single-process-enforcement.html">Simple Bash Single Process Enforcement</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have a bash script that you want to make sure there is only ever one instance of, for example something triggered by cron that might not have finished the next time cron tries to trigger it then you might like this little snippet:</p>
+
+<p>This is built for running Magento shell scripts (if you don&rsquo;t know about these, check them out) that are run on cron.</p>
+
+<p>Also note the logging that keeps log files</p>
+
+<p>Note the use of a character class in grep means it wont match itself &ndash; nice eh :)</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nv">HOUR</span><span class="o">=</span><span class="sb">`</span>date +<span class="s1">&#39;%H:%M&#39;</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">RUNNING</span><span class="o">=</span><span class="sb">`</span>ps waux | grep <span class="s2">&quot;longrunner[.]php&quot;</span><span class="sb">`</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;&quot;</span> <span class="o">==</span> <span class="s2">&quot;$RUNNING&quot;</span> <span class="o">]</span>
+</span><span class='line'><span class="k">then</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Its not running, we can now run it&quot;</span>
+</span><span class='line'>    php -f /home/my/public_html/shell/longrunner.php -- import &gt; /home/my/public_html/var/log/mylog.txt 2&gt;&amp;1
+</span><span class='line'>    cp -f  /home/my/public_html/var/log/my.txt /home/my/public_html/var/log/<span class="k">${</span><span class="nv">HOUR</span><span class="k">}</span>.my.txt
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;COMPLETED&quot;</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;It is running, aborting running this time&quot;</span>
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
       
       
         <article class="post">
@@ -659,202 +738,6 @@ movN7o6BrTspRXqXVmoBi6YOFbNNoBP9N1BPDARz6Maeoc5iEfZZ
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-01-24T17:39:08+00:00" pubdate data-updated="true">Jan 24<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/phpstorm/phpstorm-regex-replace-malformed-replacement-string.html">PHPStorm Regex Replace &#8220;Malformed Replacement String&#8221;</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are struggling using PHPStorm to find and replace code with Regex rules then this is your solution.</p>
-
-<p>The problem is that when using the $ sign in your replacement string it confuses it because PHP Storm uses the $ sign to represent sub pattern replacements.</p>
-
-<p>Take the following example code:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$data</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
-</span><span class='line'><span class="nv">$form</span><span class="o">=</span><span class="nv">$page</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;form.edit_product&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//standard inputs</span>
-</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;text&quot;]&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
-</span><span class='line'>    <span class="nv">$data</span><span class="p">[</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//radio inputs</span>
-</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;radio&quot;]&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">checked</span><span class="p">){</span>
-</span><span class='line'>        <span class="nv">$data</span><span class="p">[</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//checkbox inputs</span>
-</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;checkbox&quot;]&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">checked</span><span class="p">){</span>
-</span><span class='line'>        <span class="nv">$data</span><span class="p">[</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//textareas</span>
-</span><span class='line'><span class="nv">$textareas</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;textarea&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$textareas</span> <span class="k">as</span> <span class="nv">$textarea</span><span class="p">){</span>
-</span><span class='line'>    <span class="nv">$data</span><span class="p">[</span><span class="nv">$textarea</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">]</span><span class="o">=</span><span class="nv">$textarea</span><span class="o">-&gt;</span><span class="na">innertext</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And trying to replace the key being used in the data array with a processed one calling a method $this->dataName($key) to generate the following code:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$data</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
-</span><span class='line'><span class="nv">$form</span><span class="o">=</span><span class="nv">$page</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;form.edit_product&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//standard inputs</span>
-</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;text&quot;]&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
-</span><span class='line'>    <span class="nv">$data</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//radio inputs</span>
-</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;radio&quot;]&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">checked</span><span class="p">){</span>
-</span><span class='line'>        <span class="nv">$data</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//checkbox inputs</span>
-</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;checkbox&quot;]&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">checked</span><span class="p">){</span>
-</span><span class='line'>        <span class="nv">$data</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//textareas</span>
-</span><span class='line'><span class="nv">$textareas</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;textarea&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$textareas</span> <span class="k">as</span> <span class="nv">$textarea</span><span class="p">){</span>
-</span><span class='line'>    <span class="nv">$data</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nv">$textarea</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)]</span><span class="o">=</span><span class="nv">$textarea</span><span class="o">-&gt;</span><span class="na">innertext</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You might try the find pattern:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">\</span><span class="nv">$data</span><span class="nx">\</span><span class="p">[</span><span class="nx">\</span><span class="err">$</span><span class="p">([</span><span class="o">^-</span><span class="p">]</span><span class="o">+</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">name</span><span class="nx">\</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And the replace pattern:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">\</span><span class="nv">$data</span><span class="nx">\</span><span class="p">[</span><span class="nx">\</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nx">\</span><span class="err">$$</span><span class="mi">1</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)</span><span class="nx">\</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>However this will give you the dreaded <b>&ldquo;malformed replacement string&rdquo;</b> Error</p>
-
-<p>The solution is simply to triple escape your dollar signs, so the replacement pattern becomes:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">\\\</span><span class="nv">$data</span><span class="nx">\</span><span class="p">[</span><span class="nx">\\\</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nx">\\\</span><span class="err">$$</span><span class="mi">1</span><span class="o">-&gt;</span><span class="na">name</span><span class="nx">\</span><span class="p">)</span><span class="nx">\</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And it works, woot!</p>
-
-<p>Also when it does work, PHP Storms replacement preview feature is really quite nice</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -878,6 +761,8 @@ movN7o6BrTspRXqXVmoBi6YOFbNNoBP9N1BPDARz6Maeoc5iEfZZ
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
+    
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
     
     <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
@@ -885,8 +770,6 @@ movN7o6BrTspRXqXVmoBi6YOFbNNoBP9N1BPDARz6Maeoc5iEfZZ
     <a class="list-group-item " href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a>
     
     <a class="list-group-item " href="/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html">Vim Locking Up, Always When You Are Ready to Save? Solution</a>
-    
-    <a class="list-group-item " href="/magento/magento-1-8-released.html">Magento 1.8 Released</a>
     
   </div>
 </section>
