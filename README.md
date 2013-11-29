@@ -1,2 +1,0 @@
-edmondscommerce.github.io
-=========================
