@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Tag: get | Edmonds Commerce Dev Blog]]></title>
+  <title><![CDATA[Tag: __get | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/get/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2013-11-28T13:35:12+00:00</updated>
+  <updated>2013-11-29T12:54:05+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,10 +14,10 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Ajax Silently Failing in HTTPS but fine in HTTP]]></title>
-    <link href="http://edmondscommerce.github.io/javascript/ajax-silently-failing-in-https-but-fine-in-http.html"/>
-    <updated>2011-03-07T16:41:21+00:00</updated>
-    <id>http://edmondscommerce.github.io/javascript/ajax-silently-failing-in-https-but-fine-in-http</id>
+    <title type="html"><![CDATA[PHP, __get() and empty() Not Working As You Expect? - Solution]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-__get-and-empty-not-working-as-you-expect-solution.html"/>
+    <updated>2010-03-19T10:57:32+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-__get-and-empty-not-working-as-you-expect-solution</id>
     <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
 <p>
 This is a post that was written a long time ago and is only being kept here for posterity.
@@ -26,113 +26,39 @@ You should probably look up more recent blog posts related to the subject you ar
 </div>
 
 
-<p>If you are struggling to debug why some ajax, perhaps using jquery etc is working fine when you access the page via http, but if you use https then it fails silently with very little error messaging to work on then this could be your solution.</p>
+<p>If you are tearing your hair out trying to figure out why empty($object->property) = true when var_dump($object->property) outputs a value &ndash; this might be the problem.</p>
 
-<p>Basically, although you have accessed the page over HTTPS, if there are any insecure elements on the page then your ajax call will default to http and will then fail silently thanks to cross domain policy problems.</p>
+<p>It arises if you are using the magic __get() method to serve up object properties.</p>
 
-<p>If you debug in chrome, you do get a meaningful error message but if like me you generally prefer working in Firefox and Firebug then you are up the creek.</p>
+<p>Apparently PHP&rsquo;s empty() function actually uses isset() to determine if the property is empty or not. To get this to work properly, you also need to declare a magic __isset() method.</p>
 
-<p>Double check your source code for <a href="http://">http://</a> and also check out live http headers for insecure calls.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Building Spiders: Grab Data, Post Forms and Interact with Web Sites Automatically]]></title>
-    <link href="http://edmondscommerce.github.io/php/curl/spidering/firefox/programming/building-spiders-grab-data-post-forms-and-interact-with-web-sites-automatically.html"/>
-    <updated>2008-02-14T11:56:16+00:00</updated>
-    <id>http://edmondscommerce.github.io/php/curl/spidering/firefox/programming/building-spiders-grab-data-post-forms-and-interact-with-web-sites-automatically</id>
-    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>One of the most useful and powerful things you can do with PHP is to create a programme which will simulate a web browser and can grab data, post data to forms and generally interact with other web sites &ndash; automatically.</p>
-
-<p>For PHP to be able to work like this it must have the CURL library installed and active. It is the CURL library which actually handles all of the interaction and PHP is my scripting language of choice for interacting with CURL.</p>
-
-<p>A simple CURL function is like this:</p>
+<p>This is how I got around this problem:</p>
 
 <p>```php</p>
 
-<p>function curl($url){</p>
+<p>public function __get($key){</p>
 
-<p>$timeout = &lsquo;300&rsquo;; //how long before CURL gives up on this page
-$go = curl_init();
-curl_setopt ($go, CURLOPT_URL, $url);
-curl_setopt ($go, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt ($go, CURLOPT_FOLLOWLOCATION, 1);
-curl_setopt ($go, CURLOPT_TIMEOUT, $timeout);
-$page = curl_exec($go);
-curl_close($go);
-return $page;</p>
+<pre><code>if(/* some condition to return your key */){
+    return $this-&gt;$key;
+}
+return null;
+</code></pre>
+
+<p>}</p>
+
+<p>public function __isset($key){</p>
+
+<pre><code>if(null===$this-&gt;__get($key)){
+    return false;
+}
+return true;
+</code></pre>
 
 <p>}</p>
 
 <p>```</p>
 
-<p>This function when called and echoed will output the entire html of the $url specified.</p>
-
-<p>For grabbing data from this page to be inserted into a database (for example when spidering a suppliers web site for product information to be inserted into your site) we then use regular expressions to find what we are looking for and then insert that into the database.</p>
-
-<p>so for example if we wanted to grab the product title and we knew that this was wrapped in a h1 tag with the class &ldquo;product title&rdquo; we could use this regexp to grab this:</p>
-
-<p>```php</p>
-
-<p>$page = curl($url);</p>
-
-<p>$pattern = &lsquo;%</p>
-
-<h1 class="product_title">(.+?)</h1>
-
-
-<p>%i';</p>
-
-<p>preg_match($pattern,$page,$matches);</p>
-
-<p>print_r($matches); //we can see the entire array of matches and choose which we want to insert into the database</p>
-
-<p>```</p>
-
-<p>We can also Post data to web sites using curl. This allows us to do all kinds of things including grabbing data that is displayed on the submission of post forms. Here is an example Curl Post Function:
-```php</p>
-
-<p>function curl_post($url,$post_data){</p>
-
-<p>$timeout = &lsquo;300&rsquo;; //how long before CURL gives up on this page
-$go = curl_init();
-curl_setopt ($go, CURLOPT_URL, $url);
-curl_setopt ($go, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt ($go, CURLOPT_FOLLOWLOCATION, 1);
-curl_setopt ($go, CURLOPT_TIMEOUT, $timeout);
-//now for the post section
-curl_setopt($go, CURLOPT_POST, true);</p>
-
-<p>curl_setopt($go, CURLOPT_POSTFIELDS, $post_data);
-$page = curl_exec($go);
-curl_close($go);
-return $page;
-}</p>
-
-<p>```</p>
-
-<p>It can be tricky to figure out exactly what data should be in the post string. To help you out though is this incredibly handy addon for firefox: <a href="https://addons.mozilla.org/en-US/firefox/addon/3829" target="_blank">Live Http Headers</a>.</p>
-
-<p>This addon lets you see exactly what is going on between your browser and the web site you are visiting. This can quickly and easily give you the information you need to replicate the same behaviour with your CURL script.</p>
-
-<p>Edmonds Commerce specialise in working with PHP and CURL. If you have any spidering, screen scraping or other application that requires PHP to actively interact with other web sites &ndash; <a href="http://www.edmondscommerce.co.uk/contact-about-curl-and-php.html">get in touch today</a> to see how we can help you benefit from this incredibly powerful technique.</p>
-
-<p>Related Resources</p>
-
-<p><a href="http://www.phpfour.com/blog/2008/01/20/php-http-class/" rel="nofollow"><a href="http://www.phpfour.com/blog/2008/01/20/php-http-class/">http://www.phpfour.com/blog/2008/01/20/php-http-class/</a></a></p>
-
-<p><a href="http://www.phpclasses.org/browse/package/1988.html" rel="nofollow"><a href="http://www.phpclasses.org/browse/package/1988.html">http://www.phpclasses.org/browse/package/1988.html</a></a></p>
-
-<p><a href="http://www.phpit.net/article/using-curl-php/" rel="nofollow"><a href="http://www.phpit.net/article/using-curl-php/">http://www.phpit.net/article/using-curl-php/</a></a></p>
-
-<p><a href="http://skeymedia.com/intro-to-curl-with-php/" rel="nofollow"><a href="http://skeymedia.com/intro-to-curl-with-php/">http://skeymedia.com/intro-to-curl-with-php/</a></a></p>
+<p>thanks to Janci&rsquo;s comment <a href="http://www.php.net/manual/en/function.empty.php#93117">here</a>, I&rsquo;m not sure how long that would have taken me to figure out on my own, but for sure you saved me a LOT of time. I hope this blog post helps out someone else who hits this same issue.</p>
 ]]></content>
   </entry>
   

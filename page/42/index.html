@@ -26,16 +26,7 @@
 
 
   <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
-  <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-27853727-2', 'edmondscommerce.github.io');
-  ga('send', 'pageview');
-
-</script>
+  
 
 </head>
 
@@ -128,12 +119,12 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-03T14:04:09+00:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2011</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-11-19T10:59:13+00:00" pubdate data-updated="true">Nov 19<span>th</span>, 2010</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/magento/magento-silent-failures-and-how-to-find-and-stop-them.html">Magento Silent Failures and How to Find and Stop Them</a></h1>
+      <h1 class="entry-title"><a href="/magento/magento-paypal-transactions-not-appearing-solution.html">Magento Paypal Transactions Not Appearing + Solution</a></h1>
     
   </header>
 
@@ -146,48 +137,13 @@ You should probably look up more recent blog posts related to the subject you ar
 </div>
 
 
-<p>If you are finding that Magento seems to be silently failing to include your files without triggering any kind of error (this tends to happen mostly with layouts or installer scripts) then you might find this useful.</p>
+<p>If you are scratching your head trying to figure out why your paypal transactions are not showing up in your Magento admin despite everything being set up perfectly then this may well be your solution.</p>
 
-<p>For me, my installer script wasn&rsquo;t working and it turned out to be a tiny typo in my config.xml file that meant that Magento was looking in the wrong place for the file and failing silently when it didn&rsquo;t find it:</p>
+<p>As recently discussed on the unofficial <a href="http://www.magento-forum.co.uk" title="magento forum">magento forum</a>, the paypal email address is <strong>case sensitive</strong>, so if the case on either paypal and Magento do not perfectly match then things won&rsquo;t work.</p>
 
-<p>The code in question is here:</p>
+<p>Double check the email address in both places and then ensure they match up.</p>
 
-<p><strong>Mage_Core_Model_Resource_Setup
-</strong></p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">protected</span> <span class="k">function</span> <span class="nf">_modifyResourceDb</span><span class="p">(</span><span class="nv">$actionType</span><span class="p">,</span> <span class="nv">$fromVersion</span><span class="p">,</span> <span class="nv">$toVersion</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$resModel</span> <span class="o">=</span> <span class="p">(</span><span class="nx">string</span><span class="p">)</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_connectionConfig</span><span class="o">-&gt;</span><span class="na">model</span><span class="p">;</span>
-</span><span class='line'>        <span class="nv">$modName</span> <span class="o">=</span> <span class="p">(</span><span class="nx">string</span><span class="p">)</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_moduleConfig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nv">$sqlFilesDir</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModuleDir</span><span class="p">(</span><span class="s1">&#39;sql&#39;</span><span class="p">,</span> <span class="nv">$modName</span><span class="p">)</span><span class="o">.</span><span class="nx">DS</span><span class="o">.</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_resourceName</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$sqlFilesDir</span><span class="p">)</span> <span class="o">||</span> <span class="o">!</span><span class="nb">is_readable</span><span class="p">(</span><span class="nv">$sqlFilesDir</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">die</span><span class="p">(</span><span class="nv">$sqlFilesDir</span><span class="p">);</span> <span class="c1">//it was failing silently here, not really helpful to me</span>
-</span><span class='line'>            <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There are a few of these kinds of code snippets around the codebase. I started to think how much easier a developers life would be if we could make Magento throw exceptions instead of silently failing, at least if we are in developer mode anyway.</p>
-
-<p>To track them down we can use a bit of grep and xargs</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">find</span> <span class="nv">$ABSOLUTE_PATH_TO_MAGENTO_ROOT</span>  <span class="o">-</span><span class="nx">name</span> <span class="s2">&quot;*.php&quot;</span> <span class="o">|</span> <span class="nx">xargs</span>  <span class="nx">grep</span> <span class="o">-</span><span class="nx">n</span> <span class="o">-</span><span class="nx">B</span> <span class="mi">6</span> <span class="o">-</span><span class="nx">A</span> <span class="mi">3</span> <span class="s2">&quot;!is_readable(&quot;</span>  <span class="o">&gt;</span> <span class="nv">$ABSOLUTE_PATH_TO_OUTPUT_FILE_INC_FILE_NAME</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>At some point I intend to figure a way of tracking down all these silent failures and making them noisy!</p>
+<p><a href="http://magento-forum.co.uk/viewtopic.php?f=3&t=520&p=1808">Heres the full post on the forum</a></p>
 </div>
   
   
@@ -214,12 +170,12 @@ You should probably look up more recent blog posts related to the subject you ar
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-20T14:43:37+00:00" pubdate data-updated="true">Jan 20<span>th</span>, 2011</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-11-16T17:58:24+00:00" pubdate data-updated="true">Nov 16<span>th</span>, 2010</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/php/php-jobs-leeds.html">PHP Jobs Leeds</a></h1>
+      <h1 class="entry-title"><a href="/magento/magento-hosting-check-script-also-checking-for-optimisation.html">Magento Hosting Check Script - Also Checking for Optimisation</a></h1>
     
   </header>
 
@@ -232,17 +188,14 @@ You should probably look up more recent blog posts related to the subject you ar
 </div>
 
 
-<p>Looking for PHP Jobs in the Leeds area?</p>
+<p>To try to help clients who are choosing a hosting platform for Magento, we have modified the already available Magento Check script and extended it to also check for optimisation and some other key requirements.</p>
 
-<p>You have come to the right place. Edmonds Commerce are actively recruiting PHP developers in the Leeds area. We have more work on than we can handle and that&rsquo;s only likely to grow even more.</p>
+<p>you can see the script here:</p>
 
-<p>If you would like to work as a PHP Developer with Edmonds Commerce in Leeds then <strong><a href="/contact-us/?about=php-jobs-leeds">get in touch</a></strong> as we have a great job to offer you.</p>
+<script type="text/javascript" src="http://snipt.net/embed/cf6ca04739bafcd4834dc1b7bfd9b838"></script>
 
-<p>You can read more about our <a href="http://www.edmondscommerce.co.uk/about/job-recruitment-php-developer-leeds/">PHP Jobs</a> in <a href="http://www.edmondscommerce.co.uk/about/job-recruitment-php-developer-leeds/">Leeds</a> by visiting this page:</p>
 
-<p><a href="http://is.gd/phpjobleeds"><a href="http://is.gd/phpjobleeds">http://is.gd/phpjobleeds</a></a></p>
-
-<p>If you are from anywhere in or around Leeds, Bradford, Hunslet, Beeston Hill, Knowsthorpe, Kirkstall, Belle Isle, Farnley, Beeston, Killingbeck, Meanwood, Bramley, Adel, Stanningley, Moortown, Gildersome  and looking for PHP work then get in touch.</p>
+<p>I&rsquo;m using a snipt rather than pasting the code directly in so that if we update it in future, this post should always contain the latest version.</p>
 </div>
   
   
@@ -269,12 +222,12 @@ You should probably look up more recent blog posts related to the subject you ar
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-15T12:26:09+00:00" pubdate data-updated="true">Jan 15<span>th</span>, 2011</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-11-15T14:55:19+00:00" pubdate data-updated="true">Nov 15<span>th</span>, 2010</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/mysql/mysql-triggers-a-quick-guide.html">MySQL Triggers - a Quick Guide</a></h1>
+      <h1 class="entry-title"><a href="/magento/magento-enable-exception-logging.html">Magento Enable Exception Logging</a></h1>
     
   </header>
 
@@ -287,110 +240,15 @@ You should probably look up more recent blog posts related to the subject you ar
 </div>
 
 
-<p>MySQL has a nice feature that you may well not have used called Triggers.</p>
+<p>Magento has some great exception logging functionality which is invaluable when trying to figure out why things aren&rsquo;t working.</p>
 
-<p>These are little SQL statements that are tied to events on table and then perform some extra work.</p>
+<p>However, like a lot of settings in Magento, its tucked away in the configuration and its not always easy to remember how to enable it.</p>
 
-<p>The idea being that you will check the values for a row and if they meet some conditions you will take some further action. You might usually do this kind of thing in code but if you really must be certain that in a certain circumstance a certain action will be taken, then triggers are a good option because regardless which bit of code makes the change you can be sure your rules will be enforced.</p>
+<p>So here it is:</p>
 
-<p>Of course this ties you to a specific DB platform so its not something you should over use. There can also be performance issues so you need to bear that in mind.</p>
+<p>System->Configuration->Developer->Log Settings</p>
 
-<p>Anyway, assuming you know what you are letting yourself in for and have read the <a href="http://www.google.com/search?hl=en&q=site%3Adev.mysql.com+triggers+5.0&aq=f&aqi=&aql=&oq=">documentation</a> here is my little summary.</p>
-
-<p>First you need to give your trigger a name. Choose something descriptive.</p>
-
-<p>Then you need to associate it to an even (UPDATE, INSERT etc) and also decide whether to do it BEFORE or AFTER. If you are not sure, use BEFORE &ndash; it&rsquo;s generally the one you want to use.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">do_something</span> <span class="k">BEFORE</span> <span class="k">UPDATE</span> <span class="k">ON</span> <span class="k">table</span>
-</span><span class='line'><span class="p">...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The next bit is boiler plate as far as I can gather, just whack it in. It delimits your actual statement and tells it to be run for each updated row.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'>  <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span> <span class="k">BEGIN</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then do your test</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="n">IF</span> <span class="p">((</span><span class="k">NEW</span><span class="p">.</span><span class="k">column</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">AND</span> <span class="p">(</span><span class="k">OLD</span><span class="p">.</span><span class="k">column</span> <span class="o">&gt;=</span><span class="mi">1</span><span class="p">))</span> <span class="k">THEN</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Note the NEW and OLD keywords there.</p>
-
-<p>You have a choice of using the NEW and OLD keyword to access existing (OLD) and about to be set (NEW) data for each column.</p>
-
-<p>Note also, this is only possible if you use the BEFORE event as opposed to AFTER, hence generally just sticking to using BEFORE</p>
-
-<p>Now, enforce your requirements</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">another_column</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">and_another_column</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">and_another</span> <span class="o">=</span> <span class="s1">&#39;cheese&#39;</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then wrap it up</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'> <span class="k">END</span> <span class="n">IF</span><span class="p">;</span>
-</span><span class='line'><span class="k">END</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s it&hellip;</p>
-
-<p>BUT WAIT</p>
-
-<p>There&rsquo;s another bit that I totally missed which caused me issues &ndash; you need to wrap the whole thing in a delimiter statement:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">delimiter</span> <span class="o">//</span>
-</span><span class='line'><span class="p">...</span> <span class="n">the</span> <span class="k">statement</span>
-</span><span class='line'><span class="k">END</span><span class="p">;</span><span class="o">//</span>
-</span><span class='line'><span class="k">delimiter</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So the full final thing should look like this:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">delimiter</span> <span class="o">//</span>
-</span><span class='line'><span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">do_something</span> <span class="k">BEFORE</span> <span class="k">UPDATE</span> <span class="k">ON</span> <span class="k">table</span>
-</span><span class='line'>  <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span> <span class="k">BEGIN</span>
-</span><span class='line'>    <span class="n">IF</span> <span class="p">((</span><span class="k">NEW</span><span class="p">.</span><span class="k">column</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">AND</span> <span class="p">(</span><span class="k">OLD</span><span class="p">.</span><span class="k">column</span> <span class="o">&gt;=</span><span class="mi">1</span><span class="p">))</span> <span class="k">THEN</span>
-</span><span class='line'>        <span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">another_column</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">and_another_column</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">and_another</span> <span class="o">=</span> <span class="s1">&#39;cheese&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">END</span> <span class="n">IF</span><span class="p">;</span>
-</span><span class='line'><span class="k">END</span><span class="p">;</span> <span class="o">//</span>
-</span><span class='line'><span class="k">delimiter</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Another point to mention is &ndash; just use the CLI for handling these, don&rsquo;t try to use phpMyAdmin etc &ndash; it doesn&rsquo;t really work.</p>
+<p>Once its enabled, the log files will be created in /var/logs/</p>
 </div>
   
   
@@ -417,12 +275,12 @@ You should probably look up more recent blog posts related to the subject you ar
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-13T17:27:16+00:00" pubdate data-updated="true">Jan 13<span>th</span>, 2011</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-11-15T14:07:43+00:00" pubdate data-updated="true">Nov 15<span>th</span>, 2010</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/php/job-recruitment-php-developer-leeds.html">Job Recruitment PHP Developer Leeds</a></h1>
+      <h1 class="entry-title"><a href="/php/install-phpmyadmin-using-ssh.html">Install phpMyAdmin Using SSH</a></h1>
     
   </header>
 
@@ -435,230 +293,7 @@ You should probably look up more recent blog posts related to the subject you ar
 </div>
 
 
-<p>Edmonds Commerce are currently (and practically always) looking for talented PHP developers to join the team.</p>
-
-<p>Please see this page about <a href="http://www.edmondscommerce.co.uk/about/job-recruitment-php-developer-leeds/">PHP Developer Jobs in Leeds</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-12T08:42:48+00:00" pubdate data-updated="true">Jan 12<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ubuntu/world-clock-on-ubuntu-its-as-standard.html">World Clock on Ubuntu - Its as Standard</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>We are starting to get more and more international clients primarily from America and Australasia. It&rsquo;s great to be getting a more global market, though keeping track of client&rsquo;s local time is sometimes confusing.</p>
-
-<p>Then the thought occurs: &ldquo;I&rsquo;m using Linux, there&rsquo;s bound to be an excellent app to help me deal with this&rdquo;.</p>
-
-<p>Turns out there is and its included with Ubuntu as standard.</p>
-
-<p>The desktop clock, normally displayed in the top right actually has functionality to allow you to add as many extra locations as you want, so with a single click you can check the current time in whatever locations you want.</p>
-
-<p>To set these up, simply click the clock which then drops down a calendar view. At the bottom of that view there is a Locations option. Click that to display a map and also an [Edit] button.</p>
-
-<p>Hit the [Edit] button and you can add whatever locations you wish. Once they are set up you can check the local time for any of your locations by simply clicking the clock in the top right again.</p>
-
-<p>Awesome. Got to love Ubuntu and Linux :)</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-08T11:50:22+00:00" pubdate data-updated="true">Jan 8<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/python/ubuntu-desktop-slideshow-recursive-folder.html">Ubuntu Desktop Slideshow Recursive Folder</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>If you use Ubuntu, you probably use F-Spot for managing your photos. It&rsquo;s a nice app and it organises all your photos into a directory tree based on date.</p>
-
-<p>If you want to set up a desktop slideshow that shows images from this folder tree then you need to create a custom XML file that you can then set as the desktop background. Of course you need a system to create the slideshow.</p>
-
-<p>This script does just that:</p>
-
-<script type="text/javascript" src="http://snipt.net/embed/7cb620ed391c0a6e72548a0cc804fe3a"></script>
-
-
-<p>Inspired by a few scripts I found on the web, though <a href="http://royvandewater.com/blog/2009/12/ubuntu-wallpaper-slideshow/">this is the one I based it on</a>, simply modified to make it recursively pull images rather than just images in the current directory and also shuffle the resulting list.</p>
-
-<p>Place the script in the root of your ~/Photos directory, mark it as executable and then run it. It generates an XML file for you. You can now go to your desktop, right click and go to background then hit the [Add] button.</p>
-
-<p>Now navigate to your ~/Photos directory and select the generated XML file. Job done.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-07T11:49:56+00:00" pubdate data-updated="true">Jan 7<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/openerp/openerp-uk-open-source-enterprise-class-erp.html">OpenERP UK - Open Source Enterprise Class ERP</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>OpenERP is a fully featured enterprise class open source ERP system that thanks to it&rsquo;s modular structure can support all kinds of business models and requirements ranging from Retail to E-Commerce to Manufacturing to Services and beyond.</p>
-
-<p>OpenERP is written in a language called Python, widely regarded as an excellent language thanks to it&rsquo;s power, cross platform compatibility and ease of development.</p>
-
-<p>Thanks to being open source, you can experiment or even implement OpenERP for you business without any up front costs, licence costs, vendor lock in or any of the other big drawbacks of standard paid for ERP packages.</p>
-
-<p>This means you can dip your toe in the water initially and roll out further integration and functionality as you are ready for it and your business requires it.</p>
-
-<p>There is a wide global network of specialist agencies supporting the OpenERP package and at it&rsquo;s centre is a large development house based in Belgium that is entirely devoted to the platform. This kind of business backed open source package is great news for you because it ensures that there will be professional support and training available and you can expect the platform to continue developing in the future, making it an excellent platform to invest into.</p>
-
-<p>This is similar to the way that Magento, our most highly recommended open source ecommerce package, is backed by Varien &ndash; a large and well funded company that is pushing the platform and really making it an enterprise class platform.</p>
-
-<p>Of course the logical best of breed combination is to use the awesome front end functionality of Magento for your e-commerce stores and hook this into OpenERP&rsquo;s excellent business management functionality.</p>
-
-<p>If you would like to discuss OpenERP or Magento or of course both for your business, get in touch today.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-06T19:07:13+00:00" pubdate data-updated="true">Jan 6<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-translations-locales-list.html">Magento Translations / Locales List</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>Working on a massively multilingual Magento implementation at the moment so I needed to grab all the locales from Connect.</p>
-
-<p>Here is the list that I grabbed:</p>
+<p>Heres a nice easy one, installing the latest phpMyAdmin directly using SSH</p>
 
 <figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -666,124 +301,14 @@ You should probably look up more recent blog posts related to the subject you ar
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>magento-community/Locale_Mage_community_fr_FR
-</span><span class='line'>magento-community/Locale_Mage_community_de_DE
-</span><span class='line'>magento-community/Locale_Mage_community_nl_NL
-</span><span class='line'>magento-community/Locale_Mage_community_es_ES
-</span><span class='line'>magento-community/Locale_Mage_community_language_ro_RO
-</span><span class='line'>magento-community/Locale_Mage_community_pt_BR
-</span><span class='line'>magento-community/Locale_Mage_community_fi_FI
-</span><span class='line'>magento-community/Locale_Mage_community_nb_NO
-</span><span class='line'>magento-community/Locale_Mage_community_hu_HU
-</span><span class='line'>magento-community/Locale_Mage_community_ja_JP
-</span><span class='line'>magento-community/Locale_Mage_community_el_GR
-</span><span class='line'>magento-community/Locale_Mage_community_de_CH
-</span><span class='line'>magento-community/Locale_Mage_community_language_pack_ro_RO
-</span><span class='line'>magento-community/Locale_Mage_community_es_MX
-</span><span class='line'>magento-community/Nostress_Czech_Language_Pack
-</span><span class='line'>magento-community/Locale_Mage_community_tr_TR
-</span><span class='line'>magento-community/Locale_Mage_community_sv_SE
-</span><span class='line'>magento-community/Locale_Mage_community_ru_RU
-</span><span class='line'>magento-community/Locale_Mage_community_pl_PL
-</span><span class='line'>magento-community/Locale_Mage_community_da_DK
-</span><span class='line'>magento-community/dutch_NL
-</span><span class='line'>magento-community/Locale_Mage_community_it_IT
-</span><span class='line'>magento-community/Locale_Mage_community_cs_CZ
-</span><span class='line'>magento-community/Locale_Mage_community_th_TH
-</span><span class='line'>magento-community/Locale_Mage_community_zh_TW
-</span><span class='line'>magento-community/Locale_Mage_community_es_AR
-</span><span class='line'>magento-community/Locale_Mage_community_sk_SK
-</span><span class='line'>magento-community/Locale_Mage_community_et_EE
-</span><span class='line'>magento-community/Locale_Mage_community_bg_BG
-</span><span class='line'>magento-community/PepMaq_Japan_Translation
-</span><span class='line'>magento-community/Locale_Mage_community_ca_ES
-</span><span class='line'>magento-community/Locale_Mage_community_es_CO
-</span><span class='line'>magento-community/Locale_Mage_community_fr_CA
-</span><span class='line'>magento-community/Locale_Mage_community_uk_UA
-</span><span class='line'>magento-community/Locale_Mage_community_lt_LT
-</span><span class='line'>magento-community/Locale_Mage_community_id_ID
-</span><span class='line'>magento-community/Locale_Mage_community_sl_SI
-</span><span class='line'>magento-community/Mage_PortugalRegions
-</span><span class='line'>magento-community/Locale_Mage_community_ar_SA
-</span><span class='line'>magento-community/Locale_Mage_community_he_IL
-</span><span class='line'>magento-community/Locale_Mage_community_ro_RO
-</span><span class='line'>magento-community/Locale_Mage_Community_en_AU
-</span><span class='line'>magento-community/Locale_Mage_community_hr_HR
-</span><span class='line'>magento-community/Locale_Mage_community_ar_MA
-</span><span class='line'>magento-community/Locale_Mage_community_sr_RS
-</span><span class='line'>magento-community/VietnamLanguagePack
-</span><span class='line'>magento-community/Locale_Mage_community_lv_LV
-</span><span class='line'>magento-community/Locale_Mage_community_de_AT
-</span><span class='line'>magento-community/Locale_Mage_community_nn_NO
-</span><span class='line'>magento-community/Locale_Mage_community_gl_ES
-</span><span class='line'>magento-community/Locale_Mage_community_it_CH
-</span><span class='line'>magento-community/Mage_Polski
-</span><span class='line'>magento-community/Locale_Mage_community_mn_MN
-</span><span class='line'>magento-community/Locale_Mage_community_bn_BD
-</span><span class='line'>magento-community/Locale_Mage_community_is_IS
-</span><span class='line'>magento-community/Locale_Mage_community_sq_AL
-</span><span class='line'>magento-community/Locale_Mage_community_cy_GB
-</span><span class='line'>magento-community/Locale_Mage_community_mk_MK
-</span><span class='line'>magento-community/Locale_Mage_community_bs_BA
+</span><span class='line'>
+</span><span class='line'>wget "http://downloads.sourceforge.net/project/phpmyadmin/phpMyAdmin/3.3.8/phpMyAdmin-3.3.8-all-languages.tar.gz?r=http%3A%2F%2Fwww.phpmyadmin.net%2Fhome_page%2Fdownloads.php&ts=1289829566&use_mirror=heanet"
+</span><span class='line'>
+</span><span class='line'>tar -xvf phpMyAdmin-3.3.8-all-languages.tar.gz 
+</span><span class='line'>
 </span></code></pre></td></tr></table></div></figure>
 
-
-<p>Hope it helps</p>
 </div>
   
   
@@ -810,12 +335,12 @@ You should probably look up more recent blog posts related to the subject you ar
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-05T13:44:14+00:00" pubdate data-updated="true">Jan 5<span>th</span>, 2011</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-11-15T13:06:28+00:00" pubdate data-updated="true">Nov 15<span>th</span>, 2010</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/linux/easy-filesharing-in-linux-and-fast-and-secure-using-sshfs.html">Easy Filesharing in Linux (and Fast and Secure) Using SSHFS</a></h1>
+      <h1 class="entry-title"><a href="/magento/magento-cpanel-backup-issue-not-backing-up-the-core-folder-solution.html">Magento cPanel Backup Issue - Not Backing Up the Core Folder + Solution</a></h1>
     
   </header>
 
@@ -828,45 +353,200 @@ You should probably look up more recent blog posts related to the subject you ar
 </div>
 
 
-<p>If you are frustrated with Samba and would like something a bit more solid and speedier whilst being very easy to set up, check out SSHFS.</p>
+<p>If you are hosting a Magento site on cPanel powered hosting and are relying on the cPanel backup system to manage backing up your files then you need to be aware of this issue.</p>
 
-<p>To install it you simply need to do</p>
+<p>After a recent upgrade, cPanel has started to ignore any code inside a core/ directory when doing backups.</p>
 
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo apt-get install sshfs
-</span></code></pre></td></tr></table></div></figure>
+<p>Of course this means that your app/code/core folder will not be backed up &ndash; of course this is the most crucial folder in your Magento installation.</p>
+
+<p>Hopefully you are not editing core files anyway, so ultimately you shoudl be able to redownload your Magento version and extract the app/code/core folder from there, but even so, this is an extra step that you might need to take which will slow down your recovery in case of a disaster.</p>
+
+<p>See this Magento forum thread for more details:</p>
+
+<p><a href="http://www.magentocommerce.com/boards/viewthread/210785/">http://www.magentocommerce.com/boards/viewthread/210785/</a></p>
+</div>
+  
+  
 
 
-<p>Once that&rsquo;s done you can mount a remote filesystem in a very similar way to accessing a remote machine via SSH</p>
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
 
-<p>eg</p>
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-11-02T11:09:48+00:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-pci-compliance-and-pa-dss.html">Magento PCI Compliance and PA-DSS</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>I recently came across a forum post which I would like to quote here as I think it sums things up nicely. You can see the original post <a href="http://www.nublue.co.uk/forums/post/622/#p622">here</a>.</p>
+
+<p>The Community edition has not been verified as PA-DSS compliant, which is not the same as PCI-DSS compliancy.</p>
+
+<p>PCI-DSS is the compliancy of your online environment, practices, software etc.  That is the standard that is required to be able to process on-site payments.
+PA-DSS is not the same, it is part of PCI-DSS.  It&rsquo;s a standard for the software that you are using for processing payments, just as PCI-DSS is the standard for the merchants processing payments on-site.  PA-DSS is the standard whereby the software provider subjects the software to a rigorous set of standards, tests and development practices (all viewable on the PA DSS Website) to confirm that the PA-DSS requirements are entirely met.
+Anyone using Community edition has 2 options:</p>
+
+<p>1 &ndash; use an off-site payment gateway, so none of this matters (the gateway will be PA-DSS software running in a PCI-DSS environment and PCI-DSS is not therefore required) &ndash; this is by far the easiest option available!</p>
+
+<p>2 &ndash; verify the software as PA-DSS compliant yourself by going through the PCI-DSS questionnaire and confirming the relevant data.
+There is nowhere in the PCI-DSS questionnaire that says, &ldquo;if your payment software has not been certified as PA-DSS compliant, you cannot be PCI-DSS compliant&rdquo;.</p>
+
+<p>However the basic tenets of PA-DSS compliancy is an essential part of becoming PCI-DSS compliant.
+The only thing that PA-DSS provides, is a guarantee that any part of the compliancy questionnaire related to PA-DSS requirements (encryption of card #&rsquo;s, cardholder data etc) is a certified yes, that does not require any investigation and confirmation from the client first.  These areas are all listed within the PCI-DSS SAQ (Self Assessment Questionnaire).  There is also a lengthy PA-DSS document on the website that lists the requirements of PA-DSS &ndash; the community edition, presumably, doesn&rsquo;t meet these requirements, as it is a hook for paying for the Professional or Enterprise editions, as they have in turn paid and worked on having those editions verified, but don&rsquo;t see the benefits to implementing this for the Community edition.</p>
+
+<p>Whereas the Pro/Enterprise editions will include certain best-practice features (such as auto-expiring passwords for instance) and of course are PA-DSS compliant, it&rsquo;s also worth mentioning while we&rsquo;re on the subject that they do not anywhere explicitly state that the Community edition is not PA-DSS compliant&hellip;</p>
+
+<p>It really means the PCI-DSS responsibility is further placed on the clients&#8217; shoulders; PA-DSS means you have one less thing to worry about.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-11-01T12:10:22+00:00" pubdate data-updated="true">Nov 1<span>st</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/ecommerce/sagepay-test-card-details.html">SagePay Test Card Details</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are testing out your SagePay integration, you need to be able to input some test card details that the test.sagepay.com system will accept.</p>
+
+<p>Here they are:</p>
+
+<p>or testing transactions on the Protx test server, use the following card numbers.</p>
+
+<p>NB: there are NO dummy cards to use on the Live server. Actual Live bank cards must be used.</p>
+
+<table class="ProtocolTables" cellspacing="0" cellpadding="0" border="1"><tbody><tr><td class="protxNames" align="middle" height="27">Card Type</td><td class="protxNames" align="middle" height="27">Protx Card Name</td><td class="protxNames" align="middle" height="27">Card Number</td><td class="protxNames" align="middle" height="27">Issue Number</td></tr><tr><td align="middle" height="27">Visa</td><td align="middle" height="27">VISA</td><td align="middle" height="27">4929000000006</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Visa Delta</td><td align="middle" height="27">DELTA</td><td align="middle" height="27">4462000000000003</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Visa Electron UK Debit</td><td align="middle" height="27">UKE</td><td align="middle" height="27">4917300000000008</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Mastercard</td><td align="middle" height="27">MC</td><td align="middle" height="27">5404000000000001</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">UK Maestro</td><td align="middle" height="27">MAESTRO</td><td align="middle" height="27">5641820000000005</td><td align="middle" height="27">01</td></tr><tr><td align="middle" height="27">International Maestro</td><td align="middle" height="27">MAESTRO</td><td align="middle" height="27">300000000000000004</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Solo</td><td align="middle" height="27">SOLO</td><td align="middle" height="27">6334900000000005</td><td align="middle" height="27">1</td></tr><tr><td align="middle" height="27">American Express</td><td align="middle" height="27">AMEX</td><td align="middle" height="27">374200000000004</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Japan Credit Bureau (JCB)</td><td align="middle" height="27">JCB</td><td align="middle" height="27">3569990000000009</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Diners Club</td><td align="middle" height="27">DC</td><td align="middle" height="27">36000000000008</td><td align="middle" height="27">n/a</td></tr></tbody></table>
+
+
+<p>You&rsquo;ll also need to supply an Expiry Date in the future and the following values for CV2, Billing Address Numbers and Billing Post Code Numbers. These are the only values which will return as Matched. Any other values will return a Not Matched.</p>
+
+<p>CV2: 123
+Billing Address: 88
+Billing PostCode: 412</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-10-25T11:58:11+01:00" pubdate data-updated="true">Oct 25<span>th</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/wordpress/wordpress-bash-install-script.html">Wordpress Bash Install Script</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Easy peasy:</p>
 
 <figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>
-</span><span class='line'>#Mount
-</span><span class='line'>sshfs  -p2020 -o idmap=user $USER@laptop.com:/home/joseph/Projects ~/Mounts/Laptop/Projects
-</span><span class='line'>
-</span><span class='line'>#Unmount
-</span><span class='line'>fusermount -u ~/Mounts/Laptop/Projects
-</span><span class='line'>
+</span><span class='line'>#!/bin/bash
+</span><span class='line'>wget http://wordpress.org/latest.zip
+</span><span class='line'>unzip latest.zip
+</span><span class='line'>cp -rf ./wordpress/* ./
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>You need to have previously created the local folder you are going to mount to (in this case /home/joseph/Mounts/Laptop/Projects)</p>
-
-<p>Note also I am using a non standard SSH port with the -p2020 bit (using port 2020). If you are using standard SSH ports you can remove this, or of course change the port number to whatever you prefer.</p>
-
-<p><a href="https://help.ubuntu.com/community/SSHFS"><a href="https://help.ubuntu.com/community/SSHFS">https://help.ubuntu.com/community/SSHFS</a> for more info</a></p>
+<p>handy little bash script to install word press</p>
 </div>
   
   
@@ -893,12 +573,12 @@ You should probably look up more recent blog posts related to the subject you ar
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-12-15T14:40:23+00:00" pubdate data-updated="true">Dec 15<span>th</span>, 2010</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-10-22T10:58:59+01:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2010</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/magento/magento-1-4-2-0-released-upgrade-magento-to-1-4-2-0.html">Magento 1.4.2.0 Released - Upgrade Magento to 1.4.2.0</a></h1>
+      <h1 class="entry-title"><a href="/php/tomatocart-uk.html">TomatoCart UK</a></h1>
     
   </header>
 
@@ -911,35 +591,69 @@ You should probably look up more recent blog posts related to the subject you ar
 </div>
 
 
-<p>Magento have <a href="http://www.magentocommerce.com/blog/comments/magento-ce-version-1420-stable-now-available/">just released</a> the latest version of Magento Community Edition: 1.4.2.0</p>
+<p>Edmonds Commerce are big believers in open source software and especially open source ecommerce packages which are our speciality.</p>
 
-<p>This continues the 1.4 branch of Magento. If you are still running Magento 1.3 or earlier you definitely need to be upgrading onto the 1.4 branch, there are so many improvements. Now that this version has come out there has never been a better time to upgrade your store to the 1.4 branch.</p>
+<p>There is an excellent selection of open source ecommerce platforms available today including Magento and Open Cart, old favourites like osCommerce (Zen Cart, CRE Loaded) and Presta Shop.</p>
 
-<p>If you need help getting your store upgraded, <a href="http://www.edmondscommerce.co.uk/contact-us/">get in touch with us</a> &ndash; we have done loads of upgrades from the smooth to the painful &ndash; but all have been successful in the end.</p>
+<p>One that you might not have heard of though that is definitely worth a look is <a href="http://www.tomatocart.com" target="_blank">TomatoCart</a>. The key wow factor in this cart is the RIA style admin that basically looks and feels like a windows desktop. This makes it very intuitive and powerful to use and definitely feels like the way the web based apps of the future will work. Check out the <a href="http://www.tomatocart.com/products/store-demo.html" target="_blank">demo</a></p>
 
-<p>The major highlights are the default installation of The Find feed functionality. No doubt this is thanks to a sizeable donation from The Find, but hey it won&rsquo;t do any harm and might even bring in some more sales.</p>
+<p>TomatoCart is a direct descendant of oscommerce and is based on the oscommerce 3 codebase (which never made it beyond alpha status). It comes feature packed as standard with a slick and intuitive front end with features like image zoom, home page slide show and product comparison. You can read the full list of features <a href="http://www.tomatocart.com/products/features.html" target="_blank">here</a>.</p>
 
-<p>The other thing to note is that the awaited new version of Magento Connect Manager has not been included in the final release despite being in the release candidates. Presumably some critical issues were found with the system so they decided not to roll it out.</p>
+<p>If you are looking for a UK based TomatoCart specialist then <b><a href="http://www.edmondscommerce.co.uk/contact-us">get in touch with Edmonds Commerce</a></b> and let us help you to achieve your goals.</p>
+</div>
+  
+  
 
-<p>Other things of note in the <a href="http://www.magentocommerce.com/download/release_notes#Release%20Notes%20-%20Magento%201.4.2.0%20%28December%208,%202010%29">release notes</a> we spotted are:</p>
 
-<p><strong>Upgraded Zend Framework to version 1.10.8</strong>
-Not the very latest of Zend Framework (1.11.1 as of writing) but a more up to date version. Zend Framework is the foundation of Magento.</p>
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
 
-<p><strong>For Invoices, Shipment, Credit Memos added possibility to show admin comments at user frontend (checkboxes “Visible on Frontend” in admin interface</strong>
-This is a familiar feature on other carts such as osCommerce. The ability to set some comments as customer visible so they can track the process of their order from their account area on the front of the web site.</p>
 
-<p><strong>Add Shopping Cart API</strong>
-Not yet detailed in the API documentation, presumably this will allow programmatic creation of shopping cart sessions so you can get a shopping basket filled up via an external system and then pipe the customer through straight into the checkout process. This will open up all kinds of customisation possibilities.</p>
 
-<p><strong>Added functionality to disable dashboard charts in backend</strong>
-This will save on server resources and page load times in the admin for those hosting on less powerful environments or simply looking for the best performance.</p>
 
-<p><strong>Added favicon manager under System > Configuration > Design > HTML Head</strong>
-Such a common mistake with Magento sites is to leave the standard favicon in there &ndash; the famous red M. This should make it very easy to set a custom favicon (though it was never that hard in the first place).</p>
 
-<p><strong>Upgrade your Magento</strong>
-If you want to get your Magento store upgraded to the latest version, <a href="http://www.edmondscommerce.co.uk/contact-us/">get in touch with Edmonds Commerce today</a>.</p>
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-10-22T10:32:43+01:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-date-wrong-solution.html">Magento Date() Wrong + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are finding that your calls to date() etc are displaying the wrong time then this is the solution for you.</p>
+
+<p>Magento sets the internal time reference to UTC which does not account for daylight saving time adjustments.</p>
+
+<p>To get the correct date for your store, you need to get the store time, so the correct method is like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">echo</span> <span class="nb">date</span><span class="p">(</span><span class="s1">&#39;l, F j, Y, H:i:s&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getLocale</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">storeTimeStamp</span><span class="p">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
 </div>
   
   

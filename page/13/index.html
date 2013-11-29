@@ -26,16 +26,7 @@
 
 
   <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
-  <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-27853727-2', 'edmondscommerce.github.io');
-  ga('send', 'pageview');
-
-</script>
+  
 
 </head>
 
@@ -128,62 +119,38 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-09T15:22:41+00:00" pubdate data-updated="true">Nov 9<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-01T12:30:21+00:00" pubdate data-updated="true">Nov 1<span>st</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/percona/installing-percona-db-on-a-clean-centos.html">Installing Percona DB on a Clean CentOS</a></h1>
+      <h1 class="entry-title"><a href="/php/phpunit-and-pdoexception-solution.html">PHPUnit and PDOException + Solution</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>Percona is a performance optimised fork of MySQL that has gained a lot of traction in the Magento-sphere as webmasters and sysadmins alike look to squeeze the most performance out of their hardware.</p>
+  <div class="entry-content clearfix"><p>I recently needed to run a test suite against a couple of classes that were making use of PDO.</p>
 
-<p>If you read the <a href="/platforms/magento">Magento</a> performance whitepaper then you will see they mention Percona DB there.</p>
+<p>When I tried to run the I got the following errors in the output for every test</p>
 
-<p>To install Percona on a standard CentOS release 6.2 (Final) server you would need to run the following commands:</p>
+<p>PDOException: You cannot serialize or unserialize PDO instances</p>
 
-<p>First set up the repo:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>rpm -Uhv http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This should give you output like this:</p>
+<p>There is a quick way around this you just need to add the following lines to the class level doc block</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>Retrieving http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
-</span><span class='line'>Preparing...                <span class="c">########################################### [100%]</span>
-</span><span class='line'>   1:percona-release        <span class="c">########################################### [100%]</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd"> *</span>
+</span><span class='line'><span class="sd"> * @backupGlobals disabled</span>
+</span><span class='line'><span class="sd"> * @backupStaticAttributes disabled</span>
+</span><span class='line'><span class="sd"> */</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Then installing should be a simple case of running:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install Percona-Server-client-55 Percona-Server-server-55
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>However I found that this generated the following error:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>Error: Percona-XtraDB-Cluster-client conflicts with Percona-Server-client-55
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The problem is because MySQL is already installed and needs to be removed. You can do this with this command:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum remove mysql*
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>At which point running the install should work smoothly.</p>
+<p>A full explanation of these, and other annotations can be found <a title="PHP Unit Appendix B. Annotations" href="http://www.phpunit.de/manual/current/en/appendixes.annotations.html">here</a></p>
 </div>
   
   
@@ -210,21 +177,24 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-08T18:26:28+00:00" pubdate data-updated="true">Nov 8<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-30T14:08:10+00:00" pubdate data-updated="true">Oct 30<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/phpstorm/tip-phpstorm-select-in-projects-easier-version.html">Tip: PhpStorm &#8220;Select in Projects&#8221; - Easier Version</a></h1>
+      <h1 class="entry-title"><a href="/magento/magento-warning-header-may-not-contain-more-than-a-single-header-new-line-detected-solution.html">Magento Warning: Header May Not Contain More Than a Single Header, New Line Detected + Solution</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>Followers of this blog will remember the <a title="Replicate Netbeans “Select in project” in phpstorm" href="http://www.edmondscommerce.co.uk/phpstorm/replicate-netbeans-select-in-project-in-phpstorm/">Replicate Netbeans “Select in project” in phpstorm</a> post which gave a handy key combo to select the current file in the project window.</p>
+  <div class="entry-content clearfix"><p>If you are puzzled by the error message:</p>
 
-<p>It has been brought to our attention that there&rsquo;s also a button to do this with the mouse in one click!  At the top of the Project window, there&rsquo;s a cross-hair/target icon labelled a rather cryptic &ldquo;Scroll from Source&rdquo;.  Click that and it does what netbeans users will be looking for as &ldquo;Select in Projects&rdquo;</p>
+<p><code>
+Warning: Header may not contain more than a single header, new line detected
+</code>
+When dealing with a Magento migration, you might want to double check you have not accidentally added a new line character to the end of your base_url field when you were updating the core_config_data table.</p>
 
-<p>So there you have it, &ldquo;Scroll from Source&rdquo;, is the magic words that you want.</p>
+<p>I just did this using phpMyadmin&rsquo;s nifty ajax editing feature however I must have hit return by accident. Simply editing them again and making sure there is absolutely no white space at the end of the URL and the problem is solved.</p>
 </div>
   
   
@@ -251,19 +221,29 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-07T16:53:02+00:00" pubdate data-updated="true">Nov 7<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-22T16:40:10+01:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/linux/tip-have-git-branch-displayed-in-bash-prompt.html">Tip: Have Git Branch Displayed in Bash Prompt</a></h1>
+      <h1 class="entry-title"><a href="/magento/reduce-catalog-url-rewrites-time-in-magento.html">Reduce Catalog URL Rewrites Time in Magento</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>This is a very small tip, but one that can really save accidents in the long term.</p>
+  <div class="entry-content clearfix"><p>I recently had a client that wanted to remove the category structure from their product urls.</p>
 
-<p>To display the current branch in git simply add the following to your .bashrc in your home directory :</p>
+<p>There is a option to do this in the admin, but they wanted to redirect all of the existing urls to the shorter one.</p>
+
+<p>The way that I wanted to do this was to truncate the current core_url_rewrite table and regenerate the urls with the &ldquo;Use Categories Path for Product URLs&rdquo; set to no, and then override the 404 controller to redirect to the correct url.</p>
+
+<p>However, after the urls were generated, I found that all of the urls including the category path were still included, which meant that the override would not work.</p>
+
+<p>After spending quite a bit of time looking for a way to get round this, I put together a simple override to prevent the category path urls from getting generated.</p>
+
+<p>This had the added benefit of reducing the number of entries in the core_url_rewite table from ~2k entries to under 500, which cut the amount of time that was needed to generate it.</p>
+
+<p>The code is below for anyone else that needs to use this in the future. There are three files in total, set up like this</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -274,184 +254,511 @@
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>__git_ps1 <span class="o">()</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>    <span class="nb">local </span><span class="nv">b</span><span class="o">=</span><span class="s2">&quot;$(git symbolic-ref HEAD 2&gt;/dev/null)&quot;</span>;
-</span><span class='line'>    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&quot;$b&quot;</span> <span class="o">]</span>; <span class="k">then</span>
-</span><span class='line'><span class="k">        </span><span class="nb">printf</span> <span class="s2">&quot; (%s)&quot;</span> <span class="s2">&quot;${b##refs/heads/}&quot;</span>;
-</span><span class='line'>    <span class="k">fi</span>
-</span><span class='line'><span class="o">}</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">EdmondsCommerce</span><span class="o">/</span>
+</span><span class='line'><span class="sb">`-- Redirects</span>
+</span><span class='line'><span class="sb">    |-- controllers</span>
+</span><span class='line'><span class="sb">    |   `</span><span class="o">--</span> <span class="nx">Cms</span>
+</span><span class='line'>    <span class="o">|</span>       <span class="sb">`-- IndexController.php</span>
+</span><span class='line'><span class="sb">    |-- etc</span>
+</span><span class='line'><span class="sb">    |   `</span><span class="o">--</span> <span class="nx">config</span><span class="o">.</span><span class="nx">xml</span>
+</span><span class='line'>    <span class="sb">`-- Model</span>
+</span><span class='line'><span class="sb">        `</span><span class="o">--</span> <span class="nx">Catalog</span>
+</span><span class='line'>            <span class="err">`</span><span class="o">--</span> <span class="nx">Url</span><span class="o">.</span><span class="nx">php</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is the code for the Model</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_Redirects_Model_Catalog_Url</span>
+</span><span class='line'>  <span class="k">extends</span> <span class="nx">Mage_Catalog_Model_Url</span> <span class="p">{</span>
 </span><span class='line'>
-</span><span class='line'><span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\$( __git_ps1 ) \$\[\033[00m\] &quot;</span>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * This method is called each time that a url </span>
+</span><span class='line'><span class="sd">     * is generated for a product. It is called for the </span>
+</span><span class='line'><span class="sd">     * root category and each category that the product is in.</span>
+</span><span class='line'><span class="sd">     * </span>
+</span><span class='line'><span class="sd">     * This code checks to see if the category passed to it is</span>
+</span><span class='line'><span class="sd">     * the root category. If it is it will </span>
+</span><span class='line'><span class="sd">     * add the url rewrite as normal. If not it does nothing</span>
+</span><span class='line'><span class="sd">     * </span>
+</span><span class='line'><span class="sd">     * @param Varien_Object $product</span>
+</span><span class='line'><span class="sd">     * @param Varien_Object $category</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">protected</span> <span class="k">function</span> <span class="nf">_refreshProductRewrite</span><span class="p">(</span><span class="nx">Varien_Object</span> <span class="nv">$product</span><span class="p">,</span> <span class="nx">Varien_Object</span> <span class="nv">$category</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$rootCategory</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getStoreRootCategory</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getStoreId</span><span class="p">());</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">==</span> <span class="nv">$rootCategory</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">parent</span><span class="o">::</span><span class="na">_refreshProductRewrite</span><span class="p">(</span><span class="nv">$product</span><span class="p">,</span> <span class="nv">$category</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This is based on the Linux Mint prompt so is nicely coloured as well.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-07T10:22:34+00:00" pubdate data-updated="true">Nov 7<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/security/google-apps-and-two-factor-authentication.html">Google Apps and Two Factor Authentication</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are using Google apps and have two factor authentication turned on then you are probably using the convenient &ldquo;Remember this PC for 30 days&rdquo; feature.</p>
-
-<p>If you like your browser to forget every thing except a very select set of data (bookmarks, etc.) but keep the convenience of the 30 day authentication then you only need to keep the cookie called &ldquo;SMSV&rdquo; for the domain &ldquo;www.google.com&rdquo; with path &ldquo;/a&rdquo;.</p>
-
-<p>There is a variety of ways you can keep this cookie. You could, for example, export it then import it when ever (and where ever) you need it.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-05T16:48:08+00:00" pubdate data-updated="true">Nov 5<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/concrete5/concrete5-developer-uk.html">Concrete5 Developer UK</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p><a href="http://www.concrete5.org/">Concrete5</a> is a CMS system based on Zend Framework that uses Jquery for it&rsquo;s Javascript layer. Both of these are very popular and powerful frameworks that are really great to work with.</p>
-
-<p>The thing that users really love though is the ability to edit Concrete5 pages on the fly making it very easy to use by non techies.</p>
-
-<p>You can see the real ethos of the platform (from our techie point of view) <a href="http://www.concrete5.org/about/blog/client-work/an-open-letter-to-php-developers-about-concrete5/" target="_blank">here</a>.</p>
-
-<p>If you are looking for some expert PHP developers to help you get your Concrete5 site off the ground then <a href="/contact-us">get in touch with Edmonds Commerce today</a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-05T16:42:47+00:00" pubdate data-updated="true">Nov 5<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/rsync-for-beginners-2.html">Rsync for Beginners</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h3>What is Rsync in general ?</h3>
-
-
-<p>Rsync works like the <a href="http://linux.about.com/od/commands/l/blcmdl1_rcp.htm" rel="nofollow">rcp</a> command in linux. It is used to copy files across machines. It uses efficient checksum algorithm that looks for modified files by time and size. It is used for two purposes:</p>
-
-<h2>Backup</h2>
-
-
-<p>Rsync is used to transfer file from the local to a remote machine. By default Rsync will use rsh, however you can instead use <a href="http://linux.about.com/od/commands/l/blcmdl1_ssh.htm" rel="nofollow">ssh</a> for high security. Compressed files are transferred to save file transfer time and reduce the load on the network. It helps to transfer bulk files in minutes.</p>
-
-<h2>Mirroring</h2>
-
-
-<p>Rsync can synchronize file between two servers location(i.e) local and remote. By using the checksum algorithm it updates local files only if it is updated in remote server.</p>
-
-<h3>How to use Rsync</h3>
-
-
-<p></p>
+<p>If you want to redirect from the existing urls to the new ones, you will need to use the following controller</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">rsync</span> <span class="o">-</span><span class="nx">avze</span> <span class="nx">ssh</span> <span class="o">-</span><span class="nx">p2020</span> <span class="nx">root</span><span class="o">@</span><span class="nx">server</span><span class="o">.</span><span class="nx">com</span><span class="o">:/</span><span class="nx">sitepath</span><span class="o">/</span><span class="nx">files</span>   <span class="o">/</span><span class="nx">localdata</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">include_once</span><span class="p">(</span><span class="s1">&#39;Mage/Cms/controllers/IndexController.php&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_Redirects_Cms_IndexController</span>
+</span><span class='line'><span class="k">extends</span> <span class="nx">Mage_Cms_IndexController</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * This checks to see if the site can redirect</span>
+</span><span class='line'><span class="sd">     * before displaying a 404</span>
+</span><span class='line'><span class="sd">     * @param type $coreRoute</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">noRouteAction</span><span class="p">(</span><span class="nv">$coreRoute</span> <span class="o">=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Get the request</span>
+</span><span class='line'>        <span class="nv">$request</span> <span class="o">=</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REQUEST_URI&#39;</span><span class="p">];</span>
+</span><span class='line'>        <span class="c1">// Strip off get params if there are any</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">)</span> <span class="o">!==</span> <span class="k">FALSE</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$request</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">strpos</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">));</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="sd">/**</span>
+</span><span class='line'><span class="sd">         *  This makes sure that no part of the request is included</span>
+</span><span class='line'><span class="sd">         *  in the base url. This should help</span>
+</span><span class='line'><span class="sd">         *  the system work if it is running from a sub folder</span>
+</span><span class='line'><span class="sd">         */</span>
+</span><span class='line'>        <span class="nv">$parts</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">());</span>
+</span><span class='line'>        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$parts</span> <span class="k">AS</span> <span class="nv">$part</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$request</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="nv">$part</span><span class="p">,</span> <span class="s1">&#39;//&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$request</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="cm">/*</span>
+</span><span class='line'><span class="cm">         * Combine the request with the base path to get the full url</span>
+</span><span class='line'><span class="cm">         * and remove any trailing slashes</span>
+</span><span class='line'><span class="cm">         */</span>
+</span><span class='line'>        <span class="nv">$path</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;http:/&#39;</span><span class="p">,</span> <span class="s1">&#39;http://&#39;</span><span class="p">,</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">()</span> <span class="o">.</span> <span class="nv">$request</span><span class="p">)),</span> <span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="c1">//Get the last section which should be the product title</span>
+</span><span class='line'>        <span class="nv">$cleanedPath</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$path</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$key</span> <span class="o">=</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$cleanedPath</span><span class="p">);</span>
+</span><span class='line'>        <span class="c1">//Here we find url keys like the title</span>
+</span><span class='line'>        <span class="nv">$collection</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getCollection</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">addAttributeToSelect</span><span class="p">(</span><span class="s1">&#39;url_key&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">addFieldToFilter</span><span class="p">(</span><span class="k">array</span><span class="p">(</span>
+</span><span class='line'>            <span class="k">array</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;url_key&#39;</span><span class="p">,</span> <span class="s1">&#39;like&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="si">$key</span><span class="s2">&quot;</span><span class="p">)));</span>
+</span><span class='line'>        <span class="nv">$products</span> <span class="o">=</span> <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">();</span>
+</span><span class='line'>        <span class="cm">/*</span>
+</span><span class='line'><span class="cm">         * Proceed if there is only 1 result, if there are more we</span>
+</span><span class='line'><span class="cm">         * don&#39;t know which one is correct</span>
+</span><span class='line'><span class="cm">         */</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nv">$products</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">foreach</span> <span class="p">(</span><span class="nv">$products</span> <span class="k">AS</span> <span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$url</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">(</span><span class="nx">Mage_Core_Model_Store</span><span class="o">::</span><span class="na">URL_TYPE_WEB</span><span class="p">)</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getUrlKey</span><span class="p">();</span>
+</span><span class='line'>                <span class="c1">//Check to make sure the url is not the same as the path, should prevent infinite redirects</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="nv">$path</span> <span class="o">!=</span> <span class="nv">$url</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;HTTP/1.1 301 Moved Permanently&#39;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;Location: &#39;</span> <span class="o">.</span> <span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>                    <span class="k">die</span><span class="p">();</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">// Could not find a suitable url carry out the 404</span>
+</span><span class='line'>        <span class="k">parent</span><span class="o">::</span><span class="na">noRouteAction</span><span class="p">(</span><span class="nv">$coreRoute</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This command transfer files from remote server to local machine.</p>
-
-<p>a  Archive. It is denotes all related files and documents.
-v  Verbose.It will display status message as it is processing.
-z  Compression.It achives better compression ratio.
-e  It allows to chose alternative remote shell program for communication.</p>
+<p>Then use the following xml file</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">rsync</span> <span class="o">-</span><span class="nx">avze</span> <span class="nx">ssh</span> <span class="o">-</span><span class="nx">p2020</span> <span class="o">--</span><span class="nx">exclude</span> <span class="nx">home</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nx">cache</span> <span class="nx">root</span><span class="o">@</span><span class="nx">server</span><span class="o">.</span><span class="nx">com</span><span class="o">:/</span><span class="nx">sitepath</span><span class="o">/</span><span class="nx">files</span> <span class="o">/</span><span class="nx">localdata</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;config&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;modules&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;EdmondsCommerce_Redirects&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;depends&gt;&lt;/depends&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/EdmondsCommerce_Redirects&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/modules&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;global&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;models&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;redirects&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;class&gt;</span>EdmondsCommerce_Redirects_Model<span class="nt">&lt;/class&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/redirects&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;catalog&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;rewrite&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;url&gt;</span>EdmondsCommerce_Redirects_Model_Catalog_Url<span class="nt">&lt;/url&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/rewrite&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/catalog&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/models&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/global&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;frontend&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;routers&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;cms&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;args&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;modules&gt;</span>
+</span><span class='line'>                        <span class="nt">&lt;EdmondsCommerce_Redirects</span> <span class="na">before=</span><span class="s">&quot;Mage_Cms&quot;</span><span class="nt">&gt;</span>EdmondsCommerce_Redirects_Cms<span class="nt">&lt;/EdmondsCommerce_Redirects&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;/modules&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/args&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/cms&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/routers&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/frontend&gt;</span>
+</span><span class='line'><span class="nt">&lt;/config&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
+</div>
+  
+  
 
-<p>This command will transfer files from remote server to local machine by excluding cache folder.</p>
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-16T13:56:19+01:00" pubdate data-updated="true">Oct 16<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-multi-store-websites-and-storeviews-explained.html">Magento Multi Store, Websites and Storeviews Explained</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>One of the most exciting features of Magento for many merchants is the ability to run multiple front end websites with a single administration area. For those of you who have managed multiple separate installations of a cart system to power many websites, perhaps selling the same products, then this on its own can make a huge difference in terms of ease of management.</p>
+
+<p>Magento has had multi store functionality designed in from the ground up. This results in a multistore implementation that feels solid and intuitive and also very powerful. This is in contrast to other carts&#8217; multi store systems which can often feel like a bit of a bolt on after thought that isn&rsquo;t as clearly embedded into the system.</p>
+
+<h2>Magento Scopes</h2>
+
+
+<p>Magento has a hierarchical system of stores with 4 levels.</p>
+
+<h3>Global Scope</h3>
+
+
+<p>The top of the hierarchy is the global scope. This scope defines the default values for the various attributes that products and categories contain. You can not see the global scope as a store front but in the admin side the global scope is the one you work in by default and is likely to be where you spend most of your admin time.</p>
+
+<h3>Website Scope</h3>
+
+
+<p>Magento has the concept of websites. You can think of a website as a domain name (though this is perhaps an over simplification). A website can contain one or more stores.</p>
+
+<h3>Store Scope</h3>
+
+
+<p>A store is the item that contains products and categories. A category structure is built from a &ldquo;root&rdquo; category. The root category is not displayed on the front end, its children categories become the top level categories for the store when viewed in the front end. A store can have it&rsquo;s own root category and structure or can share the same one used by other stores.</p>
+
+<h3>Store View</h3>
+
+
+<p>Every store contains at least one store view. You can generally think of store views as translations of a store (though this is not the only use case). The category structure will be the same for the various store views and this scope is generally used to store alternative values for textual content such as product names, descriptions etc.</p>
+
+<h2>Editing Values on a Per Scope Basis</h2>
+
+
+<p>When you are editing products, categories or configuration in your Magento admin you will have a drop down in the top left of the screen that determines which scope you are currently working in. As a best practice always try to be as close to the global scope as possible when making your edits, only descending into the lower scopes as required.</p>
+
+<h2>Possibilites</h2>
+
+
+<p>The possibilities of these various scopes are almost limitless, you can manage a large and diverse range of store fronts that may or may not be clearly related to each other from the customers point of view from a single Magento administration. Like many things in Magento, this powerful system can become complex and we really strongly advise that you plan out your store structure before you start actually adding things so that you ensure you are building a nice logical system that is going to scale up as you grow.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-15T14:44:29+01:00" pubdate data-updated="true">Oct 15<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/magento-upgrade-to-1-7-fix-for-sales-order-tab-contents-in-left-sidebar.html">Magento Upgrade to 1.7, Fix for Sales Order Tab Contents in Left Sidebar</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If following an upgrade to Magento 1.7 you&rsquo;re having a problem that the Sales Order View tab contents are stuck in the sidebar (see below) you&rsquo;re likely ripping your hair out as to why this is happening
+<img src="/assets/Sales-Order-View-Problem-502x600.png"></p>
+
+<p>In the page you&rsquo;ll find a line of Javascript:
+<code>sales_order_view_tabsJsTabs = new varienTabs(&lsquo;sales_order_view_tabs&rsquo;, &lsquo;sales_order_view&rsquo;, &lsquo;sales_order_view_tabs_order_info&rsquo;, []);</code></p>
+
+<h2>The problem</h2>
+
+
+<p>This is the javascript which renders the tabs on the page, moving the tab contents to the main content area once the page has loaded. The second parameter here is the destination element. The issue I was having was that the element with the id &lsquo;sales_order_view&rsquo; wasn&rsquo;t in the HTML. This div is contained in app/design/adminhtml/default/default/template/sales/order/view/form.phtml, but this wasn&rsquo;t being loaded.</p>
+
+<h3>The solution</h3>
+
+
+<p>In my case this was a code/local overridden core class Mage_Sales_Model_Order. In Magento 1.7 the method canReorder() has been renamed to canReorderIgnoreSalable(). Renaming the overridden method fixed my problem</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-08T11:30:43+01:00" pubdate data-updated="true">Oct 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/phpnw12-round-up.html">#PHPNW12 Round UP</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>All of the PHP developers from Edmonds Commerce made our annual pilgramage over the Pennines to Manchester this weekend to visit arguably one of the best PHP conferences around &ndash; PHP North West, PHPNW for short.</p>
+
+<p>This is a three track conference with a diverse range of expert PHP developers giving presentations on some really interesting topics. The team split up and chose their own route through the choice of talks meaning that between us all we got a real flavour of the entire conference.</p>
+
+<p>They Keynote by Ade Oshineye was all to do with API development and DevX &ndash; developer experience as opposed to the more usual and in vogue UX &ndash; user experience. The point being that users are often getting a lot of thought put into their experiences but developers are often given sparsely documented and unwieldy APIs to work with. The metaphor of a door with an ambiguous push/pull requirement was really apt.</p>
+
+<p>Particular highlights for me included the <a href="http://nodephp.org/" target="_blank">ReactPHP</a> talk by Igor Wiedler which was both entertaining and really informative. The <a href="http://www.zeromq.org/" target="_blank">ØMQ (zero MQ)</a> layer looks really interesting among other things. The guys that went to the Data structures talk by Patrick Allaert were really impressed with that.</p>
+
+<p>Take homes from the conference in terms of projects and technologies to keep an eye on include the following:</p>
+
+<p><a href="http://getcomposer.org/" target="_blank">Composer</a></p>
+
+<p><a href="http://silex.sensiolabs.org/" target="_blank">Silex Framework</a></p>
+
+<p><a href="http://nodephp.org/" target="_blank">React PHP</a></p>
+
+<p><a href="http://www.zeromq.org/" target="_blank">ØMQ</a></p>
+
+<p><a href="http://aws.amazon.com/code/6752709412171743">Amazon Web Services Command Line Tools</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-18T11:09:09+01:00" pubdate data-updated="true">Sep 18<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/mysql-5-1-to-5-5-migration.html">MySQL 5.1 to 5.5 Migration</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>According to pretty much every source there&rsquo;s only one sensible way to migrate from 5.0, 5.1 or 5.2 to 5.5 of mysql (or mariadb/percona for that matter), and it&rsquo;s not pretty (for a server with only two active magento installations for instance, this will take about 3 hours).</p>
+
+<p>The answer is that you have to do an sql dump and restore.  This does take an age but does at least provide the reassurance that you are going to have nice clean databases after the upgrade.</p>
+
+<p>So the commands are :&ndash;</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">rsync</span> <span class="o">-</span><span class="nx">avz</span> <span class="o">/</span><span class="nx">sitepath</span><span class="o">/</span><span class="nx">files</span> <span class="nx">root</span><span class="o">@</span><span class="nx">server</span><span class="o">.</span><span class="nx">com</span><span class="o">:/</span><span class="nx">localdata</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mysqldump --all-databases --routines --events &gt; fulldump.sql
+</span><span class='line'>mysqldump mysql --tables user &gt; users.sql
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This command will  transfer all file from local to remote server. It is uses default remote shell protocol.</p>
+<p>Then upgrade mysql binaries to 5.5 and empty the database directory &ndash; such as /var/lib/mysql and start mysql with it&rsquo;s script (e.g. /etc/init.d/mysql start).   Note, if you&rsquo;re using a distribution that doesn&rsquo;t come with start scripts, you may want to run mysql_install as root before starting mysql however you start it.</p>
+
+<p>Then the following will restore the databases and users :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mysql -u root <span class="c"># add -p if you set up a default password when upgrading/installing 5.5</span>
+</span><span class='line'><span class="se">\r</span> mysql
+</span><span class='line'><span class="nb">source </span>users.sql
+</span><span class='line'><span class="nb">source </span>fulldump.sql
+</span><span class='line'>FLUSH PRIVILEGES;
+</span><span class='line'><span class="se">\q</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
 </div>
   
   
@@ -478,93 +785,39 @@ e  It allows to chose alternative remote shell program for communication.</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-05T16:29:37+00:00" pubdate data-updated="true">Nov 5<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-17T15:00:01+01:00" pubdate data-updated="true">Sep 17<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/server/ssh-access-what-is-it-all-about-in-simple-words.html">SSH Access, What Is It All About in Simple Words?</a></h1>
+      <h1 class="entry-title"><a href="/linux/transfer-server-permissions.html">Transfer Server Permissions</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><h3>What is an SSH access?</h3>
+  <div class="entry-content clearfix"><p>So sometimes you might have a restored backup without the correct permissions (whether that be because the backup didn&rsquo;t store the permissions, the file system refused to take them, or you simply forgot to add the -p flag to tar!) and you want to copy the permissions from one machine to another.</p>
 
+<p>Here&rsquo;s a little script to do just that that we found whilst browsing the internet to do just that (uses perl and find) :&ndash;</p>
 
-<p>SSH stands for Secure Socket Shell. SSH is a protocol, like HTTP, it gives us a way to gain a secure access to remote computers.</p>
-
-<p>The principle is to connect two networked computers via a secure encrypted channel within an insecure network environment such as the Internet.</p>
-
-<p>With SSH access we can easily move files around and run programs on your server. We can also transmit files to and from our own network onto your server, for example to take a copy of your site for local development or to push updated files onto your server.</p>
-
-<p>SSH needs a server application installing on your server (most web servers will have this by default) and an SSH client on your local machine to allow you to connect to your server.</p>
-
-<h3>Where do you get your SSH access from?</h3>
-
-
-<p>If you need SSH access details you should ask your hosting company, they should be able to install it for you if it is not already in place. If you are on shared hosting then the chances are that you will not be able to get SSH access details, if you need SSH access then you should consider upgrading your hosting to something that will support it.</p>
-
-<p>SSH access details will consist of at least:</p>
-
-<p>domain or IP address:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>domain.com
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>find / -type f -o -type d 2&gt;/dev/null | <span class="k">while </span><span class="nb">read </span>FILE; <span class="k">do   </span>perl -le<span class="s1">&#39;</span>
+</span><span class='line'><span class="s1">    printf &quot;chmod %o \&quot;%s\&quot;\n&quot;, 07777 &amp; (stat)[2], $_</span>
+</span><span class='line'><span class="s1">    for @ARGV</span>
+</span><span class='line'><span class="s1">  &#39;</span> <span class="s2">&quot;$FILE&quot;</span>; <span class="k">done</span> &gt; /tmp/file_perms.sh
 </span></code></pre></td></tr></table></div></figure>
 
 
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>123.123.123.123
+<p>If you run that on the server with the correct permissions, then transfer the file to the server with the wrong permissions and run the file with the following command, it will fix the perms on that server :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sh /tmp/file_perms.sh
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>username:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>mywebserverlogin
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>password:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>ihy324579ySDWf
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>it may also include a port if SSH is not running on the standard port.</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>2020
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Why do we need the SSH access details?</h3>
-
-
-<p>We will always ask our customers to provide us with SSH access details. This is for two main reasons:</p>
-
-<h4>1. Power and Speed</h4>
-
-
-<p>SSH access allows us to run commands directly on the server, compress files, run scripts etc. For example we will generally run some static analysis scripts for our <a href="/platforms/magento">Magento</a> customers using a bash script that we can run with SSH access. This gives us some instant feedback on the state of your Magento installation and allows us to spot any potential problems.</p>
-
-<p>If we need to get a copy of your site files, using SSH we can prepare a compressed archive of your site files allowing us to download them much faster. Likewise we can easily get a reliable database dump, especially if you have a large database that might cause problems for browser based tools such as phpMyAdmin.</p>
-
-<h4>2. Security</h4>
-
-
-<p>SSH is a much more secure protocol than something like FTP. In SSH everything is encrypted. It has been built from the ground up to be a very secure way of networking and inter communicating between servers on an insecure network such as the web.</p>
+<p>Which may save a lot of transfer time restoring a new backup.</p>
 </div>
   
   
@@ -591,50 +844,21 @@ e  It allows to chose alternative remote shell program for communication.</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-02T19:14:29+00:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T13:20:23+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/oscommerce.html">osCommerce</a></h1>
+      <h1 class="entry-title"><a href="/php/smart-tv-developer-uk.html">Smart TV Developer UK</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><h3>osCommerce Summary</h3>
+  <div class="entry-content clearfix"><p>Smart TVs are still quite a new concept to many people. At Edmonds Commerce we believe that Smart TVs and other smart appliances will be the future. As the television is already a screen based system it is really well suited to become a web enabled and smart device. Online streaming services such as the BBC&rsquo;s iPlayer and platforms like NetFlix and LoveFilm are already well established as internet based media streaming platforms and many consumer televisions are already smart enough to consume these channels natively.</p>
 
+<p>The real smart television revolution is going to be based around custom applications for the smart tvs, available via an app store. There is also many exciting opportunities for custom smart television applications for a wide variety of business applications including things like live information displays, connected messaging systems, warehouse management systems, live graphs and business information displays and all kinds of other ideas &ndash; the sky is the limit.</p>
 
-<p>The name <a href="http://www.oscommerce.com/" target="_blank">osCommerce</a> is derived from the combination of the words &ldquo;open source commerce&rdquo;. osCommerce provides a fully featured platform for powering online shops including a front end with a complete checkout procedure and an administration side for with full management capabilites for customers, orders, products and categories.</p>
-
-<p>There are a few forks of the core osCommerce package that provide more fully featured packages that combine the osCommerce core with some of the best extensions such as Easypopulate to give a full featured osCommerce package. Most notably those include <a href="http://www.zen-cart.com/" target="_blank">ZenCart</a> and CRELoaded &ndash; now <a href="http://www.loadedcommerce.com/index.php" target="_blank">LoadedCommerce</a>.</p>
-
-<p>These days osCommerce is showing its age and it is no longer a platform that you should consider basing a new site build on. That is not to say that the platform has no value. There are a large number of merchants still using websites based upon osCommerce and often those sites are very highly customised and largely bespoke.</p>
-
-<p>If you have an osCommerce, ZenCart or CRELoaded site that you need some expert services for <a href="/contact-us" target="_blank">get in touch with Edmonds Commerce today</a>.</p>
-
-<h3>osCommerce History</h3>
-
-
-<p>Starting in the year <a href="http://www.oscommerce.com/about/news,1" target="_blank">2000</a> in Germany by Harald Ponce de Leon within a year the project was mature and within 2 years the project was being widely used. Version 2 became the really popular version and went through numerous releases and milestones.</p>
-
-<p>osCommerce was the first open source e-commerce package and gave countless entrepreneurs a cost effective solution for establishing themselves as online retailers. At this time the internet was a very different place than it is now and the opportunties that osCommerce presented were ground breaking and exciting.</p>
-
-<p>Unfortunately like many web site platforms there were some security issues with osCommerce and some of it&rsquo;s less well coded extensions that gave malicious hackers a back door to break into your server and cause problems. These were patchable but not everyone did that.</p>
-
-<h3>osCommerce Services</h3>
-
-
-<p>osCommerce is built using a procedural programming paradigm that has fallen out of favour these days with most projects moving towards and object oriented architecture. There are certain challenges with procedural programming however with the right approaches and skill level it is still possible to provide high quality secure and optimised code for your osCommerce site.</p>
-
-<h3>osCommerce Experience</h3>
-
-
-<p>Edmonds Commerce have been working with osCommerce for many years and have a wealth of experience in extending, optimising and improving osCommerce, ZenCart and CRELoaded sites.</p>
-
-<h3>Edmonds Commerce, osCommerce Experts</h3>
-
-
-<p><a href="/contact-us" target="_blank">Get in touch with Edmonds Commerce today if you are looking for expert osCommerce web development services.</a></p>
+<p>If you would like to discuss your smart tv app idea with a specialist development agency, give Edmonds Commerce a call today!</p>
 </div>
   
   
@@ -661,150 +885,21 @@ e  It allows to chose alternative remote shell program for communication.</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-02T18:44:41+00:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T10:42:59+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/drupal.html">Drupal</a></h1>
+      <h1 class="entry-title"><a href="/chrome/chrome-auto-populate-form-fields-form-fuzzer.html">Chrome Auto Populate Form Fields - Form Fuzzer</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><h3>Drupal Summary</h3>
+  <div class="entry-content clearfix"><p>If you ever used Webmaster Tools in Firefox but have now switched to using Chrom(e|ium) instead then you probably miss the form filler &ndash; especially if you ever need to test checkouts or other form intensive web site user stories.</p>
 
+<p>A nice little extension that I just discovered takes care of this, <a href="https://chrome.google.com/webstore/detail/cbpplldpcdcfejdaldmnfhlodoadjhii" target="_blank">Chrome Form Fuzzer</a>.</p>
 
-<p><a href="http://drupal.org/" target="_blank">Drupal</a> is a very popular content management system or framework that is very well suited to more complex and larger content driven web sites. It is possible to use Drupal for all kinds of sites ranging from blogging through to e-commerce however we prefer to use more specialised platforms such as <a href="/platforms/wordpress">WordPress</a> and <a href="/platforms/magento">Magento</a> for those kinds of sites respectively.</p>
-
-<p>Drupal consists of a core framework which handles the core functionality and on its own is enough to power a brochure site, blog or web 2.0 style user content driven site or forum. Where Drupal comes into it&rsquo;s own though is with the use of community contributed modules to extend the Drupal core and provide for all kinds of other functionality.</p>
-
-<p>As mentioned there are e-commerce contrib modules for Drupal however we would always recommend using a fully dedicated e-commerce package such as <a href="/platforms/magento">Magento</a> or <a href="/platforms/prestashop">Prestashop</a> for an e-commerce focused web site. We would only really consider using a Drupal ecommerce module for very light e-commerce requirements.</p>
-
-<h3>Headline Drupal Features</h3>
-
-
-<p>Drupal differentiates itself from more lightweight CMS systems with features like multiple users with user profiles and more complex content types including polls and forums. The focus is not just on admin generated content but also more community and user based content meaning that Drupal is an excellent choice for any kind of community portal.</p>
-
-<p>The real magic of Drupal comes from the modular nature of the system, it really is more of a framework than an application. If you want to know what Drupal can really do then you need to look at the <a href="http://drupal.org/project/Modules" target="_blank">Drupal modules</a></p>
-
-<h3>Drupal Distributions</h3>
-
-
-<p>If you do not relish the idea of installing a sequence of modules to the Drupal core to get what you need, you may find that there is an existing <a href="http://drupal.org/project/distributions?solrsort=iss_project_release_usage%20desc" target="_blank">Drupal Distribution</a> that provides all or most of what you need. These distributions are pre-packaged collections of Drupal Core plus some relevant modules to give you a particular flavour of Drupal.</p>
-
-<p>The most popular distribution is <a href="http://drupal.org/project/commerce_kickstart" target="_blank">Commerce Kickstart</a> though as we mentioned we would recommend dedicated e-commerce packages such as <a href="/platforms/magento/">Magento</a> for this kind of site.</p>
-
-<p>By looking at the distributions you can get a good feel for the kinds of sites Drupal is great for. Distrubutions such as <a href="http://openpublicapp.com/" target="_blank">OpenPublic</a> which are designed for specific requirements and audiences. OpenPublic focusses on things like security and accessibility to ensure that your site is going to meet the stringent requirements of a government web site. The fact that the U.S. Department of Homeland Security is using this distribution underlines the public sector and enterprise readiness of this kind of platform.</p>
-
-<p>Distributions we think you should check out include:</p>
-
-<ul>
-<li><a href="http://drupal.org/project/openpublish" rel="nofollow">OpenPublish</a></li>
-<li><a href="http://drupal.org/project/openpublic" rel="nofollow">OpenPublic</a></li>
-<li><a href="http://drupal.org/project/openenterprise" rel="nofollow">OpenEnterprise</a></li>
-<li><a href="http://drupal.org/project/panopoly" rel="nofollow">Panopoly</a></li>
-<li><a href="http://drupal.org/project/openacademy" rel="nofollow">OpenAcademy</a></li>
-<li><a href="http://drupal.org/project/openoutreach" rel="nofollow">OpenOutreach</a></li>
-<li><a href="http://drupal.org/project/nodestream" rel="nofollow">NodeStream</a></li>
-</ul>
-
-
-
-
-<h3>Drupal Web Development</h3>
-
-
-<p>With our very high level of PHP web development expertise, Edmonds Commerce are well placed to provide you all the technical development service and support you need to get your Drupal project delivered to the highest standard. Please <a href="/contact-us/">get in touch with us today</a> to discuss your Drupal project.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-02T17:42:15+00:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/web%20design/responsive-web-design-for-mobile-and-tablet-optimised-web-sites.html">Responsive Web Design for Mobile and Tablet Optimised Web Sites</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are at all involved or exposed to the world of web design and web development then you have no doubt heard of the phrase &ldquo;responsive&rdquo; web design. If you browse the popular theme sites for themes for platforms like WordPress and Magento then you can see responsive themes becoming more popular.</p>
-
-<p>So what does it mean and how does it work?</p>
-
-<h3>What does Responsive Web Design Mean?</h3>
-
-
-<p>Responsive designs change the layout and visible content on a page depending on the width, height and other factors of the device or window rendering the page. You can generally test out responsive designs by simply unmaximising a browser window and then resizing it down to smaller sizes such as 320 pixels wide. On a normal design you would be quite lucky if the site still rendered in a readable way at that width. More than likely you will only be able to see a fraction of the page and would have to sideways scroll to see the rest of it.</p>
-
-<p>On a responsively designed site, the layout would change as the screen width gets smaller. It might hide certain elements such as side columns and may make things rearrange in a more vertical way to allow them to be displayed without the need for side scrolling.</p>
-
-<p>In a nutshell, this is what responsive web design means.</p>
-
-<h3>How Does Responsive Web Design Work?</h3>
-
-
-<p>Responsive web design works by using a CSS3 technique called <a href="http://www.w3.org/TR/css3-mediaqueries/" title="W3C Media Queries Information" target="_blank">Media Queries</a>.</p>
-
-<p>CSS has had the concept of media specific style sheets for quite some time. Traditionally though this was limited to print and screen, allowing for example to remove background images from a page when printing and perhaps adjust font family and size for better printing results.</p>
-
-<p>The media queries functionality extends this concept significantly, allowing custom style rules to be applied based upon a range of differnt media options. The most commonly used of these for responsive web design are width and height.</p>
-
-<p>The full list of properties that can be utilised with media queries include:</p>
-
-<blockquote>width
-height
-device-width
-device-height
-orientation
-aspect-ratio
-device-aspect-ratio
-color
-color-index
-monochrome
-resolution
-scan
-grid</blockquote>
-
-
-
-
-<h3>Get Your Web Site Working Responsively</h3>
-
-
-<p>If you want to upgrade your web site to use responsive design techniques to better support the wide range of internet devices in use today then <strong><a href="/contact-us">get in touch</a></strong> with Edmonds Commerce today to discuss how we can help you.</p>
-
-<h3>Some Useful and Interesting Links</h3>
-
-
-<p><a href="http://www.w3.org/TR/css3-mediaqueries/ " target="_blank"><a href="http://www.w3.org/TR/css3-mediaqueries/">http://www.w3.org/TR/css3-mediaqueries/</a></a>
-<a href="http://johnpolacek.github.com/scrolldeck.js/decks/responsive/" target="_blank"><a href="http://johnpolacek.github.com/scrolldeck.js/decks/responsive/">http://johnpolacek.github.com/scrolldeck.js/decks/responsive/</a></a>
-<a href="http://reference.sitepoint.com/css/mediaqueries" target="_blank"><a href="http://reference.sitepoint.com/css/mediaqueries">http://reference.sitepoint.com/css/mediaqueries</a></a>
-<a href="http://mediaqueri.es/" target="_blank"><a href="http://mediaqueri.es/">http://mediaqueri.es/</a></a>
-<a href="http://mac-blog.org.ua/css-3-media-queries-cheat-sheet/" target="_blank"><a href="http://mac-blog.org.ua/css-3-media-queries-cheat-sheet/">http://mac-blog.org.ua/css-3-media-queries-cheat-sheet/</a></a></p>
+<p>You can configure it for simple form filling or with a little creative configuration it could easily be used for security testing and more in depth testing to ensure that input is being sanitised and filtered properly.</p>
 </div>
   
   

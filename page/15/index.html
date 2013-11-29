@@ -26,16 +26,7 @@
 
 
   <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
-  <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-27853727-2', 'edmondscommerce.github.io');
-  ga('send', 'pageview');
-
-</script>
+  
 
 </head>
 
@@ -128,39 +119,243 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-17T15:00:01+01:00" pubdate data-updated="true">Sep 17<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-29T14:14:53+01:00" pubdate data-updated="true">Aug 29<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/linux/transfer-server-permissions.html">Transfer Server Permissions</a></h1>
+      <h1 class="entry-title"><a href="/magento/magento-be-careful-with-magic-properties.html">Magento: Be Careful With Magic Properties</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>So sometimes you might have a restored backup without the correct permissions (whether that be because the backup didn&rsquo;t store the permissions, the file system refused to take them, or you simply forgot to add the -p flag to tar!) and you want to copy the permissions from one machine to another.</p>
+  <div class="entry-content clearfix"><p>In certain places in Magento, you can simply access the data from an object by property, but <strong>beware</strong>!</p>
 
-<p>Here&rsquo;s a little script to do just that that we found whilst browsing the internet to do just that (uses perl and find) :&ndash;</p>
+<p>For instance, in the product template the following two code snippets have the same effect :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_qty</span> <span class="o">=</span> <span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">stock_item</span><span class="o">-&gt;</span><span class="na">stock_qty</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_qty</span> <span class="o">=</span> <span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">getStockItem</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getStockQty</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However only the latter will work if you call it from the category view.  This is because the product is not fully loaded, and even doing a</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_newproductobject</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>will not help!</p>
+
+<p>So the moral of this is, use the getters not the magic property.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-28T16:45:31+01:00" pubdate data-updated="true">Aug 28<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/group-layers-in-the-gimp.html">Group Layers in the GIMP</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>One of the things that often frustrates those who have used Photoshop in the past often complain about the switch to Linux and the GIMP specifically is the lack of groupable layers.</p>
+
+<p>There is a plugin that does provide this functionality, albeit in a rather unintuitive manner :&ndash;</p>
+
+<p>It&rsquo;s called LayerGroups and is at <a href="http://registry.gimp.org/node/16563" title="http://registry.gimp.org/node/16563"><a href="http://registry.gimp.org/node/16563">http://registry.gimp.org/node/16563</a></a></p>
+
+<p>This is a really useful feature and really does need an overhaul on the usability stakes but might be useful if you are moving to Linux from Windows.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-28T16:23:49+01:00" pubdate data-updated="true">Aug 28<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/paypoint-magento-modules-vanished-into-thin-air.html">Paypoint Magento Modules Vanished Into Thin Air!</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>It appears that all the paypoint (formally secpay) modules have vanished from the magento connect site.</p>
+
+<p>This is a pain for a lot of people who have chosen the gateway to service their payments, and leaves two options for most people :&ndash;</p>
+
+<ul>
+    <li>* Choose a different provider</li>
+    <li>* Get a custom module written</li>
+</ul>
+
+
+<p>As Magento developers we&rsquo;re happy to quote for the latter option, but we expect a lot of people will go for the former.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-24T13:51:04+01:00" pubdate data-updated="true">Aug 24<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/increase-the-stabilty-of-your-magento-cron.html">Increase the Stabilty of Your Magento Cron</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Sometimes when your cron process in Magento seems to not be working it is worth doubling up the ways it gets executed.</p>
+
+<p>One reason for this is various extensions (notably EERP from boostmyshop) set up an override to ensure that the same cron task is not run a second time if it&rsquo;s still running when the first run happens.</p>
+
+<p>Often the cli setup for php is not configured with the same timeouts etc. that the web setup is.  Therefore one thing that can make your cron more &ldquo;stable&rdquo; is to use wget or curl to fetch the cron.php file rather than (or as well as) running the cron.sh script.</p>
+
+<p>Here&rsquo;s what to add to the server&rsquo;s crontab (/etc/crontab or crontab -e) to use wget to fire off the cron :</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>* * * * * /usr/bin/wget -O- www.mycoolsite.com/cron.php &gt; /dev/null 2&gt; /dev/null
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That of course needs the url changing to match your domain.  It&rsquo;s worth noting that having output and stderror piped to /dev/null in a crontab is probably not the best practice but given that any module can create cron tasks that output stuff, your sysadmin might dislike getting that emailed to them!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-23T11:37:58+01:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml.html">Tip: Parse XML Values in Bash e.g. Magento local.xml</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Not the most elegant way to do this, and probably could do with some extra tweaks but it works for our purposes, so presented here in case it fits yours :</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>find / -type f -o -type d 2&gt;/dev/null | <span class="k">while </span><span class="nb">read </span>FILE; <span class="k">do   </span>perl -le<span class="s1">&#39;</span>
-</span><span class='line'><span class="s1">    printf &quot;chmod %o \&quot;%s\&quot;\n&quot;, 07777 &amp; (stat)[2], $_</span>
-</span><span class='line'><span class="s1">    for @ARGV</span>
-</span><span class='line'><span class="s1">  &#39;</span> <span class="s2">&quot;$FILE&quot;</span>; <span class="k">done</span> &gt; /tmp/file_perms.sh
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># xml_value path/to/file node_key</span>
+</span><span class='line'><span class="k">function </span>xml_value<span class="o">(){</span>
+</span><span class='line'>    grep <span class="s2">&quot;&lt;$2&gt;.*&lt;.$2&gt;&quot;</span> <span class="nv">$1</span> | sed -e <span class="s2">&quot;s/&lt;\!\[CDATA\[//&quot;</span> | sed -e <span class="s2">&quot;s/\]\]&gt;//&quot;</span> | sed -e <span class="s2">&quot;s/^.*&lt;$2/&lt;$2/&quot;</span> | cut -f2 -d<span class="s2">&quot;&gt;&quot;</span>| cut -f1 -d<span class="s2">&quot;&lt;&quot;</span>
+</span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If you run that on the server with the correct permissions, then transfer the file to the server with the wrong permissions and run the file with the following command, it will fix the perms on that server :&ndash;</p>
+<p>It also strips out the CDATA tags, which we needed to pull the database details from Magento&rsquo;s local.xml</p>
+
+<p>To use this to get, for example, the database host, you would use the following:</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sh /tmp/file_perms.sh
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">DB_HOST</span><span class="o">=</span><span class="k">$(</span>xml_value app/etc/local.xml host<span class="k">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Which may save a lot of transfer time restoring a new backup.</p>
+<p>To use this</p>
 </div>
   
   
@@ -187,21 +382,34 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T13:20:23+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T11:47:06+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/php/smart-tv-developer-uk.html">Smart TV Developer UK</a></h1>
+      <h1 class="entry-title"><a href="/magento/calling-methods-from-a-static-block.html">Calling Methods From a Magento Static Block</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>Smart TVs are still quite a new concept to many people. At Edmonds Commerce we believe that Smart TVs and other smart appliances will be the future. As the television is already a screen based system it is really well suited to become a web enabled and smart device. Online streaming services such as the BBC&rsquo;s iPlayer and platforms like NetFlix and LoveFilm are already well established as internet based media streaming platforms and many consumer televisions are already smart enough to consume these channels natively.</p>
+  <div class="entry-content clearfix"><p>I recently had to develop a bespoke CMS within magento.</p>
 
-<p>The real smart television revolution is going to be based around custom applications for the smart tvs, available via an app store. There is also many exciting opportunities for custom smart television applications for a wide variety of business applications including things like live information displays, connected messaging systems, warehouse management systems, live graphs and business information displays and all kinds of other ideas &ndash; the sky is the limit.</p>
+<p>One of the requirements was that the system should be very easy to customise, and should use the existing Pages and Static blocks functionality within magento.</p>
 
-<p>If you would like to discuss your smart tv app idea with a specialist development agency, give Edmonds Commerce a call today!</p>
+<p>I wanted the ability to call a block that I had created from with a static block. Magento allows you to do this using the code below
+<code></p>
+
+<p></code></p>
+
+<p>The issue that I came across if you need to call a method on the block before it is rendered. If I was calling the block using XML I could use the action tag, but that is not avalible here.</p>
+
+<p>However, it is possible to call certain methods using the code above. The magento parser takes each of the pair values and calls a set method on them, so for example template=&lsquo;path&hellip;&rsquo; actually calls the setTemplate method on your block.</p>
+
+<p>This means that you can create a set method and trigger it from with in the static block like so</p>
+
+<p><code></p>
+
+<p></code></p>
 </div>
   
   
@@ -228,21 +436,26 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T10:42:59+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:50:09+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/chrome/chrome-auto-populate-form-fields-form-fuzzer.html">Chrome Auto Populate Form Fields - Form Fuzzer</a></h1>
+      <h1 class="entry-title"><a href="/chrome/chrome-aliases-for-bookmarkslinks-extension-great-timesaver.html">Chrome Aliases for Bookmarks/Links Extension - Great Timesaver</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>If you ever used Webmaster Tools in Firefox but have now switched to using Chrom(e|ium) instead then you probably miss the form filler &ndash; especially if you ever need to test checkouts or other form intensive web site user stories.</p>
+  <div class="entry-content clearfix"><p>If you have a few URLS you are constantly going to and you would prefer a quick keyboard based way of going to them without having to type full URLs then this little extension could be for you.</p>
 
-<p>A nice little extension that I just discovered takes care of this, <a href="https://chrome.google.com/webstore/detail/cbpplldpcdcfejdaldmnfhlodoadjhii" target="_blank">Chrome Form Fuzzer</a>.</p>
+<p>The concept is very simple. You can create an alias word (eg phpmyadmin) which then redirects to your full phpmyadmin URL.</p>
 
-<p>You can configure it for simple form filling or with a little creative configuration it could easily be used for security testing and more in depth testing to ensure that input is being sanitised and filtered properly.</p>
+<p>When you first install it you might set up some aliases and try to use them but get redirected to the google search results pages for that word instead. The extension author has worked around this behaviour by requiring you to put an &ldquo;a &rdquo;, the letter a followed by a space, before your alias.</p>
+
+<p>Setting up the aliases is simple and I can already see this becoming one of my must have extensions.</p>
+
+<p>Check it out for yourselves:
+<a href="https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla" title="Chrome Link Alias" target="_blank"><a href="https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla">https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla</a></a></p>
 </div>
   
   
@@ -269,27 +482,72 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T10:40:28+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:46:58+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/magento/getting-a-billing-address-from-the-magento-orders-table.html">Getting a Billing Address From the Magento Orders Table</a></h1>
+      <h1 class="entry-title"><a href="/wordpress/wordpress-disqus-plugin-hiding-content-on-mobile.html">Wordpress: Disqus Plugin Hiding Content on Mobile</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>I recently had to generate a report listing the details of all orders from a magento store that matched certain parameters.</p>
+  <div class="entry-content clearfix"><p>If you use the disqus plugin on your wordpress site, you may be surprised to learn that your content is hidden on mobile devices (specifically ipad/iphone).</p>
 
-<p>There was a requirement that the billing address should be included in this, and I wanted to do this all in SQL if possible.</p>
+<p>The problem that occurs is that the content is covered by a nice white box that you can&rsquo;t see through.</p>
 
-<p>The biggest problem was formatting the address as there is a value in the address table called suffix, which contains the County information, but is not a required value.</p>
+<p>Thankfully there&rsquo;s a nice quick fix.  In your site&rsquo;s css rules, simply add the following :&ndash;</p>
 
-<p>As I was adding in line breaks to the select, this meant for all of the orders that did not have the value, then there would be a blank line using a standard CONCAT statement.</p>
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nf">#disqus_thread</span> <span class="p">{</span> <span class="k">clear</span><span class="o">:</span> <span class="k">both</span> <span class="cp">!important</span><span class="p">;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>What I found was that it is possible to add an IF statement to the CONCAT query, which gives the required result.</p>
 
-<p>This is done like this</p>
+<p>And mobile users can see your content again!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:41:09+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-bug-custom-option-values-not-showing-in-backend.html">Magento Bug: Custom Option Values Not Showing in Backend</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>It&rsquo;s a little bit annoying that such a core feature is just broken in many versions of magento &ndash; the headings for the custom options chosen, whilst fully working on the cart; checkout and emails to the customer, only show the heading and no content on the backend order.</p>
+
+<p>There are a couple of fixes :
+in
+  app/code/core/Mage/Adminhtml/Block/Sales/Items/Column/Name.php
+there is no extending, so you can copy it to
+  app/code/local/Mage/Adminhtml/Block/Sales/Items/Column/Name.php
+and add the following class method :</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -300,342 +558,39 @@
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span>
-</span><span class='line'>    <span class="c1">-- Other Values that are needed --</span>
-</span><span class='line'>    <span class="n">CONCAT</span><span class="p">(</span>
-</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">firstname</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span> <span class="n">billing</span><span class="p">.</span><span class="n">lastname</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
-</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">street</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
-</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">city</span><span class="p">,</span>
-</span><span class='line'>            <span class="n">if</span><span class="p">(</span><span class="n">billing</span><span class="p">.</span><span class="n">suffix</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
-</span><span class='line'>                <span class="n">CONCAT</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span> <span class="n">billing</span><span class="p">.</span><span class="n">suffix</span><span class="p">),</span>
-</span><span class='line'>                <span class="s1">&#39;&#39;</span>
-</span><span class='line'>              <span class="p">),</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
-</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">postcode</span><span class="p">)</span> <span class="k">AS</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="n">Billing</span> <span class="n">Address</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span>
-</span><span class='line'><span class="k">FROM</span> <span class="n">sales_flat_order</span> <span class="k">AS</span> <span class="n">sfo</span>
-</span><span class='line'><span class="k">JOIN</span> <span class="n">sales_flat_order_address</span> <span class="k">AS</span> <span class="n">billing</span>
-</span><span class='line'>    <span class="k">ON</span> <span class="n">billing</span><span class="p">.</span><span class="n">parent_id</span> <span class="o">=</span> <span class="n">sfo</span><span class="p">.</span><span class="n">entity_id</span>
-</span><span class='line'>    <span class="k">AND</span> <span class="n">billing</span><span class="p">.</span><span class="n">address_type</span> <span class="o">=</span> <span class="s1">&#39;billing&#39;</span>
-</span><span class='line'><span class="c1">-- add your WHERE conditions --</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T09:07:03+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/phpstorm/phpstorm-5-released.html">PHPStorm 5 Released</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>At Edmonds Commerce we were staunch Netbeans users for years but we always struggled with large scale projects (<a href="/platforms/magento/" title="Magento Platform Overview">Magento</a> I&rsquo;m looking at you) meaning that Netbeans would sometimes really crawl as it tried to reindex thousands of PHP files.</p>
-
-<p>After a recent upgrade of our Linux desktop environment to the Mate edition of Linux Mint 13, Netbeans seemed to perform even worse and had a few bugs as well. At the same time we had been evaluating other IDE options including Eclipse and Zend Studio (which we all have free licences for thanks to being Zend Certified Developers).</p>
-
-<p>In the end though, the one we tried that really impressed was PHPStorm. It isn&rsquo;t free open source but it isn&rsquo;t too expensive, especially considering it is perhaps the single most important and highly used tool of a professional PHP developer.</p>
-
-<p>Now a new version has come out. Downloading and upgrading took all of 5 minutes and we are now going to enjoy better performance and some nice new features. I have yet to really test out the new version so I can&rsquo;t really report on them but they look good. You can read about all the new features in version 5 <a href="http://www.jetbrains.com/phpstorm/whatsnew/" title="PHPStorm 5 Features" target="_blank">here</a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-11T15:28:16+01:00" pubdate data-updated="true">Sep 11<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/prestashop.html">PrestaShop</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h3>PrestaShop Summary</h3>
-
-
-<p>PrestaShop is the second most popular open source shopping cart platform according to Google Trends as I write this article. Originally  founded in Paris in 2007 and with their first release in 2008, the platform has grown from strength to strength. They now have a second office in Miami USA and are pushing the platform aggressively so will no doubt grow in the future.</p>
-
-<h3>Headline PrestaShop Features</h3>
-
-
-<p>The PrestShop web site makes a big effort to emphasise the large number of features (275+ at time of writing) that are bundled with PrestaShop. Here is a highlight of some of the most interesting and important features that come with PrestaShop.</p>
-
-<h4>Multi Channel Out of the Box</h4>
-
-
-<p>Prestashop comes with Ebay Integration out of the box. This is quite unique in my experience though I do not doubt that with Magento being owned now by Ebay it won&rsquo;t be long before they have a similar out of the box solution. If you want to hook into other sales channels then there are affordable extensions available that will allow you to hook into other channels.</p>
-
-<h4>Bulk Data Handling</h4>
-
-
-<p>Prestashop ships with a fully featured bulk data import/export system that can handle products, categories, customers and more. This is a crucial feature to assist with migrations, bulk updates and possibly integrations with other systems.</p>
-
-<h4>Core Code Overrides</h4>
-
-
-<p>A bit like Magento, Prestashop features a core code override system that allows developers such as ourselves to modify the way core elements of Prestashop work without having to edit those core files. When you come to upgrade this will make things a lot easier and also makes it very clear what core functionality is being overridden which can then help enormously when reapplying those overrides to an upgraded store.</p>
-
-<h4>SEO Features</h4>
-
-
-<p>The SEO credentials of PrestaShop are really quite respectable with dedicated and customisable SEO URLs for each product and full meta information for all products and categories. PrestaShop also features both an auto generated HTML sitemap and a Google XML sitemap that Google and other search engines use to assist with fully spidering your site.</p>
-
-<h3>Demo PrestaShop</h3>
-
-
-<p>If you would like to give the PrestaShop platform a try you can access a demo version of the system both front and admin side from <a href="http://www.prestashop.com/en/demo" title="PrestaShop demo" target="_blank">this page</a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-11T14:28:35+01:00" pubdate data-updated="true">Sep 11<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/opencart.html">OpenCart</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h3>OpenCart Summary</h3>
-
-
-<p>OpenCart started life as the university project of a highly skilled developer called Daniel Kerr who decided to launch the platform as an open source project. The platform was originally targeted at small to SME level businesses and the goal was to provide a platform that was easy to use an implement and yet featured modern design styles and some nice Web 2.0 style dynamic elements.</p>
-
-<p>As the name suggest, OpenCart is entirely free open source and unlike <a href="/platforms/magento/" title="magento platform summary">Magento</a> does not have any kind of paid for premium version. The code is currently being hosted on GitHub and is free for anyone to fork, download, implement and develop upon.</p>
-
-<h3>Headline OpenCart Features</h3>
-
-
-<p>OpenCart features everything you would expect from a modern shopping cart system. In particular though here are some of the things we think are most attractive in comparison to other modern open source shopping cart platforms.</p>
-
-<h4>Shared Hosting Friendly</h4>
-
-
-<p>OpenCart will run nicely on fairly modest shared hosting. Of course if you have a high traffic or very large or demanding site then you will need beefier hosting to support this. In general though you will find OpenCart by its very nature will require less hosting resources for the same level of traffic than a more powerful but heavy system such as Magento.</p>
-
-<h4>Simple, Slick Front End</h4>
-
-
-<p>The front end of the platform features everything you would expect and thanks to tasteful use of jQuery to add interactive elements to the site has some nice modern features such as a lightbox image viewer and tabbed product information. The design is clean and clear by design with little to distract the user from the core function of browsing and purchasing products.</p>
-
-<h4>Internationalisation</h4>
-
-
-<p>Open Cart supports multiple languages, currencies, tax rates and even multiple store fronts out of the box. This means that you can easily have a fully international site with separate store fronts or simply offer a currency switcher and/or language switcher on your single store front to cater for international customers.</p>
-
-<h4>Business to Business Functionality</h4>
-
-
-<p>If you are selling to businesses and perhaps offer different pricing to consumers, businesses and larger customers then you will love the B2B features of OpenCart. You can define customer groups and assign customers to a group and then offer those customer groups different prices for the same products. For example your default price on an item for a consumer could be £9.99 however you might offer it B2B and 8.99 and have a sub set of wholesalers who you offer the item to at 6.99.</p>
-
-<p>You can further extend this functionality by offering quantity discounts and link this up to the customer groups meaning that you could offer very good quantity discounts to your wholesale customer group and also offer some incentive to your B2C customers by offering discounts on multiples.</p>
-
-<p>If you are focussing primarily on trade and wholesale customers, you can hide all pricing unless they are logged in. This is great for maintaining your SEO position and having your products and pages fully accessible by the public and search engines whilst maintaining confidentiality on your actual prices.</p>
-
-<h3>Give it a Test Drive</h3>
-
-
-<p>If it sounds like OpenCart might be the right solution for you then we suggest you give it a whirl. You can access the demo&rsquo;s of the front end and administration areas <a href="http://www.opencart.com/index.php?route=demonstration/demonstration" title="OpenCart demo" target="_blank">here</a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-10T14:41:36+01:00" pubdate data-updated="true">Sep 10<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/phpstorm/replicate-netbeans-select-in-project-in-phpstorm.html">Replicate Netbeans &#8220;Select in Project&#8221; in Phpstorm</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Netbeans has a handy feature when you right-click a file in the editor window to take you to the file in the project (file manager tab) view.</p>
-
-<p>To get phpstorm to do this is not as simple but is handily mappable to a shortcut key.</p>
-
-<p>To enable this, go to Settings->Keymap->Main menu->Navigate->Select in&hellip; and choose a key.  I set it to Alt+P, so now I press Alt+P then press enter to go to the current file in the project view.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-07T14:35:37+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-stack-traces-you-can-click-on-in-phpstorm.html">PHP Stack Traces You Can Click on! (in PhpStorm)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Having a stack trace is very handy at times but wouldn&rsquo;t it be nice if you could click on the filename in the stack trace in your browser and your IDE take you to the file and line that it&rsquo;s talking about?</p>
-
-<p>Well, with PhpStorm and kint, you can!  Using a plugin called Remote Call, the PhpStorm IDE can listen on a port and go to files and line numbers via an ajax call.</p>
-
-<p>To configure this, grab the latest version of kint, and copy it&rsquo;s sample config to an actual config file, and edit the section about pathDisplayCallback to look like this :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_kintSettings</span><span class="p">[</span><span class="s1">&#39;pathDisplayCallback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;_kintLine&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">function</span> <span class="nf">_kintLine</span><span class="p">(</span> <span class="nv">$file</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">=</span> <span class="k">NULL</span> <span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nv">$line</span> <span class="p">)</span> <span class="p">{</span> <span class="c1">// means this is called from resource type dump</span>
-</span><span class='line'>                <span class="k">return</span> <span class="nv">$file</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">return</span> <span class="s2">&quot;&lt;u&gt;&lt;a class=</span><span class="se">\&quot;</span><span class="s2">kint-ide-link</span><span class="se">\&quot;</span><span class="s2"> href=</span><span class="se">\&quot;</span><span class="s2">http://localhost:8091/?message=</span><span class="si">{</span><span class="nv">$file</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">.</span> <span class="nv">$file</span> <span class="o">.</span> <span class="s2">&quot;&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span><span class="p">;</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getFormattedOption</span><span class="p">(</span><span class="nv">$value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nv">$_remainder</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$value</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;core/string&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">truncate</span><span class="p">(</span><span class="nv">$value</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$_remainder</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+</span><span class='line'>    <span class="s1">&#39;value&#39;</span> <span class="o">=&gt;</span> <span class="nb">nl2br</span><span class="p">(</span><span class="nv">$value</span><span class="p">),</span>
+</span><span class='line'>    <span class="s1">&#39;remainder&#39;</span> <span class="o">=&gt;</span> <span class="nb">nl2br</span><span class="p">(</span><span class="nv">$_remainder</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nv">$result</span><span class="p">;</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>You can even be clever with regex to make the filenames be relative &ndash; for instance, we run our projects from a directory below one called, oddly enough &ldquo;projects&rdquo; and our function looks like this :&ndash;</p>
+<p>and/or change the admin theme in
+  app/design/adminhtml/default/default/template/sales/items/column/name.phtml
+around about line 44 from :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="nv">$_option</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]);</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">_kintLine</span><span class="p">(</span> <span class="nv">$file</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">=</span> <span class="k">NULL</span> <span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>        <span class="nv">$shortname</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;#.*/[Pp]rojects/[^/]*/#&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="nv">$file</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nv">$line</span> <span class="p">)</span> <span class="p">{</span> <span class="c1">// means this is called from resource type dump</span>
-</span><span class='line'>                <span class="k">return</span> <span class="nv">$shortname</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">return</span> <span class="s2">&quot;&lt;u&gt;&lt;a class=</span><span class="se">\&quot;</span><span class="s2">kint-ide-link</span><span class="se">\&quot;</span><span class="s2"> href=</span><span class="se">\&quot;</span><span class="s2">http://localhost:8091/?message=</span><span class="si">{</span><span class="nv">$file</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">.</span> <span class="nv">$shortname</span> <span class="o">.</span> <span class="s2">&quot;&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_null</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$_option</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="p">}</span> <span class="cp">?&gt;</span><span class="x"></span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now, if you call Kint::trace(); from your file that you&rsquo;ve included Kint.class.php from, you get a clickable stacktrace!</p>
+<p>Then the custom options chosen by customers will happily show in the backend.</p>
 </div>
   
   
@@ -662,23 +617,24 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-07T12:49:46+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T18:29:43+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/php/free-computer-science-and-programming-online-courses.html">Free Computer Science and Programming Online Courses</a></h1>
+      <h1 class="entry-title"><a href="/scraping/simple-php-scraping-with-jquery-like-selectors-using-simpledom.html">Simple PHP Scraping With jQuery Like Selectors Using Simple HTML Dom</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>If you are looking to increase your knowledge in a variety of fields and are open to online training then you could be interested in this site:</p>
+  <div class="entry-content clearfix"><p>If you need to do some HTML parsing, scraping etc then you generally have the choice of using the DOM approach to parse the HTML or using regex to pull bits out. I quite like both approaches, there are pros and cons to both so having both options available is the best to ensure you use the right tool for the job on a case by case basis.</p>
 
-<p><a href="http://www.coursera.org/" target="_blank">www.coursera.org</a></p>
+<p>Recently though I discovered Simple HTML Dom. This makes the DOM based approach almost ridiculously easy, especially if you are comfortable with jQuery like selectors for pulling out specific DOM nodes.</p>
 
-<p>There are loads of courses on there but of particular interest to us are the computer science ones. Not had a close look at them but they do look interesting and the fact they are free is of course a bonus!</p>
+<p>You can read all about it here:
+<a href="http://simplehtmldom.sourceforge.net/manual.htm" title="Simple HTML Dom" target="_blank"><a href="http://simplehtmldom.sourceforge.net/manual.htm">http://simplehtmldom.sourceforge.net/manual.htm</a></a></p>
 
-<p><a href="https://www.coursera.org/category/cs-programming" target="_blank"><a href="https://www.coursera.org/category/cs-programming">https://www.coursera.org/category/cs-programming</a></a> is the list of free computer programming courses</p>
+<p>First impressions are really good, its very easy and the lead in time from installation to using is really fast. I like that, never been much of a fan of having to RTFM for everything!</p>
 </div>
   
   

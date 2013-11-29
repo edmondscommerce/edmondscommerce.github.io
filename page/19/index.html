@@ -26,16 +26,7 @@
 
 
   <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
-  <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-27853727-2', 'edmondscommerce.github.io');
-  ga('send', 'pageview');
-
-</script>
+  
 
 </head>
 
@@ -128,271 +119,31 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-09T16:24:34+01:00" pubdate data-updated="true">Aug 9<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-12T16:26:12+01:00" pubdate data-updated="true">Jun 12<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/linux/creating-rpms.html">Creating RPMs</a></h1>
+      <h1 class="entry-title"><a href="/netbeans/linux-mint-13-mate-fix-ugly-netbeans-or-other-java.html">Linux Mint 13 (MATE) Fix Ugly Netbeans (or Other Java)</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>One thing that I often get asked as a package maintainer is how hard is it to make rpms?</p>
+  <div class="entry-content clearfix"><p>If you are using a Java application on your nice new Linux Mint desktop and are wondering why its so damn ugly, this might be your solution.</p>
 
-<p>Well, here&rsquo;s a little secret, if you have the right tools, it&rsquo;s actually quite easy.</p>
+<p>It looks like there is an issue with Java detecting your standard system style, fonts etc so it reverts to something pretty hideous.</p>
 
-<p>The main tool I use is mezzanine &ndash; one of the people I worked with on the cAos Linux distributions wrote this toolset in perl, and it is installable even on debian-based distros.  His website is experiencing issues at the moment but it is <a href="http://beta.kainx.org/" title="http://beta.kainx.org/"><a href="http://beta.kainx.org/">http://beta.kainx.org/</a></a>.  If it&rsquo;s still down and you want the rpm, rpm.pbone.net can find you an rpm.</p>
+<p>One easy solution to at least get it looking alright (and also fixing a bug with menus and maximisation) is to set your netbeans conf to the following.</p>
 
-<p>The basics are that you need a folder that contains an &ldquo;F&rdquo; &ldquo;P&rdquo; and &ldquo;S&rdquo; directory, and yes, that is all uppercase.  The F folder contains a spec file similar to what&rsquo;s below, the S folder contains the source files and the P directory is a clever little patch making system.</p>
+<p>Simply go to your netbeans folder and look for an etc folder.</p>
 
-<p>The spec file is almost exactly the same as a normal rpmbuild spec file and looks like this :&ndash;
-<code>
-#</p>
+<p>Inside there is a file called netbeans.conf</p>
 
-<h1>spec file for safe-rm</h1>
+<p>Back that up (rename to netbeans.conf.backup) and create a new file called netbeans.conf</p>
 
-<p>#
-Summary: Don&rsquo;t rm various directorie
-Name: safe-rm
-Version: 0.8
-Release: 1
-License: GPL
-Group: Applications/Utilities
-Source: <a href="https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz">https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz</a>
-URL: <a href="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a>
-Distribution: CentOS
-Packager: Martyn Ranyard <a href="&#109;&#x61;&#x69;&#108;&#x74;&#111;&#58;&#105;&#x6e;&#102;&#x6f;&#x40;&#101;&#x64;&#x6d;&#111;&#110;&#100;&#x73;&#x63;&#111;&#x6d;&#x6d;&#101;&#114;&#99;&#101;&#x2e;&#99;&#111;&#46;&#117;&#107;">&#x69;&#110;&#x66;&#111;&#64;&#x65;&#x64;&#x6d;&#111;&#110;&#x64;&#115;&#x63;&#x6f;&#109;&#x6d;&#x65;&#x72;&#x63;&#101;&#46;&#x63;&#x6f;&#46;&#x75;&#107;</a>
-Patch1000: safe-rm-0.8-example-conf.patch
-Requires: perl</p>
+<p>Then paste this in:</p>
 
-<p>%description
-Stop people accidentally removing directories with rm -rf</p>
-
-<p>%changelog
-* Thu Aug 09 2012 Martyn Ranyard <a href="&#109;&#97;&#105;&#x6c;&#116;&#x6f;&#x3a;&#x69;&#x6e;&#102;&#x6f;&#64;&#x65;&#x64;&#109;&#111;&#x6e;&#100;&#x73;&#x63;&#x6f;&#109;&#109;&#x65;&#x72;&#99;&#101;&#46;&#x63;&#111;&#46;&#x75;&#107;">&#105;&#110;&#102;&#x6f;&#64;&#x65;&#x64;&#109;&#111;&#x6e;&#x64;&#115;&#99;&#x6f;&#x6d;&#109;&#101;&#x72;&#x63;&#x65;&#x2e;&#99;&#111;&#46;&#x75;&#107;</a>
-&ndash; Used the debian example config for the default config</p>
-
-<p>%prep
-rm -rf $RPM_BUILD_ROOT/safe-rm-0.8
-zcat $RPM_SOURCE_DIR/safe-rm-0.8.tar.gz | tar -xvf &ndash;
-cd safe-rm-0.8
-%patch1000 -p1</p>
-
-<p>%build</p>
-
-<p>%install
-mkdir -p $RPM_BUILD_ROOT/usr/bin/
-mkdir -p $RPM_BUILD_ROOT/etc/
-mkdir -p $RPM_BUILD_ROOT/sbin/
-install -m 0755 safe-rm-0.8/safe-rm $RPM_BUILD_ROOT/usr/bin/safe-rm
-install -m 0644 safe-rm-0.8/safe-rm.conf $RPM_BUILD_ROOT/etc/safe-rm.conf
-cd $RPM_BUILD_ROOT/usr/bin/
-ln -s safe-rm rm
-cd &ndash;
-cd $RPM_BUILD_ROOT/sbin/
-ln -s /usr/bin/safe-rm rm
-cd &ndash;</p>
-
-<p>%files
-/etc
-/etc/safe-rm.conf
-/usr
-/usr/bin
-/usr/bin/safe-rm
-/sbin
-/sbin/rm
-</code></p>
-
-<p>You&rsquo;ll notice the patch1000 lines reference a patch file, which mezzanine handily creates for you, first you run mzprep, which creates a work dir, then you add/edit files in there to make whatever you&rsquo;re packaging build and install (to $RPM_BUILD_DIR) and then you run &ldquo;mzpatch mypatchname.patch&rdquo; and it creates the patch ready to be deployed.</p>
-
-<p>To create the rpms, change back to the top level directory (the one containing F P &amp; S) and type mzbuild.</p>
-
-<p>It takes a bit of getting used to and a fair bit of fiddling but the end result is good solid rpms.</p>
-
-<p>Note: it can also make deb files and slackware package files but KainX is the guy to talk to on that front.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-09T15:59:14+01:00" pubdate data-updated="true">Aug 9<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/safe-rm-saves-you-from-rm-rf.html">Safe-rm - Saves You From Rm -rf /*</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Okay, so it&rsquo;s a sysadmin&rsquo;s nightmare that you might when tired miss out a dot from an rm -rf ./* and whilst you shouldn&rsquo;t run as root, there are times when permissions problems push you into it.</p>
-
-<p>This little gem allows you to blacklist folders from rm (such as /etc /bin and other system directories, along with any custom ones you might want to protect).</p>
-
-<p>It&rsquo;s in debian/ubuntu repositories so apt-get install safe-rm is quite useful, but it seems to be nowhere to be found for CentOS/RHEL, so we packaged it up (one of our employees used to be a package maintainer for a linux distro) for CentOS servers.</p>
-
-<p>The original url for safe-rm is <a href="http://www.safe-rm.org.nz/" title="http://www.safe-rm.org.nz/"><a href="http://www.safe-rm.org.nz/">http://www.safe-rm.org.nz/</a></a> and our rpm is available <a href="http://www.edmondscommerce.co.uk/stuff/safe-rm-0.8-1.x86_64.rpm" title="here">here</a> &ndash; Feel free to mirror this elsewhere.</p>
-
-<p>Next up: <a href="http://www.edmondscommerce.co.uk/linux/creating-rpms/" title="how we created the rpm">how we created the rpm</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-08T16:36:29+01:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento.html">Magento E-Commerce</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h3>Magento Summary</h3>
-
-
-<p>Magento is a very feature rich and flexible platform that is ideal for businesses ranging from SME right up to Enterprise level. Magento comes in two main versions. The first and vastly most commonly used is the free open source Community Edition. This is the version we recommend for the vast majority of our clients as the features are all there and the price is free. You will not have any ongoing direct costs using this version.</p>
-
-<h3>Headline Magento Features</h3>
-
-
-<p>The big draw for Magento for most people is the huge list of features that come with it out of the box. You can see the full feature list <a href="http://www.magentocommerce.com/images/uploads/magento-feature-list.pdf" title="Magento Features" target="_blank">here</a> however here are some of the main ones we think you should be aware of.</p>
-
-<h4>Discounts, Promotions, Price Rules</h4>
-
-
-<p>If you have ever had the misfortune to have to manage a time limited special offer on a wide range of products in a standard ecommerce package you will know there can be a lot of manual work involved and the potential for human error can be quite large.</p>
-
-<p>Magento solves this problem with something called Shopping Cart Price Rules. These are logical rules that can apply a discount to a large number of products in one move. For example if you wanted to apply a 10% discount for 10 days to all products that are over £100 and are manufactured by Sony you can create a single rule to do this and it will handle the whole thing for you.</p>
-
-<p>The logical element of the rules system is really quite powerful and allows you to build a set of conditions as complex as your requirements demand. The rule can have a time limit applied. Furthermore you can use customer groupings to only offer the promotion to certain customers which opens up all kinds of possiblities.</p>
-
-<p>If you want to do a promotion based on buying certain quantities or combinations of products, perhaps with free shipping and maybe requiring a voucher code, then you would use Shopping Cart Price Rules. These apply discounts to the shopping cart when the customer adds the requisite quantity and combination of items. One classic example of this is the buy one get one free type deal. You can also offer free shipping if the order value is over a set amount for example.</p>
-
-<p>With these two systems combined you can handle almost any promotional idea that you can think of.</p>
-
-<h4>Multi Store</h4>
-
-
-<p>Magento has been built from the ground up to handle multiple store fronts. This is a core architectural concept and that means that in practice it works very well and is incredibly powerful. Other carts some times have multi store functionality bolted on as an extension or other after thought and this invariably leads to a less well implemented finished product.</p>
-
-<p>Multi store means that a single Magento installation and administration area can operate multiple separate websites or stores. These could range from localised versions of the same site to completely different websites selling completely separate products and looking to a visitor like completely separate entities. This opens up all kinds of possibilities though the most common use cases are for localisation for internationally trading organisations and for operating many niche sites via a single admin.</p>
-
-<p>If you have read anything about SEO then you have no doubt heard of the long tail. In a nutshell the long tail refers to the very large number of search queries that individually represent very small numbers of hits compared to more common terms but viewed as a whole the long tail adds up to a lot of traffic. If you want to target the long tail then you need to create many niche focussed sites that individually are likely to do a low turnover however by operating many of these you can build up large total turnover. Furthermore these small niche sites are often more profitable and generally easier to get ranking well for their specific target phrases.</p>
-
-<h3>Magento Editions</h3>
-
-
-<p>Magento comes in two main versions. The first and vastly most commonly used is the free open source Community Edition. This is the version we recommend for the vast majority of our clients as the features are all there and the price is free. You will not have any ongoing direct costs using this version.</p>
-
-<p>The Enterprise edition is a much more expensive proposition however for high turnover businesses that need the reassurance of a commercial relationship with the platform creators along with support and a few more enterprise focussed features then it is definitely a good option.</p>
-
-<p>For the very large enterprise there is the Magento Enterprise Premium Edition. This is much more expensive again however it features a very high level of support, additional licences for the platform allowing you to set up server clusters and also some training. The premium edition is</p>
-
-<h3>History of Magento</h3>
-
-
-<p>Magento version one was launched on the 31st of March 2008. You can read their celebratory blog post <a href="http://www.magentocommerce.com/blog/comments/magento-10/" target="_blank">here</a>.  At the time of launch the open source e-commerce landscape was ripe for a new injection of energy and innovation. The only real open source solution for e-commerce had been the wildly successful platform osCommerce. From the seeds of osCommerce sprang a few &ldquo;loaded&rdquo; versions that took the stock osCommerce platform and built in as standard a range of community developed extensions. The end result though was starting to look fragmented with a wide range of style and quality in terms of the features.</p>
-
-<p>Magento was built by a company called Varien (now changed its name to Magento) and the CEO is called Roy Rubin. Before launching Magento they were an e-commerce focused web development agency very much like Edmonds Commerce. Their platform of choice was osCommerce and they gained a lot of experience working on modifying osCommerce to meet the requirements of their clients.</p>
-
-<p>Eventually they realised that the time was right to leave osCommerce behind and build something from the ground up that utilised more modern and professional architecture and techniques such as an MVC code structure and a (perhaps controversial) EAV database structure.</p>
-
-<p>There is actually a rumour that Magento was originally intended to be another of the many forks of osCommerce however Roy debunked this in his <a href="http://www.sitepoint.com/podcast-29-roy-rubin-magento/" target="_blank">interview with SitePoint</a> in September 2009 where he clearly states:</p>
-
-<blockquote>&#8220;we never really thought to use the OScommerce code base. I think when we started to really put together the vision for the project, we knew that the architecture was just going to be completely different. There is just no way that we could have worked with what OScommerce offered, and still offers, today. So really from the get go, we knew that we were going to have to put together something different.&#8221;</blockquote>
-
-
-<p>Magento launched with a feature set that completely blew away anything else that was out there. For me the most exciting features were the multi store functionality. I had previously built multi store implementations of osCommerce and it was not easy to say the least. The Magento implementation of this idea was so much cleaner due  to the fact that it had been built in as a concept from the ground up so it all worked nicely and intuitively.</p>
-
-<p>You can see the full list of feature&rsquo;s that Magento version 1 launched with on this <a href="http://www.magentocommerce.com/doc/features.pdf">PDF</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-08T13:43:30+01:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-realpath-for-none-existant-paths.html">PHP Realpath for None Existant Paths</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you want the functionality of realpath, to take a path containing relative elements such as /../ then this little function is exactly what you are looking for.</p>
-
-<p>PHP&rsquo;s built in realpath function will return false if the file or folder does not exist. Unfortunately when using complex paths then this can make debugging things a little complicated.</p>
-
-<p>To resolve this simply use this function:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -406,31 +157,56 @@ cd &ndash;</p>
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">normalizePath</span><span class="p">(</span><span class="nv">$path</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$path</span><span class="p">),</span> <span class="nb">create_function</span><span class="p">(</span><span class="s1">&#39;$a, $b&#39;</span><span class="p">,</span> <span class="s1">&#39;</span>
-</span><span class='line'><span class="s1">         if($a === 0)</span>
-</span><span class='line'><span class="s1">             $a = &amp;quot;/&amp;quot;;</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
 </span><span class='line'>
-</span><span class='line'><span class="s1">         if($b === &amp;quot;&amp;quot; || $b === &amp;quot;.&amp;quot;)</span>
-</span><span class='line'><span class="s1">             return $a;</span>
+</span><span class='line'># ${HOME} will be replaced by JVM user.home system property
+</span><span class='line'>netbeans_default_userdir="${HOME}/.netbeans/7.1.2"
 </span><span class='line'>
-</span><span class='line'><span class="s1">         if($b === &amp;quot;..&amp;quot;)</span>
-</span><span class='line'><span class="s1">             return dirname($a);</span>
+</span><span class='line'># Options used by NetBeans launcher by default, can be overridden by explicit
+</span><span class='line'># command line switches:
+</span><span class='line'>netbeans_default_options="-J-client -J-Xss2m -J-Xms32m -J-XX:PermSize=32m -J-Dapple.laf.useScreenMenuBar=true -J-Dapple.awt.graphics.UseQuartz=true -J-Dsun.java2d.noddraw=true -J-Dsun.zip.disableMemoryMapping=true"
 </span><span class='line'>
-</span><span class='line'><span class="s1">         return preg_replace(&amp;quot;/\/+/&amp;quot;, &amp;quot;/&amp;quot;, &amp;quot;$a/$b&amp;quot;);</span>
-</span><span class='line'><span class="s1">     &#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For example:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nb">dirname</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;/../../../folder/&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nx">normalizePath</span><span class="p">(</span><span class="nv">$path</span><span class="p">);</span>
-</span><span class='line'><span class="k">echo</span> <span class="nv">$path</span><span class="p">;</span> <span class="c1">// /var/www/vhosts/domain.com/folder</span>
+</span><span class='line'>#trying to fix teh UGLY
+</span><span class='line'>netbeans_default_options="${netbeans_default_options} --laf Nimbus -J-Dswing.aatext=true -J-Dawt.useSystemAAFontSettings=lcd"
+</span><span class='line'>
+</span><span class='line'># Note that default -Xmx and -XX:MaxPermSize are selected for you automatically.
+</span><span class='line'># You can find these values in var/log/messages.log file in your userdir.
+</span><span class='line'># The automatically selected value can be overridden by specifying -J-Xmx or
+</span><span class='line'># -J-XX:MaxPermSize= here or on the command line.
+</span><span class='line'>
+</span><span class='line'># If you specify the heap size (-Xmx) explicitly, you may also want to enable
+</span><span class='line'># Concurrent Mark & Sweep garbage collector. In such case add the following
+</span><span class='line'># options to the netbeans_default_options:
+</span><span class='line'># -J-XX:+UseConcMarkSweepGC -J-XX:+CMSClassUnloadingEnabled -J-XX:+CMSPermGenSweepingEnabled
+</span><span class='line'># (see http://wiki.netbeans.org/FaqGCPauses)
+</span><span class='line'>
+</span><span class='line'># Default location of JDK, can be overridden by using --jdkhome &lt;dir&gt;:
+</span><span class='line'>netbeans_jdkhome="/opt/java/64/jre1.7.0_04"
+</span><span class='line'>
+</span><span class='line'># Additional module clusters, using ${path.separator} (';' on Windows or ':' on Unix):
+</span><span class='line'>#netbeans_extraclusters="/absolute/path/to/cluster1:/absolute/path/to/cluster2"
+</span><span class='line'>
+</span><span class='line'># If you have some problems with detect of proxy settings, you may want to enable
+</span><span class='line'># detect the proxy settings provided by JDK5 or higher.
+</span><span class='line'># In such case add -J-Djava.net.useSystemProxies=true to the netbeans_default_options.
 </span></code></pre></td></tr></table></div></figure>
 
 </div>
@@ -459,17 +235,71 @@ cd &ndash;</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-07T14:48:08+01:00" pubdate data-updated="true">Aug 7<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-12T11:49:42+01:00" pubdate data-updated="true">Jun 12<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/git/git-diff-colours-by-default.html">Git Diff Colours by Default</a></h1>
+      <h1 class="entry-title"><a href="/linux/linux-detect-mouse-button-numbers-easily.html">Linux Detect Mouse Button Numbers Easily</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>If you want to make git-diff use colours by default, try running this little command:</p>
+  <div class="entry-content clearfix"><p>If you need to know what number a mouse button is (for example if you are configuring compiz) in Linux then you might like this little trick.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>xev | grep button
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run the above in a terminal and it will display a white box. As you click on it, the button number will appear in your terminal.</p>
+
+<p>The pipe to grep is to filter out the large amount of noise from xev and only display the button number notifications.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-06T13:27:20+01:00" pubdate data-updated="true">Jun 6<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/javascript/jquery-plugin-not-loading-solution.html">jQuery Plugin Not Loading + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are struggling to figure out why a perfectly good jQuery plugin that works elsewhere is not loading into jQuery for a particular page, this may well be your solution.</p>
+
+<p>This behaviour will happen if something reloads jQuery elsewhere on your page, below the script tag that calls the plugin.</p>
+
+<p>If this happens, jQuery is effectively reloaded and has lost all the extensions you have made to it.</p>
+
+<p>The solution of course is to simply remove the extra jQuery loads. If that is not very easy to do, you can at least try to modify it so that it won&rsquo;t reload it if it already exists:</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -488,36 +318,41 @@ cd &ndash;</p>
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">echo</span> <span class="s1">&#39;[color]</span>
-</span><span class='line'><span class="s1"> branch = auto</span>
-</span><span class='line'><span class="s1"> diff = auto</span>
-</span><span class='line'><span class="s1"> status = auto</span>
-</span><span class='line'><span class="s1">[color &quot;branch&quot;]</span>
-</span><span class='line'><span class="s1"> current = yellow reverse</span>
-</span><span class='line'><span class="s1"> local = yellow</span>
-</span><span class='line'><span class="s1"> remote = green</span>
-</span><span class='line'><span class="s1">[color &quot;diff&quot;]</span>
-</span><span class='line'><span class="s1"> meta = yellow bold</span>
-</span><span class='line'><span class="s1"> frag = magenta bold</span>
-</span><span class='line'><span class="s1"> old = red</span>
-</span><span class='line'><span class="s1"> new = cyan</span>
-</span><span class='line'><span class="s1">[color &quot;status&quot;]</span>
-</span><span class='line'><span class="s1"> added = yellow</span>
-</span><span class='line'><span class="s1"> changed = green</span>
-</span><span class='line'><span class="s1"> untracked = cyan&#39;</span> &gt;&gt; ~/.gitconfig
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text/javascript&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">jQuery</span> <span class="o">==</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">script</span>     <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;script&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">script</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span><span class="s2">&quot;text/javascript&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">script</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="s2">&quot;jquery-latest.pack.js&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">head</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;head&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+</span><span class='line'>        <span class="nx">done</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Attach handlers for all browsers</span>
+</span><span class='line'>        <span class="nx">script</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">onreadystatechange</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">done</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="s1">&#39;loaded&#39;</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="s1">&#39;complete&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nx">done</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>                <span class="c1">// callback function provided as param</span>
+</span><span class='line'>                <span class="nx">onload_stuff</span><span class="p">();</span>
+</span><span class='line'>                <span class="nx">script</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">onreadystatechange</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">};</span>
+</span><span class='line'>        <span class="p">};</span>
+</span><span class='line'>        <span class="nx">head</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">script</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">onload_stuff</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="nx">onload_stuff</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>         <span class="c1">// your onload stuff goes here</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/script&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
-
-<p>Simply copy and paste the above to your command line and hit return.</p>
-
-<p>Then if you run:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>git diff master..BRANCH
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You will get a nice coloured display</p>
 </div>
   
   
@@ -544,67 +379,76 @@ cd &ndash;</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-01T09:50:01+01:00" pubdate data-updated="true">Aug 1<span>st</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-01T15:12:22+01:00" pubdate data-updated="true">Jun 1<span>st</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/php/var_dump-got-you-down-collapse-it-with-jquery.html">Var_dump Got You Down? Collapse It, With jQuery!</a></h1>
+      <h1 class="entry-title"><a href="/magento/enable-category-pages-to-display-subcategories.html">Enable Category Pages to Display Subcategories</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>Okay, so anyone who&rsquo;s worked with php knows that sometimes your only option is to var_dump() and die().  Usually when xdebug is having a moody day and refusing to cooperate.</p>
+  <div class="entry-content clearfix"><p>Thinking of being able to set different Magento Categories to display its sub-categories which can be controllable in the Magento admin i.e. <img src="/assets/Screenshot-New-Category-Manage-Categories-Categories-Catalog-Magento-Admin-Chromium-150x150.png">
+</p>
+You might be interested in using or viewing the zipped file here;<a href='http://www.edmondscommerce.co.uk/wp-content/uploads/2012/06/subcat.zip'>subcat</a></p>
+</div>
+  
+  
 
-<p>But even though the xdebug var_dump() is that much better than php&rsquo;s built-in version, if you dump for instance a magento object you can&rsquo;t follow back what you want up the tree of cascading objects.</p>
 
-<p>Enter: Kint.</p>
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
 
-<p>Kint is a collapsible jQuery-based var_dump that works really well, with a lot of configuration but works flawlessly out of the box.  Simply include the class file (using absolute paths is fine because you&rsquo;re not going to deploy this to a live server, right?), and start using it&rsquo;s static class methods&hellip; or their <em>really</em> short aliases :</p>
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-31T16:39:50+01:00" pubdate data-updated="true">May 31<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/display-out-of-stock-products-part-of-a-configurable-product.html">Display Out-of-stock Products Part of a Configurable Product</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>In a situation where you want Magento to display out of stock product options of a configurable products, overriding getAllowProducts() function in Mage_Catalog_Block_Product_View_Type_Configurable is where you should be looking, change</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">require_once</span> <span class="p">(</span><span class="s1">&#39;/home/myname/usefulstuff/kint/Kint.class.php&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="nx">Kint</span><span class="o">::</span><span class="na">dump</span><span class="p">(</span><span class="nv">$variable1</span><span class="p">,</span><span class="nv">$variable2</span><span class="p">);</span>
-</span><span class='line'><span class="c1">// or simply</span>
-</span><span class='line'><span class="nx">d</span><span class="p">(</span><span class="nv">$variable1</span><span class="p">,</span><span class="nv">$variable2</span><span class="p">);</span> <span class="c1">// shorthand alias of Kint::dump()</span>
-</span><span class='line'><span class="nx">dd</span><span class="p">(</span><span class="nv">$variable</span><span class="p">);</span> <span class="c1">// execution will stop after this statement; same as d($variable);die;</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$product</span><span class="o">-&gt;</span><span class="na">isSaleable</span><span class="p">())</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>         <span class="nv">$products</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$product</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Example output (wordpress may break the javascript, also available as an example at <a href="http://jsfiddle.net/NNfMW" title="http://jsfiddle.net/NNfMW"><a href="http://jsfiddle.net/NNfMW">http://jsfiddle.net/NNfMW</a></a>/) :</p>
+<p>to</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span><span class="kd">var</span> <span class="nx">d</span><span class="o">=!</span><span class="mi">1</span><span class="p">;</span><span class="k">if</span><span class="p">(</span><span class="s2">&quot;undefined&quot;</span><span class="o">===</span><span class="k">typeof</span> <span class="nx">f</span><span class="p">){</span><span class="kd">var</span> <span class="nx">g</span><span class="o">=</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="kd">var</span> <span class="nx">b</span><span class="o">=</span><span class="nb">window</span><span class="p">.</span><span class="nx">getSelection</span><span class="p">(),</span><span class="nx">c</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">createRange</span><span class="p">();</span><span class="nx">c</span><span class="p">.</span><span class="nx">selectNodeContents</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span><span class="nx">b</span><span class="p">.</span><span class="nx">removeAllRanges</span><span class="p">();</span><span class="nx">b</span><span class="p">.</span><span class="nx">addRange</span><span class="p">(</span><span class="nx">c</span><span class="p">)},</span><span class="nx">h</span><span class="o">=</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="nx">a</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">className</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/(\s|^)kint-minus(\s|$)/</span><span class="p">,</span><span class="s2">&quot; &quot;</span><span class="p">);</span><span class="k">return</span> <span class="nx">a</span><span class="p">},</span><span class="nx">i</span><span class="o">=</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="kd">var</span> <span class="nx">b</span><span class="p">;</span><span class="nx">b</span><span class="o">||</span><span class="p">(</span><span class="nx">b</span><span class="o">=</span><span class="s2">&quot;dd&quot;</span><span class="p">);</span><span class="k">do</span> <span class="nx">a</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">nextElementSibling</span><span class="p">;</span><span class="k">while</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">nodeName</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span><span class="o">!=</span><span class="nx">b</span><span class="p">);</span><span class="k">return</span> <span class="nx">a</span><span class="p">},</span><span class="nx">j</span><span class="o">=</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">){</span><span class="kd">var</span> <span class="nx">c</span><span class="o">=</span><span class="nx">i</span><span class="p">(</span><span class="nx">a</span><span class="p">),</span><span class="nx">e</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;_kint-collapse&quot;</span><span class="p">)</span><span class="mi">0</span>
-</span><span class='line'><span class="p">;</span><span class="s2">&quot;undefined&quot;</span><span class="o">==</span><span class="k">typeof</span> <span class="nx">b</span><span class="o">&amp;&amp;</span><span class="p">(</span><span class="nx">b</span><span class="o">=</span><span class="s2">&quot;block&quot;</span><span class="o">==</span><span class="nx">c</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span><span class="p">);</span><span class="nx">b</span><span class="o">?</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span><span class="nx">h</span><span class="p">(</span><span class="nx">e</span><span class="p">))</span><span class="o">:</span>
-</span><span class='line'><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span><span class="o">=</span><span class="s2">&quot;block&quot;</span><span class="p">,</span><span class="nx">h</span><span class="p">(</span><span class="nx">e</span><span class="p">).</span><span class="nx">className</span><span class="o">+=</span><span class="s2">&quot; kint-minus&quot;</span><span class="p">)},</span><span class="nx">l</span><span class="o">=</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">){</span><span class="kd">var</span> <span class="nx">c</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="nx">b</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span><span class="nx">c</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span><span class="o">=</span><span class="s2">&quot;block&quot;</span><span class="o">==</span><span class="nx">c</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span><span class="o">?</span><span class="s2">&quot;none&quot;</span><span class="o">:</span><span class="s2">&quot;block&quot;</span><span class="p">},</span><span class="nx">f</span><span class="o">=</span><span class="p">{};</span><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(){</span><span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">a</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;kint-parent&quot;</span><span class="p">),</span><span class="nx">b</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span><span class="nx">c</span><span class="p">,</span><span class="nx">e</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;kint&quot;</span><span class="p">);</span><span class="nx">b</span><span class="o">--</span><span class="p">;)</span><span class="nx">a</span><span class="p">[</span><span class="nx">b</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;mousedown&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(){</span><span class="nx">j</span><span class="p">(</span><span class="k">this</span><span class="p">)},</span><span class="nx">d</span><span class="p">);</span><span class="nx">a</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;_kint-collapse&quot;</span><span class="p">);</span><span class="k">for</span><span class="p">(</span><span class="nx">b</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">b</span><span class="o">--</span><span class="p">;)</span><span class="nx">a</span><span class="p">[</span><span class="nx">b</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;mousedown&quot;</span><span class="p">,</span>
-</span><span class='line'><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="kd">var</span> <span class="nx">b</span><span class="o">=</span><span class="k">this</span><span class="p">;</span><span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span><span class="k">if</span><span class="p">(</span><span class="mi">0</span><span class="o">&lt;</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">b</span><span class="p">.</span><span class="nx">a</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span><span class="nx">b</span><span class="p">.</span><span class="nx">a</span><span class="o">--</span><span class="p">;</span><span class="k">else</span><span class="p">{</span><span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">a</span><span class="o">=</span><span class="nx">b</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">,</span><span class="nx">c</span><span class="o">=</span><span class="nx">i</span><span class="p">(</span><span class="nx">a</span><span class="p">),</span><span class="nx">k</span><span class="o">=</span><span class="nx">c</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;kint-parent&quot;</span><span class="p">),</span><span class="nx">e</span><span class="o">=</span><span class="nx">k</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span><span class="nx">c</span><span class="o">=</span><span class="s2">&quot;block&quot;</span><span class="o">==</span><span class="nx">c</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span><span class="p">;</span><span class="nx">e</span><span class="o">--</span><span class="p">;)</span><span class="nx">j</span><span class="p">(</span><span class="nx">k</span><span class="p">[</span><span class="nx">e</span><span class="p">],</span><span class="nx">c</span><span class="p">);</span><span class="nx">j</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span><span class="nx">c</span><span class="p">)}},</span><span class="mi">300</span><span class="p">);</span><span class="nx">a</span><span class="p">.</span><span class="nx">stopPropagation</span><span class="p">()},</span><span class="nx">d</span><span class="p">),</span><span class="nx">a</span><span class="p">[</span><span class="nx">b</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;dblclick&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="k">this</span><span class="p">.</span><span class="nx">a</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span><span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">b</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;kint-parent&quot;</span><span class="p">),</span><span class="nx">c</span><span class="o">=</span><span class="nx">b</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span><span class="nx">e</span><span class="o">=</span><span class="s2">&quot;block&quot;</span><span class="o">==</span><span class="nx">i</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">).</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span><span class="p">;</span><span class="nx">c</span><span class="o">--</span><span class="p">;)</span><span class="nx">j</span><span class="p">(</span><span class="nx">b</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span>
-</span><span class='line'><span class="p">,</span><span class="nx">e</span><span class="p">);</span><span class="nx">a</span><span class="p">.</span><span class="nx">stopPropagation</span><span class="p">()},</span><span class="nx">d</span><span class="p">);</span><span class="k">for</span><span class="p">(</span><span class="nx">b</span><span class="o">=</span><span class="nx">e</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">b</span><span class="o">--</span><span class="p">;){</span><span class="nx">a</span><span class="o">=</span><span class="nx">eb</span>
-</span><span class='line'><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">);</span>
-</span><span class='line'><span class="k">for</span><span class="p">(</span><span class="nx">c</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">c</span><span class="o">--</span><span class="p">;)</span><span class="nx">a</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span>
-</span><span class='line'><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;mouseup&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(){</span><span class="nx">g</span><span class="p">(</span><span class="k">this</span><span class="p">)},</span><span class="nx">d</span><span class="p">);</span><span class="nx">a</span><span class="o">=</span><span class="nx">eb</span>
-</span><span class='line'><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;dfn&quot;</span><span class="p">);</span><span class="k">for</span><span class="p">(</span><span class="nx">c</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">c</span><span class="o">--</span><span class="p">;)</span><span class="nx">a</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span>
-</span><span class='line'><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;mouseup&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(){</span><span class="nx">g</span><span class="p">(</span><span class="k">this</span><span class="p">)},</span><span class="nx">d</span><span class="p">)}</span><span class="nx">a</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;kint-args-parent&quot;</span><span class="p">);</span><span class="k">for</span><span class="p">(</span><span class="nx">b</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">b</span><span class="o">--</span><span class="p">;)</span><span class="nx">ab</span>
-</span><span class='line'><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="nx">l</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="s2">&quot;kint-args&quot;</span><span class="p">);</span><span class="nx">a</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()},</span><span class="nx">d</span><span class="p">);</span><span class="nx">a</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;kint-source-parent&quot;</span><span class="p">);</span><span class="k">for</span><span class="p">(</span><span class="nx">b</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">b</span><span class="o">--</span><span class="p">;)</span><span class="nx">a</span><span class="p">[</span><span class="nx">b</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="nx">l</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="s2">&quot;kint-source&quot;</span><span class="p">);</span><span class="nx">a</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()},</span>
-</span><span class='line'><span class="nx">d</span><span class="p">);</span><span class="nx">a</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;kint-object-parent&quot;</span><span class="p">);</span><span class="k">for</span><span class="p">(</span><span class="nx">b</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">b</span><span class="o">--</span><span class="p">;)</span><span class="nx">a</span><span class="p">[</span><span class="nx">b</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="nx">l</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="s2">&quot;kint-object&quot;</span><span class="p">);</span><span class="nx">a</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()},</span><span class="nx">d</span><span class="p">);</span><span class="nx">a</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByClassName</span><span class="p">(</span><span class="s2">&quot;kint-ide-link&quot;</span><span class="p">);</span><span class="k">for</span><span class="p">(</span><span class="nx">c</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">c</span><span class="o">--</span><span class="p">;)</span><span class="nx">a</span><span class="p">[</span><span class="nx">c</span><span class="p">]</span>
-</span><span class='line'><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">){</span><span class="nx">a</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span><span class="nx">a</span><span class="o">=</span><span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span><span class="nx">a</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span><span class="k">this</span><span class="p">.</span><span class="nx">href</span><span class="p">);</span><span class="nx">a</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span><span class="k">return</span> <span class="nx">d</span><span class="p">},</span><span class="nx">d</span><span class="p">)},</span><span class="nx">d</span><span class="p">)}</span><span class="o">&lt;</span><span class="err">/script&gt;&lt;style&gt;.kint-trace{background:#C0D4DF;font-size:1em;font-family:Consolas,&quot;Courier New&quot;,monospace;text-align:left;color:#111;padding:.4em;overflow:hidden}.kint-trace p{margin:0;padding:.2em 0}.kint-trace a{color:#1b323b}div.kint-object,div.kint-args,div.kint-source{display:none}.kint-trace table{width:100%;display:block;margin:0 0 .4em;padding:0;border-collapse:collapse;background:#C0D4DF}.kint-trace table td{border:solid 1px #0092db;background:#C0D4DF;text-align:left;vertical-align:top;padding:2px}.kint-trace pre{margin:0;padding:.4em;background:#E3ECF0;line-height:1.2em;overflow:auto}.kint-trace pre div.kint-highlight{background:#f0eb96}.kint-trace ol{display:block;margin:0 0 0 2em;padding:0}.kint-trace ol li{margin:0;padding:0}.kint-trace td pre{overflow:hidden}.kint-trace .source span{padding-right:1px;border-right:3px inset #0092DB;color:#999}.kint{padding:0;margin:10px 0;font-family:Consolas,&quot;Courier New&quot;,monospace;font-size:11pt;white-space:nowrap;overflow:hidden}.kint::selection{background:#0092db;color:#fff}.kint::-moz-selection{background:#0092db;color:#fff}.kint::-webkit-selection{background:#0092db;color:#fff}.kint dt{border:1px solid #B6CEDB;color:#1D1E1E;display:block;font-weight:bold;list-style:none outside none;min-height:18px;padding:5px}.kint dl,.kint dd{padding:0 0 0 15px;margin:0}.kint dd{background:none !important;border:none !important;padding:0;display:none}.kint var{color:#0092db;font-style:normal}.kint dfn{font-family:monospace;font-style:normal}.kint code{cursor:cell}.kint a{color:#1b323b}.kint pre{margin:0 0 0 15px;padding:5px;overflow-y:hidden;background-color:#E3ECF0;color:#1D1E1E;border:1px solid #B6CEDB}.kint dd dt:nth-of-type(even){background:#C0D4DF}.kint dd dt:nth-of-type(odd){background:#E3ECF0}.kint&gt;dl&gt;dt{background:#e3ecf0;background:-moz-linear-gradient(top,#e3ecf0 0,#c0d4df 100%);background:-webkit-gradient(linear,left top,left bottom,color-stop(0,#e3ecf0),color-stop(100%,#c0d4df));background:-webkit-linear-gradient(top,#e3ecf0 0,#c0d4df 100%);background:-o-linear-gradient(top,#e3ecf0 0,#c0d4df 100%);background:-ms-linear-gradient(top,#e3ecf0 0,#c0d4df 100%);background:linear-gradient(top,#e3ecf0 0,#c0d4df 100%);filter:progid:DXImageTransform.Microsoft.gradient( startColorstr=&#39;#e3ecf0&#39;,endColorstr=&#39;#c0d4df&#39;,GradientType=0 )}.kint&gt;dl+dl{margin-top:5px}.kint&gt;dl dl dl{border-left:1px dashed #E3ECF0}.kint dt:hover{border:1px solid #0092db}.kint dt:hover var{color:#5CB730}.kint dt:hover .kint-plus{background-position:0 -15px}.kint dt:hover .kint-minus{background-position:0 -45px}.kint-plus{background:url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAA8CAMAAACO5hB7AAAACVBMVEX///82b4tctzBls0NMAAAAQklEQVR42rWRIQ4AAAgCwf8/2qgER2BeuwJsgAqIzekMfMryPL9XQSkobE6vwKcsz/N7FfPvh09lnPf/b+7673+f0uHuAZ/EdkNQAAAAAElFTkSuQmCC&quot;) no-repeat scroll 0 0 transparent;display:inline-block;height:15px;margin:0;padding:0 3px 0 0;vertical-align:middle;width:15px}.kint-minus{background-position:0 -30px}.kint-parent{cursor:pointer}.kint&gt;span{padding:3px 3px 3px 15px;font-size:.7em}.kint span{color:#000}&lt;/style&gt;&lt;div class=&quot;kint&quot; style=&quot;box-shadow: 6px 0 3px -3px #e3ecf0 inset&quot;&gt;&lt;dl&gt;&lt;dt class=&quot;kint-parent&quot;&gt;&lt;div class=&quot;kint-plus _kint-collapse&quot;&gt;&lt;/div&gt;&lt;dfn&gt;$mydeeparray&lt;/dfn&gt; &lt;var&gt;array&lt;/var&gt; &lt;span&gt;(1)&lt;/span&gt;&lt;dd&gt;&lt;dl&gt;&lt;dt class=&quot;kint-parent&quot;&gt;&lt;div class=&quot;kint-plus _kint-collapse&quot;&gt;&lt;/div&gt;&#39;&lt;dfn&gt;Level1&lt;/dfn&gt;&#39; =&gt; &lt;var&gt;array&lt;/var&gt; &lt;span&gt;(1)&lt;/span&gt;&lt;dd&gt;&lt;dl&gt;&lt;dt class=&quot;kint-parent&quot;&gt;&lt;div class=&quot;kint-plus _kint-collapse&quot;&gt;&lt;/div&gt;&#39;&lt;dfn&gt;Level2&lt;/dfn&gt;&#39; =&gt; &lt;var&gt;array&lt;/var&gt; &lt;span&gt;(1)&lt;/span&gt;&lt;dd&gt;&lt;dl&gt;&lt;dt&gt; &lt;var&gt;string&lt;/var&gt;(8) &quot;Level 42&quot;&lt;/dl&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;span&gt;Called from &lt;u&gt;/home/someone/Examples/scratchpad/scratch.php&lt;/u&gt; line &lt;i&gt;15&lt;/i&gt;&lt;/span&gt;&lt;/div&gt;</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$products</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$product</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p>Bingo!!!</p>
 </div>
   
   
@@ -631,22 +475,24 @@ cd &ndash;</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-30T09:39:07+01:00" pubdate data-updated="true">Jul 30<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-30T10:49:15+01:00" pubdate data-updated="true">May 30<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/magento/magento-admin-menu-not-working-after-upgrade.html">Magento Admin Menu Not Working After Upgrade</a></h1>
+      <h1 class="entry-title"><a href="/php/phpmyadmin-increase-tables-displayed-in-left-column.html">phpMyAdmin Increase Tables Displayed in Left Column</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>Wondering why your Magento admin menu is not showing up after upgrading your live Magento store?</p>
+  <div class="entry-content clearfix"><p>If you are using the latest version of phpMyAdmin you have no doubt spotted the nice javascript table select system that allows you to type keywords that filter the list of tables down to the one you are looking for.</p>
 
-<p>If all attempts to get to a particular admin page with the exception of the dashboard proved abortive, this could be because there is a conflict between the Magento function that merges all Javascript files and the Apache URL rewrite.  This could be fixed by turning off this Magento function, and your can run the script below to do this.</p>
+<p>However if you are dealing with a system that has a lot of tables, the list is paged and unfortunately this javascript system does not filter the entire table list, just the current page.</p>
+
+<p>The solution is to add one line to your config.inc.php in the phpMyAdmin root.</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">UPDATE</span>  <span class="o">`</span><span class="p">[</span><span class="n">your_magento_database_name</span><span class="p">]</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">core_config_data</span><span class="o">`</span> <span class="k">SET</span>  <span class="o">`</span><span class="n">value</span><span class="o">`</span> <span class="o">=</span>  <span class="s1">&#39;0&#39;</span> <span class="k">WHERE</span>  <span class="o">`</span><span class="n">core_config_data</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">path</span><span class="o">`</span> <span class="o">=`</span><span class="n">dev</span><span class="o">/</span><span class="n">js</span><span class="o">/</span><span class="n">merge_files</span><span class="o">`</span><span class="p">;</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$cfg</span><span class="p">[</span><span class="s1">&#39;MaxTableList&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 </div>
@@ -675,17 +521,23 @@ cd &ndash;</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-26T16:47:24+01:00" pubdate data-updated="true">Jul 26<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-24T15:00:27+01:00" pubdate data-updated="true">May 24<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/web-design-brief.html">Web Design Brief</a></h1>
+      <h1 class="entry-title"><a href="/linux/tip-should-have-run-that-in-screen-now-you-can.html">Tip: Should Have Run That in Screen? Now You Can!</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix">
+  <div class="entry-content clearfix"><p>Ever started a long process running that you thought wouldn&rsquo;t take long and then thought &ldquo;I should have run that in screen&rdquo;?</p>
+
+<p>Well, thanks to an ingenious programmer, you can actually do that!</p>
+
+<p>The app is called reptyr, is at <a href="https://github.com/nelhage/reptyr"><a href="https://github.com/nelhage/reptyr">https://github.com/nelhage/reptyr</a></a> and there&rsquo;s a ubuntu ppa <a href="https://launchpad.net/~broder/+archive/reptyr">here</a> Note: I compiled from scratch as the ppa didn&rsquo;t seem to work for me.</p>
+
+<p>So, all you need to do is open a terminal (press Ctrl-Z to stop the task if you only have one and don&rsquo;t want to open a new one), run screen (or tmux etc) and type &ldquo;reptyr 1234&rdquo; where 1234 is the process id (pid) of the program to pull to your current terminal.  To get the pid, &ldquo;ps waux&rdquo; usually gives all the info you need to identify it.</p>
 </div>
   
   
@@ -712,17 +564,18 @@ cd &ndash;</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-26T16:47:24+01:00" pubdate data-updated="true">Jul 26<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-23T12:04:48+01:00" pubdate data-updated="true">May 23<span>rd</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/current-search.html">Current Search</a></h1>
+      <h1 class="entry-title"><a href="/magento/sales-reporting-zero-for-second-store-in-magento.html">Sales Reporting Zero for Second Store in Magento</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix">
+  <div class="entry-content clearfix"><p><img src="/assets/base_rate.png">
+If you are running multi site Magento with different currencies and are finding that the sales reports on the stores that don&rsquo;t use the Magento default currency all show zero this probably means the currency conversion rates have not been configured. Due to the way Magento orders work existing orders will not have there conversion rate updated. There is no way to do this from the admin, the only real option is to update the orders directly in the database.</p>
 </div>
   
   
@@ -749,34 +602,72 @@ cd &ndash;</p>
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-26T15:42:00+01:00" pubdate data-updated="true">Jul 26<span>th</span>, 2012</time>
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-14T11:34:13+01:00" pubdate data-updated="true">May 14<span>th</span>, 2012</time>
         
       </p>
     
     
-      <h1 class="entry-title"><a href="/wordpress/wordpress-installupdate-plugins-etc-locally-via-admin.html">Wordpress Install/Update Plugins Etc Locally via Admin</a></h1>
+      <h1 class="entry-title"><a href="/netbeans/netbeans-uppercase-lowercase-and-switch-case-useful-key-combo.html">Netbeans Uppercase, Lowercase and Switch Case - Useful Key Combo</a></h1>
     
   </header>
 
 
-  <div class="entry-content clearfix"><p>If you like the admin functionality to manage plugins, themes and other updates that wordpress features and would like to have this working when you are developing locally then you might find that you need to set up an FTP server locally just for this purpose.</p>
+  <div class="entry-content clearfix"><p>So, this is documented in the manual, but isn&rsquo;t obvious in any menu :&ndash;</p>
 
-<p>Perhaps a better solution, especially if you use a *nix based desktop such as Linux is to try this extension:</p>
+<p>To uppercase a selection, press Control+U then U.
+To lowercase a selection, press Control+U then L.
+and to reverse case in the selection (for when you have typed a whole line of code without checking your caps lock!), press Control+U then S.</p>
 
-<p><a href="http://wordpress.org/extend/plugins/ssh-sftp-updater-support/"><a href="http://wordpress.org/extend/plugins/ssh-sftp-updater-support/">http://wordpress.org/extend/plugins/ssh-sftp-updater-support/</a></a></p>
-
-<p>This will extend the FTP functionality to also use SFTP or SSH for the updates. If you are already running an SSH server on your desktop then there is very little left to do. If you are not then a quick</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo apt-get install openssh-server
-</span></code></pre></td></tr></table></div></figure>
+<p>Really useful but not well known.</p>
+</div>
+  
+  
 
 
-<p>And you are ready to go.</p>
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
 
-<p>From this point you can then use the admin functionality to manage plugins etc which is a nice slick way of doing things.</p>
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-04T09:04:03+01:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-inline-translate-not-working-solution.html">Magento Inline Translate Not Working + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are puzzled as to why inline translate in Magento is not saving a particular translation, this could be your issue.</p>
+
+<p>Inline translate uses the table core_translation to store the translations.</p>
+
+<p>The fields that store the data are set to VARCHAR(255) fields.</p>
+
+<p>If your source string is longer than 255 characters, it will fail silently to save the translation.</p>
+
+<p>The simplest solution is to shorten the source string and stick to using inline translate on strings that are shorter than 255 characters.</p>
+
+<p>You could alternatively modify the table but we prefer not to do that kind of thing unless we really have to.</p>
+
+<p>Another workaround for text sections that need to be long is to simply use a static block instead.</p>
 </div>
   
   
