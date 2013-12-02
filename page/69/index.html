@@ -128,6 +128,76 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-02-11T15:22:34+00:00" pubdate data-updated="true">Feb 11<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/web%20development/php/ecommerce/mysql-desc-table.html">MySQL Desc Table</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are feeling lazy, or would like to build in some future proofness into your system, you can use the MySQL Desc query to get table column information and then use this information to create dynamic SQL insertion strings.</p>
+
+<p>For example:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$cols_query</span> <span class="o">=</span> <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;desc table&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="k">while</span><span class="p">(</span><span class="nv">$cq</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$cols_query</span><span class="p">)){</span>
+</span><span class='line'>  <span class="nv">$cols</span><span class="p">[]</span><span class="o">=</span><span class="nv">$cq</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$cols</span> <span class="k">as</span> <span class="nv">$c</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="nv">$c</span><span class="p">[</span><span class="s1">&#39;Field&#39;</span><span class="p">]])){</span>
+</span><span class='line'>      <span class="nv">$sets</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$c</span><span class="p">[</span><span class="s1">&#39;Field&#39;</span><span class="p">]</span> <span class="o">.</span> <span class="s2">&quot; = &#39;&quot;</span> <span class="o">.</span> <span class="nb">mysql_real_escape_string</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="nv">$c</span><span class="p">[</span><span class="s1">&#39;Field&#39;</span><span class="p">]])</span> <span class="o">.</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nb">mysql_query</span><span class="p">(</span><span class="s2">&quot;insert into table set &quot;</span> <span class="o">.</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="nv">$sets</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-02-10T13:58:27+00:00" pubdate data-updated="true">Feb 10<span>th</span>, 2009</time>
         
       </p>
@@ -707,59 +777,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-01-29T12:37:49+00:00" pubdate data-updated="true">Jan 29<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-execution-after-client-disconnection.html">PHP Execution After Client Disconnection</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>After a bunch of digging around and some help from the nice people on the #php channel on freenode IRC, I have cleared up the issue regarding PHP script execution and client connection.</p>
-
-<p>If a client disconnects (closes the browser window / tab) and PHP subsequently tries to send information to the client but fails, the script stops executing.</p>
-
-<p>Echoing does not necessarily mean sending information as PHP uses an output buffer. If you use the flush() function though you can force the buffer to be flushed to the client.</p>
-
-<p>If you want to be sure a script will continue to execute when a client has disconnected, you can use the ignore_user_abort() function which will do exactly that.</p>
-
-<p>Problem Solved :&ndash;)</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -783,6 +800,8 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
+    
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
     
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
@@ -790,8 +809,6 @@ You should probably look up more recent blog posts related to the subject you ar
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
-    
-    <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
     
   </div>
 </section>

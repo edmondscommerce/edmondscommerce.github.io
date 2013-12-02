@@ -128,6 +128,124 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-31T14:04:27+00:00" pubdate data-updated="true">Jan 31<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/start-windows-on-a-specified-workspace.html">Start Windows on a Specified Workspace</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I rely on multiple desktops in order to keep my workflow organised. However each time I start up my computer I have to move these windows onto the correct desktop, which is a pain. Thankfully there is a way to place each window onto it&rsquo;s own desktop when your computer starts. This will explain the basics of doing this.</p>
+
+<p>First you need to install a tool called wmcrtl. On ubuntu you can do this by running this command</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install wmctrl</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once this is installed you need to see how it thinks you desktop is set up. You can do this by running this command</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wmctrl -d</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which give me the following result</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>0  * DG: 13440x1050  VP: 0,0  WA: 0,24 3360x1002  Workspace 1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The important part is the 13440x1050 &ndash; which corresponds to 8 1680x1050 desktops. Some versions of ubuntu put each desktop as a separate workspace, if so you&rsquo;ll need to modify the instructions slightly.</p>
+
+<p>At this point you can move you windows around so they are where you want them to be. Once you are happy with your layout, run the following command</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wmctrl -lG</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which will give you something similar to this</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>0x0340002e  0 3360 48   1680 1002 ross-desktop Add New Post ‹ Edmonds Commerce — WordPress - Chromium
+</span><span class='line'>0x02a00077  0 23002 106  253  970  ross-desktop Buddy List
+</span><span class='line'>0x02200004  0 0    58   1680 1021 ross-desktop Terminal
+</span><span class='line'>0x06400003  0 6720 58   1680 1021 ross-desktop *untitled - Geany
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This can be broken down as follows</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>window-id desktop-number  x-ofset y-ofset width   height  machine-name    window-title
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using this information you can put together a script that will run at startup to launch you windows.</p>
+
+<p><strong>NB This script relies on the window title to move a window. This works because the script will be run at startup and it is assumed that you will only have one instance of each program running. If you plan to have multiple windows open, then you will need to get the window-id, go through the man pages for ways of doing this.</strong></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>#!/bin/bash
+</span><span class='line'>geany /tmp/scratch.sql /tmp/scratch.php &
+</span><span class='line'>x-terminal-emulator &
+</span><span class='line'># allow the windows to spawn before moving them
+</span><span class='line'>sleep 5
+</span><span class='line'># select and move the windows
+</span><span class='line'># format wmctrl -r "window to move" -e gravity,x-pos,y-pos,width,height (-1 keeps the current value)
+</span><span class='line'>wmctrl -r "scratch.php - /tmp - Geany" -e 0,6720,0,-1,-1
+</span><span class='line'>wmctrl -r "Terminal" -e 0,3360,0,-1,-1
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>save the file and make it executable, and then run it at startup to have your windows automatically appear where you want them. This is just scratching the surface of what wmctrl can do, so if you want to carry out more windows management from the command line go through the man pages and see if it can do what you want.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-30T17:25:16+00:00" pubdate data-updated="true">Jan 30<span>th</span>, 2012</time>
         
       </p>
@@ -742,64 +860,6 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-18T18:53:29+00:00" pubdate data-updated="true">Jan 18<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/php-5-2-9-and-below-bug-with-magento-magic-methods.html">PHP 5.2.9 and Below Bug With Magento Magic Methods</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Just found out this bug that occurs when you try to call an overridden Magento magic methods within the override method. I created a custom attribute for a product with code &ldquo;price_grid_csv&rdquo;  and I needed to still call the actual Magento magic method; see the below code</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getPriceGridCsv</span><span class="p">(){</span>
-</span><span class='line'><span class="nv">$price_csv</span><span class="o">=</span><span class="k">parent</span><span class="o">::</span><span class="na">getPriceGridCsv</span><span class="p">();</span>
-</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="nx">condition</span><span class="p">)</span>
-</span><span class='line'><span class="nv">$price_csv</span><span class="o">=&lt;</span><span class="nx">further</span> <span class="nx">processing</span> <span class="nx">of</span> <span class="nv">$price_csv</span><span class="o">&gt;</span>
-</span><span class='line'><span class="k">return</span> <span class="nv">$price_csv</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>By default parent::getPriceGridCsv() should return the value of the current object with attribute code price_grid_csv, but it does not because it breaks the camel case structure of the method name by changing getPriceGridCsv to getpricegridcsv which breaks magento from returning the current object attribute with this code.</p>
-
-<p>The way I got around this was by simply calling $this->getData(&lsquo;price_grid_csv&rsquo;) or by running Magento on PHP versions higher than 5.2.9, but I would recommend the first solution in order to make your code PHP version independent.</p>
-
-<p>Also note that  LAMP 1.7.1 is packaged with PHP 5.2.9</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -823,6 +883,8 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
+    
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
     
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
@@ -830,8 +892,6 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
-    
-    <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
     
   </div>
 </section>

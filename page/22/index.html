@@ -128,6 +128,70 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-03T16:26:59+00:00" pubdate data-updated="true">Mar 3<span>rd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-flush-everything-cache-index-images-js-css-in-one-go.html">Magento Flush Everything Cache, Index, Images, JS, CSS in One Go</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are developing a Magento store and you would like a method you can call to completely clear everything out that might be cached or indexed etc then you will like this little snippet:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">flushEverything</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getCacheInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">flush</span><span class="p">();</span>
+</span><span class='line'>        <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;core/design_package&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">cleanMergedJsCss</span><span class="p">();</span>
+</span><span class='line'>        <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product_image&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">clearCache</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$indexer</span>    <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;index/indexer&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="cm">/* @var $indexer Mage_Index_Model_Indexer */</span>
+</span><span class='line'>        <span class="k">foreach</span><span class="p">(</span><span class="nv">$indexer</span><span class="o">-&gt;</span><span class="na">getProcessesCollection</span><span class="p">()</span> <span class="k">as</span> <span class="nv">$process</span><span class="p">){</span>
+</span><span class='line'>              <span class="nv">$process</span><span class="o">-&gt;</span><span class="na">reindexEverything</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This flushes the cache storage, removes merged JS/CSS files, flushes the product image cache then loops through each index and reindexes.</p>
+
+<p>Perhaps overkill but sometimes there&rsquo;s nothing like the use of excessive force!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-02T18:30:04+00:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2012</time>
         
       </p>
@@ -722,51 +786,6 @@ createPostAction()</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-02-25T19:49:58+00:00" pubdate data-updated="true">Feb 25<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-addattributetofilter-and-addattributetoselect.html">Magento addAttributeToFilter() and addAttributeToSelect()</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>These two  Magento functions looks more like there is no obvious difference between them, but there is.</p>
-
-<p>addAttributeToFilter(&lsquo;some_attribute1&rsquo;,&lsquo;attribute_value&rsquo;) filters a Magento entity collection (e.g Products, categories) by only selecting entities that has &lsquo;some_attribute&rsquo; equal to &lsquo;attribute_value&rsquo; while</p>
-
-<p>addAttributeToSelect(&lsquo;some_attribute2&rsquo;)  tells Magento to return add &lsquo;some_attributes&rsquo; to the set of properties that would be returned for a collection of entities.</p>
-
-<p>A combination of these two functions could be  likened to <code>sql
-SELECT 'some_attribute2' FROM Table WHERE 'some_attribute1'='attribute_value'
-</code></p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -790,6 +809,8 @@ SELECT 'some_attribute2' FROM Table WHERE 'some_attribute1'='attribute_value'
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
+    
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
     
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
@@ -797,8 +818,6 @@ SELECT 'some_attribute2' FROM Table WHERE 'some_attribute1'='attribute_value'
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
-    
-    <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
     
   </div>
 </section>

@@ -128,6 +128,75 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-18T11:09:09+01:00" pubdate data-updated="true">Sep 18<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/mysql-5-1-to-5-5-migration.html">MySQL 5.1 to 5.5 Migration</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>According to pretty much every source there&rsquo;s only one sensible way to migrate from 5.0, 5.1 or 5.2 to 5.5 of mysql (or mariadb/percona for that matter), and it&rsquo;s not pretty (for a server with only two active magento installations for instance, this will take about 3 hours).</p>
+
+<p>The answer is that you have to do an sql dump and restore.  This does take an age but does at least provide the reassurance that you are going to have nice clean databases after the upgrade.</p>
+
+<p>So the commands are :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mysqldump --all-databases --routines --events &gt; fulldump.sql
+</span><span class='line'>mysqldump mysql --tables user &gt; users.sql
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then upgrade mysql binaries to 5.5 and empty the database directory &ndash; such as /var/lib/mysql and start mysql with it&rsquo;s script (e.g. /etc/init.d/mysql start).   Note, if you&rsquo;re using a distribution that doesn&rsquo;t come with start scripts, you may want to run mysql_install as root before starting mysql however you start it.</p>
+
+<p>Then the following will restore the databases and users :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mysql -u root <span class="c"># add -p if you set up a default password when upgrading/installing 5.5</span>
+</span><span class='line'><span class="se">\r</span> mysql
+</span><span class='line'><span class="nb">source </span>users.sql
+</span><span class='line'><span class="nb">source </span>fulldump.sql
+</span><span class='line'>FLUSH PRIVILEGES;
+</span><span class='line'><span class="se">\q</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-17T15:00:01+01:00" pubdate data-updated="true">Sep 17<span>th</span>, 2012</time>
         
       </p>
@@ -581,67 +650,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-05T13:48:20+01:00" pubdate data-updated="true">Sep 5<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/mate-make-keyboard-calculator-button-work-again-and-gedit-etc.html">Mate: Make Keyboard Calculator Button Work Again, and Gedit Etc.</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>One of the things that has not yet been fixed in mate is that the physical calculator button available on a lot of keyboards is mapped to &ldquo;gcalctool&rdquo; still but mate calls this &ldquo;mate-calc&rdquo;</p>
-
-<p>A quick and easy fix is to ensure you have a bin folder inside your home directory (e.g. /home/edmondscommerce/bin/ ) and run the following commands at a shell :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> ~/bin
-</span><span class='line'>ln -s <span class="sb">`</span>which mate-calc<span class="sb">`</span> gcalctool
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This means that anything that calls gcalctool will call mate-calc by default.  The bin directory has to exist at login time to be added to the path so you may have to log out and back in to enable it.</p>
-
-<p>If you have gnomey habits like pressing Alt+F2 and typing &ldquo;gedit&rdquo; you might find the following few aliases are handy too :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>ln -s <span class="sb">`</span>which caja<span class="sb">`</span> nautilus
-</span><span class='line'>ln -s <span class="sb">`</span>which pluma<span class="sb">`</span> gedit
-</span><span class='line'>ln -s  <span class="sb">`</span>which evince<span class="sb">`</span> atril
-</span><span class='line'>ln -s  <span class="sb">`</span>which eog<span class="sb">`</span> eom
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -665,6 +673,8 @@
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
+    
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
     
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
@@ -672,8 +682,6 @@
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
-    
-    <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
     
   </div>
 </section>
