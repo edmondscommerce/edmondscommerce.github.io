@@ -128,6 +128,95 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-30T17:25:16+00:00" pubdate data-updated="true">Jan 30<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/plesk/how-to-extract-files-from-plesk-backups.html">How to Extract Files From Plesk Backups</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>So you have a plesk backup file and you want to extract and open the files from it? No problem. This blog will show you how.</p>
+
+<p>The file is a mime file. The &ldquo;mpack&rdquo; package will let you unpack it.</p>
+
+<p>First we install the &ldquo;mpack&rdquo; package</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install mpack</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s imagine your file is called &ldquo;pleskDump.gz&rdquo;. If it doesn&rsquo;t have a &ldquo;.gz&rdquo; at the end it might not be bad to add it as some environments will complain if it&rsquo;s absent.</p>
+
+<p>Next we unzip the file</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gunzip pleskDump.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s un-mime the file</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir pleskDumpOutput
+</span><span class='line'>cd pleskDumpOutput
+</span><span class='line'>cat ../pleskDump | munpack</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have a bunch of regular tar files, but be careful, if we just extract them, the root folders will not be recreated. In order to keep things together, it&rsquo;s best now to look at the output you have. Let&rsquo;s take a made up example:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>example-domain.com.httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that the format is essentially domain.rootfolder or in another way, the tar files have your domain name they are archiving, then a dot, then the name of the root folder they made up. We take that root folder and create it like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir rootfolder</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s apply that idea to our previoud example; &ldquo;example-domain.com&rdquo;</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s time to untar into the folder you just created, let&rsquo;s assume you just created &ldquo;httpdocs&rdquo;</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>tar -xvf example-domain.com.httpdocs -C httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There you go! You can now output any of the folders you wanted.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-23T15:22:03+00:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2012</time>
         
       </p>
@@ -711,79 +800,6 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-17T19:43:24+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/unable-to-do-string-comparisions-on-magento-urls-solution.html">Unable to Do String Comparisions on Magento Urls [Solution]</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I have been making a mwnu system for magento that would allow a client to add extra links to CMS page to top menu through a static block. One of the requirements was when you clicked the link the menu should display as active.</p>
-
-<p>To do this I extended the Category_Navigation Block so it would get the content of the static block and then check each href against the current url. If they matched then it would add the active class to the menu structure. This worked perfectly when running locally, so I pushed it to our staging site where it broke.</p>
-
-<p>Assuming that there was a difference with the url structure on the stagin site that I hadn&rsquo;t anticipated, I echoed out the link variables and compared them, but they looked identical. Thinking there may be spacing that had snuck past trim, I var_dumped them and again they looked identical, apart for the fact that the character count was different.</p>
-
-<p>After much messing around I came to two conclusions. Firstly Magento will append a session id to urls if you&rsquo;re using multi-store, and far more importantly, this extra information is not displayed if you var_dump the variable. I finally found this by turning the string into an array and echoing each character onto a new line, like so</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$link</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getUrl</span><span class="p">();</span>
-</span><span class='line'><span class="c1">// outputs http://www.example.com/index.php</span>
-</span><span class='line'><span class="nb">var_dump</span><span class="p">(</span><span class="nv">$link</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$array</span> <span class="o">=</span> <span class="nb">preg_split</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">,</span> <span class="nv">$link</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$array</span> <span class="k">as</span> <span class="nv">$char</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="c1">// simplified replace with print($char.&quot;\n&quot;) to get each character on a new line</span>
-</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="nv">$char</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="c1">// outputs http://www.example.com/index.php?___SID=U</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To solve this replace your link with the following</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$link</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;%\?.*%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getLink</span><span class="p">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and it will work the way that you expect.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -807,6 +823,8 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
+    
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
     
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
@@ -814,8 +832,6 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
     
     <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
-    
-    <a class="list-group-item " href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a>
     
   </div>
 </section>
