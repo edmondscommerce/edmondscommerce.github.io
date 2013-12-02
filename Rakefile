@@ -116,7 +116,7 @@ task :new_post, :title do |t, args|
     post.puts "description: "
     post.puts "---"
   end
-  exec("octoeditor #{filename}")
+  exec("bash -ic 'octoeditor #{filename}'")
 end
 
 # usage rake new_page[my-new-page] or rake new_page[my-new-page.html] or rake new_page (defaults to "new-page.markdown")
@@ -156,7 +156,7 @@ task :new_page, :filename do |t, args|
   else
     puts "Syntax error: #{args.filename} contains unsupported characters"
   end  
-  exec("octoeditor #{file}")
+  exec("bash -ic 'octoeditor #{filename}'")
 end
 
 # usage rake isolate[my-post]
