@@ -128,86 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-30T14:36:08+01:00" pubdate data-updated="true">Mar 30<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/javascript/tip-javascript-late-loading-trick.html">Tip: Javascript Late-loading Trick</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Having issues with javascript dependencies or awkwardly structured html defining objects you need before run?</p>
-
-<p>This is a little trick I used combined with <a href="https://github.com/csnover/RoundRect">csnover&rsquo;s roundrect.js</a> to provide IE versions &lt; 9 with border-radius rounded corners.</p>
-
-<p>Create a separate source file e.g. mylateloader.js and in it include the following code :&ndash;</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>function myInArray(needle, haystack) {
-</span><span class='line'>    var length = haystack.length;
-</span><span class='line'>    for(var i = 0; i &lt; length; i++) {
-</span><span class='line'>        var str = jQuery(haystack[i]).attr('src');
-</span><span class='line'>        if(typeof(str) != 'undefined' && str.search('.*'+needle+'.*') &gt; -1) return str;
-</span><span class='line'>    }
-</span><span class='line'>    return false;
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>jQuery(document).ready(function(){
-</span><span class='line'>    var script = document.createElement('script');
-</span><span class='line'>    url = myInArray('mylateloader.js', document.getElementsByTagName('script'));
-</span><span class='line'>    script.src = url.replace('mylateloader.js','mycoolminifiedfile.min.js');
-</span><span class='line'>    document.getElementsByTagName('head')[0].appendChild(script);
-</span><span class='line'>    setTimeout("mycoolobject.run()",2000);
-</span><span class='line'>})
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That way, at document.ready(), mycoolminifiedfile.min.js is loaded <em>from the same directory on the server as the late loader js</em> and 2 seconds later, the mycoolobject.run() is called.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-29T16:14:21+01:00" pubdate data-updated="true">Mar 29<span>th</span>, 2012</time>
         
       </p>
@@ -669,6 +589,88 @@
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-02T18:30:04+00:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-create-category-method.html">Magento Create Category Method</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Ideal to drop into a helper, this is a simplified create category method.</p>
+
+<p>You need to specify the name, store_id and parent category id and can optionally set to active, anchor and change the display mode if you wish.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">createCategory</span><span class="p">(</span><span class="nv">$name</span><span class="p">,</span> <span class="nv">$store_id</span><span class="p">,</span> <span class="nv">$parent_id</span><span class="p">,</span> <span class="nv">$active</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">$anchor</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">$display_mode</span><span class="o">=</span><span class="s1">&#39;PRODUCTS&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$parent</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/category&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$parent_id</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nv">$parent</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">!=</span> <span class="nv">$parent_id</span><span class="p">){</span>
+</span><span class='line'>            <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;exception&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">except</span><span class="p">(</span><span class="s1">&#39;Failed to load parent category&#39;</span><span class="p">,</span> <span class="s1">&#39;Fatal&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$category</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/category&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="cm">/* @var $category Mage_Catalog_Model_Category */</span>
+</span><span class='line'>        <span class="nv">$category</span>
+</span><span class='line'>                <span class="o">-&gt;</span><span class="na">setStoreId</span><span class="p">(</span><span class="nv">$store_id</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">-&gt;</span><span class="na">setPath</span><span class="p">(</span><span class="nv">$parent</span><span class="o">-&gt;</span><span class="na">getPath</span><span class="p">())</span>
+</span><span class='line'>                <span class="o">-&gt;</span><span class="na">setName</span><span class="p">(</span><span class="nv">$name</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">-&gt;</span><span class="na">setUrlKey</span><span class="p">(</span><span class="nv">$name</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">-&gt;</span><span class="na">setIsActive</span><span class="p">(</span><span class="nv">$active</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">-&gt;</span><span class="na">setIsAnchor</span><span class="p">(</span><span class="nv">$anchor</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">-&gt;</span><span class="na">setDisplayMode</span><span class="p">(</span><span class="nv">$display_mode</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">-&gt;</span><span class="na">setAttributeSetId</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getDefaultAttributeSetId</span><span class="p">())</span>
+</span><span class='line'>        <span class="p">;</span>
+</span><span class='line'>        <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">save</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nv">$category</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -694,13 +696,13 @@
     
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
     
-    <a class="list-group-item " href="/symonfy2-phpstorm-setup.html">Symonfy2 PHPSTorm Setup</a>
-    
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
     
     <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
+    
+    <a class="list-group-item " href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a>
     
   </div>
 </section>

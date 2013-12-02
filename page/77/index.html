@@ -128,62 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-03-03T13:51:37+00:00" pubdate data-updated="true">Mar 3<span>rd</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/web%20development/programming/mysql-copy-table-from-one-database-to-another.html">MySQL Copy Table From One Database to Another</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>Sometime in MySQL you want to copy an entire table from one database to a separate database. One example of when you would want to do this is if you are making a backup of a table before you apply some kind of processing to that table. There is nothing worse than ruining a database table and losing valuable information. To make an instant backup is so easy that there really is no excuse not to make backups at important or risky stages.</p>
-
-<p>Here is how to do it:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">DROP</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">EXISTS</span> <span class="ss">`backup_db.backup_table`</span><span class="p">;</span>
-</span><span class='line'><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="ss">`backup_db.backup_table`</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="ss">`live_db.live_table`</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This will delete your existing backup table completely, then will remake it copying all structural information and content from the live_table in the live_db.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-03-03T11:30:43+00:00" pubdate data-updated="true">Mar 3<span>rd</span>, 2008</time>
         
       </p>
@@ -790,6 +734,113 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-02-18T14:34:55+00:00" pubdate data-updated="true">Feb 18<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/programming/gd/who-needs-photoshop-php-gd-images-and-your-online-store.html">Who Needs Photoshop? PHP GD Images and Your Online Store</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Many web masters will be familiar with Photoshop by Adobe. This highly featured photo editing and graphics application is incredibly powerful, but also incredibly expensive. If you find that the main thing you do with photoshop is basic product image cropping, resizing, trimming, rotating and watermarking then there is a better way!</p>
+
+<p>If your server uses PHP and has GD functionality enabled, you can use the power of the GD library to automatically do all of these things for you. Furthermore the GD library is faster than using photoshop and as the process actually runs on your server, you do not have to worry about uploading files. Your employees can directly manipulate product photos from your web store administration screens.</p>
+
+<p>Chances are the main thing you will need to do is to take one hi res source image and create one or more resized versions of it to be displayed as thumbnails or product info page images. Your Hi Res images can then be displayed as a pop up or lightbox.</p>
+
+<p>There are many PHP GD thumbnail classes etc out there and you will easily find one by searching the major search engines.</p>
+
+<p>Here are the basic concepts though:</p>
+
+<p><strong>1. Grab an image into memory from an external jpeg file</strong>
+Before we can do anything we have to get an image into the memory. This then gives us something to work with.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">//grab image into memory,  $img = full url to jpeg image</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nv">$jpeg</span> <span class="o">=</span> <span class="nx">imagecreatefromjpeg</span><span class="p">(</span><span class="nv">$img</span><span class="p">)){</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;</span>
+</span><span class='line'><span class="s1">&lt;h2 style=&quot;color: red&quot;&gt;Failed to Grab Image &#39;</span> <span class="o">.</span> <span class="nv">$img</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h2&gt;</span>
+</span><span class='line'><span class="s1">&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="k">exit</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>2. Manipulate Image however you want</strong>
+There are all kinds of things you can do with the image you have loaded using the GD library.</p>
+
+<p><strong>3. Display the Image or Save to Disk</strong>
+Once you have manipulated the image and have it looking the way you want, you can either serve it up or save it to the disk. Of course you can also do both if you prefer.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">//save image</span>
+</span><span class='line'><span class="nv">$save_path</span> <span class="o">=</span> <span class="s1">&#39;Your Save Path&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nx">imagejpeg</span><span class="p">(</span><span class="nv">$jpeg</span><span class="p">,</span><span class="nv">$save_path</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//display image</span>
+</span><span class='line'><span class="nx">header</span> <span class="p">(</span><span class="s2">&quot;Content-Type: image/jpeg&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">imagejpeg</span><span class="p">(</span><span class="nv">$jpeg</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//destroy image to free memory</span>
+</span><span class='line'><span class="nx">imagedestroy</span><span class="p">(</span><span class="nv">$jpeg</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Related Resources</strong>
+<a href="http://uk3.php.net/gd" rel="nofollow"><a href="http://uk3.php.net/gd">http://uk3.php.net/gd</a></a>
+<a href="http://www.phpclasses.org/browse/package/1365.html" rel="nofollow"><a href="http://www.phpclasses.org/browse/package/1365.html">http://www.phpclasses.org/browse/package/1365.html</a></a>
+<a href="http://www.phpit.net/article/image-manipulation-php-gd-part1/" rel="nofollow"><a href="http://www.phpit.net/article/image-manipulation-php-gd-part1/">http://www.phpit.net/article/image-manipulation-php-gd-part1/</a></a></p>
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -815,13 +866,13 @@ You should probably look up more recent blog posts related to the subject you ar
     
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
     
-    <a class="list-group-item " href="/symonfy2-phpstorm-setup.html">Symonfy2 PHPSTorm Setup</a>
-    
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
     
     <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
+    
+    <a class="list-group-item " href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a>
     
   </div>
 </section>
