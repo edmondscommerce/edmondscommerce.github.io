@@ -128,6 +128,249 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-06T10:49:46+01:00" pubdate data-updated="true">Jun 6<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/using-php-to-stream-sql-results-dynamically-as-csv-even-to-ie.html">Using PHP to Stream SQL Results Dynamically as CSV, Even to IE</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you want to offer a csv feed and want the results to be on demand and like the idea of avoiding messing about righting to files on the server etc, you might like this little manuever.</p>
+
+<p>You will notice I&rsquo;m using a non standard db_query function, just assume that this does all the sensible stuff it should.</p>
+
+<p>Also the query needs to be modified to suit.</p>
+
+<p>The trick is writing to PHP&rsquo;s built in php://output stream which is basically just STDOUT.</p>
+
+<p>Note the headers which are specifically required to get IE to accept the file as a download. Other browsers will accept less headers but will also work fine with these.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Pragma: public&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Expires: 0&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Cache-Control: private&quot;</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Content-Type: application/octet-stream&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Content-Disposition: attachment; filename=</span><span class="se">\&quot;</span><span class="s2">file.csv</span><span class="se">\&quot;</span><span class="s2">;&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Content-Transfer-Encoding: binary&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$outstream</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="s2">&quot;php://output&quot;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot; select * from a_table&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$q</span> <span class="o">=</span> <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">$sql</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$header</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="nv">$r</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$q</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$header</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">fputcsv</span><span class="p">(</span><span class="nv">$outstream</span><span class="p">,</span> <span class="nb">array_keys</span><span class="p">(</span><span class="nv">$r</span><span class="p">));</span>
+</span><span class='line'>        <span class="nv">$header</span> <span class="o">=</span> <span class="k">true</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="nb">fputcsv</span><span class="p">(</span><span class="nv">$outstream</span><span class="p">,</span> <span class="nv">$r</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nb">fclose</span><span class="p">(</span><span class="nv">$outstream</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-05-27T11:48:41+01:00" pubdate data-updated="true">May 27<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-extensions-publish-magento-extension-successfully.html">Magento Extensions - Publish Magento Extension Successfully</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you have just created your Magento extension but you are now wondering how you can successfully publish it to the community then this article is for you!!</p>
+
+<p>Magento-Connect is an official &ldquo;repository&rdquo; for all Magento extensions and a better place where developers can add custom extensions or plugins for community or commercial use.</p>
+
+<p>However, publishing or registering your extension on Magento Connect can sometimes be a pain especially if it is your first ever time to do so. Publishing your extension incorrectly can easily result to unexpected results notably upgrading someone&rsquo;s entire site</p>
+
+<p>I will definitely recommend packaging your extension on Magento 1.5.x.x as the packaging tool there seems to be well improved compared to the previous versions.</p>
+
+<p>Lets get things started:</p>
+
+<p>Login to admin and go to System &ndash;> Magento Connect &ndash;> Package Extensions</p>
+
+<p>Once there, please follow the following steps.</p>
+
+<h2>Package Info:</h2>
+
+
+<p>Here is where you will need to provide the details of your extension.
+<img src="/assets/Packaging_info-300x296.png"></p>
+
+<p><b>The supported release works like this.</b></p>
+
+<pre><code>&lt;ul&gt;
+</code></pre>
+
+<p><li>If you want your extension to only work on Magento version 1.5.x.x and above (Select 1.5.0.0 &amp; later)</li></p>
+
+<pre><code>&lt;li&gt;If you want to support previous versions as well you will need to select Pre-1.5.0.0 (Magento will automatically create the URL for version 2.0 of the Magento Connect. This will effectively make your extension available for later versions as well.)&lt;/li&gt;
+
+&lt;li&gt;Name must be the same as the name of your extension.&lt;/li&gt;
+
+&lt;li&gt;License and License URI are the same for most part, unless you want to use a different license.&lt;/li&gt;
+</code></pre>
+
+<p></ul></p>
+
+<h2>Release</h2>
+
+
+<p>Specify your extension release details. Straight forward matters.
+<img src="/assets/Screenshot-300x231.png"></p>
+
+<p><b>Release Version is the version of your extension.</b></p>
+
+<h2>Authors</h2>
+
+
+<p>Here you will need to list the author names of the extension.
+<img src="/assets/Screenshot-1-300x28.png"></p>
+
+<p><b>Note:</b> The user field, MUST be the same as the name on your Magento Account. This is NOT your screen name, it is the user name as found in My Account on your Magento account.</p>
+
+<h2>Dependencies:</h2>
+
+
+<p>Most likely you will only need to specify the PHP versions dependencies. However, if your extension depends on other extensions/packages or other libraries, here is the place for your to specify.</p>
+
+<p><img src="/assets/Dependence-300x74.png"></p>
+
+<h2>Contents</h2>
+
+
+<p>Here is the place you tell Extension packager where the extension files are. Below I specified the relative paths to the target field.
+<img src="/assets/Screenshot-2-300x36.png"></p>
+
+<p>The path field, is where you will enter the path to the directory of files relative to the Target. The relative folders to the targets are</p>
+
+<p>Magento Local module file:  is app/code/local/
+Magento Community module file:  is app/code/community/
+Magento Global Configuration:  is app/etc/
+Magento Core team module file:  is app/code/core/
+Magento User Interface (layouts, templates):  is app/design/
+Magento PHP Library file:  is lib/
+Magento Locale language file:  is app/locale/
+Magento Media library: is media/
+Magento Theme Skin (Images, CSS, JS):  is skin/
+Magento Other web accessible file:  is /
+Magento PHPUnit test: is tests/
+Magento other: is /</p>
+
+<p>You are now ready to package your extension. Press the Save Data and Create Package button at top right of the page.</p>
+
+<p>Depending on the supported release choice you have made in the first step, your extension files will be in the following location
+<b>Release 1.5.0.0 &amp; later: var/connect</p>
+
+<p>Release Pre-1.5.0.0 : var/pear</b></p>
+
+<h2>Possible Gotchas / Errors</h2>
+
+
+<p><b>Release file already exists:</b>
+If you get this error: Simply increase the version of the package, re-save the extension and upload it again.</p>
+
+<p><b>Release refered to unknown or non-existent extension </b>
+The package name in package info section MUST be the same as the name of your package.</p>
+
+<p>I hope you find this article helpfully.</p>
+
+<p>If you have any question or feedback please feel free to drop a comment with your own experience.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-05-27T10:04:15+01:00" pubdate data-updated="true">May 27<span>th</span>, 2011</time>
         
       </p>
@@ -822,174 +1065,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-04-21T14:46:14+01:00" pubdate data-updated="true">Apr 21<span>st</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-template-path-hints-in-admin-updated.html">Magento Template Path Hints in Admin - Updated</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>A while ago we posted a technique for displaying template path hints in admin which involved running a couple of DB queries. That worked, but a nicer method is to create a custom module with some special XML config to get it configurable as standard.</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>&lt;?xml version="1.0"?&gt;
-</span><span class='line'>&lt;config&gt;
-</span><span class='line'>    &lt;sections&gt;
-</span><span class='line'>        &lt;dev translate="label" module="core"&gt;
-</span><span class='line'>            &lt;groups&gt;
-</span><span class='line'>                &lt;debug translate="label"&gt;
-</span><span class='line'>                    &lt;fields&gt;
-</span><span class='line'>                        &lt;template_hints translate="label"&gt;
-</span><span class='line'>                            &lt;frontend_type&gt;select&lt;/frontend_type&gt;
-</span><span class='line'>                            &lt;source_model&gt;adminhtml/system_config_source_yesno&lt;/source_model&gt;
-</span><span class='line'>                            &lt;sort_order&gt;20&lt;/sort_order&gt;
-</span><span class='line'>                            &lt;show_in_default&gt;1&lt;/show_in_default&gt;
-</span><span class='line'>                            &lt;show_in_website&gt;1&lt;/show_in_website&gt;
-</span><span class='line'>                            &lt;show_in_store&gt;1&lt;/show_in_store&gt;
-</span><span class='line'>                        &lt;/template_hints&gt;
-</span><span class='line'>                        &lt;template_hints_blocks translate="label"&gt;
-</span><span class='line'>                            &lt;label&gt;Add Block Names to Hints&lt;/label&gt;
-</span><span class='line'>                            &lt;frontend_type&gt;select&lt;/frontend_type&gt;
-</span><span class='line'>                            &lt;source_model&gt;adminhtml/system_config_source_yesno&lt;/source_model&gt;
-</span><span class='line'>                            &lt;sort_order&gt;21&lt;/sort_order&gt;
-</span><span class='line'>                            &lt;show_in_default&gt;1&lt;/show_in_default&gt;
-</span><span class='line'>                            &lt;show_in_website&gt;1&lt;/show_in_website&gt;
-</span><span class='line'>                            &lt;show_in_store&gt;1&lt;/show_in_store&gt;
-</span><span class='line'>                        &lt;/template_hints_blocks&gt;
-</span><span class='line'>                    &lt;/fields&gt;
-</span><span class='line'>                &lt;/debug&gt;
-</span><span class='line'>            &lt;/groups&gt;
-</span><span class='line'>        &lt;/dev&gt;
-</span><span class='line'>    &lt;/sections&gt;
-</span><span class='line'>&lt;/config&gt;
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Original credits and full instructions here:
-<a href="http://www.deanoj.co.uk/web-development/magento/magento-template-path-hints-in-adminhtml/"><a href="http://www.deanoj.co.uk/web-development/magento/magento-template-path-hints-in-adminhtml/">http://www.deanoj.co.uk/web-development/magento/magento-template-path-hints-in-adminhtml/</a></a></p>
-
-<p>Cheers Deano :)</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-04-15T12:36:24+01:00" pubdate data-updated="true">Apr 15<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/android/android-developer-leeds.html">Android Developer Leeds</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>Android is a great mobile operating system, we love it. On a more professional note we believe that Android will (<a href="http://www.zdnet.com/blog/mobile-news/stats-android-growth-continues-passes-ios-in-usage/422">if not already</a>) become the winner in the smart phone OS wars, in terms of number of users anyway (lets leave the &ldquo;which is the best&rdquo; debate for later).</p>
-
-<p>For simple requirements the best option might actually be to create a mobile optimised version of your web page using one of the many libraries such as <a href="http://jquerymobile.com/">jQuery Mobile</a> which gives you the advantage of a single platform to maintain whilst giving the user a high quality mobile optimised experience that feels very much like using a native app.</p>
-
-<p>However for more advanced requirements you might choose to develop a custom app. If you are looking for iPhone app development then we can certainly help, though our core focus is going to be on the Android side of things. We believe in being excellent at a few choice technologies rather than attempting to be a &ldquo;Jack of all trades, master of none&rdquo;.</p>
-
-<p>If you didn&rsquo;t already know, this means we focus intently on ecommerce, PHP and <a href="http://www.edmondscommerce.co.uk/ecommerce/magento-ecommerce/">Magento</a> development. On the mobile side we focus on Android.</p>
-
-<p>If you would like to discuss your Android development requirements and your idea for an Android app then get in touch today!</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1013,15 +1088,15 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
+    
+    <a class="list-group-item " href="/symonfy2-phpstorm-setup.html">Symonfy2 PHPSTorm Setup</a>
+    
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
     
     <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
-    
-    <a class="list-group-item " href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a>
-    
-    <a class="list-group-item " href="/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html">Vim Locking Up, Always When You Are Ready to Save? Solution</a>
     
   </div>
 </section>

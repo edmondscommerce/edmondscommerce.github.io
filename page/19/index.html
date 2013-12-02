@@ -128,6 +128,117 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-25T12:20:33+01:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/how-to-restore-a-phpmyadmin-magento-backup.html">How to Restore a Phpmyadmin Magento Backup</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>So, if you&rsquo;ve ever had the situation where the only backup of a magento database has been done through phpmyadmin (hint: don&rsquo;t do this, use the inbuilt backup tool or lightbackup magento extension), you need to set up some magic at the top and bottom of the dump files :&ndash;</p>
+
+<p>Add the following at the top :&ndash;
+<code>SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT;
+SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS;
+SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION;
+SET NAMES utf8;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=&lsquo;NO_AUTO_VALUE_ON_ZERO&rsquo;;
+SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0;</code></p>
+
+<p>and the following at the bottom :
+<code>SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT;
+SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS;
+SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;
+SET SQL_NOTES=@OLD_SQL_NOTES;</code></p>
+
+<p>This can also be done if you use some other backup systems (we&rsquo;ve seen a table-per-file system too), in that instance, we created 00-head.sql and zz-foot.sql containing the above and create a single backup with &lsquo;cat *.sql > all.sql&rsquo; before restoring.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-21T17:07:20+01:00" pubdate data-updated="true">Jun 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution.html">Netbeans Xdebug &#8220;Waiting for Connection&#8221; Ubuntu 12.04 Mint13 +SOLUTION</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have issues with netbeans and xdebug not connecting on recent distros, you might find that netbeans is listening on tcp6 and xdebug connecting on plain tcp.</p>
+
+<p>To check if this is the case, run the following command whilst netbeans is &ldquo;waiting for connection&rdquo; (change 9000 if you&rsquo;ve set a different port) :&ndash;</p>
+
+<p><code>netstat -aln | grep 9000</code></p>
+
+<p>if you get a line similar to the following (specifically tcp6 and not just tcp), it may well be that xdebug can&rsquo;t connect over ipv6 :&ndash;
+<code>tcp6       0      0 :::9000                 :::*                    LISTEN</code></p>
+
+<p>One solution is to disable ipv6, which can be done by creating the file /etc/sysctl.d/10-disable-ipv6.conf with the following contents :&ndash;
+<code>net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1</code></p>
+
+<p>then run (as root or sudo)
+<code>sysctl -p /etc/sysctl.d/10-disable-ipv6.conf</code>
+and restart netbeans.  Suddenly, netbeans will listen on tcp (ipv4) and xdebug will connect.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-18T13:34:58+01:00" pubdate data-updated="true">Jun 18<span>th</span>, 2012</time>
         
       </p>
@@ -595,87 +706,6 @@ You might be interested in using or viewing the zipped file here;<a href='http:/
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-23T12:04:48+01:00" pubdate data-updated="true">May 23<span>rd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/sales-reporting-zero-for-second-store-in-magento.html">Sales Reporting Zero for Second Store in Magento</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p><img src="/assets/base_rate.png">
-If you are running multi site Magento with different currencies and are finding that the sales reports on the stores that don&rsquo;t use the Magento default currency all show zero this probably means the currency conversion rates have not been configured. Due to the way Magento orders work existing orders will not have there conversion rate updated. There is no way to do this from the admin, the only real option is to update the orders directly in the database.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-14T11:34:13+01:00" pubdate data-updated="true">May 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/netbeans/netbeans-uppercase-lowercase-and-switch-case-useful-key-combo.html">Netbeans Uppercase, Lowercase and Switch Case - Useful Key Combo</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>So, this is documented in the manual, but isn&rsquo;t obvious in any menu :&ndash;</p>
-
-<p>To uppercase a selection, press Control+U then U.
-To lowercase a selection, press Control+U then L.
-and to reverse case in the selection (for when you have typed a whole line of code without checking your caps lock!), press Control+U then S.</p>
-
-<p>Really useful but not well known.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -699,15 +729,15 @@ and to reverse case in the selection (for when you have typed a whole line of co
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
+    
+    <a class="list-group-item " href="/symonfy2-phpstorm-setup.html">Symonfy2 PHPSTorm Setup</a>
+    
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
     <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
     
     <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
-    
-    <a class="list-group-item " href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a>
-    
-    <a class="list-group-item " href="/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html">Vim Locking Up, Always When You Are Ready to Save? Solution</a>
     
   </div>
 </section>
