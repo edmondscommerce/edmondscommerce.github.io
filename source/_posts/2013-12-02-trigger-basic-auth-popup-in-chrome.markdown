@@ -28,5 +28,5 @@ http://www.somedomain.com
 becomes:
 
 ```
-http://username@somedomain.com
+http://username@www.somedomain.com
 ```
