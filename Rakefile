@@ -328,78 +328,118 @@ task :setup_github_pages, :repo do |t, args|
     # If octopress is still the origin remote (from cloning) rename it to octopress
     system "git remote rename origin octopress"
     if branch == 'master'
-      # If this is a user/organization pages repository, add the correct origin remote
-      # and checkout the source branch for committing changes to the blog source.
-      system "git remote add origin #{repo_url}"
-      puts "Added remote #{repo_url} as origin"
-      system "git config branch.master.remote origin"
-      puts "Set origin as default remote"
-      system "git branch -m master source"
-      puts "Master branch renamed to 'source' for committing your blog source files"
+        # If this is a user/organization pages repository, add the correct origin remote
+        # and checkout the source branch for committing changes to the blog source.
+        system "git remote add origin #{repo_url}"
+        puts "Added remote #{repo_url} as origin"
+        system "git config branch.master.remote origin"
+        puts "Set origin as default remote"
+        system "git branch -m master source"
+        puts "Master branch renamed to 'source' for committing your blog source files"
     else
-      unless !public_dir.match("#{project}").nil?
-        system "rake set_root_dir[#{project}]"
-      end
+        unless !public_dir.match("#{project}").nil?
+            system "rake set_root_dir[#{project}]"
+        end
     end
   end
   jekyll_config = IO.read('_config.yml')
   jekyll_config.sub!(/^url:.*$/, "url: #{blog_url(user, project)}")
   File.open('_config.yml', 'w') do |f|
-    f.write jekyll_config
+      f.write jekyll_config
   end
   rm_rf deploy_dir
   mkdir deploy_dir
   cd "#{deploy_dir}" do
-    system "git init"
-    #system "echo 'My Octopress Page is coming soon &hellip;' > index.html"
-    #system "git add ."
-    #system "git commit -m \"Octopress init\""
-    system "git branch -m gh-pages" unless branch == 'master'
-    system "git remote add origin #{repo_url}"
-    system "git pull"
-    system "git branch --set-upstream master origin/master"
-    system "git checkout"
-    rakefile = IO.read(__FILE__)
-    rakefile.sub!(/deploy_branch(\s*)=(\s*)(["'])[\w-]*["']/, "deploy_branch\\1=\\2\\3#{branch}\\3")
-    rakefile.sub!(/deploy_default(\s*)=(\s*)(["'])[\w-]*["']/, "deploy_default\\1=\\2\\3push\\3")
-    File.open(__FILE__, 'w') do |f|
-      f.write rakefile
-    end
+      system "git init"
+      #system "echo 'My Octopress Page is coming soon &hellip;' > index.html"
+      #system "git add ."
+      #system "git commit -m \"Octopress init\""
+      system "git branch -m gh-pages" unless branch == 'master'
+      system "git remote add origin #{repo_url}"
+      system "git pull"
+      system "git branch --set-upstream master origin/master"
+      system "git checkout"
+      rakefile = IO.read(__FILE__)
+      rakefile.sub!(/deploy_branch(\s*)=(\s*)(["'])[\w-]*["']/, "deploy_branch\\1=\\2\\3#{branch}\\3")
+      rakefile.sub!(/deploy_default(\s*)=(\s*)(["'])[\w-]*["']/, "deploy_default\\1=\\2\\3push\\3")
+      File.open(__FILE__, 'w') do |f|
+          f.write rakefile
+      end
   end
   puts "\n---\n## Now you can deploy to #{repo_url} with `rake deploy` ##"
 end
 
 def ok_failed(condition)
-  if (condition)
-    puts "OK"
-  else
-    puts "FAILED"
-  end
+    if (condition)
+        puts "OK"
+    else
+        puts "FAILED"
+    end
 end
 
 def get_stdin(message)
-  print message
-  STDIN.gets.chomp
+    print message
+    STDIN.gets.chomp
 end
 
 def ask(message, valid_options)
-  if valid_options
-    answer = get_stdin("#{message} #{valid_options.to_s.gsub(/"/, '').gsub(/, /,'/')} ") while !valid_options.include?(answer)
-  else
-    answer = get_stdin(message)
-  end
-  answer
+    if valid_options
+        answer = get_stdin("#{message} #{valid_options.to_s.gsub(/"/, '').gsub(/, /,'/')} ") while !valid_options.include?(answer)
+    else
+        answer = get_stdin(message)
+    end
+    answer
 end
 
 def blog_url(user, project)
-  url = if File.exists?('source/CNAME')
-    "http://#{IO.read('source/CNAME').strip}"
-  else
-    "http://#{user}.github.io"
-  end
-  url += "/#{project}" unless project == ''
-  url
+    url = if File.exists?('source/CNAME')
+              "http://#{IO.read('source/CNAME').strip}"
+          else
+              "http://#{user}.github.io"
+          end
+    url += "/#{project}" unless project == ''
+    url
 end
+
+desc 'Ping pingomatic'
+task :pingomatic do
+    begin
+        require 'xmlrpc/client'
+        puts '* Pinging ping-o-matic'
+        XMLRPC::Client.new('rpc.pingomatic.com', '/').call('weblogUpdates.extendedPing', 'Ewal.net' , 'http://edmondscommerce.github.io', 'http://edmondscommerce.github.io/atom.xml')
+    rescue LoadError
+        puts '! Could not ping ping-o-matic, because XMLRPC::Client could not be found.'
+    end
+end
+
+desc 'Notify Google of the new sitemap'
+task :sitemapgoogle do
+    begin
+        require 'net/http'
+        require 'uri'
+        puts '* Pinging Google about our sitemap'
+        Net::HTTP.get('www.google.com', '/webmasters/tools/ping?sitemap=' + URI.escape('http://edmondscommerce.github.io/sitemap.xml'))
+    rescue LoadError
+        puts '! Could not ping Google about our sitemap, because Net::HTTP or URI could not be found.'
+    end
+end
+
+desc 'Notify Bing of the new sitemap'
+task :sitemapbing do
+    begin
+        require 'net/http'
+        require 'uri'
+        puts '* Pinging Bing about our sitemap'
+        Net::HTTP.get('www.bing.com', '/webmaster/ping.aspx?siteMap=' + URI.escape('http://edmondscommerce.github.io/sitemap.xml'))
+    rescue LoadError
+        puts '! Could not ping Bing about our sitemap, because Net::HTTP or URI could not be found.'
+    end
+end
+
+desc "Notify various services about new content"
+task :notify => [:pingomatic, :sitemapgoogle, :sitemapbing] do
+end
+
 
 desc "list tasks"
 task :list do

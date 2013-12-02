@@ -8,4 +8,4 @@ cd _deploy
 git pull origin master
 cd ../
 rake gen_deploy
-
+rake notify
