@@ -128,6 +128,100 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-30T14:50:24+01:00" pubdate data-updated="true">Apr 30<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/zend%20framework/zend-framework-more-detailed-stack-trace.html">Zend Framework More Detailed Stack Trace</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If like me you kicked off your Zend Framework experience with the Quick Start and have kept the error controller system of the Quick Start for your other ZF projects, you might find this little snippet useful.</p>
+
+<p>The Quick Start uses the Exception::getTraceAsString() method to give you the stack trace. Unfortunately this function seems to snip off a bit of useful info.. almost tantalising you with the info but not quite giving you enough to actually know what is going wrong!</p>
+
+<p>To get a more detailed stack trace, I recommend changing this and using the Exception::getTrace() function which returns and array of the trace. You can then echo out all of this info in full.</p>
+
+<p>For me (as I have xdebug for my dev environment, which is the only place you should be dumping stack traces anyway) I use the following chunk of code in my views/scripts/error/error.phtml</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span> <span class="c1">// application/views/scripts/error/error.phtml ?&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">An</span> <span class="nx">error</span> <span class="nx">occurred</span><span class="o">&lt;/</span><span class="nx">h1</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">h2</span><span class="o">&gt;&lt;?=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">message</span> <span class="cp">?&gt;</span><span class="x">&lt;/h2&gt; </span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;?</span> <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;production&#39;</span> <span class="o">!=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">env</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">    &lt;h3&gt;Exception information:&lt;/h3&gt; </span>
+</span><span class='line'><span class="x">    &lt;p&gt; </span>
+</span><span class='line'><span class="x">        &lt;b&gt;Message:&lt;/b&gt; </span><span class="cp">&lt;?</span><span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">exception</span><span class="o">-&gt;</span><span class="na">getMessage</span><span class="p">()</span> <span class="cp">?&gt;</span><span class="x"> </span>
+</span><span class='line'><span class="x">    &lt;/p&gt; </span>
+</span><span class='line'><span class="x">    &lt;h3&gt;Request Parameters:&lt;/h3&gt; </span>
+</span><span class='line'><span class="x">    &lt;pre&gt;</span><span class="cp">&lt;?</span> <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">request</span><span class="o">-&gt;</span><span class="na">getParams</span><span class="p">())</span> <span class="cp">?&gt;</span><span class="x">&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="x">    &lt;h3&gt;Stack Trace 2:&lt;/h3&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;?php</span>
+</span><span class='line'>    <span class="k">foreach</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">exception</span><span class="o">-&gt;</span><span class="na">getTrace</span><span class="p">()</span> <span class="k">as</span> <span class="nv">$t</span><span class="p">){</span>
+</span><span class='line'>        <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$t</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="cp">&lt;?</span> <span class="k">endif</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-29T07:34:30+01:00" pubdate data-updated="true">Apr 29<span>th</span>, 2009</time>
         
       </p>
@@ -737,62 +831,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-17T07:46:07+01:00" pubdate data-updated="true">Apr 17<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/grub-error-21-on-a-laptop-solution.html">Grub Error 21 on a Laptop + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>If you ever get Grub Error 21 when trying to boot your Linux laptop or notebook then this post is for you.</p>
-
-<p>Grub Error 21 means that it cannot find the hard disk. On a desktop machine this probably means that you need to fix Grub itself. Just google for Grub error 21 or supergrub.</p>
-
-<p>However on laptops I seem to suffer this problem on a regular basis. The problem is that the hard drives are not firmly attached and can become dislodged.</p>
-
-<p>To fix it just open up your laptop HD enclosure and make sure it&rsquo;s firmly attached. I also like to roll up a bit of paper and wedge it in there so that it can&rsquo;t slide out again in future.</p>
-
-<p>Hope this helps out someone else :&ndash;)<h4>More&hellip;</h4></p>
-
-<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;/div&gt;
-</code></pre>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -816,6 +854,8 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
+    
     <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
     
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
@@ -823,8 +863,6 @@ You should probably look up more recent blog posts related to the subject you ar
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
     
     <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
-    
-    <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
     
   </div>
 </section>

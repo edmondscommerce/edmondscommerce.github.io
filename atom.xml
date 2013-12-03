@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2013-12-02T21:13:53+00:00</updated>
+  <updated>2013-12-03T12:47:48+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,67 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sorting Results Arbitrarily in MySQL]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/sorting-results-arbitrarily-in-mysql.html"/>
+    <updated>2013-12-03T12:40:04+00:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/sorting-results-arbitrarily-in-mysql</id>
+    <content type="html"><![CDATA[<p>When you have a result set in MySQL that you need to order in a specific way you might think that it is not possible and instead you are going to have to read all
+of your results into your application domain (eg PHP) and manage the sorting from there. On a large results set that could be seriously inefficient.</p>
+
+<p>The truth is that you don&rsquo;t have to do that. You can specify any kind of sort order including sorting by string values as you see fit.</p>
+
+<p>The way to do this is to use the magic of <a href="http://dev.mysql.com/doc/refman/5.0/en/string-functions.html#function_find-in-set">FIND_IN_SET</a> combined with ORDER BY.</p>
+
+<p>For a full example see this query that is pulling out product images from a data repository in descending image size as described in one of the columns as a string.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span>
+</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">prodID</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dc</span><span class="p">.</span><span class="n">url</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span> <span class="k">AS</span> <span class="n">resolution</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">cds_DigContent</span> <span class="n">dc</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Links</span> <span class="n">dcl</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta</span> <span class="n">dcm</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcm</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaAtrId</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta_ValVoc</span> <span class="n">dcmv</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueId</span> <span class="o">=</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaValueId</span><span class="p">)</span>
+</span><span class='line'><span class="k">WHERE</span> <span class="n">dc</span><span class="p">.</span><span class="n">mediaTypeId</span> <span class="o">=</span> <span class="mi">15</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">dcl</span><span class="p">.</span><span class="n">prodId</span> <span class="o">=</span> <span class="s1">&#39;{$this-&gt;getCnetProdID()}&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">ORDER</span> <span class="k">BY</span>
+</span><span class='line'>  <span class="nf">FIND_IN_SET</span><span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span><span class="p">,</span> <span class="s1">&#39;2400 x 1800,1200 x 900,1024 x 768,800 x 600,640 x 480,400 x 300,200 x 150,75 x 75&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">LIMIT</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Faker Symfony2 Integration]]></title>
@@ -631,23 +692,6 @@ app/design/frontend/base/default/template/catalog/product/view/type/configurable
 
 
 <p>(Source: <a href="http://askubuntu.com/questions/272780/ubuntu-12-10-lessc-1-3-3-installation" target="_blank">Ask Ubuntu</a>)</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How To Prototype For Mobile Devices Fast & Easy?]]></title>
-    <link href="http://edmondscommerce.github.io/web%20design/how-to-prototype-for-mobile-devices-fast-easy.html"/>
-    <updated>2013-07-29T11:29:32+01:00</updated>
-    <id>http://edmondscommerce.github.io/web%20design/how-to-prototype-for-mobile-devices-fast-easy</id>
-    <content type="html"><![CDATA[<p><img src="http://edmondscommerce.github.io/assets/ProtoIO.png"></p>
-
-<p>As a designer who is keen on usability and user centric, well tested web systems I was in a desperate need of silly fast and useful mobile prototyping system. Up until recently I’ve used paper prototyping and later uploading images on various smart phones (always struggling with inaccurate representation of actual interface size, look and feel of the interactions).</p>
-
-<p>Thankfully, that is the past and the future holds much brighter and functional solution for <a href="https://proto.io/" title="Proto.io - Rapid fast mobile prototyping" target="_blank">rapid fast mobile prototyping thanks to Proto.io </a></p>
-
-<p>I see that they have been around for a while, which only brings lots of benefits to us – usability testers and designers. Prototyping application interface is improved and it has some really good functionality, although there is still room to grow like to support keyboard commands, more tutorials and find a way of making the overall work flow more intuitive as I found it hard to get into. Thankfully, proto.io team has created video tutorials for some of the most important questions.</p>
-
-<p>Once I got the basic idea and figured out some work-arounds, I was able to upload my mobile site design in the application and create a working prototype. It is awesome, how fast and easy it is to test the prototypes on various devices. The most important feature I found is that I can access the fully working prototype from whatever device.</p>
 ]]></content>
   </entry>
   
