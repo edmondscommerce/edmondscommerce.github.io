@@ -406,7 +406,7 @@ task :pingomatic do
     begin
         require 'xmlrpc/client'
         puts '* Pinging ping-o-matic'
-        XMLRPC::Client.new('rpc.pingomatic.com', '/').call('weblogUpdates.extendedPing', 'Ewal.net' , 'http://edmondscommerce.github.io', 'http://edmondscommerce.github.io/atom.xml')
+        XMLRPC::Client.new('rpc.pingomatic.com', '/').call('weblogUpdates.extendedPing', 'edmondscommerce.github.io' , 'http://edmondscommerce.github.io', 'http://edmondscommerce.github.io/atom.xml')
     rescue LoadError
         puts '! Could not ping ping-o-matic, because XMLRPC::Client could not be found.'
     end
