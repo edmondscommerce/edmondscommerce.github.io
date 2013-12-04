@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: stack | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/stack/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-12-03T12:47:48+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Detailed Exception Log]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-detailed-exception-log.html"/>
+    <updated>2010-10-18T10:20:02+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-detailed-exception-log</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>I have never been a particular fan of PHP&rsquo;s standard stack trace &ndash; it tantalises you with a short snippet of info for each step of the trace that always seems to miss off the really useful bit of info.</p>
+
+<p>I have done previous posts before on how to get a more detailed stack trace. If you want to have this in Magento you need to edit Mage.php (I currently don&rsquo;t know a way of overriding Mage.php) with this code (around line 724)</p>
+
+<p>```php</p>
+
+<pre><code>/**
+ * Write exception to log
+ *
+ * @param Exception $e
+ */
+public static function logException(Exception $e)
+{
+    if (!self::getConfig()) {
+        return;
+    }
+    $file = self::getStoreConfig('dev/log/exception_file');
+    //self::log("\n" . $e-&gt;__toString(), Zend_Log::ERR, $file);
+    $exceptionDump = "\n\nDETAILED EXCEPTION DUMP\n\n";
+    foreach($e-&gt;getTrace() as $n=&gt; $t){
+        $exceptionDump .= "\n\n------------\n#$n\n" . var_export($t, true) . "\n";
+    }
+    self::log("\n" . $exceptionDump, Zend_Log::ERR, $file);
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

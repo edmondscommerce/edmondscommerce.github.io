@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: product | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/product/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-12-03T12:47:48+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magmi]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magmi.html"/>
+    <updated>2013-06-07T13:39:01+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magmi</id>
+    <content type="html"><![CDATA[<p>It used to be that importing products into Magento was incredibly time consuming and difficult to handle. Whilst recent updates to Magento has improved the Dataflow process it is still not a perfect solution.</p>
+
+<p>To help get round this a project was set-up called <a href="http://sourceforge.net/apps/mediawiki/magmi/index.php?title=Main_Page" title="Magmi">Magmi</a> which allowed products to be imported directly, rather than using the Magento ORM. As this evolved it added more useful features and is now the only way that I handle importing products into Magento.</p>
+
+<p>There are a couple of steps that need to be carried out before the system can be used properly. After it has been installed the first thing that needs to be done is to secure the web interface. This can be done using Basic Auth or IP restrictions in Apache. To generate a basic auth password for a .htaccess file you can use this <a href="http://tools.dynamicdrive.com/password/">handy tool</a>.</p>
+
+<p>Once you have it secured the next step is to install some extensions to allow you to use some of the more advanced features. To install plugins you download them from here:<a href="http://sourceforge.net/projects/magmi/files/magmi-0.7/plugins/individual/">http://sourceforge.net/projects/magmi/files/magmi-0.7/plugins/individual/</a> and then extract them into the plugins folder.</p>
+
+<p>Or you can use plugin packages and you can actually install these directly from the web interface if your server supports it (Thanks Dweeves).</p>
+
+<p>The plugins are really what makes MAGMI so great as they allow you to do things like handle configurable products, categories and other things that standard dataflow and import/export are no where near being able to offer.</p>
+
+<p>For advanced purposes it is possible to leverage the power of MAGMI in your own custom import purposes as part of a bespoke application using <a href="http://sourceforge.net/apps/mediawiki/magmi/index.php?title=Magmi_Datapump_API">MAGMI datapump</a>. We have used this technique for numerous clients when building a direct import from supplier feeds etc.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[CentOS + Sun Java + Amazon AMTU 2]]></title>
+    <link href="http://edmondscommerce.github.io/amazon/centos-sun-java-amazon-amtu-2.html"/>
+    <updated>2012-08-14T17:33:31+01:00</updated>
+    <id>http://edmondscommerce.github.io/amazon/centos-sun-java-amazon-amtu-2</id>
+    <content type="html"><![CDATA[<p>In a follow up to our popular blog post describing the process of getting AMTU 1 set up on a Centos server, this post describes how to get the latest version 2 of AMTU running.</p>
+
+<p>Things have moved on and thankfully it is a lot easier than it was.</p>
+
+<p>Firstly get Sun Java installed. You will need to get the URL for downloading the RPM from here:
+<a href="http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html">http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html</a></p>
+
+<p>Accept the agreement, download the correct RPM version and then pause it. Copy the download URL and paste it into this command:
+```bash</p>
+
+<p>cd /tmp
+wget [paste-url]-here]
+rpm &ndash; jre [hit tab to complete]</p>
+
+<p>```</p>
+
+<p>Now check the correct java version is being used:</p>
+
+<p>```bash</p>
+
+<p>java -version</p>
+
+<p>```</p>
+
+<p>You should get something looking like:</p>
+
+<p>```</p>
+
+<p>[root@94 tmp]# java -version
+java version &quot;1.7.0_05&quot;
+Java&trade; SE Runtime Environment (build 1.7.0_05-b06)
+Java HotSpot&trade; 64-Bit Server VM (build 23.1-b03, mixed mode)</p>
+
+<p>```</p>
+
+<p>Now you can install AMTU</p>
+
+<p>```bash</p>
+
+<p>wget <a href="https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh">https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh</a>
+chmod +x AMTU_unix.sh
+./AMTU_unix.sh</p>
+
+<p>```</p>
+
+<p>Keep hitting enter to get to the bottom of the terms and then agree, agree to all the other options. That is AMTU installed.</p>
+
+<p>The final step is to configure this using the CLI configure utitlity.</p>
+
+<p>You need to create an xml file for the AMTU configuration. You can see a sample file in /opt/amtu/xml/sample.xml.</p>
+
+<p>Lets copy that file and then edit it accordingly.</p>
+
+<p>```bash</p>
+
+<p>cd /opt/amtu/xml
+cp sample.xml configuration.xml
+vim configuration.xml</p>
+
+<p>```</p>
+
+<p>You do need to be signed up for MWS to get some of the keys etc that are required. If not already, go to this page and hit the sign up button.
+<a href="https://developer.amazonservices.co.uk/index.html">https://developer.amazonservices.co.uk/index.html</a></p>
+
+<p>Once you have updated the XML configuration you run this command to apply it:
+```bash</p>
+
+<p>/opt/amtu/Utilities/configure SETUP /opt/amtu/xml/configuration.xml</p>
+
+<p>```</p>
+
+<p>If you get some error messages at this point, edit the configuration and try again. Once you have the configuration set you can start the daemon.</p>
+
+<p>```bash</p>
+
+<p>/opt/AMTU/Utilities/amtu_daemon start</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Custom Product Type as Configurable Product]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-custom-product-type-as-configurable-product.html"/>
+    <updated>2012-01-20T15:36:02+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-custom-product-type-as-configurable-product</id>
+    <content type="html"><![CDATA[<p>If you have created a new product type and need to enable it to be included with configurable products you need to let Magento know that it should allow your product type to work with configurable products. To do this open your config xml and add the following xml.</p>
+
+<p>```xml</p>
+
+<p><config></p>
+
+<pre><code>&lt;global&gt;
+    &lt;catalog&gt;
+        &lt;product&gt;
+            &lt;type&gt;
+                &lt;configurable translate="label" module="catalog"&gt;
+                    &lt;allow_product_types&gt;
+                        &lt;custom_type_name/&gt;
+                    &lt;/allow_product_types&gt;
+                &lt;/configurable&gt;
+            &lt;/type&gt;
+        &lt;/product&gt;
+    &lt;/catalog&gt;
+&lt;/global&gt;
+</code></pre>
+
+<p></config></p>
+
+<p>```</p>
+
+<p>This tells Magento to include your product type for use with configurable products.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento "Products per Page on Grid Allowed Values" Configuration Not Working + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-products-per-page-on-grid-allowed-values-configuration-not-working-solution.html"/>
+    <updated>2011-09-01T13:53:31+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-products-per-page-on-grid-allowed-values-configuration-not-working-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are getting a <i>little bit frustrated</i> trying to figure out why the admin configuration for the number of products to display on a page and the options in the products per page drop down are not working then this is quite possibly your soluiton.</p>
+
+<p>The template file in question is in catalog/product/list/toolbar.phtml</p>
+
+<p>You will see it refererences the block Mage_Catalog_Block_Product_List_Toolbar</p>
+
+<p>So far so good, it all looks like it should be working but it just isn&rsquo;t.</p>
+
+<p>The issue can be that in your theme&rsquo;s layout XML file, some values are being set for this with some XML that looks like this:</p>
+
+<p>```xml</p>
+
+<p><action method="setDefaultListPerPage"><limit>10</limit></action>
+<action method="setDefaultGridPerPage"><limit>8</limit></action>
+<action method="addPagerLimit"><mode>list</mode><limit>10</limit></action>
+<action method="addPagerLimit"><mode>list</mode><limit>20</limit></action>
+<action method="addPagerLimit"><mode>list</mode><limit>30</limit></action></p>
+
+<p>```</p>
+
+<p>If that XML is there, then these actions are being called against your block object with these parameters, effectively overwriting your admin values.</p>
+
+<p>To get the admin values to be respected, you need to comment out or totally remove this XML from your layout, clear your cache and you are in business.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Grass Seed Store - Migration from OSCommerce]]></title>
+    <link href="http://edmondscommerce.github.io/portfolio/grass-seed-store-migration-from-oscommerce.html"/>
+    <updated>2011-06-09T16:53:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/portfolio/grass-seed-store-migration-from-oscommerce</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<h2>Grass Seed Store – Migration from OSCommerce with Custom Functionality</h2>
+
+
+<p>The Grass Seeds Store wants to migrate away from OSCommerce to Magento in order to improve stock management. They also need to maintain DEFRA compliance and have custom reports generated to do so. The custom reporting was based on the sales of seeds.</p>
+
+<h3>The Grass Seed Store</h3>
+
+
+<p>The Grass Seed Store specialises in the sale of a many different types of <a href="http://www.thegrassseedstore.co.uk/">grass seed, fertiliser and live stock pasture</a>.</p>
+
+<p><img src="/assets/grassseed-300x205.png"></p>
+
+<p>This project is a great example of customising Magento to be compliant with an industry governing body and shows that Magento can be used in almost any for the sale of any type of product. The project is currently a work in progress and the Magento implementation is currently only a wire frame demonstrating the functionality that is ultimately required.</p>
+]]></content>
+  </entry>
+  
+</feed>

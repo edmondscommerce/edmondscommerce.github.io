@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: encryption | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/encryption/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-12-03T12:47:48+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Extending Mage Core Encryption Model to handle Legacy Passwords]]></title>
+    <link href="http://edmondscommerce.github.io/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html"/>
+    <updated>2012-04-26T12:35:29+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords</id>
+    <content type="html"><![CDATA[<p>If you are migrating from an old ecommerce package into Magento, you may well want to extend Magento&rsquo;s password hashing system so that it can understand the passwords that are hashed by the previous system and customers can log in using their old passwords without any hassle.</p>
+
+<p>You would start off by overriding the Mage_Core_Model_Encryption class like so:</p>
+
+<p>```php</p>
+
+<p>class EdmondsCommerce_LegacyPassword_Model_Encryption extends Mage_Core_Model_Encryption {</p>
+
+<pre><code>/**
+ * Validate hash against hashing method (with or without salt)
+ * 
+ * Extended to support the legacy password hashing of the previous system
+ *
+ * @param string $password
+ * @param string $hash
+ * @return bool
+ * @throws Exception
+ */
+public function validateHash($password, $hash) {
+    if (/*password matches legacy pattern (as stored hash in DB)*/) {            
+        // create a hash of the plain text password and compare to the stored hash
+        return $hashed_pass == $hashval;
+    }
+    //default magento hashing from here
+    return parent::validateHash($password, $hash);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>However, you will find that the standard model override does not work and you may start vigorous hair pulling at this point.</p>
+
+<p>The answer though is that your override XML is actually fine, but it isn&rsquo;t being used. This is because of the getEncryptor model in Mage_Core_Helper_Data creates the model using &lsquo;new&rsquo; rather than getModel.</p>
+
+<p>```php</p>
+
+<p>/**</p>
+
+<pre><code> * @return Mage_Core_Model_Encryption
+ */
+public function getEncryptor()
+{
+    if ($this-&gt;_encryptor === null) {
+        $encryptionModel = (string)Mage::getConfig()-&gt;getNode(self::XML_PATH_ENCRYPTION_MODEL);
+        if ($encryptionModel) {
+            $this-&gt;_encryptor = new $encryptionModel;
+        } else {
+            $this-&gt;_encryptor = Mage::getModel('core/encryption');
+        }
+
+        $this-&gt;_encryptor-&gt;setHelper($this);
+    }
+    return $this-&gt;_encryptor;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>The class name to use for the encryptor is stored in the config.xml for Mage_Core.</p>
+
+<p>The solution here is to replicate this XML in your config.xml and also make your legacy module depend on Mage_Core so that it get loaded afterwards and can override the XML.</p>
+
+<p>```xml</p>
+
+<p>&lt;?xml version=&ldquo;1.0&rdquo;?>
+<config></p>
+
+<pre><code>&lt;modules&gt;
+    &lt;EdmondsCommerce_LegacyPassword&gt;
+        &lt;version&gt;0.1.1&lt;/version&gt;
+        &lt;depends&gt;Mage_Core&lt;/depends&gt;
+    &lt;/EdmondsCommerce_LegacyPassword&gt;
+&lt;/modules&gt;
+&lt;global&gt;
+    &lt;models&gt;
+        &lt;core&gt;
+            &lt;rewrite&gt;
+                &lt;encryption&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;/encryption&gt;
+            &lt;/rewrite&gt;
+        &lt;/core&gt;
+    &lt;/models&gt;
+    &lt;helpers&gt;
+        &lt;core&gt;
+            &lt;encryption_model&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;/encryption_model&gt;
+        &lt;/core&gt;
+    &lt;/helpers&gt;
+&lt;/global&gt;    
+</code></pre>
+
+<p></config></p>
+
+<p>```</p>
+
+<p>Easy once you understand. Another gotcha you have to look out for though!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Encryping data with Magento!]]></title>
+    <link href="http://edmondscommerce.github.io/magento/encryping-data-with-magento.html"/>
+    <updated>2012-02-24T15:19:41+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/encryping-data-with-magento</id>
+    <content type="html"><![CDATA[<p>Encrypting a string in Magneto is really easy and will use the encryption key specified in the local.xml file:</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+$encryptedData = Mage::helper(&lsquo;core&rsquo;)&ndash;>encrypt(&ldquo;This will be encrypted&rdquo;);</p>
+
+<p>```</p>
+
+<p>There is one problem that you may encounter that can be a little bit problematic but there is an easy work around. The encryption process will strip out non-printing characters or character it does not recognise. Easiest way to get about this is to base64 encode what you are about to encrypt:</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+$encryptedData = Mage::helper(&lsquo;core&rsquo;)&ndash;>encrypt(base64_encode(&ldquo;\n\rI start with a carriage return&rdquo;));</p>
+
+<p>```</p>
+
+<p>Decrypting is just as easy:</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+$decyptedData = Mage::helper(&lsquo;core&rsquo;)&ndash;>decrypt($encryptedData);</p>
+
+<p>```</p>
+
+<p>Remember to base64_decode after decryption if you did base64 encode before encryption:
+```php</p>
+
+<p>&lt;?php
+$decyptedData = base64_decode(Mage::helper(&lsquo;core&rsquo;)&ndash;>decrypt($encryptedData));</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

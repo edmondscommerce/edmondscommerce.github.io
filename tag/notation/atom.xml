@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: notation | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/notation/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-12-03T12:47:48+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Netbeans AutoComplete on Magento Objects called by Mage::getModel()]]></title>
+    <link href="http://edmondscommerce.github.io/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel.html"/>
+    <updated>2012-03-01T11:00:05+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel</id>
+    <content type="html"><![CDATA[<p>As we have been working with the various versions of Magento its nice to see more and more use of DocBlock notation to help IDEs auto suggest and auto complete methods etc when working with objects.</p>
+
+<p>However the style is inconsistent and with a few subtle tweaks would be much, much better.</p>
+
+<h3>Template Files, What is $this?</h3>
+
+
+<p>First one is the @see syntax often used in .phtml files to describe which block object is in play as $this. Whilst that is useful to read, it is totally useless to the IDE.</p>
+
+<p>For example have a look at
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/design/frontend/base/default/template/catalog/product/view.phtml">app/design/frontend/base/default/template/catalog/product/view.phtml</a></b></p>
+
+<p>```php</p>
+
+<p>/<em>*
+ * Product view template
+ *
+ * @see Mage_Catalog_Block_Product_View
+ * @see Mage_Review_Block_Product_View
+ </em>/</p>
+
+<p>```</p>
+
+<p>All we need to do is add this underneath
+```php</p>
+
+<p>/<em>
+ * @var $this Mage_Catalog_Block_Product_View
+ </em>/</p>
+
+<p>```</p>
+
+<p>And now when working with in the .phtml file, $this will auto complete for you.</p>
+
+<blockquote><i>Eagle eyed readers may think that as $this could be either this is perhaps a bad idea, however the Review one actually extends the Catalog one overriding some functionality, it is basically the same.</i></blockquote>
+
+
+
+
+<h3>$Model = Mage::getModel() why always the Abstract?</h3>
+
+
+<p>Another one that I have just finally figured out is the correct way to get Netbeans to recognise exactly what class an object is when called with Mage::getModel() or Mage::getSingleton().</p>
+
+<p>You might have auto complete suggesting that this is an instance of Mage_Core_Model_Abstract.</p>
+
+<p>Whilst effectively true, this is unlikely to be useful for you in your context, you need to know exactly what Model class it is.</p>
+
+<p>The reason that Netbeans thinks its Mage_Core_Model_Abstract is because the docblock in
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/Mage.php">app/Mage.php</a></b>
+describes this as the return value of this method.</p>
+
+<p>```php</p>
+
+<pre><code>/**
+ * Retrieve model object
+ *
+ * @link    Mage_Core_Model_Config::getModelInstance
+ * @param   string $modelClass
+ * @param   array $arguments
+ * @return  Mage_Core_Model_Abstract
+ */
+public static function getModel($modelClass = '', $arguments = array())
+{
+    return self::getConfig()-&gt;getModelInstance($modelClass, $arguments);
+}
+</code></pre>
+
+<p>```</p>
+
+<p>I often see blocks of code where the author is attempting to get auto complete working properly by using this syntax</p>
+
+<p>see
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/code/core/Mage/Customer/controllers/AccountController.php">app/code/core/Mage/Customer/controllers/AccountController.php</a></b>
+createPostAction()
+```php</p>
+
+<p>/<em> @var $customerForm Mage_Customer_Model_Form </em>/
+$customerForm = Mage::getModel(&lsquo;customer/form&rsquo;);</p>
+
+<p>```</p>
+
+<p>This is generally the right way to do it, however I think the docblock specifying the return value on Mage:getModel clobbers it.</p>
+
+<p>The simple solution is to move the docblock from above the Mage::getModel call to below it.</p>
+
+<p>```php</p>
+
+<p>$customerForm = Mage::getModel(&lsquo;customer/form&rsquo;);
+/<em> @var $customerForm Mage_Customer_Model_Form </em>/</p>
+
+<p>```</p>
+
+<p><b>And it works!</b></p>
+
+<p><img src="/assets/screenshot4-600x475.png"></p>
+]]></content>
+  </entry>
+  
+</feed>

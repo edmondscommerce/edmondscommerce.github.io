@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: debugging | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/debugging/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-12-03T12:47:48+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[SQLSTATE[28000]: Invalid authorization specification: 1045 Access denied for user + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html"/>
+    <updated>2013-02-12T18:03:29+00:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution</id>
+    <content type="html"><![CDATA[<p>I have recently been running some MySql scripts that wrote to a file.</p>
+
+<p>These worked fine locally, but as soon as I deployed them I started to get the error above.</p>
+
+<p>After much looking around I came across this solution.</p>
+
+<p>When I was developing locally, I was connecting with a user that had global privileges. When I was running the code on the server I was connecting with a user that only had privileges for the database I was using.</p>
+
+<p>The issue is that then FILE privilege is a Global setting, so the user did not have access to it, hence the access denied message.</p>
+
+<p>Grant FILE privileges and you can connect as expected</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Register Shutdown Function not Working in Magento + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/register-shutdown-function-not-working-in-magento-solution.html"/>
+    <updated>2012-11-21T20:07:40+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/register-shutdown-function-not-working-in-magento-solution</id>
+    <content type="html"><![CDATA[<p>I am currently putting together an automated system that converts user input within Magento.</p>
+
+<p>As this runs using cron, I will be unable to see if anything goes wrong, unless the errors are logged.</p>
+
+<p>Now it is possible to set custom error and exception handlers that will log most things, but I needed to cover all bases and try to log in the event of a fatal error.</p>
+
+<p>It is possible to do this by calling register_shutdown_function and checking for an error there &ndash; see <a href="http://stackoverflow.com/questions/277224/how-do-i-catch-a-php-fatal-error" title="Stack Overflow - How do I catch a PHP Fatal Error">here</a> for a full explanation on how to do this.</p>
+
+<p>The problem I had was that this would not work within Magento. After a lot of going through the code it appears that if you have developer mode set to true, then your function will not be called. Once it is disabled the function works as expected.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: How to get the right-click reload button in Chrome]]></title>
+    <link href="http://edmondscommerce.github.io/web%20development/tip-how-to-get-the-right-click-reload-button-in-chrome.html"/>
+    <updated>2012-11-14T15:01:37+00:00</updated>
+    <id>http://edmondscommerce.github.io/web%20development/tip-how-to-get-the-right-click-reload-button-in-chrome</id>
+    <content type="html"><![CDATA[<p>Recently the good folks at chrome have added a feature where you can reload without the cache, which is in a right-click on the reload button, but I was really confused as some machines seem to have it and others don&rsquo;t.</p>
+
+<p>The key is whether developer tools is open or not! If you&rsquo;re using a recent version of chrome, press F12 to open the developer tools and then you can right-click the reload button, and you get three options &ndash; Reload, Hard Reload (redownloads images) and Empty Cache and Hard Reload.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Stack traces you can click on! (in PhpStorm)]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-stack-traces-you-can-click-on-in-phpstorm.html"/>
+    <updated>2012-09-07T14:35:37+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-stack-traces-you-can-click-on-in-phpstorm</id>
+    <content type="html"><![CDATA[<p>Having a stack trace is very handy at times but wouldn&rsquo;t it be nice if you could click on the filename in the stack trace in your browser and your IDE take you to the file and line that it&rsquo;s talking about?</p>
+
+<p>Well, with PhpStorm and kint, you can!  Using a plugin called Remote Call, the PhpStorm IDE can listen on a port and go to files and line numbers via an ajax call.</p>
+
+<p>To configure this, grab the latest version of kint, and copy it&rsquo;s sample config to an actual config file, and edit the section about pathDisplayCallback to look like this :&ndash;
+```php</p>
+
+<p>$<em>kintSettings[&lsquo;pathDisplayCallback&rsquo;] = &ldquo;</em>kintLine&rdquo;;
+function _kintLine( $file, $line = NULL ) {</p>
+
+<pre><code>    if ( !$line ) { // means this is called from resource type dump
+            return $file;
+    }
+    return "&lt;u&gt;&lt;a class=\"kint-ide-link\" href=\"http://localhost:8091/?message={$file}:{$line}\"&gt;" . $file . "&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;{$line}&lt;/i&gt;";
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>You can even be clever with regex to make the filenames be relative &ndash; for instance, we run our projects from a directory below one called, oddly enough &ldquo;projects&rdquo; and our function looks like this :&ndash;
+```php</p>
+
+<p>function _kintLine( $file, $line = NULL )
+{</p>
+
+<pre><code>    $shortname = preg_replace('#.*/[Pp]rojects/[^/]*/#','',$file);
+    if ( !$line ) { // means this is called from resource type dump
+            return $shortname;
+    }
+    return "&lt;u&gt;&lt;a class=\"kint-ide-link\" href=\"http://localhost:8091/?message={$file}:{$line}\"&gt;" . $shortname . "&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;{$line}&lt;/i&gt;";
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>Now, if you call Kint::trace(); from your file that you&rsquo;ve included Kint.class.php from, you get a clickable stacktrace!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Format searched log files]]></title>
+    <link href="http://edmondscommerce.github.io/bash/format-searched-log-files.html"/>
+    <updated>2012-08-16T15:45:56+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/format-searched-log-files</id>
+    <content type="html"><![CDATA[<p>When you are monitoring a log file you may want to narrow it down, and format the results. This simple one line command will break up the output from a log file to make it easier to quickly read</p>
+
+<p><code>
+tail -f /path/to/log | grep &ldquo;search term&rdquo; | sed &rsquo;s/(.*)/&mdash;&mdash;&mdash;&mdash;&mdash;\n\1\n&mdash;&mdash;&mdash;&mdash;&mdash;/&lsquo;
+</code></p>
+]]></content>
+  </entry>
+  
+</feed>

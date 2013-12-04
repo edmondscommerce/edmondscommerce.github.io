@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: zend framework | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/zend-framework/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-12-03T12:47:48+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Zend Framework Rest HTTP Basic Authentication]]></title>
+    <link href="http://edmondscommerce.github.io/zend%20framework/zend-framework-rest-http-basic-authentication.html"/>
+    <updated>2012-02-21T12:43:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/zend%20framework/zend-framework-rest-http-basic-authentication</id>
+    <content type="html"><![CDATA[<p>I have recently been working on a Magento project that required a custom API integration with Zen Desk.</p>
+
+<p>Magento is based on Zend Framework which is nice because it means we can use the Zend_Rest_Client object to handle the API integration which provides a nice layer of abstraction and sorts out a lot of the heavy lifting required.</p>
+
+<p>However I came across a terminal issue trying to get it working properly with HTTP Basic Authentication which the Zen Desk API uses.</p>
+
+<p>I found some instructions which recommended creating a Zend_Uri_Http object and then setting the username and password against this. However as Zen Desk uses the email address as the username component, this failed completely.</p>
+
+<p>In the end the solution I found was to grab the static HTTP client object that the REST client is built upon and call the public setAuth method on this. This way the Authorisation header is correctly created, encoded and appended to the headers.</p>
+
+<p>Logically it feels like a dirty way to do things, grabbing the HTTP client statically to do this, but it works and I can&rsquo;t see how else you would do it.</p>
+
+<p>For info here is the code:</p>
+
+<p>```php</p>
+
+<p>/**</p>
+
+<pre><code> * @return Zend_Rest_Client 
+ */
+protected function getClient() {
+    if (null === $this-&gt;_client) {
+        $url = $this-&gt;getApiUrl();
+        $uri = Zend_Uri_Http::fromString($url);
+        $this-&gt;_client = new Zend_Rest_Client($uri);
+        Zend_Service_Abstract::getHttpClient()-&gt;setAuth($this-&gt;getUsername(),$this-&gt;getPassword());
+    }
+    return $this-&gt;_client;
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Zend Framework Error Invalid bind-variable name + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/zend%20framework/zend-framework-error-invalid-bind-variable-name-solution.html"/>
+    <updated>2010-02-03T12:55:28+00:00</updated>
+    <id>http://edmondscommerce.github.io/zend%20framework/zend-framework-error-invalid-bind-variable-name-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you encounter the error :</p>
+
+<p><strong>Invalid bind-variable name xxxxxx</strong></p>
+
+<p>When trying to use named bound parameters with Zend Framework, then you are probably using the Mysqli adapter. Unfortunately this doesn&rsquo;t actually support named parameters, but the Exception message isn&rsquo;t really clear on that, despite being thrown in this block of code:</p>
+
+<p>```php</p>
+
+<p> } else if ($val[0] == &lsquo;:&rsquo;) {</p>
+
+<pre><code>if ($this-&gt;_adapter-&gt;supportsParameters('named') === false) {
+    /**
+     * @see Zend_Db_Statement_Exception
+     */
+    require_once 'Zend/Db/Statement/Exception.php';
+    throw new Zend_Db_Statement_Exception("Invalid bind-variable name '$val'");
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>The Exception should really say:</p>
+
+<p><strong>You are trying to use named parameters with an adapter that doesn&rsquo;t support them</strong></p>
+
+<p>The solution is easy, just switch your adapter from Mysqli to Pdo_Mysql</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Zend Framework - Reusing Prepared Zend_Db_Statements]]></title>
+    <link href="http://edmondscommerce.github.io/zend%20framework/zend-framework-reusing-prepared-zend_db_statements.html"/>
+    <updated>2010-02-02T15:22:32+00:00</updated>
+    <id>http://edmondscommerce.github.io/zend%20framework/zend-framework-reusing-prepared-zend_db_statements</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you use Zend_Db_Statements directly as well as using the Zend_Db_Table family of classes for Active Record et al then you might find the following little tip useful.</p>
+
+<p>By default, if you run a query using something like</p>
+
+<p>```php</p>
+
+<p> public function query($sql, $params=false) {</p>
+
+<pre><code>if(empty($params)) {
+    $stmt = $this-&gt;getAdapter()-&gt;query($sql);
+}else {
+    $stmt = $this-&gt;getAdapter()-&gt;query($sql, $params);
+}
+return $stmt;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>then every time you call your query method, you will be preparing the statement again.</p>
+
+<p>Of course that&rsquo;s not really a good idea if you are repeating the same query multiple times simply changing the parameters to be passed in.</p>
+
+<p>In that kind of scenario you can do something like this:</p>
+
+<p>```php</p>
+
+<p>$stmt = $db->query($sql, $params);
+$result1 = $stmt->fetch();
+$stmt->execute($params2);
+$result2 = $stmt->fetch();</p>
+
+<p>```</p>
+
+<p>Heres an example of a chunk of code that is working out a category path from an ecommerce system for a particular category id.</p>
+
+<p>```php</p>
+
+<p>$stmt = $db->query(&ldquo;select c.parent_id, cd.categories_name from categories c join categories_description cd using(categories_id)
+where categories_id = ?&rdquo;, array($categories_id));
+while(false!==($r=$stmt->fetch())){</p>
+
+<pre><code>$categoryString[]=$r['categories_name'];
+if($r['parent_id']==0){
+    break;
+}
+</code></pre>
+
+<p>//Note this bit &ndash; we are just re executing the statement with some new parameters.</p>
+
+<pre><code>$stmt-&gt;execute(array($r['parent_id']));
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>This tip alone can add a lot of speed if you are doing repetitive statements</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Zend Framework UK]]></title>
+    <link href="http://edmondscommerce.github.io/zend%20framework/zend-framework-uk.html"/>
+    <updated>2010-02-01T16:34:53+00:00</updated>
+    <id>http://edmondscommerce.github.io/zend%20framework/zend-framework-uk</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Currently working on a big Zend Framework project so I though I would have a breather and do a little blog post targeted at anyone looking for a UK based Zend Framework developer.</p>
+
+<p>I&rsquo;ve built a few Zend Framework based systems and have found it a fun system to work with, especially on the more recent versions of the library. There have been a few hurdles along the way and I have definitely improved my object oriented PHP development skills a lot since I first had a go at the <a href="http://framework.zend.com">Zend Framework</a> quick start way back when.</p>
+
+<p>I chose to learn <strong>Zend Framework</strong> primarily because Magento is based on it, and Magento is the ecommerce platform that I have chosen to specialise in. Since then though I have found that Zend Framework has a definite place for me, especially when coding more heavy duty data processing applications.</p>
+
+<p>For simple web sites I would tend more towards using Symfony or my own lightweight MVC framework for very simple sites. For me Zend Framework really shines when you need to do something a little different that doesn&rsquo;t easily fit into the mold specified by the Symfony code creation tools.</p>
+
+<p>So to conclude, if you are looking for a PHP web developer who specialises in Zend Framework and particularly if you would prefer a UK based Zend Framework specialist then <a href="http://www.edmondscommerce.co.uk/contact-about-zend-framework.html">get in touch with us today</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Zend Paginator - Actually Pretty Painless :)]]></title>
+    <link href="http://edmondscommerce.github.io/zend%20framework/zend-paginator-actually-pretty-painless.html"/>
+    <updated>2010-01-27T17:26:08+00:00</updated>
+    <id>http://edmondscommerce.github.io/zend%20framework/zend-paginator-actually-pretty-painless</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>With some trepidation I decided that I really had to implement pagination into a Zend Framework project I am working on. Zend Framework is great, but some of the sections can be a little tricky to get your head around at first attempt.</p>
+
+<p>However, less than an hour after first looking at it, I have now got my system spitting out results in a nicely paginated ten at a time. The documentation on the Zend Framework reference is a little sparse but suffice to say that if you are using Zend_Db then actually its pretty easy.</p>
+
+<p>The only bit that is a little tricky is getting the actual page controls to display, as you are left to code your own (though they do supply some code).</p>
+
+<p>One major irritation with the Zend Framework reference guide is that I seem to be unable to copy and paste the code examples, it ends up looking like this:</p>
+
+<p>```php</p>
+
+<pre><code>  &lt;!--
+</code></pre>
+
+<ol>
+<li>.
+  See <a href="http://developer.yahoo.com/ypatterns/pattern.php?pattern=searchpagination">http://developer.yahoo.com/ypatterns/pattern.php?pattern=searchpagination</a></li>
+<li>.
+  &mdash;></li>
+<li><p>.</p></li>
+<li><p>.
+  &lt;?php if ($this->pageCount): ?></p></li>
+<li>.
+  <div class="paginationControl"></li>
+<li>.
+  <!-- Previous page link --></li>
+<li>.
+  &lt;?php if (isset($this->previous)): ?></li>
+<li>.
+    <a href="<?php echo $this->url(array(&lsquo;page&rsquo; => $this->previous)); ?>&ldquo;></li>
+<li>.
+      &lt; Previous</li>
+<li>.
+    </a> |</li>
+<li>.</li>
+</ol>
+
+
+<p>```</p>
+
+<p>note the line numbers, great.</p>
+
+<p><a href="http://teethgrinder.co.uk/perm.php?a=Zend-Framework-MySQL-DB-Pagination-Tutorial">this tutorial was really useful though:</a></p>
+
+<p>Here is some code snippets:</p>
+
+<h3>Controller</h3>
+
+
+<p>```php</p>
+
+<pre><code>public function viewAction(){        
+    $this-&gt;view-&gt;input = $input = $this-&gt;_request-&gt;getPost('search');
+    $paginator = $this-&gt;_model-&gt;tableSearchAllPaginator($input);
+    $paginator-&gt;setCurrentPageNumber($this-&gt;_getParam('page'));
+    $this-&gt;view-&gt;paginator = $paginator;
+}
+</code></pre>
+
+<p>```</p>
+
+<h3>Model</h3>
+
+
+<p>```php</p>
+
+<pre><code>public function tableSearchAllPaginator($input, $fields_to_select=null){
+    $table = $this-&gt;getTable();
+    $select = $table-&gt;select();
+    $fields = $table-&gt;info(Zend_Db_Table_Abstract::COLS);
+    if(!empty($input)) {
+        foreach($fields as $field) {
+            $select-&gt;orWhere("$field like ?", "%$input%");
+        }
+    }
+    if(!empty($fields_to_select)) {
+        $select-&gt;columns($fields_to_select);
+    }
+    $paginator = new Zend_Paginator(new Zend_Paginator_Adapter_DbTableSelect($select));
+    return $paginator;
+}
+</code></pre>
+
+<p>```</p>
+
+<h3>View Script</h3>
+
+
+<p>```php</p>
+
+<p>echo $this->partial(&lsquo;_viewtable_page.phtml&rsquo;, array(&lsquo;paginator&rsquo;=>$this->paginator, &lsquo;controller&rsquo;=>&lsquo;products&rsquo;));</p>
+
+<p>```</p>
+
+<h3>View Table Page Partial</h3>
+
+
+<p>```php</p>
+
+<p>if (count($this->paginator)) {</p>
+
+<pre><code>echo '&lt;h4&gt;Found ' . count($this-&gt;paginator) . ' Results&lt;/h4&gt;';
+echo '&lt;table class="grid"&gt;';
+foreach($this-&gt;paginator as $k=&gt;$row) {
+    //EC_Debug::dump($k);
+    $row = $row-&gt;toArray();
+    //EC_Debug::diedump($row);
+    if($k == 0) {
+        echo '&lt;tr&gt;';
+        foreach($row as $f=&gt;$v) {
+            echo "&lt;th&gt;$f&lt;/th&gt;";
+        }
+        echo '&lt;/tr&gt;';
+    }
+    echo '&lt;tr&gt;';
+    foreach($row as $f=&gt;$v) {
+        $extra = '';
+        if($f=='id') {
+            $extra = '&lt;a href="' . $this-&gt;url(array('controller'=&gt;$this-&gt;controller, 'action'=&gt;'edit', 'id'=&gt;$v), null, true) . '"&gt;&lt;img src="' . $this-&gt;baseUrl() . '/style/icons/application_edit.png" border="0" alt="edit"&gt;&lt;/a&gt;';
+            $extra .= ' &lt;a href="' . $this-&gt;url(array('controller'=&gt;$this-&gt;controller, 'action'=&gt;'delete', 'id'=&gt;$v), null, true) . '"&gt;&lt;img src="' . $this-&gt;baseUrl() . '/style/icons/cancel.png" border="0" alt="delete"&gt;&lt;/a&gt;';
+        }
+        echo "&lt;td&gt;$extra $v&lt;/td&gt;";
+    }
+    echo '&lt;/tr&gt;';
+}
+echo '&lt;/table&gt;';
+echo $this-&gt;paginationControl($this-&gt;paginator, 'Sliding', '_paginator.php');
+</code></pre>
+
+<p>}else{</p>
+
+<pre><code>echo 'no results...';
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<h3>Pagination Controls Partial</h3>
+
+
+<p>```php</p>
+
+<p>&lt;?php if ($this->pageCount): ?></p>
+
+<div class="pagination">
+
+<?php if (isset($this->previous)): ?>
+  <a href="<?= $this->url(array('page' => $this->previous)); ?>">« PREV</a> -
+<?php endif; ?>
+
+<?php
+    /* Page links */
+
+    foreach ($this->pagesInRange as $page): ?>
+    <a href="<?= $this->url(array('page' => $page)); ?>" <?php if($page == $this->current): ?>id="selected"><?php endif; ?><?= $page; ?></a>
+<?php endforeach; ?>
+
+<?php if (isset($this->next)): ?>
+ - <a href="<?= $this->url(array('page' => $this->next)); ?>">Next ></a>
+<?php endif; ?>
+
+</div>
+
+
+<p>&lt;?php endif; ?></p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>
