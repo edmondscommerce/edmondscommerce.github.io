@@ -128,6 +128,163 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T13:54:17+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/stop-magento-writing-to-tmp.html">Stop Magento Writing to /tmp</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>So some of us disagree when it comes to what should happen when magento cannot write to var/ in the webroot.  Magento itself chooses to try /tmp/magento/ if the var/ folder is not writable.  This can cause many issues and confusion.  Not least of which emptying var/ and making it writable does not make magento start using it, if there&rsquo;s already a /tmp/magento!</p>
+
+<p>One preferable option is to force magento to just stop if it can&rsquo;t write to var/ &ndash; here&rsquo;s a simple way to do this, which is sneaky but really handy :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /tmp
+</span><span class='line'>ln -s abracadabra-dangling-symlink magento
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What that does is create a dangling symlink in /tmp/ called magento, which cannot be overwritten by a directory.  Magento then simply stops.  Stopping because of permissions errors is often preferable to continuing and causing later confusion and problems.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-09T16:24:34+01:00" pubdate data-updated="true">Aug 9<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/creating-rpms.html">Creating RPMs</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>One thing that I often get asked as a package maintainer is how hard is it to make rpms?</p>
+
+<p>Well, here&rsquo;s a little secret, if you have the right tools, it&rsquo;s actually quite easy.</p>
+
+<p>The main tool I use is mezzanine &ndash; one of the people I worked with on the cAos Linux distributions wrote this toolset in perl, and it is installable even on debian-based distros.  His website is experiencing issues at the moment but it is <a href="http://beta.kainx.org/" title="http://beta.kainx.org/"><a href="http://beta.kainx.org/">http://beta.kainx.org/</a></a>.  If it&rsquo;s still down and you want the rpm, rpm.pbone.net can find you an rpm.</p>
+
+<p>The basics are that you need a folder that contains an &ldquo;F&rdquo; &ldquo;P&rdquo; and &ldquo;S&rdquo; directory, and yes, that is all uppercase.  The F folder contains a spec file similar to what&rsquo;s below, the S folder contains the source files and the P directory is a clever little patch making system.</p>
+
+<p>The spec file is almost exactly the same as a normal rpmbuild spec file and looks like this :&ndash;
+<code>
+#</p>
+
+<h1>spec file for safe-rm</h1>
+
+<p>#
+Summary: Don&rsquo;t rm various directorie
+Name: safe-rm
+Version: 0.8
+Release: 1
+License: GPL
+Group: Applications/Utilities
+Source: <a href="https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz">https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz</a>
+URL: <a href="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a>
+Distribution: CentOS
+Packager: Martyn Ranyard <a href="&#x6d;&#97;&#x69;&#108;&#x74;&#111;&#x3a;&#105;&#110;&#102;&#111;&#x40;&#101;&#x64;&#x6d;&#x6f;&#110;&#x64;&#x73;&#x63;&#111;&#x6d;&#109;&#101;&#114;&#x63;&#x65;&#46;&#x63;&#x6f;&#46;&#x75;&#107;">&#x69;&#x6e;&#x66;&#x6f;&#x40;&#x65;&#x64;&#x6d;&#x6f;&#110;&#100;&#115;&#x63;&#x6f;&#109;&#109;&#101;&#x72;&#99;&#101;&#x2e;&#99;&#111;&#x2e;&#x75;&#107;</a>
+Patch1000: safe-rm-0.8-example-conf.patch
+Requires: perl</p>
+
+<p>%description
+Stop people accidentally removing directories with rm -rf</p>
+
+<p>%changelog
+* Thu Aug 09 2012 Martyn Ranyard <a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#105;&#110;&#102;&#111;&#x40;&#x65;&#x64;&#x6d;&#x6f;&#110;&#100;&#115;&#99;&#111;&#x6d;&#109;&#x65;&#x72;&#x63;&#x65;&#x2e;&#99;&#x6f;&#46;&#x75;&#107;">&#105;&#110;&#x66;&#111;&#x40;&#x65;&#100;&#x6d;&#x6f;&#110;&#x64;&#x73;&#x63;&#111;&#x6d;&#109;&#x65;&#x72;&#99;&#101;&#x2e;&#x63;&#x6f;&#x2e;&#x75;&#107;</a>
+&ndash; Used the debian example config for the default config</p>
+
+<p>%prep
+rm -rf $RPM_BUILD_ROOT/safe-rm-0.8
+zcat $RPM_SOURCE_DIR/safe-rm-0.8.tar.gz | tar -xvf &ndash;
+cd safe-rm-0.8
+%patch1000 -p1</p>
+
+<p>%build</p>
+
+<p>%install
+mkdir -p $RPM_BUILD_ROOT/usr/bin/
+mkdir -p $RPM_BUILD_ROOT/etc/
+mkdir -p $RPM_BUILD_ROOT/sbin/
+install -m 0755 safe-rm-0.8/safe-rm $RPM_BUILD_ROOT/usr/bin/safe-rm
+install -m 0644 safe-rm-0.8/safe-rm.conf $RPM_BUILD_ROOT/etc/safe-rm.conf
+cd $RPM_BUILD_ROOT/usr/bin/
+ln -s safe-rm rm
+cd &ndash;
+cd $RPM_BUILD_ROOT/sbin/
+ln -s /usr/bin/safe-rm rm
+cd &ndash;</p>
+
+<p>%files
+/etc
+/etc/safe-rm.conf
+/usr
+/usr/bin
+/usr/bin/safe-rm
+/sbin
+/sbin/rm
+</code></p>
+
+<p>You&rsquo;ll notice the patch1000 lines reference a patch file, which mezzanine handily creates for you, first you run mzprep, which creates a work dir, then you add/edit files in there to make whatever you&rsquo;re packaging build and install (to $RPM_BUILD_DIR) and then you run &ldquo;mzpatch mypatchname.patch&rdquo; and it creates the patch ready to be deployed.</p>
+
+<p>To create the rpms, change back to the top level directory (the one containing F P &amp; S) and type mzbuild.</p>
+
+<p>It takes a bit of getting used to and a fair bit of fiddling but the end result is good solid rpms.</p>
+
+<p>Note: it can also make deb files and slackware package files but KainX is the guy to talk to on that front.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-09T15:59:14+01:00" pubdate data-updated="true">Aug 9<span>th</span>, 2012</time>
         
       </p>
@@ -581,109 +738,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-25T17:42:32+01:00" pubdate data-updated="true">Jul 25<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/how-to-get-a-list-of-all-modules-in-magento.html">How to Get a List of All Modules in Magento</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I was recently asked to generate a list of all of the modules in a copy of magento.</p>
-
-<p>To this I put together this quick one-line bash command to go through the modules folder and output the content</p>
-
-<p><code>
-cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active&rdquo; | grep -v &ldquo;&lt;.*active&rdquo; | sed &rsquo;s/&lt;//g' | sed &rsquo;s/>//g' | awk &lsquo;{print $1}&rsquo; | sort | uniq > /path/to/file
-</code></p>
-
-<p>If you just the active modules then run this instead
-<code>
-cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<em>true&rdquo; | grep -v &ldquo;&lt;.</em>active&rdquo; | sed &rsquo;s/&lt;//g' | sed &rsquo;s/>//g' | awk &lsquo;{print $1}&rsquo; | sort | uniq > /path/to/file
-</code></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-17T11:02:21+01:00" pubdate data-updated="true">Jul 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-rounding-errors-1-6-0.html">Magento Rounding Errors (1.6.0+)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>The latest version of Magento has a fairly major issue that mostly affects UK and EU businesses, in the way it calculates taxes.</p>
-
-<p>One of the most obvious situations is if you sell something worth £24.99 (inc. tax) and enter that as the price in Magento.  The thread on the Magento forum is <a href="http://www.magentocommerce.com/boards/viewthread/247201/">here</a>.</p>
-
-<p>On the front end (if you have left the standard price templates alone) you will in 1.6.2+ see a price of £24.98.</p>
-
-<p>This is because Magento first takes off the tax, then adds it back on, unfortunately a rounding error creeps in at one or the other side of the process.</p>
-
-<p>Magento claims this is fixed in 1.7.0.1 but from reports we have seen this is not the case.  There are two current fixes but they both have issues.</p>
-
-<p>The first (listed <a href="http://www.magentocommerce.com/boards/viewreply/353791/">here</a>) is to override the store rounding system and have Magento work to 4 decimal places instead of 2.  That&rsquo;s fine and works but if you have a payment gateway that gets fed the line items (such as Paypal Express Checkout for instance), the total does not match the line items (probably because it is passed a 4dp number and it doesn&rsquo;t match the totals of the 2dp items).</p>
-
-<p>Another option (as mentioned <a href="http://www.magentocommerce.com/boards/viewreply/361474/">here</a>) is to assume no rounding where it is not specified rather than assuming rounding.  This won&rsquo;t cause problems with gateways but then you do need to fiddle with your templates to make sure your prices are displayed with tax.</p>
-
-<p>As mentioned, we haven&rsquo;t actually seen a solution that works across the board and is right with stats, payment gateways, frontend and backend.  It&rsquo;s a major bug and hopefully the next release of Magento will fix this.</p>
-
-<p>This appears to be most prevalent when using the &ldquo;Prices include tax in backend&rdquo; setting as the tax calculation only gets done once if you enter pre-tax prices and have the tax only added on.  That isn&rsquo;t to say that it will always calculate the tax correctly that way round either, just that this particular rounding issue is not as visible.</p>
-
-<p>Also, the fixes listed on that thread involve modifying core files &ndash; <strong>don&rsquo;t do this!</strong> copy the files to /app/code/local/Mage from /app/code/core/Mage and modify them in there.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -707,15 +761,15 @@ cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<e
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
+    
+    <a class="list-group-item " href="/octopress/octopress-cheat-sheet.html">Octopress Cheat Sheet</a>
+    
     <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
     
     <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
     
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
-    
-    <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
-    
-    <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
   </div>
 </section>

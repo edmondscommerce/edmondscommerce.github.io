@@ -128,6 +128,151 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-20T15:19:23+00:00" pubdate data-updated="true">Jan 20<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/how-to-get-a-configurable-products-parent-in-magento.html">How to Get a Configurable Products Parent in Magento</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I recently needed magento to be able to load a product, and if that product was part of a configurable product detect this and return the parent product if that existed. Looking around google I came across this code snippet and thought it should work</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_product</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$productId</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$parentIdArray</span> <span class="o">=</span> <span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">loadParentProductIds</span><span class="p">()</span>
+</span><span class='line'>                 <span class="o">-&gt;</span><span class="na">getData</span><span class="p">(</span><span class="s1">&#39;parent_product_ids&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$parentIdArray</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// do something</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem is that the loadParentProductIds method was depreciated in 1.4.2.0 and I&rsquo;m running 1.6. The new way of doing detecting if a product has a parent is to do this</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$configurable_product_model</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product_type_configurable&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$parentIdArray</span><span class="o">=</span> <span class="nv">$configurable_product_model</span><span class="o">-&gt;</span><span class="na">getParentIdsByChild</span><span class="p">(</span><span class="nv">$productId</span><span class="p">);</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$parentIdArray</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// do something</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using this method I overrode the Mage_Catalog_Model_Product class and added this method, which will always return a configurable product if the product is associated with one. Be aware, that if you products belong to more than one configurable product you will have to modify the logic</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getConfigurableProduct</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">type_id</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="s1">&#39;configurable&#39;</span><span class="o">:</span>
+</span><span class='line'>          <span class="k">return</span> <span class="nv">$this</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>          <span class="nv">$configurable_product_model</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product_type_configurable&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="nv">$parentId</span><span class="o">=</span> <span class="nv">$configurable_product_model</span><span class="o">-&gt;</span><span class="na">getParentIdsByChild</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">());</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$parentId</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$parentId</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nv">$this</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-19T16:15:47+00:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/job/php-job-bradford.html">PHP Job Bradford</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are a PHP developer looking for a job in the Bradford area then please do get in touch with Edmonds Commerce.</p>
+
+<p>We are a team of PHP developers who focus on e-commerce based on open source packages such as <a href="http://www.edmondscommerce.co.uk">Magento</a>, osCommerce, Prestashop, OpenCart and others. We also do a fair bit of Wordpress, Drupal, Zend Framework etc as well. We even do bespoke PHP development.</p>
+
+<p>If you are a skilled PHP developer and would like to join a team of enthusiastic developers in a friendly flexible environment with a focus on productivity, personal skills development and fun then get in touch with us today.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-19T14:07:23+00:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
         
       </p>
@@ -573,107 +718,6 @@ PeterZ presentations:
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-12T18:02:17+00:00" pubdate data-updated="true">Jan 12<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/compare-two-columns-in-mysql.html">Compare Two Columns in Mysql</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Many database queries rely on seeing if two columns match / differ, however sometimes you may want to check if either column contains a sub-string of the other. MySql allows you to do this, but it isn&rsquo;t that well documented, so hopefully this will help someone looking for this in the future</p>
-
-<p><code>
-SELECT *
-FROM</p>
-
-<pre><code>`table`
-</code></pre>
-
-<p>WHERE</p>
-
-<pre><code>`col1` LIKE CONCAT('%', `col2`, '%')
-OR col2 LIKE CONCAT('%',`col1`,'%')
-</code></pre>
-
-<p></code></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-12T12:28:54+00:00" pubdate data-updated="true">Jan 12<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/security/got-the-insecure-content-on-a-secure-https-page-problem-easy-solution.html">Got the Insecure Content on a Secure HTTPs Page Problem - Easy Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Often you will see SSL warnings or errors related to insecure content being displayed on a secure page.</p>
-
-<p>This could be as simple as one javascript file or image that is being included via http rather than https, though some times this can be a bit tricky to track down.</p>
-
-<p>The easiest solution is to hit this site:</p>
-
-<p><a href="http://www.whynopadlock.com/"><a href="http://www.whynopadlock.com/">http://www.whynopadlock.com/</a></a></p>
-
-<p>This will give you a clear report of the problems and should help you quickly find and fix them.</p>
-
-<p>Alternatively if you use Chrome you may see the details in the Javascript console.</p>
-
-<p>Once you know what elements are being called by http as opposed to https, you simply need to make them use https or remove them altogether.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -697,15 +741,15 @@ OR col2 LIKE CONCAT('%',`col1`,'%')
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
+    
+    <a class="list-group-item " href="/octopress/octopress-cheat-sheet.html">Octopress Cheat Sheet</a>
+    
     <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
     
     <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
     
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
-    
-    <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
-    
-    <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
   </div>
 </section>

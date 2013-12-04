@@ -128,6 +128,187 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T13:24:37+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html">Apache Access Logs Find Spiders by Counting Requests to IP Addresses</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nv">LOG_FILE</span><span class="o">=</span>/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+</span><span class='line'><span class="nv">OUT_FILE</span><span class="o">=</span>/tmp/spider_analysis
+</span><span class='line'>
+</span><span class='line'><span class="c">#This generates a file with the top 20 IP addresses by number of requests</span>
+</span><span class='line'>cat <span class="nv">$LOG_FILE</span> | awk <span class="s1">&#39;{print $1}&#39;</span> | sort | uniq -c | sort -nr | head -n 20 &gt; <span class="nv">$OUT_FILE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Top 20 IP addresses by number of request&quot;</span>
+</span><span class='line'>cat <span class="nv">$OUT_FILE</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#allow for loop to split on new line</span>
+</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span><span class="nv">$IFS</span>
+</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for </span>i in <span class="sb">`</span>cat <span class="nv">$OUT_FILE</span><span class="sb">`</span>
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'><span class="k">    </span><span class="nv">COUNT</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nv">IP_ADD</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;$IP_ADD has made $COUNT requests&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;Whois Information&quot;</span>
+</span><span class='line'>    whois <span class="nv">$IP_ADD</span>
+</span><span class='line'>    <span class="c">#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># set that back</span>
+</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="nv">$IFS_BAK</span>
+</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would use this to give you some idea of which IPs are hitting the server a lot.</p>
+
+<p>Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-17T15:57:47+01:00" pubdate data-updated="true">Aug 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-security-update.html">Magento Security Update Testimonials</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you run a Magento store or are otherwise familiar with the world of Magento then you have no doubt seen the urgent security patch that live stores needed to apply quickly.</p>
+
+<p>We opted to offer the security patching service for free to our existing clients and then also to the rest of the world. The process of applying the patch is quick and painless thanks to a nice Bash script we put together so there was really no problem in offering this service. <a href="http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/">You can read all about that offer here</a>. For anyone still not patched, the offer still stands.</p>
+
+<p>Since that time we have had a few nice testimonials which we thought we would share:</p>
+
+<p><b>Chris from Mobile CAD Surveying</b></p>
+
+<blockquote>Thank-you to Edmonds Commerce for highlighting a recent Magento security breach that we were unaware of. Edmonds let us know about this problem and offered to fix it for us at no cost.  We gave them our log in details and within an hour a patch had been installed and everything was working fine.
+Thanks once again to Edmonds for their professional service and for attending to this matter very swiftly.
+</blockquote>
+
+
+<p><a href="http://www.mobilecadsurveying.co.uk/" title="Mobile CAD Surveying" target="_blank">Mobile CAD Surveying Ltd</a></p>
+
+<p><b>Mark Noble, IT Manager at Buckley Jewellery</b></p>
+
+<blockquote>Buckley Jewellery originally approached Edmonds Commerce to take our existing site and develop it onto a Magento platform.
+Since this first project we have used Joseph and his team for a further website and additional work to develop & expand our ecommerce business.
+The offer of installing the Magento patch across our websites was typical of a company who provide an honest and refreshing approach to website design.
+I would not hesitate to recommend Edmonds Commerce for any ecommerce development and advice.</blockquote>
+
+
+<p><a href="http://www.buckley-jewellery.com/" title="Buckley Jewellery" target="_blank">Buckley Jewellery</a></p>
+
+<p><b>Clare from Libertinesque</b></p>
+
+<blockquote>
+I can thoroughly recommend Joseph and his team for such a fantastic service and the security patch which was generously offered as a free service and efficiently applied with a very quick response time. Giving great personal attention every time, I have no hesitation in recommending the team for Magento upgrades and service.
+</blockquote>
+
+
+<p><a href="http://www.libertinesque.com/" target="_blank">Libertinesque</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-17T15:31:32+01:00" pubdate data-updated="true">Aug 17<span>th</span>, 2012</time>
         
       </p>
@@ -680,163 +861,6 @@ You need to tell my top how it should connect to your database. You <em>can</em>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T13:54:17+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/stop-magento-writing-to-tmp.html">Stop Magento Writing to /tmp</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>So some of us disagree when it comes to what should happen when magento cannot write to var/ in the webroot.  Magento itself chooses to try /tmp/magento/ if the var/ folder is not writable.  This can cause many issues and confusion.  Not least of which emptying var/ and making it writable does not make magento start using it, if there&rsquo;s already a /tmp/magento!</p>
-
-<p>One preferable option is to force magento to just stop if it can&rsquo;t write to var/ &ndash; here&rsquo;s a simple way to do this, which is sneaky but really handy :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /tmp
-</span><span class='line'>ln -s abracadabra-dangling-symlink magento
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What that does is create a dangling symlink in /tmp/ called magento, which cannot be overwritten by a directory.  Magento then simply stops.  Stopping because of permissions errors is often preferable to continuing and causing later confusion and problems.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-09T16:24:34+01:00" pubdate data-updated="true">Aug 9<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/creating-rpms.html">Creating RPMs</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>One thing that I often get asked as a package maintainer is how hard is it to make rpms?</p>
-
-<p>Well, here&rsquo;s a little secret, if you have the right tools, it&rsquo;s actually quite easy.</p>
-
-<p>The main tool I use is mezzanine &ndash; one of the people I worked with on the cAos Linux distributions wrote this toolset in perl, and it is installable even on debian-based distros.  His website is experiencing issues at the moment but it is <a href="http://beta.kainx.org/" title="http://beta.kainx.org/"><a href="http://beta.kainx.org/">http://beta.kainx.org/</a></a>.  If it&rsquo;s still down and you want the rpm, rpm.pbone.net can find you an rpm.</p>
-
-<p>The basics are that you need a folder that contains an &ldquo;F&rdquo; &ldquo;P&rdquo; and &ldquo;S&rdquo; directory, and yes, that is all uppercase.  The F folder contains a spec file similar to what&rsquo;s below, the S folder contains the source files and the P directory is a clever little patch making system.</p>
-
-<p>The spec file is almost exactly the same as a normal rpmbuild spec file and looks like this :&ndash;
-<code>
-#</p>
-
-<h1>spec file for safe-rm</h1>
-
-<p>#
-Summary: Don&rsquo;t rm various directorie
-Name: safe-rm
-Version: 0.8
-Release: 1
-License: GPL
-Group: Applications/Utilities
-Source: <a href="https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz">https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz</a>
-URL: <a href="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a>
-Distribution: CentOS
-Packager: Martyn Ranyard <a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#105;&#x6e;&#102;&#111;&#64;&#x65;&#100;&#109;&#111;&#110;&#x64;&#115;&#x63;&#111;&#x6d;&#x6d;&#x65;&#x72;&#99;&#x65;&#46;&#x63;&#111;&#x2e;&#117;&#x6b;">&#x69;&#110;&#x66;&#x6f;&#x40;&#x65;&#100;&#x6d;&#111;&#x6e;&#100;&#115;&#x63;&#x6f;&#109;&#109;&#x65;&#x72;&#x63;&#101;&#x2e;&#99;&#111;&#x2e;&#117;&#107;</a>
-Patch1000: safe-rm-0.8-example-conf.patch
-Requires: perl</p>
-
-<p>%description
-Stop people accidentally removing directories with rm -rf</p>
-
-<p>%changelog
-* Thu Aug 09 2012 Martyn Ranyard <a href="&#109;&#97;&#x69;&#108;&#x74;&#x6f;&#58;&#105;&#110;&#x66;&#111;&#64;&#x65;&#100;&#x6d;&#x6f;&#110;&#100;&#115;&#99;&#x6f;&#x6d;&#109;&#101;&#114;&#x63;&#101;&#46;&#99;&#111;&#46;&#117;&#107;">&#x69;&#110;&#102;&#111;&#x40;&#101;&#100;&#109;&#111;&#x6e;&#x64;&#115;&#99;&#x6f;&#109;&#x6d;&#x65;&#x72;&#99;&#x65;&#x2e;&#99;&#x6f;&#46;&#117;&#x6b;</a>
-&ndash; Used the debian example config for the default config</p>
-
-<p>%prep
-rm -rf $RPM_BUILD_ROOT/safe-rm-0.8
-zcat $RPM_SOURCE_DIR/safe-rm-0.8.tar.gz | tar -xvf &ndash;
-cd safe-rm-0.8
-%patch1000 -p1</p>
-
-<p>%build</p>
-
-<p>%install
-mkdir -p $RPM_BUILD_ROOT/usr/bin/
-mkdir -p $RPM_BUILD_ROOT/etc/
-mkdir -p $RPM_BUILD_ROOT/sbin/
-install -m 0755 safe-rm-0.8/safe-rm $RPM_BUILD_ROOT/usr/bin/safe-rm
-install -m 0644 safe-rm-0.8/safe-rm.conf $RPM_BUILD_ROOT/etc/safe-rm.conf
-cd $RPM_BUILD_ROOT/usr/bin/
-ln -s safe-rm rm
-cd &ndash;
-cd $RPM_BUILD_ROOT/sbin/
-ln -s /usr/bin/safe-rm rm
-cd &ndash;</p>
-
-<p>%files
-/etc
-/etc/safe-rm.conf
-/usr
-/usr/bin
-/usr/bin/safe-rm
-/sbin
-/sbin/rm
-</code></p>
-
-<p>You&rsquo;ll notice the patch1000 lines reference a patch file, which mezzanine handily creates for you, first you run mzprep, which creates a work dir, then you add/edit files in there to make whatever you&rsquo;re packaging build and install (to $RPM_BUILD_DIR) and then you run &ldquo;mzpatch mypatchname.patch&rdquo; and it creates the patch ready to be deployed.</p>
-
-<p>To create the rpms, change back to the top level directory (the one containing F P &amp; S) and type mzbuild.</p>
-
-<p>It takes a bit of getting used to and a fair bit of fiddling but the end result is good solid rpms.</p>
-
-<p>Note: it can also make deb files and slackware package files but KainX is the guy to talk to on that front.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -860,15 +884,15 @@ cd &ndash;</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
+    
+    <a class="list-group-item " href="/octopress/octopress-cheat-sheet.html">Octopress Cheat Sheet</a>
+    
     <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
     
     <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
     
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
-    
-    <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
-    
-    <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
   </div>
 </section>
