@@ -1,5 +1,4 @@
 #!/bin/bash
-sshhistory
 cd /opt/Projects/edmondscommerce.github.io/
 git add -A
 git commit -am 'commiting the source'
