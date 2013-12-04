@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: dynamic | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/dynamic/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using PHP to Stream SQL results dynamically as CSV, even to IE]]></title>
+    <link href="http://edmondscommerce.github.io/php/using-php-to-stream-sql-results-dynamically-as-csv-even-to-ie.html"/>
+    <updated>2011-06-06T10:49:46+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/using-php-to-stream-sql-results-dynamically-as-csv-even-to-ie</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you want to offer a csv feed and want the results to be on demand and like the idea of avoiding messing about righting to files on the server etc, you might like this little manuever.</p>
+
+<p>You will notice I&rsquo;m using a non standard db_query function, just assume that this does all the sensible stuff it should.</p>
+
+<p>Also the query needs to be modified to suit.</p>
+
+<p>The trick is writing to PHP&rsquo;s built in php://output stream which is basically just STDOUT.</p>
+
+<p>Note the headers which are specifically required to get IE to accept the file as a download. Other browsers will accept less headers but will also work fine with these.</p>
+
+<p>```php</p>
+
+<p>header(&ldquo;Pragma: public&rdquo;);
+header(&ldquo;Expires: 0&rdquo;);
+header(&ldquo;Cache-Control: must-revalidate, post-check=0, pre-check=0&rdquo;);
+header(&ldquo;Cache-Control: private&rdquo;, false);
+header(&ldquo;Content-Type: application/octet-stream&rdquo;);
+header(&ldquo;Content-Disposition: attachment; filename=\"file.csv\&rdquo;;&ldquo;);
+header("Content-Transfer-Encoding: binary&rdquo;);</p>
+
+<p>$outstream = fopen(&ldquo;php://output&rdquo;, &lsquo;w&rsquo;);</p>
+
+<p>$sql = &ldquo; select * from a_table&rdquo;;
+$q = db_query(&ldquo;$sql&rdquo;);</p>
+
+<p>$header = false;
+while ($r = mysql_fetch_assoc($q)) {</p>
+
+<pre><code>if (!$header) {
+    fputcsv($outstream, array_keys($r));
+    $header = true;
+}
+fputcsv($outstream, $r);
+</code></pre>
+
+<p>}
+fclose($outstream);</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Javascript Associate Arrays / Objects with Dynamic Key Access]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/javascript-associate-arrays-objects-with-dynamic-key-access.html"/>
+    <updated>2009-09-26T18:19:24+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/javascript-associate-arrays-objects-with-dynamic-key-access</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are trying to use associative arrays in Javascript, the first thing is to not use the Array type and instead just use objects.</p>
+
+<p>The weird and wonderful thing is that if you create your array as an object, you can still use the array style square brackets to access object properties.</p>
+
+<p>So for example take this:</p>
+
+<p>```javascript</p>
+
+<p>var assocArrayObject = {&ldquo;key1&rdquo;:&ldquo;value1&rdquo;, &ldquo;key2&rdquo;:&ldquo;value2&rdquo;};</p>
+
+<p>alert(assocArrayObject[&ldquo;key1&rdquo;);</p>
+
+<p>```</p>
+
+<p>You can also access object properties by using a dynamic key this way as well, but not via the normal method, for example</p>
+
+<p>```javascript</p>
+
+<p>var dynamicKey = &ldquo;key1&rdquo;;</p>
+
+<p>//doesnt work
+alert(assocArrayObject.dynamicKey);</p>
+
+<p>//does work
+alert(assocArrayObject[dynamicKey]);</p>
+
+<p>```</p>
+
+<p>easy when you know how, took me a while to clear this one up :)</p>
+]]></content>
+  </entry>
+  
+</feed>

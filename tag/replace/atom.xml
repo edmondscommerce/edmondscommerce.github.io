@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: replace | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/replace/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHPStorm Regex Convert Array to Object Syntax]]></title>
+    <link href="http://edmondscommerce.github.io/php/phpstorm-regex-convert-array-to-object-syntax.html"/>
+    <updated>2013-08-27T14:40:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/phpstorm-regex-convert-array-to-object-syntax</id>
+    <content type="html"><![CDATA[<p>If you are converting some code from using array syntax to object property syntax then you might like this little snippet of regex.</p>
+
+<p>This is design to paste straight into the find/replace dialogue in PHPStorm</p>
+
+<p>Find:
+```</p>
+
+<p>\$(\w+)[&lsquo;([^&rsquo;]+)&lsquo;]</p>
+
+<p>```</p>
+
+<p>Replace:
+```</p>
+
+<p>\\$$1->$2</p>
+
+<p>```</p>
+
+<p>And that is it</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHPStorm Regex Replace "Malformed Replacement String"]]></title>
+    <link href="http://edmondscommerce.github.io/phpstorm/phpstorm-regex-replace-malformed-replacement-string.html"/>
+    <updated>2013-01-24T17:39:08+00:00</updated>
+    <id>http://edmondscommerce.github.io/phpstorm/phpstorm-regex-replace-malformed-replacement-string</id>
+    <content type="html"><![CDATA[<p>If you are struggling using PHPStorm to find and replace code with Regex rules then this is your solution.</p>
+
+<p>The problem is that when using the $ sign in your replacement string it confuses it because PHP Storm uses the $ sign to represent sub pattern replacements.</p>
+
+<p>Take the following example code:</p>
+
+<p>```php</p>
+
+<p>$data = array();
+$form=$page->find(&lsquo;form.edit_product&rsquo;, 0);</p>
+
+<p>//standard inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;text&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>$data[$input-&gt;name]=$input-&gt;value;
+</code></pre>
+
+<p>}</p>
+
+<p>//radio inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;radio&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>if($input-&gt;checked){
+    $data[$input-&gt;name]=$input-&gt;value;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//checkbox inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;checkbox&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>if($input-&gt;checked){
+    $data[$input-&gt;name]=$input-&gt;value;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//textareas
+$textareas = $form->find(&lsquo;textarea&rsquo;);
+foreach($textareas as $textarea){</p>
+
+<pre><code>$data[$textarea-&gt;name]=$textarea-&gt;innertext;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>And trying to replace the key being used in the data array with a processed one calling a method $this->dataName($key) to generate the following code:</p>
+
+<p>```php</p>
+
+<p>$data = array();
+$form=$page->find(&lsquo;form.edit_product&rsquo;, 0);</p>
+
+<p>//standard inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;text&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>$data[$this-&gt;dataName($input-&gt;name)]=$input-&gt;value;
+</code></pre>
+
+<p>}</p>
+
+<p>//radio inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;radio&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>if($input-&gt;checked){
+    $data[$this-&gt;dataName($input-&gt;name)]=$input-&gt;value;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//checkbox inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;checkbox&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>if($input-&gt;checked){
+    $data[$this-&gt;dataName($input-&gt;name)]=$input-&gt;value;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//textareas
+$textareas = $form->find(&lsquo;textarea&rsquo;);
+foreach($textareas as $textarea){</p>
+
+<pre><code>$data[$this-&gt;dataName($textarea-&gt;name)]=$textarea-&gt;innertext;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>You might try the find pattern:</p>
+
+<p>```</p>
+
+<p>\$data[\$([^&ndash;]+)&ndash;>name]</p>
+
+<p>```</p>
+
+<p>And the replace pattern:
+```</p>
+
+<p>\$data[\$this->dataName(\$$1->name)]</p>
+
+<p>```</p>
+
+<p>However this will give you the dreaded <b>&ldquo;malformed replacement string&rdquo;</b> Error</p>
+
+<p>The solution is simply to triple escape your dollar signs, so the replacement pattern becomes:</p>
+
+<p>```</p>
+
+<p>\\$data[\\$this->dataName(\\$$1->name)]</p>
+
+<p>```</p>
+
+<p>And it works, woot!</p>
+
+<p>Also when it does work, PHP Storms replacement preview feature is really quite nice</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Geany Text Editor Remove Hash Comments]]></title>
+    <link href="http://edmondscommerce.github.io/geany/geany-text-editor-remove-hash-comments.html"/>
+    <updated>2012-11-12T11:25:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/geany/geany-text-editor-remove-hash-comments</id>
+    <content type="html"><![CDATA[<p>I recently needed to quickly remove some commented lines from a .htaccess file using Geany (a really nice lightweight IDE or feature rich text editor depending on your point of view).</p>
+
+<p>Geany has some powerful regex replace functionality in there but I found that it was overly aggressive so removed lines that had more than one hash and were in fact title sections that needed to stay intact.</p>
+
+<p>The working formula was:</p>
+
+<p>Search for:
+<code>
+^<a href="[^#]">#</a>
+</code></p>
+
+<p>And replace with:</p>
+
+<p><code>\1</code></p>
+
+<p>And of course tick the regex box.</p>
+
+<p><img src="/assets/geany.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Remove Double Slashes from URL without Breaking It]]></title>
+    <link href="http://edmondscommerce.github.io/php/remove-double-slashes-from-url-without-breaking-it.html"/>
+    <updated>2012-02-24T16:58:38+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/remove-double-slashes-from-url-without-breaking-it</id>
+    <content type="html"><![CDATA[<p>If you need to clean up a URL and remove any double (or more) slashes that might have crept in, but need to keep the :// bit intact you might like this little function</p>
+
+<p>```php</p>
+
+<pre><code>protected function removeDoubleSlash($in) {
+    return preg_replace('%([^:])(
+</code></pre>
+
+<p>```</p>
+
+<p>Handy :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ubuntu Bulk Find And Replace GUI - Regexxer]]></title>
+    <link href="http://edmondscommerce.github.io/ubuntu/ubuntu-bulk-find-and-replace-gui-regexxer.html"/>
+    <updated>2010-01-29T13:21:27+00:00</updated>
+    <id>http://edmondscommerce.github.io/ubuntu/ubuntu-bulk-find-and-replace-gui-regexxer</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you need to do a bulk find and replace operation on a load of files within a particular folder structure, for example when refactoring some of your code, then instead of trying to use your IDE you could give this little app a try.</p>
+
+<p>It&rsquo;s called Regexxer:</p>
+
+<p><a href="http://regexxer.sourceforge.net/"><a href="http://regexxer.sourceforge.net/">http://regexxer.sourceforge.net/</a></a></p>
+
+<p>And is in the Ubuntu repositories (Software Centre) so is only a couple of clicks away from being installed.</p>
+
+<p>(Note previously I have recommended Search Monkey and I still think that&rsquo;s a great tool, but it doesn&rsquo;t seem to do replace, only find).</p>
+]]></content>
+  </entry>
+  
+</feed>

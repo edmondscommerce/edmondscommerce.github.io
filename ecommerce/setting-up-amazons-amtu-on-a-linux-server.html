@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Setting Up Amazon's AMTU on a Linux Server - Edmonds Commerce Dev Blog</title>
+  <meta name="author" content="EdmondsCommerce Development Team">
+
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://edmondscommerce.github.io/ecommerce/setting-up-amazons-amtu-on-a-linux-server.html">
+  <link href="/favicon.png" type="image/png" rel="icon">
+  <link href="/atom.xml" rel="alternate" title="Edmonds Commerce Dev Blog" type="application/atom+xml">
+
+  <link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+
+
+  <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-27853727-2', 'edmondscommerce.github.io');
+  ga('send', 'pageview');
+
+</script>
+
+</head>
+
+  <body   >
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img height="20" src="https://2.gravatar.com/avatar/04b807394911b26ea8a79dbe25ea4e1a?d=https%3A%2F%2Fidenticons.github.com%2Fccb745f4b144d30c4b883330a1114834.png&amp;r=x&amp;s=140" width="20"> Dev Blog</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="/">Blog</a>
+                </li>
+                <li >
+                    <a href="/blog/archives">Archives</a>
+                </li>
+                
+                <li ><a href="/categories/index.html">Categories</a></li>
+                
+                <li ><a href="/contact-us/index.html">Contact</a></li>
+                
+            </ul>
+            <ul class="nav pull-right">
+                
+                
+                <li><a href="http://linkedin.com/in/edmondscommerce" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+                
+                
+                
+                <li><a href="http://plus.google.com/104488822194646220248" title="Google+ Profile"><i class="icon-google-plus-sign social-navbar"></i></a></li>
+                
+                
+                
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a class="subscribe-rss" href="/atom.xml" title="subscribe via RSS">
+                        <span class="visible-xs">RSS</span>
+                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
+                    </a>
+                </li>
+                
+            </ul>
+            
+                <form class="search navbar-form navbar-right" action="http://google.com/search" method="GET">
+                    <input type="hidden" name="q" value="site:edmondscommerce.github.io">
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="q" placeholder="Search">
+                    </div>
+                </form>
+            
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" class="container">
+        <div id="content">
+          <div class="row">
+  <div class="page-content col-md-9">
+    <article class="hentry" role="article">
+      
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-23T16:52:54+00:00" pubdate data-updated="true">Mar 23<span>rd</span>, 2009</time>
+        
+      </p>
+    
+    
+    <h1 class="entry-title">
+        Setting Up Amazon's AMTU on a Linux Server
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Amazon helpfully supply a java package called AMTU which does the grunt work of the XML integration for Amazon marketplace. With AMTU you can easily update products, stock levels, prices and also grab order info etc.</p>
+
+<p>Being based on Java, AMTU can run on pretty much any operating system. It uses a &ldquo;hot folder&rdquo; system so integration with client systems is as simple as dropping files into certain folders.</p>
+
+<p>There are some good instructions for setting up AMTU on windows. That&rsquo;s great if you want to run it on your desktop (or a windows server if you are that way inclinded&hellip;. :&ndash;) ). However if you are one of my clients you are running a Linux server and need it setting up on there.</p>
+
+<p>Unfortunately the documentation for AMTU on Linux is pretty lightweight. This blog post aims to help out anyone struggling with getting AMTU working on their server.</p>
+
+<p>Before you start. Open up the README file (just download the package to your local machine). Have a quick read through and then understand that the README is simply wrong. It is a guide at best, but not strict instructions. They definitely haven&rsquo;t made it easy for us.</p>
+
+<p>Speaking to Amazon about this, it is apparent that AMTU was developed by someone who is no longer around to support it. They have released it as open source software and basically left us to it. They are not willing to support it themselves.</p>
+
+<p>Here&rsquo;s my instructions:</p>
+
+<p><strong>1. Log into SSH as root on your server.</strong>
+Using your favourite SSH client. If you use linux you can just use the terminal, definitely my favourite way of handling SSH.</p>
+
+<p><strong>2. Navigate to the root folder that you want to install AMTU to.</strong></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /opt</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>3. Download the AMTU Files</strong></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>mkdir amtu
+</span><span class='line'>
+</span><span class='line'>cd amtu
+</span><span class='line'>
+</span><span class='line'>wget http://freefr.dl.sourceforge.net/sourceforge/amtu/amtu-linux-1.0.9.tar.gz
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>4. Unpack the Archive</strong></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>tar -xvf amtu-linux-1.0.9.tar.gz
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>5. Edit the config files</strong></p>
+
+<pre><code>&lt;strong&gt;5.1&lt;/strong&gt; Find your JAVA_HOME
+
+This may change depending on what version of Linux you are using. If you are not sure then use the following command to find out:
+
+```
+</code></pre>
+
+<p>cat /etc/issue</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  The following command will show you which Java version you are running. If you are it doesn't work then it looks like you don't have Java installed. Please see &lt;a href="#aa"&gt;&lt;b&gt;Apendix A&lt;/b&gt;&lt;/a&gt; for Java install instructions.
+</span><span class='line'>  
+</span><span class='line'>  ```
+</span><span class='line'> java -version</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>You need to find out the exact path for java. You can use this command:
+
+```
+</code></pre>
+
+<p>find / -name java</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>This will display a few lines. There is usually only one Java folder though with the others being symlinks (shortcuts kind of ) to the Java folder.
+</span><span class='line'>
+</span><span class='line'>&lt;strong&gt;5.2 Edit the Install.sh File&lt;/strong&gt;
+</span><span class='line'>
+</span><span class='line'>First get into the AMTU folder:
+</span><span class='line'>
+</span><span class='line'>```
+</span><span class='line'> cd /opt/amtu/</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>Now make sure you have your path to the JRE noted down somewhere and open up the install.sh for editing. For me the path is /usr/bin/java
+
+```
+</code></pre>
+
+<p> vi install.sh</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(vi is a text editor for linux. If you are not familiar with it simply search for "vi common commands or something like that).
+</span><span class='line'>
+</span><span class='line'>Now go to the top of the file and add a new line. Replace /usr/bin/java with your own path to Java.
+</span><span class='line'>
+</span><span class='line'>```
+</span><span class='line'>
+</span><span class='line'>export JAVA_HOME=/usr/bin/java
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>6. Run the Install Script</strong></p>
+
+<p>First we need to make the install script executable.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> chmod a+x install.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now run the install script.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./install.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>7. Configure AMTU</strong></p>
+
+<p>This is where it gets interesting. AMTU is installed, but you haven&rsquo;t given it any kind of information regarding your Amazon account so how will it be able to connect to your specific account??</p>
+
+<p>You need to use the configure.sh script to do this. For me this wouldn&rsquo;t work until I edited it and ran it manually. There is a configure.sh in the root amtu folder, however all this seems to do is run the configure script in the service folder.</p>
+
+<p>Lets go straight to the service folder and get that one working.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /opt/amtu/service/bin
+</span><span class='line'>
+</span><span class='line'>vi configure.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this file they are mixing up the JAVA_HOME variable and appending /bin/java to it. I&rsquo;m not really sure why they would do this.</p>
+
+<p>First of all try running the script</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>./configure.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you get an error like:</p>
+
+<p>./configure.sh: line 3: /bin/java: No such file or directory</p>
+
+<p>Then you will need to edit the file. For me to get it to work I had to remove the following:</p>
+
+<blockquote>$JAVA_HOME/bin/java</blockquote>
+
+
+<p>and simply replace it with my path to Java which is:</p>
+
+<blockquote>/usr/bin/java</blockquote>
+
+
+<p>Then run the script again and it will ask you a bunch of questions. For most questions the default answers seem fine to me. You will need to know your SMTP details. You will want to log into your seller central account as well so that you can copy relevant details from there.</p>
+
+<p>If it is all successful you should get a message similar to the following:</p>
+
+<blockquote>Please standby while your account details are verified&#8230;
+Ping was successful
+Updating configuration&#8230; done!
+
+To alter this configuration, please use the Configuration Utility in the directory you installed this application.
+
+Exiting Application</blockquote>
+
+
+<p><strong>8. Starting the AMTU and Monitor services</strong>
+To start the amt and amt_monitor services you need to manually start them. You can also check the status of these processes.</p>
+
+<p>First get into the bin folder</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /opt/amtu/service/bin
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>check status</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>./amt status
+</span><span class='line'>
+</span><span class='line'>./amt_monitor status
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If they are not started simply run the start commands</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>./amt start
+</span><span class='line'>
+</span><span class='line'>./amt_monitor start
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Running these two commands should have created some folders in your DocumentTransport folder. To check this out simply go to the folder and check</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /opt/amtu/DocumentTransport
+</span><span class='line'>
+</span><span class='line'>ls
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should see a folder called logs and a folder called production. The production folder contains our Hot Folder for sending files up to Amazon.</p>
+
+<p><strong>7. Set up symlinks</strong>
+Once everything is working nicely, you will probably want to create symlinks from folders accessible by PHP.</p>
+
+<p>Navigate to the place that PHP can access and which you would like to place a symlink to the production/outgoing folder. Then use the following command &ndash; replace the details as necessary</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /home/path/to/php/accessible
+</span><span class='line'>
+</span><span class='line'>ln -s /opt/amtu/DocumentTransport/production/outgoing my_amtu_symlink_folder_name
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>8. Test it Out</strong>
+All you need to do to test it out is to drop a file into the /opt/amtu/DocumentTransport/production/outgoing folder (or the symlink to this folder that you have just created). Then wait 5 minutes (cup of tea time) and come back. Now browse through the production folders. If the file is in the /sent folder then your upload has worked OK. If it is in the /failed folder then something has gone wrong.</p>
+
+<p>If like me it didn&rsquo;t work (surprise surprise) then you need to examine the log files to find out what the problem is. The best log to look in to start with is the audit_log.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /opt/amtu/DocumentTransport/logs
+</span><span class='line'>vi amtu_audit.log
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To go to the bottom of the file use the vi shortcut &#8220;`shift
++[g]</p>
+
+<p>As for figuring out exactly why AMTU doesn&rsquo;t like your feed file, I leave that bit to you.</p>
+
+<hr>
+
+
+<p><a name="aa"></a>
+<strong>Appendix</strong></p>
+
+<p><strong>A. Install Java</strong></p>
+
+<p>These are instructions for a CentOS Linux install. Your Linux might be a different flavour. Simply search around for instructions for your specific setup.</p>
+
+<p><strong>A.1 Download JRE</strong></p>
+
+<pre><code>Go &lt;a href="http://java.sun.com/javase/downloads/index.jsp"&gt;to the Java downloads page&lt;/a&gt;
+Find the link to the Linux Java JRE bin. (For CentOS you need the rpm version). Copy the link to your clipboard
+
+[code]
+cd opt
+wget {link from clipboard for JRE download}
+</code></pre>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  This will download the file. However as it is accessed via a script, it will give it a crazy long filename. Lets just rename that first. To rename a file with special characters simply wrap the filename in "" otherwise it won't work.
+</span><span class='line'>
+</span><span class='line'>  ```
+</span><span class='line'>
+</span><span class='line'>  ls
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>now copy the filename to your clipboard
+
+now paste it into this command 
+
+```
+</code></pre>
+
+<p> mv &ldquo;filename from clipboard&rdquo; jre-rpm.bin</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  Now we need to set the file as executable
+</span><span class='line'>
+</span><span class='line'>  ```
+</span><span class='line'> chmod a+x jre-rpm.bin
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>Now we install it 
+
+```
+
+./jre-rpm.bin
+</code></pre>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  This will then flash up a bunch of terms and conditions. Just hold down [return] until you get to the bottom, then type "yes".
+</span><span class='line'>
+</span><span class='line'>  To check its all installed use the command 
+</span><span class='line'>  ```
+</span><span class='line'> java -version</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>You should get something similar to the following:
+
+java version "1.6.0_12"
+Java(TM) SE Runtime Environment (build 1.6.0_12-b04)
+Java HotSpot(TM) Server VM (build 11.2-b01, mixed mode)
+</code></pre>
+
+<p><b>References</b>
+<a href="http://blog.sixsigns.com/2008/02/12/installing-the-latest-jre-6-on-centos-5/" rel="nofollow">installing the latest jre on centos 5</a>
+<a href="http://amtu.sourceforge.net/" rel="nofollow">AMTU Homepage</a>
+<a href="http://sourceforge.net/forum/forum.php?forum_id=405856" rel="nofollow">AMTU Forum &ndash; not much of use in there unfortunately</a></p>
+
+<h4>More&#8230;</h4>
+
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://www.scottfillmer.com/2009/03/05/amazon-marketplace-sellers-no-more/" rel="nofollow"&gt;&lt;b&gt;Amazon Marketplace&lt;/b&gt; Sellers No More | Scott Fillmer :: Serving &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.articlegenesis.com/blog/2009/03/23/how-does-amazons-shipping-policy-work-for-marketplace-books/" rel="nofollow"&gt;ArticleGenesis - A PLR Articles Library » Blog Archive » How does &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://novirusthanks.org/blog/?p=531" rel="nofollow"&gt;Trojan.Win32.Dialer spread through IE7 0-Day Exploit&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.kevinblake.co.uk/getting-document-reports-from-amazon-seller-central-soap-services-c/457/" rel="nofollow"&gt;Getting document reports from Amazon &lt;b&gt;Seller Central&lt;/b&gt; SOAP services &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.smallbusinessgrowthblog.com/your-own-business/how-do-i-find-something-to-sell/" rel="nofollow"&gt;How do I Find Something to Sell?&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.kevinblake.co.uk/travel-map-countries-visited/460/" rel="nofollow"&gt;Travel map - countries visited » Kevin Blake&amp;#39;s Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://motivated-sellers.net/blog/?p=1" rel="nofollow"&gt;What are motivated sellers?&lt;/a&gt;&lt;br&gt;&lt;a href="http://grqscamsrevealed.com/blog/?p=55" rel="nofollow"&gt;How do I Find Something to Sell?&lt;/a&gt;&lt;br&gt;&lt;a href="http://coenraets.org/blog/2009/03/springblazeds-integration-test-drive-m2-update-available/" rel="nofollow"&gt;Christophe Coenraets » Blog Archive » Spring/BlazeDS &lt;b&gt;Integration&lt;/b&gt; &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+</div>
+
+
+      <footer>
+        <p class="meta text-muted">
+          
+  
+
+<span class="glyphicon glyphicon-user"></span> <span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-23T16:52:54+00:00" pubdate data-updated="true">Mar 23<span>rd</span>, 2009</time>
+          
+
+<span class="glyphicon glyphicon-folder-open" title="categories"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category label label-primary' href='/category/ecommerce/'>ecommerce</a>
+  
+</span>
+
+
+          
+
+<br/>
+<span class="glyphicon glyphicon-tags" title="tags"></span>&nbsp;
+<span class="tags">
+  
+    <a class='tag' href='/tag/amazon-marketplace/'>amazon marketplace</a>, <a class='tag' href='/tag/amtu/'>amtu</a>, <a class='tag' href='/tag/sellercentral/'>sellercentral</a>, <a class='tag' href='/tag/xml-integration/'>xml integration</a>
+  
+</span>
+
+
+
+        </p>
+        
+          <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://edmondscommerce.github.io/ecommerce/setting-up-amazons-amtu-on-a-linux-server.html" data-via="" data-counturl="http://edmondscommerce.github.io/ecommerce/setting-up-amazons-amtu-on-a-linux-server.html" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/oscommerce/oscommerce-version-3-roadmap.html" title="Previous Post: osCommerce Version 3 Roadmap">&laquo; osCommerce Version 3 Roadmap</a></li>
+            
+            
+            <li class="next"><a href="/linux/linux-symlink-chown.html" title="Next Post: Linux Symlink chown">Linux Symlink chown &raquo;</a></li>
+            
+          </ul>
+        
+      </footer>
+    </article>
+    
+  </div>
+
+  
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Recent Posts</h3>
+  </div>
+  
+  <div id="recent_posts" class="list-group">
+    
+    <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
+    
+    <a class="list-group-item " href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a>
+    
+    <a class="list-group-item " href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a>
+    
+    <a class="list-group-item " href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a>
+    
+    <a class="list-group-item " href="/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html">Vim Locking Up, Always When You Are Ready to Save? Solution</a>
+    
+  </div>
+</section>
+
+
+
+
+<section class="googleplus panel panel-default">
+  <div class="panel-body">
+    <h3>
+      <a href="https://plus.google.com/104488822194646220248?rel=author">
+        <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+        Google+
+      </a>
+    </h3>
+  </div>
+</section>
+
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">About Us</h3>
+    </div>
+    <div class="panel-body">
+        <p>
+            <a href="http://www.edmondscommerce.co.uk">Edmonds Commerce</a> are a UK based E-Commerce web development
+            agency.
+        </p>
+
+        <p>
+            We are based in <a href="http://www.yorkshire.com/">Yorkshire</a> near <a
+                href="http://www.visitleeds.co.uk/">Leeds</a> and <a href="http://www.visitbradford.com/">Bradford</a>.
+        </p>
+
+        <p>
+            Our primary specialism is <a href="http://magento.com/">Magento</a> and other PHP based E-Commerce platforms
+            such as <a href="http://www.opencart.com/">OpenCart</a>.
+        </p>
+
+        <p>
+            In terms of technology we are very strong in:
+        <ul>
+            <li><a href="http://php.net/">PHP</a>,</li>
+            <li><a href="http://www.mysql.com/">MySQL</a>,</li>
+            <li><a href="http://www.linuxfoundation.org/">Linux</a>,</li>
+            <li><a href="http://www.w3.org/standards/techs/html#w3c_all">HTML<a/>,</li>
+            <li><a href="http://www.w3.org/Style/CSS/Overview.en.html">CSS</a></li>
+            <li><a href="http://en.wikipedia.org/wiki/JavaScript">Javascript</a>.</li>
+        </ul>
+        </p>
+    </div>
+</section>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Commercial Enquiries</h3>
+    </div>
+    <div class="panel-body">
+        <p>
+            If you would like to discuss your project requirements then please get in touch today.
+        </p>
+
+        <p>
+            <a href="http://www.edmondscommerce.co.uk">www.edmondscommerce.co.uk</a><br/><br/>
+            <a href="mailto:info@edmondscommerce.co.uk">info@edmondscommerce.co.uk</a><br/><br/>
+            <a href="tel:00441274590036">+44 1274 590036</a>
+        </p>
+    </div>
+</section>
+
+    
+  </aside>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  <small>
+      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
+  </small>
+</p>
+
+</div>
+</footer>
+    <script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr-2.0.js"></script>
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+  </body>
+</html>

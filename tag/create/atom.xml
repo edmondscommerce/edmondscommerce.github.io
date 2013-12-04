@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: create | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/create/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Run Multiple MySQL Queries in a Single Function]]></title>
+    <link href="http://edmondscommerce.github.io/php/run-multiple-mysql-queries-in-a-single-function.html"/>
+    <updated>2012-11-14T12:45:09+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/run-multiple-mysql-queries-in-a-single-function</id>
+    <content type="html"><![CDATA[<p>If you want to be able to run multiple queries in a single function call, for example doing the classic drop table blah; create table blah; then you might like this function.</p>
+
+<p>The use case is for things like database migration systems which you might copy and paste chunks of SQL including multiple queries from things like phpMyAdmin</p>
+
+<p>```php</p>
+
+<p>/<em>*
+ * Run multiple queries passed in as a single string
+ * This is optimised for copying and pasting from phpMyAdmin
+ *
+ * Handy for things like database migration systems
+ *
+ * @param string $sql  multiple queries terminated with ; and a new line
+ </em>/
+function multiQuery($sql)
+{</p>
+
+<pre><code>$sqls = preg_split('%;$%m', trim($sql));
+foreach ($sqls as $q) {
+    if (empty($q)) {
+        continue;
+    }
+    mysql_query($q); //suggest you replace this with your custom query function or if not throw in some extra error checking at least
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Create Category Method]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-create-category-method.html"/>
+    <updated>2012-03-02T18:30:04+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-create-category-method</id>
+    <content type="html"><![CDATA[<p>Ideal to drop into a helper, this is a simplified create category method.</p>
+
+<p>You need to specify the name, store_id and parent category id and can optionally set to active, anchor and change the display mode if you wish.</p>
+
+<p>```php</p>
+
+<p>public function createCategory($name, $store_id, $parent_id, $active = 0, $anchor = 0, $display_mode=&lsquo;PRODUCTS&rsquo;) {</p>
+
+<pre><code>    $parent = Mage::getModel('catalog/category')-&gt;load($parent_id);
+    if($parent-&gt;getId() != $parent_id){
+        Mage::helper('exception')-&gt;except('Failed to load parent category', 'Fatal');
+    }
+    $category = Mage::getModel('catalog/category');
+    /* @var $category Mage_Catalog_Model_Category */
+    $category
+            -&gt;setStoreId($store_id)
+            -&gt;setPath($parent-&gt;getPath())
+            -&gt;setName($name)
+            -&gt;setUrlKey($name)
+            -&gt;setIsActive($active)
+            -&gt;setIsAnchor($anchor)
+            -&gt;setDisplayMode($display_mode)
+            -&gt;setAttributeSetId($category-&gt;getDefaultAttributeSetId())
+    ;
+    $category-&gt;save();
+    return $category;
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

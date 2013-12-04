@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: malformed | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/malformed/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHPStorm Regex Replace "Malformed Replacement String"]]></title>
+    <link href="http://edmondscommerce.github.io/phpstorm/phpstorm-regex-replace-malformed-replacement-string.html"/>
+    <updated>2013-01-24T17:39:08+00:00</updated>
+    <id>http://edmondscommerce.github.io/phpstorm/phpstorm-regex-replace-malformed-replacement-string</id>
+    <content type="html"><![CDATA[<p>If you are struggling using PHPStorm to find and replace code with Regex rules then this is your solution.</p>
+
+<p>The problem is that when using the $ sign in your replacement string it confuses it because PHP Storm uses the $ sign to represent sub pattern replacements.</p>
+
+<p>Take the following example code:</p>
+
+<p>```php</p>
+
+<p>$data = array();
+$form=$page->find(&lsquo;form.edit_product&rsquo;, 0);</p>
+
+<p>//standard inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;text&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>$data[$input-&gt;name]=$input-&gt;value;
+</code></pre>
+
+<p>}</p>
+
+<p>//radio inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;radio&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>if($input-&gt;checked){
+    $data[$input-&gt;name]=$input-&gt;value;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//checkbox inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;checkbox&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>if($input-&gt;checked){
+    $data[$input-&gt;name]=$input-&gt;value;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//textareas
+$textareas = $form->find(&lsquo;textarea&rsquo;);
+foreach($textareas as $textarea){</p>
+
+<pre><code>$data[$textarea-&gt;name]=$textarea-&gt;innertext;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>And trying to replace the key being used in the data array with a processed one calling a method $this->dataName($key) to generate the following code:</p>
+
+<p>```php</p>
+
+<p>$data = array();
+$form=$page->find(&lsquo;form.edit_product&rsquo;, 0);</p>
+
+<p>//standard inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;text&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>$data[$this-&gt;dataName($input-&gt;name)]=$input-&gt;value;
+</code></pre>
+
+<p>}</p>
+
+<p>//radio inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;radio&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>if($input-&gt;checked){
+    $data[$this-&gt;dataName($input-&gt;name)]=$input-&gt;value;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//checkbox inputs
+$inputs = $form->find(&lsquo;input[type=&ldquo;checkbox&rdquo;]&rsquo;);
+foreach($inputs as $input){</p>
+
+<pre><code>if($input-&gt;checked){
+    $data[$this-&gt;dataName($input-&gt;name)]=$input-&gt;value;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//textareas
+$textareas = $form->find(&lsquo;textarea&rsquo;);
+foreach($textareas as $textarea){</p>
+
+<pre><code>$data[$this-&gt;dataName($textarea-&gt;name)]=$textarea-&gt;innertext;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>You might try the find pattern:</p>
+
+<p>```</p>
+
+<p>\$data[\$([^&ndash;]+)&ndash;>name]</p>
+
+<p>```</p>
+
+<p>And the replace pattern:
+```</p>
+
+<p>\$data[\$this->dataName(\$$1->name)]</p>
+
+<p>```</p>
+
+<p>However this will give you the dreaded <b>&ldquo;malformed replacement string&rdquo;</b> Error</p>
+
+<p>The solution is simply to triple escape your dollar signs, so the replacement pattern becomes:</p>
+
+<p>```</p>
+
+<p>\\$data[\\$this->dataName(\\$$1->name)]</p>
+
+<p>```</p>
+
+<p>And it works, woot!</p>
+
+<p>Also when it does work, PHP Storms replacement preview feature is really quite nice</p>
+]]></content>
+  </entry>
+  
+</feed>

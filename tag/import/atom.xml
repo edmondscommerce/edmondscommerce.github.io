@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: import | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/import/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How To Add a Row Number to A Magento Dataflow Import Errors]]></title>
+    <link href="http://edmondscommerce.github.io/php/magento/how-to-add-a-row-number-to-a-magento-dataflow-import-errors.html"/>
+    <updated>2012-11-23T19:17:50+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/magento/how-to-add-a-row-number-to-a-magento-dataflow-import-errors</id>
+    <content type="html"><![CDATA[<p>I find it frustrating when importing data into Magento that it&rsquo;ll successfully complain about a row with errors, but won&rsquo;t tell you which row has the problem!</p>
+
+<p>The code which generates the HTML for the error messages is at app/code/core/Mage/Adminhtml/Block/System/Convert/Profile/Run.php. Make a copy of this file at app/code/local/Mage/Adminhtml/Block/System/Convert/Profile/Run.php</p>
+
+<p>Locate this part:</p>
+
+<p>```php</p>
+
+<pre><code>            $this-&gt;setBatchConfig(
+                    ...
+                    'template' =&gt; '&lt;li style="#{style}" id="#{id}"&gt;'
+                                . '&lt;img id="#{id}_img" src="#{image}" class="v-middle" style="margin-right:5px"/&gt;'
+                                . '&lt;span id="#{id}_status" class="text"&gt;#{text}&lt;/span&gt;'
+                                . '&lt;/li&gt;',
+                     ...
+</code></pre>
+
+<p>```</p>
+
+<p>And change:</p>
+
+<p>```php</p>
+
+<p>&lsquo;<span id="#{id}_status" class="text">#{text}</span>&rsquo;</p>
+
+<p>```</p>
+
+<p>to:</p>
+
+<p>```php</p>
+
+<p>&lsquo;<span id="#{id}_status" class="text">Row #{id} &ndash; #{text}</span>&rsquo;</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Build Table from File PHP Function]]></title>
+    <link href="http://edmondscommerce.github.io/php/build-table-from-file-php-function.html"/>
+    <updated>2009-09-03T12:27:39+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/build-table-from-file-php-function</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>This little PHP function will allow you to import a csv or tab etc delimited text file into a database table. Handy if you need it :)</p>
+
+<p>```php</p>
+
+<p>function build_table_from_file($tablename, $filepath, $delim=&ldquo;\t&rdquo;) {</p>
+
+<pre><code>db_query("DROP TABLE IF EXISTS $tablename");
+$fp=fopen($filepath, 'r');
+$headers=false;
+while($r=(($delim=='csv')?fgetcsv($fp):fgets($fp))) {
+    if($delim!='csv'){
+        $r=explode($delim, $r);
+    }
+    if(!$headers) {
+        foreach($r as $h){
+            $headers[]=trim($h);
+        }
+        $sql = "CREATE TABLE $tablename
+                     (
+                        `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,";
+        foreach($headers as $h) {
+            $sqls[]=" `" . db_in($h) . "` TEXT NOT NULL ";
+        }
+        $sql .= implode(', ', $sqls) . "
+                    ) ENGINE = MYISAM ";
+        db_query($sql);
+        continue;
+    }
+    $sql = "insert into $tablename set ";
+    $sqls=array();
+    foreach($headers as $k=&gt;$h) {
+        $sqls[] = "`$h` = '" . db_in($r[$k]) . "'";
+    }
+    $sql .= implode(', ', $sqls);
+    db_query($sql);
+    pbar();
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

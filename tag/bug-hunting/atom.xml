@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: bug hunting | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/bug-hunting/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Error Handling, Exceptions and Development]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-error-handling-exceptions-and-development.html"/>
+    <updated>2010-07-28T15:47:59+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-error-handling-exceptions-and-development</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Often when creating new code, you want the system to die on any kind of error so that you can be sure that there are no bugs lurking in minor errors that are actually having a major effect.</p>
+
+<p>An easy way to do this is to do this:</p>
+
+<p>create a file called error_handler.php with the following contents:</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+/<em> File error_handler
+ * Edmonds Commerce
+ * www.edmondscommerce.co.uk
+ * <a href="&#109;&#x61;&#105;&#108;&#x74;&#x6f;&#x3a;&#x69;&#x6e;&#x66;&#111;&#64;&#101;&#100;&#109;&#x6f;&#x6e;&#100;&#x73;&#x63;&#111;&#x6d;&#109;&#101;&#114;&#x63;&#101;&#x2e;&#x63;&#x6f;&#x2e;&#x75;&#107;">&#x69;&#x6e;&#x66;&#x6f;&#64;&#101;&#100;&#109;&#111;&#110;&#100;&#115;&#x63;&#x6f;&#x6d;&#x6d;&#x65;&#x72;&#x63;&#101;&#x2e;&#99;&#111;&#46;&#117;&#107;</a>
+ * 0844 357 0201
+ </em>/</p>
+
+<p>function ec_error_handler($severity, $message, $filename, $lineno) {
+  /*if (error_reporting() == 0) {</p>
+
+<pre><code>return;
+</code></pre>
+
+<p>  }
+  if (error_reporting() &amp; $severity) {*/</p>
+
+<pre><code>throw new ErrorException($message, 0, $severity, $filename, $lineno);
+</code></pre>
+
+<p>  /<em>}</em>/
+}
+set_error_handler(&lsquo;ec_error_handler&rsquo;);</p>
+
+<p>function ec_exceptions_handler(Exception $e){</p>
+
+<pre><code>h(1, 'Uncaught Exception');
+h(2, $e-&gt;getMessage());
+h(3, 'Line ' . $e-&gt;getLine() . ' of ' . $e-&gt;getFile());
+foreach($e-&gt;getTrace() as $t){
+    var_dump($t);
+}
+die;
+</code></pre>
+
+<p>}</p>
+
+<p>set_exception_handler(&lsquo;ec_exceptions_handler&rsquo;);</p>
+
+<p>```</p>
+
+<p>(Note the h function is this:)</p>
+
+<p>```php</p>
+
+<p>function h($n, $t){
+echo &ldquo;&lt;h$n>$t&lt;/h$n>&rdquo;;
+}</p>
+
+<p>```</p>
+
+<p>Now include that file somewhere and all of your tiniest errors will throw an exception and dump a stack trace for you.</p>
+
+<p>This is great for bug hunting.</p>
+
+<p>You will notice that there is some commented out code in the ec_error_handler. Uncomment this if you want the error reporting level to be that of your php.ini settings.</p>
+
+<p>As it is it will throw exceptions for everything, but for bug hunting that&rsquo;s good I think</p>
+]]></content>
+  </entry>
+  
+</feed>

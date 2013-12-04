@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: free | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/free/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Security Patch Script]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-security-patch-script.html"/>
+    <updated>2012-07-10T16:29:28+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-security-patch-script</id>
+    <content type="html"><![CDATA[<p>We are currently offering a free service to apply the security patches for any Magento store. <a href="http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/">You can read all about that here</a>.</p>
+
+<p>For those of you who are comfortable SSHing into your server and running things manually but would like this to be as easy as possible, you can use our bash script to automatically determine which Magento security patch you require and then apply it.</p>
+
+<p>Simply run the following command:</p>
+
+<p>```bash</p>
+
+<p>wget -qO- <a href="http://www.edmondscommerce.co.uk/stuff/applysecuritypatch.sh">http://www.edmondscommerce.co.uk/stuff/applysecuritypatch.sh</a> | /bin/sh</p>
+
+<p>```</p>
+
+<p>For information, this is the source of the above file.</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<p>if [ ! -f app/Mage.php ]; then
+  echo &ldquo;Not in the magento basedir. please run from public_html, httpdocs, www or wherever index.php is.&rdquo;
+  exit 99
+fi</p>
+
+<p>WGET_BINARY=$(which wget)</p>
+
+<p>if [ &ldquo;&rdquo; = &ldquo;$WGET_BINARY&rdquo; ]; then
+  echo &ldquo;Can&rsquo;t find wget in path&hellip; can&rsquo;t continue&rdquo;
+  exit 98
+fi</p>
+
+<p>MAGENTO_VERSION=$(grep &lsquo;function getVersionInfo()&rsquo; -A6 app/Mage.php | sed s/[^0-9]//g | tr &lsquo;\n&rsquo; &lsquo;.&rsquo; | sed s/&lsquo;..*&rsquo;// | sed s/&lsquo;.$&rsquo;//)
+echo &ldquo;Your Magento version is $MAGENTO_VERSION&rdquo;</p>
+
+<p>export $(grep &lsquo;function getVersionInfo()&rsquo; -A6 app/Mage.php | grep = | sed s/,// | sed s/>// | sed s/&lsquo;[\t ]&rsquo;//g | tr &ldquo;a-z&rdquo; &ldquo;A-Z&rdquo; | sed s/^/MAGENTO_/ | sed s/&ldquo;&lsquo;&rdquo;//g)</p>
+
+<p>set | grep MAGENTO</p>
+
+<p>#</p>
+
+<h1>Community Edition 1.4.0.0 through 1.4.1.1 <a href="http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch">http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch</a></h1>
+
+<h1>Community Edition 1.4.2.0 <a href="http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch">http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch</a></h1>
+
+<h1>Community Edition 1.5.0.0 through 1.7.0.1 <a href="http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch">http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch</a></h1>
+
+<p>#</p>
+
+<p>if [ &ldquo;$MAGENTO_MAJOR&rdquo; -eq &ldquo;1&rdquo; ]; then
+  if [ &ldquo;$MAGENTO_MINOR&rdquo; -eq &ldquo;4&rdquo; ]; then</p>
+
+<pre><code>if [ $MAGENTO_PATCH -lt "2" ]; then
+    CORRECT_PATCH='http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch'
+  echo "Running Magento &lt; 1.4.2.0 - patch is $CORRECT_PATCH";
+else
+  CORRECT_PATCH='http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch'
+  echo "Running Magento 1.4.2.0 - patch is $CORRECT_PATCH";
+fi
+</code></pre>
+
+<p>  elif [ $MAGENTO_MINOR -gt &ldquo;4&rdquo; ]; then</p>
+
+<pre><code>if [ $MAGENTO_MINOR -lt "7" ]; then
+  CORRECT_PATCH='http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch'
+  echo "Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH";
+elif [ $MAGENTO_MINOR -eq "7" -a $MAGENTO_PATCH -eq "0" -a $MAGENTO_REVISION -lt "2" ]; then
+  CORRECT_PATCH='http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch'
+  echo "Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH";
+else
+  echo "Running Magento 1.7.0.2 - already patched."
+  exit 1
+fi
+</code></pre>
+
+<p>  fi
+else
+  echo &ldquo;You&rsquo;re not running version 1.x.x.x of Magento, I have no idea what to do!&rdquo;
+  exit 97
+fi</p>
+
+<p>wget -O &ndash; $CORRECT_PATCH 2> /dev/null | patch -p0
+if [ $? -eq 0 ]; then
+  echo &ldquo;Patch succeeded.&rdquo;
+else
+  echo &ldquo;For some reason the patch failed.  See the output above.&rdquo;
+  echo &ldquo;You could attempt to download the patch manually and apply it &ndash; the url is :&ndash; &rdquo;
+  echo $CORRECT_PATCH
+fi</p>
+
+<p>```</p>
+
+<p>Please note this script is supplied without any warranty, use at your own risk. We are not supplying the patch files simply making it easy to download and apply the correct one.</p>
+
+<p>We strongly recommend you patch your store as soon as possible.</p>
+
+<p><b><a href="http://www.edmondscommerce.co.uk/contact-us/?about=Free+Magento+Security+Fix"> If you need help, just ask!</a></b></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Security Vulnerability + Free Assistance]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-security-vulnerability-free-assistance.html"/>
+    <updated>2012-07-10T13:07:02+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-security-vulnerability-free-assistance</id>
+    <content type="html"><![CDATA[<p>The magento platform is based on a PHP framework called Zend Framework.</p>
+
+<p>Recently a bug was found in Zend Framework which potentially allows attackers to read any file on your server. This could mean they could gain access to your mysql server credentials for example.</p>
+
+<p>You can read the full details <a href="http://www.magentocommerce.com/blog/comments/update-zend-framework-vulnerability-security-update/">here</a>.</p>
+
+<p>The actual bug details for Zend Framework are in this <a href="http://framework.zend.com/security/advisory/ZF2012-01">security advisory</a>.</p>
+
+<h3>Free Security Patching Service</h3>
+
+
+<p>In a nutshell this represents a serious security hole that you need to plug as soon as possible. Fixing this issue is very simple indeed if you know what you are doing.</p>
+
+<p>For this reason Edmonds Commerce are happy to offer <b>FREE</b> assistance in applying this patch to any Magento store owner whether you are a current client or not. We will not charge you in any way for this service.</p>
+
+<p>To request <b>FREE</b> assistance <a href="http://edmondscommerce.github.io/contact-us/?about=Free+Magento+Security+Fix"><b>contact us today</b></a></p>
+
+<h3>Donation to Charity</h3>
+
+
+<p>If you choose to, you could make a donation to cover this service here:
+<a href="http://www.justgiving.com/EdmondsCommerce"><a href="http://www.justgiving.com/EdmondsCommerce">http://www.justgiving.com/EdmondsCommerce</a></a></p>
+
+<h3>Please Note</h3>
+
+
+<p>We will need you to give us shell (otherwise known as SSH) access to your server if available.</p>
+
+<p>If you are on a shared hosting service that is not able to supply shell access, we would suggest you ask your hosting company to help you with this issue. Feel free to refer them to this page.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Freely Available Windows Virtual Machines for Testing IE]]></title>
+    <link href="http://edmondscommerce.github.io/linux/freely-available-windows-virtual-machines-for-testing-ie.html"/>
+    <updated>2011-10-13T18:06:26+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/freely-available-windows-virtual-machines-for-testing-ie</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you need to test your code against the (ahem) interesting interpretations of the various iterations of Internet Explorer then this is a great resource for you.</p>
+
+<p>Turns out Microsoft have thrown web devs a bone by offering free virtual machine images with the various IE/OS flavours for you to test on. You can download them <a href="http://www.microsoft.com/download/en/details.aspx?id=11575">here</a>.</p>
+
+<p>If you use VirtualBox and also a *nix based operating system such as Linux or OSX then you can use <a href="https://github.com/xdissent/ievms">this, frankly awesome, bash script</a> to automatically download one or all of these machines and fully set them up in VirtualBox for you.</p>
+
+<p>VirtualBox, if you are not aware, is a freely available Virtualisation platform allowing you to run other operating systems on your desktop. On todays powerful machines its perfectly easy to run Linux as your core operating system and then for either running windows only apps or for testing dodgy browsers, you can fire up one of these VMs.</p>
+
+<p>Bear in mind that they are not for keeps, you will need to reset them every 30 days due to the fact that they can not be activated. For our purposes though this is not really a problem.</p>
+
+<h2>Usage</h2>
+
+
+<p>Please note all of this has been copied and pasted from <a href="http://www.webupd8.org/2011/09/test-websites-in-internet-explorer-9-8.html">here</a>. Posted here for reference only, all original attribution and credit goes to webupd8.</p>
+
+<ol>
+<li>Before proceeding, make sure you have the latest VirtualBox installed &ndash; you can find Ubuntu installation instructions HERE. You&rsquo;ll also need &ldquo;curl&rdquo; (for both Linux and OSX) and &ldquo;unrar&rdquo; (Linux only). In Ubuntu, install them using the command below:
+```</li>
+</ol>
+
+
+<p>sudo apt-get install curl unrar</p>
+
+<p>```</p>
+
+<ol>
+<li>To download and run the CODE, use the following command in a terminal:
+```</li>
+</ol>
+
+
+<p>curl -s <a href="https://raw.github.com/xdissent/ievms/master/ievms.sh">https://raw.github.com/xdissent/ievms/master/ievms.sh</a> | bash</p>
+
+<p>```
+If you want to check out the bash source before running it, you can find it @ GitHub.</p>
+
+<p>The above command will download Windows WHDs for IE7, IE8 and IE9. If you only need one Internet Explorer version, you can run:
+```</p>
+
+<p>curl -s <a href="https://raw.github.com/xdissent/ievms/master/ievms.sh">https://raw.github.com/xdissent/ievms/master/ievms.sh</a> | IEVMS_VERSIONS=&ldquo;9&rdquo; bash</p>
+
+<p>```
+Where &ldquo;9&rdquo; is the IE version you want (you can also add two versions here, like &ldquo;7 9&rdquo;).</p>
+
+<p>At this point, the download should start and it will take a while so be patient.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Blind Express Free Sample Request]]></title>
+    <link href="http://edmondscommerce.github.io/portfolio/blind-express-free-sample-request.html"/>
+    <updated>2011-06-09T14:58:56+01:00</updated>
+    <id>http://edmondscommerce.github.io/portfolio/blind-express-free-sample-request</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<h2>Magento Free Sample Request Custom Module</h2>
+
+
+<p>Blind Express required that their customers be able to easily request free samples of their products. This required that a custom extension be created and integrated with the existing system.</p>
+
+<h3>Blind Express</h3>
+
+
+<p>Blind Express specialise in supplying made to measure and custom window <a href="http://www.blindexpress.co.uk">blinds</a>.</p>
+
+<p><img src="/assets/blindexpress-300x206.png"></p>
+
+<p>This project was a good challenge as the extension had to be integrated with previously existing custom product configuration.</p>
+]]></content>
+  </entry>
+  
+</feed>

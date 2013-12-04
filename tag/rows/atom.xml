@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: rows | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/rows/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Very High Speed Batch Update Multiple Rows of a Table in Single Query]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/very-high-speed-batch-update-multiple-rows-of-a-table-in-single-query.html"/>
+    <updated>2011-10-13T14:00:26+01:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/very-high-speed-batch-update-multiple-rows-of-a-table-in-single-query</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you need to update a large number of rows on a single table then your first reaction may be to write a loop that updates one row at a time.</p>
+
+<p>Of course if the table is large then this can result in a very large number of SQL queries.</p>
+
+<p>Taking a bit of inspiration from <a href="http://www.kavoir.com/2009/05/mysql-update-multiple-rows-with-one-single-query.html">this post</a> I have put together this simple PHP function that will allow you to update as many rows as you want.</p>
+
+<p>The trade off is basically memory usage as you build up a big array of row update information preparing for the batch. For this reason you may want to tune the number of rows you update per query.</p>
+
+<p>```php</p>
+
+<p>function bulkUpdateSingleColumn($table, $id_column, $update_column, array &amp;$idstovals){</p>
+
+<pre><code>    $sql = "update $table set $update_column = CASE $id_column ";
+    foreach($idstovals as $id=&gt;$val){
+        $sql .= " WHEN '$id' THEN '$val' \n";
+    }
+    $sql .= " END 
+    WHERE $id_column in (" . implode(',', array_keys($idstovals)) . ")";
+</code></pre>
+
+<p>//debugging info</p>
+
+<pre><code>    echo '&lt;small&gt;'.$sql.'&lt;/small&gt;';
+    $idstovals=array();        
+    db_query($sql);       
+    done();        
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

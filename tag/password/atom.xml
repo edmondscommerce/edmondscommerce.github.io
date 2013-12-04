@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: password | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/password/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2013-11-29T16:52:40+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Extending Mage Core Encryption Model to handle Legacy Passwords]]></title>
+    <link href="http://edmondscommerce.github.io/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html"/>
+    <updated>2012-04-26T12:35:29+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords</id>
+    <content type="html"><![CDATA[<p>If you are migrating from an old ecommerce package into Magento, you may well want to extend Magento&rsquo;s password hashing system so that it can understand the passwords that are hashed by the previous system and customers can log in using their old passwords without any hassle.</p>
+
+<p>You would start off by overriding the Mage_Core_Model_Encryption class like so:</p>
+
+<p>```php</p>
+
+<p>class EdmondsCommerce_LegacyPassword_Model_Encryption extends Mage_Core_Model_Encryption {</p>
+
+<pre><code>/**
+ * Validate hash against hashing method (with or without salt)
+ * 
+ * Extended to support the legacy password hashing of the previous system
+ *
+ * @param string $password
+ * @param string $hash
+ * @return bool
+ * @throws Exception
+ */
+public function validateHash($password, $hash) {
+    if (/*password matches legacy pattern (as stored hash in DB)*/) {            
+        // create a hash of the plain text password and compare to the stored hash
+        return $hashed_pass == $hashval;
+    }
+    //default magento hashing from here
+    return parent::validateHash($password, $hash);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>However, you will find that the standard model override does not work and you may start vigorous hair pulling at this point.</p>
+
+<p>The answer though is that your override XML is actually fine, but it isn&rsquo;t being used. This is because of the getEncryptor model in Mage_Core_Helper_Data creates the model using &lsquo;new&rsquo; rather than getModel.</p>
+
+<p>```php</p>
+
+<p>/**</p>
+
+<pre><code> * @return Mage_Core_Model_Encryption
+ */
+public function getEncryptor()
+{
+    if ($this-&gt;_encryptor === null) {
+        $encryptionModel = (string)Mage::getConfig()-&gt;getNode(self::XML_PATH_ENCRYPTION_MODEL);
+        if ($encryptionModel) {
+            $this-&gt;_encryptor = new $encryptionModel;
+        } else {
+            $this-&gt;_encryptor = Mage::getModel('core/encryption');
+        }
+
+        $this-&gt;_encryptor-&gt;setHelper($this);
+    }
+    return $this-&gt;_encryptor;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>The class name to use for the encryptor is stored in the config.xml for Mage_Core.</p>
+
+<p>The solution here is to replicate this XML in your config.xml and also make your legacy module depend on Mage_Core so that it get loaded afterwards and can override the XML.</p>
+
+<p>```xml</p>
+
+<p>&lt;?xml version=&ldquo;1.0&rdquo;?>
+<config></p>
+
+<pre><code>&lt;modules&gt;
+    &lt;EdmondsCommerce_LegacyPassword&gt;
+        &lt;version&gt;0.1.1&lt;/version&gt;
+        &lt;depends&gt;Mage_Core&lt;/depends&gt;
+    &lt;/EdmondsCommerce_LegacyPassword&gt;
+&lt;/modules&gt;
+&lt;global&gt;
+    &lt;models&gt;
+        &lt;core&gt;
+            &lt;rewrite&gt;
+                &lt;encryption&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;/encryption&gt;
+            &lt;/rewrite&gt;
+        &lt;/core&gt;
+    &lt;/models&gt;
+    &lt;helpers&gt;
+        &lt;core&gt;
+            &lt;encryption_model&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;/encryption_model&gt;
+        &lt;/core&gt;
+    &lt;/helpers&gt;
+&lt;/global&gt;    
+</code></pre>
+
+<p></config></p>
+
+<p>```</p>
+
+<p>Easy once you understand. Another gotcha you have to look out for though!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Create Admin User Script]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-create-admin-user-script.html"/>
+    <updated>2011-10-31T17:32:23+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-create-admin-user-script</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Often we will be asked to work on a site and have to test backend features but without asking for admin passwords, so we need a way to create admin users without admin access.  Of course we already have file and database access.</p>
+
+<p>For this, we use phpmyadmin or adminer to give us database access and run the following php script at the commandline :&ndash;</p>
+
+<p>```php
+&lt;?php
+function Readln() {
+  $handle = fopen(&lsquo;php://stdin&rsquo;,&lsquo;r&rsquo;);
+  return rtrim(fgets($handle),&ldquo;\n&rdquo;);
+}</p>
+
+<p>echo &lsquo;Enter username [or hit enter for &ldquo;someadminuser&rdquo;]: &rsquo;;
+$username = Readln();
+if (&ldquo;&rdquo; == $username) {
+  $username = &lsquo;someadminuser&rsquo;;
+}
+echo &ldquo;\n&rdquo;;
+echo &lsquo;Enter password [or hit enter for the usual one]: &rsquo;;
+$password = Readln();
+echo &ldquo;\n&rdquo;;
+echo &lsquo;Enter table prefix [or hit enter for none]: &rsquo;;
+$prefix = Readln();
+echo &ldquo;\n&rdquo;;
+$salt = &lsquo;EC&rsquo;;
+echo &ldquo;Salted is : &rdquo;;
+if (!empty($password)) {
+  echo $hash = md5($salt.$password).&lsquo;:&rsquo;.$salt;
+} else {
+  echo $hash = &lsquo;20f808df3d6e913ec43164ad2e7be85e:EC&rsquo;;
+}
+echo &ldquo;\n\n&rdquo;;
+echo &ldquo;SQL for insert : \n&rdquo;;
+echo &lt;&lt;&lt; EOT
+insert into ${prefix}admin_user
+select
+(select max(user_id) + 1 from ${prefix}admin_user) user_id,
+&lsquo;Edmonds&rsquo; first_name,
+&lsquo;Commerce&rsquo; last_name,
+&lsquo;<a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#110;&#x6f;&#106;&#117;&#x6e;&#x6b;&#112;&#108;&#101;&#x61;&#115;&#101;&#64;&#x6d;&#97;&#x69;&#x6c;&#105;&#110;&#97;&#116;&#x6f;&#x72;&#46;&#99;&#111;&#x6d;">&#x6e;&#x6f;&#106;&#117;&#x6e;&#107;&#112;&#x6c;&#x65;&#x61;&#x73;&#101;&#64;&#x6d;&#97;&#105;&#x6c;&#x69;&#110;&#97;&#116;&#111;&#x72;&#x2e;&#99;&#111;&#109;</a>&rsquo; email,
+&lsquo;$username&rsquo; username,
+&lsquo;$hash&rsquo; password,
+now() created,
+NULL modified,
+NULL logdate,
+0 lognum,
+0 reload_acl_flag,
+1 is_active,
+(select max(extra) from ${prefix}admin_user where extra is not null) extra;</p>
+
+<p>insert into ${prefix}admin_role
+select
+(select max(role_id) + 1 from ${prefix}admin_role) role_id,
+(select role_id from ${prefix}admin_role where role_name = &lsquo;Administrators&rsquo;) parent_id,
+2 tree_level,
+0 sort_order,
+&lsquo;U&rsquo; role_type,
+(select user_id from ${prefix}admin_user where username = &lsquo;$username&rsquo;) user_id,
+&lsquo;$username&rsquo; role_name
+\n
+\n
+EOT;
+?>
+```</p>
+
+<p>The output looks like this :&ndash;
+<code>Enter username [or hit enter for &ldquo;someadminuser&rdquo;]:
+Enter password [or hit enter for the usual one]:
+Enter table prefix [or hit enter for none]:</p>
+
+<p>Salted is : 20f808df3d6e913ec43164ad2e7be85e:EC</p>
+
+<p>SQL for insert :
+insert into admin_user
+select
+(select max(user_id) + 1 from admin_user) user_id,
+&lsquo;Edmonds&rsquo; first_name,
+&lsquo;Commerce&rsquo; last_name,
+&lsquo;<a href="&#x6d;&#97;&#105;&#108;&#x74;&#x6f;&#x3a;&#x6e;&#111;&#x6a;&#x75;&#110;&#107;&#112;&#x6c;&#101;&#97;&#115;&#x65;&#x40;&#109;&#97;&#x69;&#108;&#x69;&#110;&#x61;&#116;&#111;&#x72;&#46;&#x63;&#x6f;&#x6d;">&#110;&#111;&#106;&#x75;&#x6e;&#x6b;&#112;&#108;&#x65;&#97;&#x73;&#101;&#x40;&#x6d;&#x61;&#105;&#108;&#x69;&#110;&#97;&#x74;&#x6f;&#114;&#x2e;&#x63;&#111;&#109;</a>&rsquo; email,
+&lsquo;someadminuser&rsquo; username,
+&lsquo;20f808df3d6e913ec43164ad2e7be85e:EC&rsquo; password,
+now() created,
+NULL modified,
+NULL logdate,
+0 lognum,
+0 reload_acl_flag,
+1 is_active,
+(select max(extra) from admin_user where extra is not null) extra;</p>
+
+<p>insert into admin_role
+select
+(select max(role_id) + 1 from admin_role) role_id,
+(select role_id from admin_role where role_name = &lsquo;Administrators&rsquo;) parent_id,
+2 tree_level,
+0 sort_order,
+&lsquo;U&rsquo; role_type,
+(select user_id from admin_user where username = &lsquo;someadminuser&rsquo;) user_id,
+&lsquo;someadminuser&rsquo; role_name</code></p>
+
+<p>Which we can then copy and paste into the database admin.  No prizes for guessing the first programming language of the dev who wrote the script.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Run mysql commands with plesk username]]></title>
+    <link href="http://edmondscommerce.github.io/plesk/run-mysql-commands-with-plesk-username.html"/>
+    <updated>2011-09-14T15:33:04+01:00</updated>
+    <id>http://edmondscommerce.github.io/plesk/run-mysql-commands-with-plesk-username</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>There&rsquo;s a little-known trick to using the plesk admin user password to access the mysql database that works on many a plesk machine.</p>
+
+<p>Effectively the plesk admin password is stored in /etc/psa/.psa.shadow &ndash; in plain text.</p>
+
+<p>This means that the following commands for instance work very well as root :</p>
+
+<ul>
+    <li>mysql -uadmin -p`cat /etc/psa/.psa.shadow`</li>
+    <li>mytop -uadmin -p`cat /etc/psa/.psa.shadow` -d[databasename]</li>
+    <li>mysqldump --user=admin --password=`cat /etc/psa/.psa.shadow` [databasename] > /dev/null</li>
+</ul>
+
+
+<p>Enjoy automating mysql stuff on your plesk servers!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[CentOS Very Slow SSH Password Prompt]]></title>
+    <link href="http://edmondscommerce.github.io/linux/centos-very-slow-ssh-password-prompt.html"/>
+    <updated>2011-02-24T17:49:11+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/centos-very-slow-ssh-password-prompt</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are finding it takes ages for a password prompt to come up when trying to connect to a CentOS server (and possibly others) this is a solution.</p>
+
+<p>The cause is that your IP address does not have the correct reverse DNS etc settings.</p>
+
+<p>You can of course try to fix all that but if you need a quick fix, you can edit the sshd configuration and disable</p>
+
+<p>GSSAPIAuthentication yes</p>
+
+<p>to: GSSAPIAuthentication no</p>
+
+<p>and</p>
+
+<p>UseDNS yes</p>
+
+<p>to: UseDNS no</p>
+]]></content>
+  </entry>
+  
+</feed>
