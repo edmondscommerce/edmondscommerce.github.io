@@ -128,104 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-17T15:27:14+00:00" pubdate data-updated="true">Dec 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/uploading-multiple-files-nothing-in-_post-_files-or-_request-solution.html">Uploading Multiple Files - Nothing in _POST, _FILES or _REQUEST +Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>When you&rsquo;re uploading multiple files (HTML5 feature &ndash; remember IE as yet STILL does not support this), it may not be the fact you&rsquo;re uploading multiple files that&rsquo;s actually causing the problem.</p>
-
-<p>The problem often is actually caused by the various php memory limits in play, one way to avoid getting caught by this is using the following snippet in the form&rsquo;s php to remind you which restrictions are in play (note the min_by_key() function is from the php.net comments) :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="k">function</span> <span class="nf">min_by_key</span><span class="p">(</span><span class="nv">$arr</span><span class="p">,</span> <span class="nv">$key</span><span class="p">){</span>
-</span><span class='line'>    <span class="nv">$min</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
-</span><span class='line'>    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$arr</span> <span class="k">as</span> <span class="nv">$val</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$val</span><span class="p">[</span><span class="nv">$key</span><span class="p">])</span> <span class="k">and</span> <span class="nb">is_array</span><span class="p">(</span><span class="nv">$val</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$min2</span> <span class="o">=</span> <span class="nx">min_by_key</span><span class="p">(</span><span class="nv">$val</span><span class="p">,</span> <span class="nv">$key</span><span class="p">);</span>
-</span><span class='line'>            <span class="nv">$min</span><span class="p">[</span><span class="nv">$min2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span> <span class="k">elseif</span> <span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$val</span><span class="p">[</span><span class="nv">$key</span><span class="p">])</span> <span class="k">and</span> <span class="o">!</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$val</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span> <span class="k">elseif</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$val</span><span class="p">[</span><span class="nv">$key</span><span class="p">]))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$min</span><span class="p">[</span><span class="nv">$val</span><span class="p">[</span><span class="nv">$key</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nx">min</span><span class="p">(</span> <span class="nb">array_keys</span><span class="p">(</span><span class="nv">$min</span><span class="p">)</span> <span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$arrayMaxes</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
-</span><span class='line'>    <span class="s1">&#39;upload_max_filesize&#39;</span><span class="o">=&gt;</span><span class="nb">intval</span><span class="p">(</span><span class="nb">ini_get</span><span class="p">(</span><span class="s1">&#39;upload_max_filesize&#39;</span><span class="p">)),</span>
-</span><span class='line'>    <span class="s1">&#39;post_max_size&#39;</span><span class="o">=&gt;</span><span class="nb">intval</span><span class="p">(</span><span class="nb">ini_get</span><span class="p">(</span><span class="s1">&#39;post_max_size&#39;</span><span class="p">)),</span>
-</span><span class='line'>    <span class="s1">&#39;memory_limit&#39;</span><span class="o">=&gt;</span><span class="nb">intval</span><span class="p">(</span><span class="nb">ini_get</span><span class="p">(</span><span class="s1">&#39;memory_limit&#39;</span><span class="p">))</span>
-</span><span class='line'><span class="p">);</span>
-</span><span class='line'><span class="nv">$maxUploadSize</span> <span class="o">=</span> <span class="nx">min</span><span class="p">(</span><span class="nv">$arrayMaxes</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$arrayMaxes</span> <span class="k">as</span> <span class="nv">$key</span><span class="o">=&gt;</span><span class="nv">$value</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$value</span> <span class="o">==</span> <span class="nx">min</span><span class="p">(</span><span class="nv">$arrayMaxes</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$minimumOfThree</span> <span class="o">=</span> <span class="nv">$key</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span><span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">&lt;p&gt;Max filesize </span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$maxUploadSize</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x">M Maximum filesize due to server setting </span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$minimumOfThree</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"> in php.ini&lt;/p&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-15T23:53:18+00:00" pubdate data-updated="true">Dec 15<span>th</span>, 2012</time>
         
       </p>
@@ -1156,6 +1058,108 @@ To do this you use the @SuppressWarnings option on the comments block above the 
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-04T12:21:44+00:00" pubdate data-updated="true">Dec 4<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html">Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Generate a nice unique block cache key</span>
+</span><span class='line'><span class="sd">     *</span>
+</span><span class='line'><span class="sd">     * @param Mage_Core_Block_Abstract $block</span>
+</span><span class='line'><span class="sd">     * @return string</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">ecCacheKey</span><span class="p">(</span><span class="nx">Mage_Core_Block_Abstract</span> <span class="nv">$block</span><span class="p">){</span>
+</span><span class='line'>        <span class="nv">$class</span> <span class="o">=</span> <span class="nb">get_class</span><span class="p">(</span><span class="nv">$block</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$template</span> <span class="o">=</span> <span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getTemplateFile</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$md5</span> <span class="o">=</span> <span class="nb">md5</span><span class="p">(</span><span class="nb">var_export</span><span class="p">(</span><span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getData</span><span class="p">(),</span> <span class="k">true</span><span class="p">));</span>
+</span><span class='line'>        <span class="nv">$params</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nb">implode</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getRequest</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getParams</span><span class="p">()),</span> <span class="s1">&#39;,&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$category</span><span class="o">=</span><span class="p">(</span><span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getCurrentCategory</span><span class="p">())</span><span class="o">?</span><span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getCurrentCategory</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">()</span><span class="o">:</span><span class="s1">&#39;no-category&#39;</span><span class="p">;</span>
+</span><span class='line'>        <span class="nv">$store_id</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getStore</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s1">&#39;edmondscommerce-&#39;</span><span class="o">.</span> <span class="nv">$params</span> <span class="o">.</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span> <span class="nv">$category</span> <span class="o">.</span> <span class="s1">&#39;-&#39;</span> <span class="o">.</span> <span class="nv">$store_id</span> <span class="o">.</span> <span class="s1">&#39;-&#39;</span> <span class="o">.</span> <span class="nv">$class</span><span class="o">.</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="nv">$template</span><span class="o">.</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="nv">$md5</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">_construct</span><span class="p">(){</span>
+</span><span class='line'>        <span class="k">parent</span><span class="o">::</span><span class="na">_construct</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">addData</span><span class="p">(</span><span class="k">array</span><span class="p">(</span>
+</span><span class='line'>            <span class="s1">&#39;cache_lifetime&#39;</span> <span class="o">=&gt;</span> <span class="mi">999999999</span><span class="p">,</span>
+</span><span class='line'>            <span class="s1">&#39;cache_tags&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span><span class="nx">Mage_Catalog_Model_Product</span><span class="o">::</span><span class="na">CACHE_TAG</span><span class="p">,</span> <span class="nx">Mage_Catalog_Model_Category</span><span class="o">::</span><span class="na">CACHE_TAG</span><span class="p">),</span>
+</span><span class='line'>            <span class="s1">&#39;cache_key&#39;</span> <span class="o">=&gt;</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;blockcaching&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">ecCacheKey</span><span class="p">(</span><span class="nv">$this</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -1181,13 +1185,13 @@ To do this you use the @SuppressWarnings option on the comments block above the 
     
     <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
     
-    <a class="list-group-item " href="/octopress/octopress-cheat-sheet.html">Octopress Cheat Sheet</a>
-    
     <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
     
     <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
     
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
+    
+    <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
     
   </div>
 </section>
