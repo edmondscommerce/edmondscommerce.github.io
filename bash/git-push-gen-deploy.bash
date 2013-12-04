@@ -6,6 +6,8 @@ git pull origin source
 git push origin source
 cd _deploy
 git pull origin master
+git checkout origin/master .
+git commit -am "Pulled remote master"
 cd ../
 rake integrate
 rake gen_deploy
