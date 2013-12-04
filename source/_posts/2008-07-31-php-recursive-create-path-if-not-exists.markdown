@@ -1,0 +1,78 @@
+---
+layout: post
+status: publish
+published: true
+title: 'PHP: Recursive Create Path (if not exists)'
+author: admin
+author_login: blogadmin
+author_email: info@edmondscommerce.co.uk
+author_url: http://www.edmondscommerce.co.uk
+wordpress_id: 66
+wordpress_url: http://www.edmondscommerce.co.uk/blog/php/php-recursive-create-path-if-not-exists/
+date: 2008-07-31 15:11:08.000000000 +01:00
+categories:
+- php
+tags:
+- edmondscommerce
+---
+<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+Handling directories and files with PHP is a snap. However, with this handy function you can always be sure that the destination directory path for your files will exist.
+
+If you pass a path with a filename at teh end, set the second parameter to true eg make_path($path, true)
+
+```php
+
+/*Create  Directory Tree if Not Exists
+If you are passing a path with a filename on the end, pass true as the second parameter to snip it off */
+function make_path($pathname, $is_filename=false){
+
+	if($is_filename){
+
+		$pathname = substr($pathname, 0, strrpos($pathname, '/'));
+
+	}
+
+    // Check if directory already exists
+
+    if (is_dir($pathname) || empty($pathname)) {
+
+        return true;
+
+    } 
+
+    // Ensure a file does not already exist with the same name
+
+    $pathname = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $pathname);
+
+    if (is_file($pathname)) {
+
+        trigger_error('mkdirr() File exists', E_USER_WARNING);
+
+        return false;
+
+    } 
+
+    // Crawl up the directory tree
+
+    $next_pathname = substr($pathname, 0, strrpos($pathname, DIRECTORY_SEPARATOR));
+
+    if (make_path($next_pathname, $mode)) {
+
+        if (!file_exists($pathname)) {
+
+            return mkdir($pathname, $mode);
+
+        }
+
+    } 
+
+    return false;
+
+}
+
+```
