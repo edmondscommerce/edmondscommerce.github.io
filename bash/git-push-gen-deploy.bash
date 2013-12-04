@@ -7,5 +7,6 @@ git push origin source
 cd _deploy
 git pull origin master
 cd ../
+rake integrate
 rake gen_deploy
 rake notify
