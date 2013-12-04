@@ -42,7 +42,7 @@
   <body   >
     <div id="wrap">
       <header role="banner">
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -108,6 +108,61 @@
   <div class="page-content col-md-9">
     <div class="blog-index">
       
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-17T11:02:21+01:00" pubdate data-updated="true">Jul 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-rounding-errors-1-6-0.html">Magento Rounding Errors (1.6.0+)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>The latest version of Magento has a fairly major issue that mostly affects UK and EU businesses, in the way it calculates taxes.</p>
+
+<p>One of the most obvious situations is if you sell something worth £24.99 (inc. tax) and enter that as the price in Magento.  The thread on the Magento forum is <a href="http://www.magentocommerce.com/boards/viewthread/247201/">here</a>.</p>
+
+<p>On the front end (if you have left the standard price templates alone) you will in 1.6.2+ see a price of £24.98.</p>
+
+<p>This is because Magento first takes off the tax, then adds it back on, unfortunately a rounding error creeps in at one or the other side of the process.</p>
+
+<p>Magento claims this is fixed in 1.7.0.1 but from reports we have seen this is not the case.  There are two current fixes but they both have issues.</p>
+
+<p>The first (listed <a href="http://www.magentocommerce.com/boards/viewreply/353791/">here</a>) is to override the store rounding system and have Magento work to 4 decimal places instead of 2.  That&rsquo;s fine and works but if you have a payment gateway that gets fed the line items (such as Paypal Express Checkout for instance), the total does not match the line items (probably because it is passed a 4dp number and it doesn&rsquo;t match the totals of the 2dp items).</p>
+
+<p>Another option (as mentioned <a href="http://www.magentocommerce.com/boards/viewreply/361474/">here</a>) is to assume no rounding where it is not specified rather than assuming rounding.  This won&rsquo;t cause problems with gateways but then you do need to fiddle with your templates to make sure your prices are displayed with tax.</p>
+
+<p>As mentioned, we haven&rsquo;t actually seen a solution that works across the board and is right with stats, payment gateways, frontend and backend.  It&rsquo;s a major bug and hopefully the next release of Magento will fix this.</p>
+
+<p>This appears to be most prevalent when using the &ldquo;Prices include tax in backend&rdquo; setting as the tax calculation only gets done once if you enter pre-tax prices and have the tax only added on.  That isn&rsquo;t to say that it will always calculate the tax correctly that way round either, just that this particular rounding issue is not as visible.</p>
+
+<p>Also, the fixes listed on that thread involve modifying core files &ndash; <strong>don&rsquo;t do this!</strong> copy the files to /app/code/local/Mage from /app/code/core/Mage and modify them in there.</p>
+</div>
+  
+  
+
+
+        </article>
       
       
         <article class="post">
@@ -804,63 +859,6 @@ You might be interested in using or viewing the zipped file here;<a href='http:/
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-31T16:39:50+01:00" pubdate data-updated="true">May 31<span>st</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/display-out-of-stock-products-part-of-a-configurable-product.html">Display Out-of-stock Products Part of a Configurable Product</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In a situation where you want Magento to display out of stock product options of a configurable products, overriding getAllowProducts() function in Mage_Catalog_Block_Product_View_Type_Configurable is where you should be looking, change</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$product</span><span class="o">-&gt;</span><span class="na">isSaleable</span><span class="p">())</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>         <span class="nv">$products</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$product</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>to</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$products</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$product</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Bingo!!!</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -884,6 +882,8 @@ You might be interested in using or viewing the zipped file here;<a href='http:/
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
+    
     <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
     
     <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
@@ -891,8 +891,6 @@ You might be interested in using or viewing the zipped file here;<a href='http:/
     <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
     
     <a class="list-group-item " href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a>
-    
-    <a class="list-group-item " href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a>
     
   </div>
 </section>
