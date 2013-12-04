@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/.bashrc
+source /home/kenneth/.bashrc
 cd /opt/Projects/edmondscommerce.github.io/
 git add -A
 git commit -am 'commiting the source'
