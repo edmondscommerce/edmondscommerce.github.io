@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2013-12-05T12:25:08+00:00</updated>
+  <updated>2013-12-05T20:04:47+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,57 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Merging Forks for Composer]]></title>
+    <link href="http://edmondscommerce.github.io/composer/merging-forks-for-composer.html"/>
+    <updated>2013-12-05T19:53:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/composer/merging-forks-for-composer</id>
+    <content type="html"><![CDATA[<p>I am really enjoying using Composer with a Symfony2 project that I am currently working on.</p>
+
+<p>Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
+JMS/SerializerBundle to handle the actual encoding into JSON.</p>
+
+<p>The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&rsquo;t want that. I want my property and entity names to be the same across formats.</p>
+
+<p>A bit of digging and I found <a href="https://github.com/passkey1510/JMSSerializerBundle">this fork</a> which features a fix for exactly this problem, brilliant!</p>
+
+<p>However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
+the minimum version requirements of the FOSRest bundle. Problem.</p>
+
+<p>The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
+</span><span class='line'>git merge remote/passkey1510/master
+</span><span class='line'>git push</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.</p>
+
+<p>I can now reference my fork in my composer.json file like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"repositories": [
+</span><span class='line'>        {
+</span><span class='line'>            "url": "https://github.com/edmondscommerce/JMSSerializerBundle.git",
+</span><span class='line'>            "type": "vcs"
+</span><span class='line'>        },
+</span><span class='line'>],</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now running a <code>composer update --dev</code> and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.</p>
+
+<p>And that is it, problem solved :)</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[The First Thing You Should Read on SEO]]></title>
@@ -650,37 +701,6 @@ app/design/frontend/base/default/template/catalog/product/view/type/configurable
 </pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">javascript</span><span class="o">:</span><span class="nx">alert</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">text</span> <span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span> <span class="nx">text</span> <span class="p">);</span> <span class="k">return</span> <span class="kc">true</span><span class="p">;</span> <span class="p">};</span>
 </span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PHPStorm Regex Convert Array to Object Syntax]]></title>
-    <link href="http://edmondscommerce.github.io/php/phpstorm-regex-convert-array-to-object-syntax.html"/>
-    <updated>2013-08-27T14:40:35+01:00</updated>
-    <id>http://edmondscommerce.github.io/php/phpstorm-regex-convert-array-to-object-syntax</id>
-    <content type="html"><![CDATA[<p>If you are converting some code from using array syntax to object property syntax then you might like this little snippet of regex.</p>
-
-<p>This is design to paste straight into the find/replace dialogue in PHPStorm</p>
-
-<p>Find:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>\$(\w+)\['([^']+)'\]
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Replace:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>\\\$$1-&gt;$2
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And that is it</p>
 ]]></content>
   </entry>
   

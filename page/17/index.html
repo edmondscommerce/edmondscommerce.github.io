@@ -128,6 +128,68 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T16:31:15+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/xdebug-php-and-command-line-scripts.html">Xdebug PHP and Command Line Scripts</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I had a requirement to use Xdebug to step through a PHP script that is being run on the command line.</p>
+
+<p>Oh no I thought, this is bound to be really complicated to figure out because I normally use the web browser and I have never done this before.</p>
+
+<p>Pleasant surprise, its actually really easy to do this, all you need to do on the command line is run the following command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">XDEBUG_CONFIG</span><span class="o">=</span>&amp;quot;idekey<span class="o">=</span>netbeans-xdebug&amp;quot;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then get your IDE (PHPStorm for me) listening for Xdebug and then run your PHP file on the command line.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>php ./myfile.php
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it, it just works.</p>
+
+<p>One caveat (which I actually quite like) is that it will now ALWAYS get picked up by xdebug which could get in your way. To stop this, simply unset the variable like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">unset </span>XDEBUG_CONFIG
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T13:24:37+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
         
       </p>
@@ -791,76 +853,6 @@ You need to tell my top how it should connect to your database. You <em>can</em>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T14:05:32+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/running-php-scripts-as-apache-or-a-shell-user.html">Running PHP Scripts as Apache or a Shell User</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you have PHP scripts that need to be able to run via the web server as Apache and also be runnable directly on the command line then you may run into permissions issues, especially if those scripts are doing anything with files.</p>
-
-<p>The scenario is that you run the script via the webserver and all of the files etc that are created are owned by Apache. Then you try to run on the command line and the script cannot run because it does not have permission to access Apache&rsquo;s files. The opposite scenario is also true.</p>
-
-<p>There are a few possible solutions to this but the most elegant and simple is to do the follwing.</p>
-
-<p>Assuming you are running Centos, you first of all need to set Apache to run with a umask of 002. This means that files it creates will have read/write permissions for the Apache group as well as the Apache user.</p>
-
-<p>To do this, simply add a line to the file /etc/sysconfig/httpd. You can do this in one command like this:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">echo</span> <span class="s2">&quot;umask 002&quot;</span> &gt;&gt; /etc/sysconfig/httpd
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then you need to restart Apache to apply this.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>service httpd restart
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You then need to add your shell user to the apache group. To do this you need to do the following:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>vigr
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then find the line with your shell user and at the end add a comma and the word apache. This will add that user to the apache group along with it&rsquo;s own group.</p>
-
-<p>You will get a prompt to also edit etc/shadow. Agree to this and repeat the process.</p>
-
-<p>You will then need to log out and log back in to apply those changes and that should resolve your permissions issues for good.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -884,6 +876,8 @@ You need to tell my top how it should connect to your database. You <em>can</em>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
+    
     <a class="list-group-item " href="/SEO/the-first-thing-you-should-read-on-seo.html">The First Thing You Should Read on SEO</a>
     
     <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
@@ -891,8 +885,6 @@ You need to tell my top how it should connect to your database. You <em>can</em>
     <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
     
     <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
-    
-    <a class="list-group-item " href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a>
     
   </div>
 </section>
