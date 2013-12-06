@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: php | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/php/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2013-12-05T20:04:47+00:00</updated>
+  <updated>2013-12-06T12:06:51+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,74 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Wrapping a List in Quotes in PHPStorm]]></title>
+    <link href="http://edmondscommerce.github.io/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html"/>
+    <updated>2013-12-06T11:35:58+00:00</updated>
+    <id>http://edmondscommerce.github.io/phpstorm/wrapping-a-list-in-quotes-in-phpstorm</id>
+    <content type="html"><![CDATA[<p>Some times you might find your self with a list of values you want to copy and paste from somewhere into your PHP code as an array of strings.</p>
+
+<p>For example, take this list of carrier names that I need to use:</p>
+
+<p><code>
+Blue Package, USPS, UPS, UPSMI, FedEx, DHL, DHL Global Mail, Fastway, UPS Mail Innovations, Lasership, Royal Mail, FedEx SmartPost, OSM, OnTrac, Streamlite, Newgistics, Canada Post, City Link, GLS, GO!, Hermes Logistik Gruppe, Parcelforce, TNT, Target, SagawaExpress, NipponExpress, YamatoTransport, Other
+</code></p>
+
+<p>I really don&rsquo;t fancy wrapping each element of this list with quotes one by one, there must be a better way!</p>
+
+<p>There is, you can use the regex replace functionality of PHPStorm to do this for you quickly and easily.</p>
+
+<p>First of all paste the string into your PHPStorm editor and highlight it. Then hit <code>[ctrl]+[r]</code> to start your find and replace.</p>
+
+<p>The &ldquo;In Selection&rdquo; tick box should be ticked already, you also need to tick the regex box.</p>
+
+<p>Then in the find section, use this regex:
+<code>
+( |)([^,]+),
+</code></p>
+
+<p>And in your replace box, put this:</p>
+
+<p><code>
+\n'$2',
+</code></p>
+
+<p>This gets you nearly all the way there, you might just need to tidy up a bit you should now have something looking like this:</p>
+
+<p><code>
+'Blue Package',
+'USPS',
+'UPS',
+'UPSMI',
+'FedEx',
+'DHL',
+'DHL Global Mail',
+'Fastway',
+'UPS Mail Innovations',
+'Lasership',
+'Royal Mail',
+'FedEx SmartPost',
+'OSM',
+'OnTrac',
+'Streamlite',
+'Newgistics',
+'Canada Post',
+'City Link',
+'GLS',
+'GO!',
+'Hermes Logistik Gruppe',
+'Parcelforce',
+'TNT',
+'Target',
+'SagawaExpress',
+'NipponExpress',
+'YamatoTransport', Other
+</code></p>
+
+<p>The <code>Other</code> on the end has not been converted has it doesn&rsquo;t have a trailing comma. You could mess about with yoru regex trying to get this to also be converted, or you could say good enough and move on.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Automatically convert old PHP file to camelCase ]]></title>
@@ -156,115 +224,6 @@ $xml = simplexml_load_string(utf8_encode($response));</p>
 <p>It does look very much like Sylius is still quite a new offering and it can not boast the level of maturity and establishment that Magento has achieved. That said, things move quickly in this industry and who knows what will be top dog in the next five years.</p>
 
 <p>If you are considering Sylius for your e-commerce website and would like to find a UK Sylius developer to work with then do get in touch with Edmonds Commerce today.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PHP SOAP Client Basic Template]]></title>
-    <link href="http://edmondscommerce.github.io/php/php-soap-client-basic-template.html"/>
-    <updated>2013-07-08T08:28:17+01:00</updated>
-    <id>http://edmondscommerce.github.io/php/php-soap-client-basic-template</id>
-    <content type="html"><![CDATA[<p>Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&rsquo;m just unlucky?</p>
-
-<p>In my experience decent API&rsquo;s don&rsquo;t use SOAP.</p>
-
-<p>Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&rsquo;t work), I&rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!</p>
-
-<p>```php</p>
-
-<p>&lt;?php
-/<em>*
- * Class Template Soap Client Consuming Class
- </em>/</p>
-
-<p>class EdmondsCommerceSoap
-{</p>
-
-<pre><code>protected $username = 'edmondscommerce';
-
-protected $pass = 'NotReallyMyPassw0rd';
-
-
-public function test($wsdl)
-{
-    $options["connection_timeout"] = 25;
-    $options["location"] = $wsdl; 
-    $options['trace'] = 1; //this is important if you want to be able to use the soapDebug method
-    try {
-        $client = new SoapClient($wsdl, $options);
-        $client = $this-&gt;setAuthHeader($client);
-        $client-&gt;Method();
-    } catch (SoapFault $e) {
-        echo '&lt;h1&gt;SoapFault: ' . $e-&gt;getMessage() . '&lt;/h1&gt;';
-        echo '&lt;pre&gt;' . $e-&gt;getTraceAsString() . '&lt;/pre&gt;';
-    }
-    echo '&lt;h2&gt;Debug Info:&lt;/h2&gt;';
-    var_dump($this-&gt;soapDebug($client));
-}
-
-/**
-* This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers
-**/
-protected function setAuthHeader(SoapClient $client)
-{
-    $auth = array(
-        'username' =&gt; $this-&gt;username,
-        'MessageId' =&gt; md5(time()),
-        'password' =&gt; $this-&gt;password
-    );
-    foreach($auth as $k=&gt;$v){
-        $headers[] = new SoapHeader('Header', $k, $v, false);
-    }
-    $client-&gt;__setSoapHeaders($headers);
-    return $client;
-}
-
-/**
- *  This method gathers all debug info into a handy array ready for var_dump, log etc etc
- **/
-protected function soapDebug(SoapClient $client)
-{
-    $debug = array();
-    $debug['request']['headers'] = $client-&gt;__getLastRequestHeaders();
-    $debug['request']['body'] = $client-&gt;__getLastRequest();
-    $debug['request']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastRequest());
-    $debug['response']['headers'] = $client-&gt;__getLastResponseHeaders();
-    $debug['response']['body'] = $client-&gt;__getLastResponse();
-    $debug['response']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastResponse());
-    return $debug;
-}
-
-
-/**
- * This method is purely to assist the debug method and simply makes generated XML readable
- **/
-protected function formatXmlString($xml)
-{
-    $xml = preg_replace('/(&gt;)(&lt;)(\/*)/', "$1\n$2$3", $xml);
-    $token = strtok($xml, "\n");
-    $result = '';
-    $pad = 0;
-    $matches = array();
-    while ($token !== false) :
-        if (preg_match('/.+&lt;\/\w[^&gt;]*&gt;$/', $token, $matches)) :
-            $indent = 0; elseif (preg_match('/^&lt;\/\w/', $token, $matches)) :
-            $pad--;
-            $indent = 0; elseif (preg_match('/^&lt;\w[^&gt;]*[^\/]&gt;.*$/', $token, $matches)) :
-            $indent = 1; else :
-            $indent = 0;
-        endif;
-        $line = str_pad($token, strlen($token) + $pad, ' ', STR_PAD_LEFT);
-        $result .= $line . "\n";
-        $token = strtok("\n");
-        $pad += $indent;
-    endwhile;
-    return $result;
-}
-</code></pre>
-
-<p>}</p>
-
-<p>```</p>
 ]]></content>
   </entry>
   

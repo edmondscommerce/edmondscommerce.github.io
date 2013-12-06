@@ -128,6 +128,69 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-04-18T17:48:13+01:00" pubdate data-updated="true">Apr 18<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/update-magento-category-attribute-sort-order-from-the-database.html">Update Magento Category Attribute Sort Order From the Database</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have written your own modules, and need to rearrange the order that your attributes or displayed in, or change anything else, you can use the following SQL statements to fix their order.</p>
+
+<p>First you need to get the attribute group that the attributes are under. This can be done by running the following</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span> <span class="n">attribute_group_id</span><span class="p">,</span>  <span class="n">attribute_group_name</span> <span class="k">FROM</span> <span class="n">eav_attribute_group</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will give all of the different tabs for categories as well as the products. Find the group ID that you need and then run the following command to see all of the attributes associated with it</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span> <span class="n">eea</span><span class="p">.</span><span class="o">*</span><span class="p">,</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_code</span> <span class="k">FROM</span> <span class="n">eav_entity_attribute</span> <span class="k">AS</span> <span class="n">eea</span> <span class="k">JOIN</span> <span class="n">eav_attribute</span> <span class="k">AS</span> <span class="n">ea</span> <span class="k">ON</span> <span class="n">eea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="k">WHERE</span> <span class="n">eea</span><span class="p">.</span><span class="n">attribute_group_id</span> <span class="o">=</span> <span class="mi">4</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we are using the group_id of 4 which gives the following result
+<img src="/assets/screenshot2-600x234.png"></p>
+
+<p>The sort_order is the attribute that you need to change to move the attributes around the page. If the sort order is sequential then a simple trick to add some padding is to run the following command</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">UPDATE</span> <span class="n">eav_entity_attribute</span> <span class="kt">SET</span> <span class="n">sort_order</span> <span class="o">=</span> <span class="p">(</span><span class="n">sort_order</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">attribute_group_id</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which will multiple each sort order by 10 allowing you to move the attributes around easier.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-04-16T08:56:48+01:00" pubdate data-updated="true">Apr 16<span>th</span>, 2012</time>
         
       </p>
@@ -623,76 +686,6 @@ As everyone is aware, Ubuntu and Gnome have both moved towards a new desktop env
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-27T11:05:49+01:00" pubdate data-updated="true">Mar 27<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html">Using Live Images on Staging Without Absolute URLs (but a Bit of JS)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you have a staging copy of your site anywhere then you might not bother copying over your entire catalogue of product images etc.</p>
-
-<p>You might decide to drop in absolute URLs for those images so that they are pulled from live. However you really don&rsquo;t want absolute URLs in your code and you certainly don&rsquo;t want that to go live because it just adds unnecessary bloat.</p>
-
-<p>A nice trick you can do here is make a change to your staging site as follows. Of course ensure this change doesn&rsquo;t go live, but it should be just one file so that&rsquo;s easy to handle.</p>
-
-<p>(Note this assumes you already have jQuery available on your page)</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text/javascript&quot;</span><span class="o">&gt;</span>
-</span><span class='line'><span class="nx">$</span><span class="p">().</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;img&#39;</span><span class="p">).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>        <span class="kd">var</span> <span class="nx">src</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;&#39;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="nx">src</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">)){</span>
-</span><span class='line'>            <span class="kd">var</span> <span class="nx">new_src</span> <span class="o">=</span> <span class="s1">&#39;http://www.LIVEDOMAIN.co.uk/&#39;</span><span class="o">+</span><span class="nx">src</span><span class="p">;</span>
-</span><span class='line'>            <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="nx">new_src</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'><span class="o">&lt;</span><span class="err">/script&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Don&rsquo;t forget to change LIVEDOMAIN to be your real live domain</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -716,6 +709,8 @@ As everyone is aware, Ubuntu and Gnome have both moved towards a new desktop env
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    
     <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
     
     <a class="list-group-item " href="/SEO/the-first-thing-you-should-read-on-seo.html">The First Thing You Should Read on SEO</a>
@@ -723,8 +718,6 @@ As everyone is aware, Ubuntu and Gnome have both moved towards a new desktop env
     <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
     
     <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
-    
-    <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
     
   </div>
 </section>

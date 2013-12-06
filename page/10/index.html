@@ -128,6 +128,107 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-21T15:06:53+00:00" pubdate data-updated="true">Dec 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux%20mint/how-to-restore-hibernate-after-deleting-and-recreating-your-swap-partition-in-mint-13-mint-14-and-ubuntu-12-04-ubuntu-12-10.html">How to Restore Hibernate After Deleting and Recreating Your Swap Partition in Mint 13, Mint 14 and Ubuntu 12.04, Ubuntu 12.10</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>As part of increasing my swap space in order to hibernate (my previous setup had 4GB of swap but 8GB of RAM) I had deleted and recreated my swap partition. There was no change in the partition&rsquo;s device files &ndash; it was still /dev/sda2, however my new swap partition seemed to be nonfunctional. This is down to the device&rsquo;s UUID having changed.</p>
+
+<h2>Finding your new UUID</h2>
+
+
+<p>To find the new UUID, issue:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>$ ls -l /dev/disk/by-uuid/
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll get this output. Just copy the UUID (the string of random letters and numbers), we&rsquo;ll use this soon</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>total 0
+</span><span class='line'>lrwxrwxrwx 1 root root 10 Dec 21 14:27 13823b29-79f5-485f-a260-ba4c4c7f2d92 -&gt; ../../sda1
+</span><span class='line'>lrwxrwxrwx 1 root root 10 Dec 21 14:27 65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69 -&gt; ../../sda2
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Fixing swap on bootup</h2>
+
+
+<p>You&rsquo;ll find that the new swap partition isn&rsquo;t available on boot, nor can it be manually enabled using sudo swapon -a. To fix these, use your favourite text editor to open /etc/fstab and add the new UUID on the swap line</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>UUID=65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69 none            swap    sw              0       0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Issue a sudo swapon -a and check your System Monitor. If you have available swap then you&rsquo;re all good</p>
+
+<h2>Fixing hibernate</h2>
+
+
+<p>Because fstab is used way after the system decides whether to resume from Hibernate you&rsquo;ll need to update it on which partition it should resume from</p>
+
+<p>Again, use your favourite text editor to open /etc/initramfs-tools/conf.d/resume. Add in your new UUID</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>RESUME=UUID=65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Update your configuration for it to take effect, and hibernate will work just fine again</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>sudo update-initramfs -u
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-19T11:53:48+00:00" pubdate data-updated="true">Dec 19<span>th</span>, 2012</time>
         
       </p>
@@ -1131,95 +1232,6 @@ To do this you use the @SuppressWarnings option on the comments block above the 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-05T17:27:51+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/solution-magento-catalog-url-rewrites-never-finishes-processing.html">Solution: Magento Catalog URL Rewrites Never Finishes (Processing)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In <a title="Magento" href="http://www.edmondscommerce.co.uk/platforms/Magento">Magento</a> 1.4.2 and possibly other versions, you can often find that the Catalog URL Rewrite process will sit at Processing forever.</p>
-
-<p>One of the problems that can cause this is if you have products in multiple categories and the solution is not pretty, but it works.</p>
-
-<p>Copy the file /app/code/core/Mage/Catalog/Model/Url.php to /app/code/local/Mage/Catalog/Model/Url.php (You never edit core files right?!) and around line 770 there is the following code block :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>        <span class="c1">// generate id_path</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span> <span class="o">===</span> <span class="nv">$type</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;category/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$category</span> <span class="o">&amp;&amp;</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getLevel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>        <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Changing this to the following seems to fix the problem :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>        <span class="c1">// generate id_path</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span> <span class="o">===</span> <span class="nv">$type</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;category/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$category</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getPath</span><span class="p">()))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>        <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1243,6 +1255,8 @@ To do this you use the @SuppressWarnings option on the comments block above the 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    
     <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
     
     <a class="list-group-item " href="/SEO/the-first-thing-you-should-read-on-seo.html">The First Thing You Should Read on SEO</a>
@@ -1250,8 +1264,6 @@ To do this you use the @SuppressWarnings option on the comments block above the 
     <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
     
     <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
-    
-    <a class="list-group-item " href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a>
     
   </div>
 </section>
