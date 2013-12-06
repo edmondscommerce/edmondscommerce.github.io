@@ -128,6 +128,106 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-02-24T14:19:39+00:00" pubdate data-updated="true">Feb 24<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/adding-customer-attributes-in-magento.html">Adding Customer Attributes in Magento!</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you ever need to create a custom field to save data against a customer in Magento you will probably need to create a custom attribute.</p>
+
+<p>Creating the attribute is easy, in your modules install script you do:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nv">$installer</span> <span class="o">=</span> <span class="nv">$this</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$installer</span><span class="o">-&gt;</span><span class="na">startSetup</span><span class="p">();</span>
+</span><span class='line'><span class="nv">$installer</span><span class="o">-&gt;</span><span class="na">addAttribute</span><span class="p">(</span><span class="s1">&#39;customer&#39;</span><span class="p">,</span> <span class="s1">&#39;my_custom_attribute&#39;</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="o">=&gt;</span><span class="s1">&#39;text&#39;</span><span class="p">));</span>
+</span><span class='line'><span class="nv">$installer</span><span class="o">-&gt;</span><span class="na">endSetup</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then on the customer object you can update and save it accordingly:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nv">$customer</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;customer/customer&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$customerId</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$customer</span><span class="o">-&gt;</span><span class="na">setMyCustomAttribute</span><span class="p">(</span><span class="s2">&quot;Some custom data that needs to be saved&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">save</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;customer/customer&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$customerId</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getMyCustomAttribute</span><span class="p">();</span> <span class="c1">// Outputs &#39;Some custom data that needs to be saved&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make your installer work you need to create a folder in the root of your module sql/mymodule_setup</p>
+
+<p>In there create the file mysql4-install-0.1.0.php</p>
+
+<p>And put the above installer code (plus any other install related code) in there.</p>
+
+<p>You also need to add the following to your modules etc/config.xml file</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>        <span class="nt">&lt;resources&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;mymodule_setup&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;setup&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;module&gt;</span>EdmondsCommerce_Mymodule<span class="nt">&lt;/module&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;class&gt;</span>Mage_Sales_Model_Mysql4_Setup<span class="nt">&lt;/class&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/setup&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;connection&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;use&gt;</span>core_setup<span class="nt">&lt;/use&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/connection&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/mymodule_setup&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/resources&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-02-24T11:21:55+00:00" pubdate data-updated="true">Feb 24<span>th</span>, 2012</time>
         
       </p>
@@ -617,60 +717,6 @@ Password: changeit</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-02-14T15:16:55+00:00" pubdate data-updated="true">Feb 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-basics-some-thing-that-is-false-and-true-at-the-same-time.html">PHP Basics, Some Thing That Is False and True at the Same Time!</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>What can be true and false at the same time?</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$a</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="nv">$a</span> <span class="o">==</span> <span class="k">true</span> <span class="o">&amp;&amp;</span> <span class="nv">$b</span> <span class="o">==</span> <span class="k">false</span> <span class="o">&amp;&amp;</span> <span class="nv">$a</span> <span class="o">==</span> <span class="nv">$b</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">echo</span> <span class="s2">&quot;Passed&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is because PHP tries to convert &ldquo;a&rdquo; to a numeric, as there is no numeric value it gets changed to zero. So 0 == 0 is true. At the same time the string &ldquo;a&rdquo; converted to boolean evaluates to true. 0 evaluates to false. While there isn&rsquo;t an actual value that is both true and false that the same type, depending on the context a value may evaluate to true or false depending on what it is been compared to. To avoid problems like this, you should use triple equals (===) unless you know other wise.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -694,6 +740,8 @@ Password: changeit</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    
     <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
     
     <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
@@ -701,8 +749,6 @@ Password: changeit</p>
     <a class="list-group-item " href="/SEO/the-first-thing-you-should-read-on-seo.html">The First Thing You Should Read on SEO</a>
     
     <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
-    
-    <a class="list-group-item " href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a>
     
   </div>
 </section>
