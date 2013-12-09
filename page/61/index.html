@@ -128,6 +128,179 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-07-13T13:47:52+01:00" pubdate data-updated="true">Jul 13<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/zend%20framework/zend-framework-easy-sql-info.html">Zend Framework Easy SQL Info</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you develop using Zend Framework you will know that it is sometimes tricky to see exactly whats going on in terms of SQL queries. After trying a few different ideas including subclassing the database classes or other complex systems, the easiest I have found is this:</p>
+
+<ol>
+<li>Edit your app.ini config file and add a line:</li>
+</ol>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>db_profiling_enabled = false
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in your development section in your ini file, set the same value to true</p>
+
+<ol>
+<li>Add the following lines to your bootstrap.php after the database adapter setup.</li>
+</ol>
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">// DATABASE ADAPTER - Setup the database adapter</span>
+</span><span class='line'><span class="c1">// Zend_Db implements a factory interface that allows developers to pass in an </span>
+</span><span class='line'><span class="c1">// adapter name and some parameters that will create an appropriate database </span>
+</span><span class='line'><span class="c1">// adapter object.  In this instance, we will be using the values found in the </span>
+</span><span class='line'><span class="c1">// &quot;database&quot; section of the configuration obj.</span>
+</span><span class='line'><span class="nv">$dbAdapter</span> <span class="o">=</span> <span class="nx">Zend_Db</span><span class="o">::</span><span class="na">factory</span><span class="p">(</span><span class="nv">$configuration</span><span class="o">-&gt;</span><span class="na">database</span><span class="p">);</span>
+</span><span class='line'><span class="c1">//$dbAdapter = new EC_Db_Mysqli($configuration-&gt;database-&gt;params);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="nv">$configuration</span><span class="o">-&gt;</span><span class="na">db_profiling_enabled</span><span class="p">){</span>
+</span><span class='line'>    <span class="c1">// create a new profiler</span>
+</span><span class='line'>    <span class="nv">$profiler</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Zend_Db_Profiler_Firebug</span><span class="p">(</span><span class="s1">&#39;EdmondsCommerce DB Queries Debug&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="c1">// enable profiling (this is only recommended in development mode, disable this in production mode)</span>
+</span><span class='line'>    <span class="nv">$profiler</span><span class="o">-&gt;</span><span class="na">setEnabled</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="c1">// add the profiler to the database object</span>
+</span><span class='line'>    <span class="nv">$dbAdapter</span><span class="o">-&gt;</span><span class="na">setProfiler</span><span class="p">(</span><span class="nv">$profiler</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note you may need to move this chunk above the database adapter section:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">// CONFIGURATION - Setup the configuration object</span>
+</span><span class='line'><span class="c1">// The Zend_Config_Ini component will parse the ini file, and resolve all of</span>
+</span><span class='line'><span class="c1">// the values for the given section.  Here we will be using the section name</span>
+</span><span class='line'><span class="c1">// that corresponds to the APP&#39;s Environment</span>
+</span><span class='line'><span class="nv">$configuration</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Zend_Config_Ini</span><span class="p">(</span>
+</span><span class='line'>    <span class="nx">APPLICATION_PATH</span> <span class="o">.</span> <span class="s1">&#39;/config/app.ini&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">APPLICATION_ENVIRONMENT</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is based on a modified quickstart layout for a project. If you have decided to use an alternative layout, you should be able to tell where the relevant code should be.</p>
+
+<p>You will need to have the Firebug firefox extension to view this output. If you also install the FirePHP extension for firebug then there are even more cool things that you can do.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-07-10T12:16:09+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/drupal/drupal-6-file-uploads.html">Drupal 6 File Uploads</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>It&rsquo;s always tempting when  you are new to a framework or system to just roll your own functionality if the built in functionality is not obvious. I was nearly at that stage with Drupal 6 file uploads. Thankfully before I gave in I found this useful blog post which clearly states how Drupal&rsquo;s built in file upload functionality works. Sweet :&ndash;)</p>
+
+<p><a href="http://www.computerminds.co.uk/file-uploads-drupal-6-part-1" rel="nofollow"><a href="http://www.computerminds.co.uk/file-uploads-drupal-6-part-1">http://www.computerminds.co.uk/file-uploads-drupal-6-part-1</a></a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-07-10T09:46:32+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2009</time>
         
       </p>
@@ -527,130 +700,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-06-30T07:23:45+01:00" pubdate data-updated="true">Jun 30<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/web%20design/rgba-cross-browser-support-solution.html">RGBA Cross Browser Support + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>I recently came across rgba colours which are a very simple and logical way to produce a colour (rgb) with alpha transparency as well. This is ideal if for example you want to create a translucent white box to put some text in.</p>
-
-<p>CSS does have some (dodgy) opacity controls, but they set everything as transparent including any text or pictures contained within the element. By using rgba, we can set a translucent background colour and have opaque elements contained within.</p>
-
-<p>As usual, to get it to work in IE requires some extra effort, however this hack mentioned  <a href="http://css-tricks.com/rgba-browser-support/">here</a> and originally credited <a href="http://www.hedgerwow.com/360/dhtml/rgba/demo.php">here</a> seems to offer a solution.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-06-26T08:39:51+01:00" pubdate data-updated="true">Jun 26<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ubuntu/ubuntu-virtualbox-xp-easy.html">Ubuntu + VirtualBox + XP = Easy</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>I have recently had the misfortune of stepping out of my usual developers bubble and having to do a bit of graphic web design. Of course that means that not only did I have to try to make something look good with my meagre design skills, but then I had to worry about making sure it worked in IE&hellip;</p>
-
-<p>Web Designers&hellip; I FEEL YOUR PAIN</p>
-
-<p>As I only use Ubuntu or Mac&rsquo;s, testing in IE is not exactly easy. Or at least it wasn&rsquo;t until I decided to take the plunge and set up XP as a virtual machine. It&rsquo;s really really easy on Ubuntu.</p>
-
-<ol>
-<li><p>Go to the Applications->Add / Remove system</p></li>
-<li><p>type virtualbox in the searchbox</p></li>
-<li><p>Install VirtualBox OSE</p></li>
-<li><p>Go to the Applications->Accessories menu and launch VirtualBox OSE</p></li>
-<li><p>Hit the blue New icon in the top left</p></li>
-<li><p>Follow the wizard. I used the following settings:</p></li>
-</ol>
-
-
-<p>6.a name: xp</p>
-
-<p>6.b: memory: 192mb</p>
-
-<ol>
-<li><p>At the boot disk stage, you need to hit the New button to create and install a new &lsquo;boot disk&rsquo;.</p></li>
-<li><p>Whack your XP CD in the drive and install it.</p></li>
-</ol>
-
-
-<p>By default the right hand ctrl key is your key for escaping out of your virtual machine. This means that if you click on your virtual machine with your mouse (for example to go through to multiple steps required to tell XP that you want English UK keyboard, and surprise surprise an English Keyboard layout and furthermore you don&rsquo;t really need to install English US as a separate language)</p>
-
-<p>Note &ndash; to access your Ubuntu environment you will need to have folder sharing set up, the virtual machine will see the host Ubuntu like another computer on a network.</p>
-
-<p>If like me you need to edit the hosts file to point a dummy domain to your local development environment, the IP address you need to use is 10.0.2.2</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -674,15 +723,15 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    
+    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    
     <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
     
     <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
     
     <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
-    
-    <a class="list-group-item " href="/SEO/the-first-thing-you-should-read-on-seo.html">The First Thing You Should Read on SEO</a>
-    
-    <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
     
   </div>
 </section>

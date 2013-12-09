@@ -128,6 +128,132 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-09T18:57:42+00:00" pubdate data-updated="true">Dec 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Here is a quicky I figured out when posting my previous story that included a snippet of Twig code.</p>
+
+<p>If you put Twig code into codeblocks, it doesn&rsquo;t work, instead of regarding anything inside the code block as escaped code, it tries to parse it.</p>
+
+<p>The solution is simply to wrap your code in a raw tag like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{% codeblock %}
+</span><span class='line'>{% raw %}
+</span><span class='line'>   // your code here
+</span><span class='line'>{% end[REMOVE_THIS_BIT]raw %}
+</span><span class='line'>{% endcodeblock %}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In fact I had to do that to get this post to work as well</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-09T18:43:03+00:00" pubdate data-updated="true">Dec 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I just hit an interesting issue with a nice and easy solution once you understand what is going on.
+On a current project I making heavy use of the <a href="https://github.com/sensiolabs/SensioGeneratorBundle">SensioGeneratorBundle</a> to generate CRUD etc. So far its working really nicely.</p>
+
+<p>However I started to see an issue with one of my entities that Twig was not handling a DateTime column properly but others were being handled fine.</p>
+
+<p>Looking through the Twig template I noticed this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html+jinja'><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp">{%</span>- <span class="k">for</span> <span class="nv">field</span><span class="o">,</span> <span class="nv">metadata</span> <span class="k">in</span> <span class="nv">fields</span> <span class="cp">%}</span>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">if</span> <span class="nb">loop</span><span class="nv">.first</span> <span class="k">and</span> <span class="o">(</span><span class="s1">&#39;show&#39;</span> <span class="k">in</span> <span class="nv">actions</span><span class="o">)</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="s2">&quot;{{ path(&#39;&quot;</span> <span class="o">~</span> <span class="nv">route_name_prefix</span> <span class="o">~</span> <span class="s2">&quot;_show&#39;, { &#39;id&#39;: entity.id }) }}&quot;</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; }}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">elseif</span> <span class="nv">metadata.type</span> <span class="k">in</span> <span class="o">[</span><span class="s1">&#39;date&#39;</span><span class="o">,</span> <span class="s1">&#39;datetime&#39;</span><span class="o">]</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{% if entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; %}{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39;|date(\&#39;Y-m-d H:i:s\&#39;) }}{% endif %}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/td&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What this means is that the first entity will never have the DateTime handling. Of course you probably don&rsquo;t want a DateTime to be the first entity so I think this is reasonable.</p>
+
+<p>To fix this, all you need to do is make sure that your Doctrine class does not declare the first property as a DateTime.</p>
+
+<p>If you have a primary key or unique reference property then try to get this as the first declared property in your Doctrine entity class and then rebuild the CRUD and the problem goes away.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-06T18:49:19+00:00" pubdate data-updated="true">Dec 6<span>th</span>, 2013</time>
         
       </p>
@@ -678,107 +804,6 @@ However, in a scenario where perhaps you want to authenticate as a different use
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-02T19:01:51+00:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I was going to write a nice summary of how to set up PHPStorm with a Symfony2 project.
-There are a few things to be aware of such as getting the right code style set up so that your code follows the Symonfy2 coding standards.</p>
-
-<p>As it happens though a quick google found that there is already an excellent summary <a href="http://www.kevwebdev.com/blog/setting-up-a-symfony2-project-in-phpstorm.html">here</a> which I suggest you have a read of.</p>
-
-<p>The only thing I would add to this are that you should probably install these PHPStorm plugins to get the best out of it:</p>
-
-<p><a href="http://plugins.jetbrains.com/plugin?pr=&amp;pluginId=7219">Symfony2</a></p>
-
-<p>and <a href="http://plugins.jetbrains.com/plugin/7320">PHP Annotations</a></p>
-
-<p>If you do all of this then you should have a really nice PHPStorm set up for working on your Symfony2 projects, enjoy!</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-11-29T13:53:12+00:00" pubdate data-updated="true">Nov 29<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Still learning some of the various things that can be done with Octopress and
-came across this Octopress syntax highlighting package that makes it even nicer
-to write blog posts (such as this one) using Vim.</p>
-
-<p>You can see the package <a href="https://github.com/tangledhelix/vim-octopress">here</a>.</p>
-
-<p>If you have already installed the SPF13 Vim then you are already running the required bundles
-and can simply run</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> ~/.vim/bundle
-</span><span class='line'>git clone https://github.com/tangledhelix/vim-octopress.git octopress
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It isn&rsquo;t a groundbreaking improvement but it is worth throwing in there.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -802,15 +827,15 @@ and can simply run</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    
+    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    
     <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
     
     <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
     
     <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
-    
-    <a class="list-group-item " href="/SEO/the-first-thing-you-should-read-on-seo.html">The First Thing You Should Read on SEO</a>
-    
-    <a class="list-group-item " href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a>
     
   </div>
 </section>

@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2013-12-06T19:10:15+00:00</updated>
+  <updated>2013-12-09T19:04:45+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,76 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Code Blocks with Liquid or Twig Tags using Octopress]]></title>
+    <link href="http://edmondscommerce.github.io/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html"/>
+    <updated>2013-12-09T18:57:42+00:00</updated>
+    <id>http://edmondscommerce.github.io/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress</id>
+    <content type="html"><![CDATA[<p>Here is a quicky I figured out when posting my previous story that included a snippet of Twig code.</p>
+
+<p>If you put Twig code into codeblocks, it doesn&rsquo;t work, instead of regarding anything inside the code block as escaped code, it tries to parse it.</p>
+
+<p>The solution is simply to wrap your code in a raw tag like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{% codeblock %}
+</span><span class='line'>{% raw %}
+</span><span class='line'>   // your code here
+</span><span class='line'>{% end[REMOVE_THIS_BIT]raw %}
+</span><span class='line'>{% endcodeblock %}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In fact I had to do that to get this post to work as well</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony2 Twig  'DateTime could not be converted to string']]></title>
+    <link href="http://edmondscommerce.github.io/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html"/>
+    <updated>2013-12-09T18:43:03+00:00</updated>
+    <id>http://edmondscommerce.github.io/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string</id>
+    <content type="html"><![CDATA[<p>I just hit an interesting issue with a nice and easy solution once you understand what is going on.
+On a current project I making heavy use of the <a href="https://github.com/sensiolabs/SensioGeneratorBundle">SensioGeneratorBundle</a> to generate CRUD etc. So far its working really nicely.</p>
+
+<p>However I started to see an issue with one of my entities that Twig was not handling a DateTime column properly but others were being handled fine.</p>
+
+<p>Looking through the Twig template I noticed this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html+jinja'><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp">{%</span>- <span class="k">for</span> <span class="nv">field</span><span class="o">,</span> <span class="nv">metadata</span> <span class="k">in</span> <span class="nv">fields</span> <span class="cp">%}</span>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">if</span> <span class="nb">loop</span><span class="nv">.first</span> <span class="k">and</span> <span class="o">(</span><span class="s1">&#39;show&#39;</span> <span class="k">in</span> <span class="nv">actions</span><span class="o">)</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="s2">&quot;{{ path(&#39;&quot;</span> <span class="o">~</span> <span class="nv">route_name_prefix</span> <span class="o">~</span> <span class="s2">&quot;_show&#39;, { &#39;id&#39;: entity.id }) }}&quot;</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; }}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">elseif</span> <span class="nv">metadata.type</span> <span class="k">in</span> <span class="o">[</span><span class="s1">&#39;date&#39;</span><span class="o">,</span> <span class="s1">&#39;datetime&#39;</span><span class="o">]</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{% if entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; %}{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39;|date(\&#39;Y-m-d H:i:s\&#39;) }}{% endif %}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/td&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What this means is that the first entity will never have the DateTime handling. Of course you probably don&rsquo;t want a DateTime to be the first entity so I think this is reasonable.</p>
+
+<p>To fix this, all you need to do is make sure that your Doctrine class does not declare the first property as a DateTime.</p>
+
+<p>If you have a primary key or unique reference property then try to get this as the first declared property in your Doctrine entity class and then rebuild the CRUD and the problem goes away.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Browsers Currently Supported By Google]]></title>
@@ -713,42 +783,6 @@ All of the above is necessary to really understand how your users (customers) in
 
 
 <p>We are happy to hear more about your upcoming or existing e-commerce project. Please get in touch with us and explain your vision, goals, requirements and deadlines. Discover how we can help you.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[A Great Way of Cross-platform Prototyping - Invisionapp]]></title>
-    <link href="http://edmondscommerce.github.io/web%20design/a-great-way-of-cross-platform-prototyping.html"/>
-    <updated>2013-09-02T07:16:48+01:00</updated>
-    <id>http://edmondscommerce.github.io/web%20design/a-great-way-of-cross-platform-prototyping</id>
-    <content type="html"><![CDATA[<p>Here at Edmonds Commerce we are always looking for new techniques and tools that allow to speed up and ease our internal work-flow which results in faster and more<a href="http://www.edmondscommerce.co.uk/web-project-management/guidelines-of-effective-web-project-workflow/" title="Guidelines of Effective Web Project Management" target="_blank"> effective project planning</a>, management and development. We love to involve and closely collaborate with our clients as much as possible.</p>
-
-<p>Just found this awesome c<a href=" http://www.invisionapp.com/" title="Invisionapp - cross platform prototyping tool" target="_blank">ross-platform mockup and interactive prototyping tool &ndash; Invision</a> &ndash; which has an amazing feedback feature which could replace long email conversations. It is filled with lots of  active guides and how-to&rsquo;s which makes it really understandable for clients. Actually, I find this part the most important about all the application. So far there have been a serious struggle with this particular phase &ndash; work showoff, iterations and final sign off. That is a long journey for traditional email conversations.</p>
-
-<p><img src="http://edmondscommerce.github.io/assets/InvisionApp-Design.png"> InvisionApp interface</p>
-
-<p>I&rsquo;ve spent just a few moments with it, but it looks like 135.004 people in 70 countries aren&rsquo;t trusting this awesome tool just for fun. (as it is stated on <a href="http://www.invisionapp.com/" title="invisionapp homepage" target="_blank">invisionapp homepage</a> when writing this post) Feels like I&rsquo;ve finally found a well designed tool which has the most of the essential features.</p>
-
-<p>Looking forward to take our clients on the journey of designing and iterating on their projects.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Creating & Testing a Responsive Design Has Never Been Easier]]></title>
-    <link href="http://edmondscommerce.github.io/web%20design/creating-testing-a-responsive-design-has-never-been-faster.html"/>
-    <updated>2013-09-02T07:02:01+01:00</updated>
-    <id>http://edmondscommerce.github.io/web%20design/creating-testing-a-responsive-design-has-never-been-faster</id>
-    <content type="html"><![CDATA[<p><img src="http://edmondscommerce.github.io/assets/Reflow.png"></p>
-
-<p>Got my hands on these two marvellous responsive design tools from Adobe &ndash; <a href="http://www.adobe.com/EdgeReflow" title="Adobe Edge Reflow Homepage" target="_blank">Edge Reflow</a> and <a href="http://www.adobe.com/EdgeInspect‎" title="Adboe Edge Inspect" target="_blank">Edge Inspect</a>.</p>
-
-<p>Although Reflow is still in Beta, it has brilliant concept. Never the less <u>it has a potential to redefine the way of how we create and test responsive designs</u> once and for all. A much more effective way. It actually allows you to visualise everything blazing fast by adding different break points and adjusting the layout and design for each of them. Going further &ndash; you can test that right away on most of the devices with Edge Inspect. It&rsquo;s that dead easy &ndash; just install the app and connect your phone or tablet with your computer to see how the design actually works on the target device.</p>
-
-<p>There are plenty of good resources available that will get you started in no time. The effort of learning it is definitely worth every minute you spend. The most useful resource that I&rsquo;ve found so far is the <a href="http://http://www.adobe.com/devnet/edge-reflow/articles/edge-reflow-getting-started.html" title="Edge Reflow Guide for Beginners" target="_blank">original Edge Reflow guide from Adobe itself</a> It is a beginner level guide. Once you understand the core principles everything else is dead easy.</p>
-
-<p><img src="http://edmondscommerce.github.io/assets/reflow_inspect.png"></p>
-
-<p>Remember, that it is still in beta. Let&rsquo;s help Adobe team to create more remarkable products and post our ideas of improvements it <a href="http://forums.adobe.com/community/edge_reflow_preview?view=idea" title="Edge Reflow Forum" target="_blank">Edge Reflow forum.</a></p>
 ]]></content>
   </entry>
   
