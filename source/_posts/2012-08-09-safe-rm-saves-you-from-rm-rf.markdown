@@ -27,6 +27,6 @@ This little gem allows you to blacklist folders from rm (such as /etc /bin and o
 
 It's in debian/ubuntu repositories so apt-get install safe-rm is quite useful, but it seems to be nowhere to be found for CentOS/RHEL, so we packaged it up (one of our employees used to be a package maintainer for a linux distro) for CentOS servers.
 
-The original url for safe-rm is <a href="http://www.safe-rm.org.nz/" title="http://www.safe-rm.org.nz/">http://www.safe-rm.org.nz/</a> and our rpm is available <a href="http://www.edmondscommerce.co.uk/stuff/safe-rm-0.8-1.x86_64.rpm" title="here">here</a> - Feel free to mirror this elsewhere.
+The original url for safe-rm is <a href="https://launchpad.net/safe-rm" title="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a> and our rpm is available <a href="http://www.edmondscommerce.co.uk/stuff/safe-rm-0.8-1.x86_64.rpm" title="here">here</a> - Feel free to mirror this elsewhere.
 
 Next up: <a href="http://www.edmondscommerce.co.uk/linux/creating-rpms/" title="how we created the rpm">how we created the rpm</a>
