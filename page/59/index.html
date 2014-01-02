@@ -128,6 +128,120 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-09-03T12:27:39+01:00" pubdate data-updated="true">Sep 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/build-table-from-file-php-function.html">Build Table From File PHP Function</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>This little PHP function will allow you to import a csv or tab etc delimited text file into a database table. Handy if you need it :)</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">build_table_from_file</span><span class="p">(</span><span class="nv">$tablename</span><span class="p">,</span> <span class="nv">$filepath</span><span class="p">,</span> <span class="nv">$delim</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS </span><span class="si">$tablename</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nv">$fp</span><span class="o">=</span><span class="nb">fopen</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nv">$headers</span><span class="o">=</span><span class="k">false</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">while</span><span class="p">(</span><span class="nv">$r</span><span class="o">=</span><span class="p">((</span><span class="nv">$delim</span><span class="o">==</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span><span class="o">?</span><span class="nb">fgetcsv</span><span class="p">(</span><span class="nv">$fp</span><span class="p">)</span><span class="o">:</span><span class="nb">fgets</span><span class="p">(</span><span class="nv">$fp</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nv">$delim</span><span class="o">!=</span><span class="s1">&#39;csv&#39;</span><span class="p">){</span>
+</span><span class='line'>            <span class="nv">$r</span><span class="o">=</span><span class="nb">explode</span><span class="p">(</span><span class="nv">$delim</span><span class="p">,</span> <span class="nv">$r</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nv">$headers</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">foreach</span><span class="p">(</span><span class="nv">$r</span> <span class="k">as</span> <span class="nv">$h</span><span class="p">){</span>
+</span><span class='line'>                <span class="nv">$headers</span><span class="p">[]</span><span class="o">=</span><span class="nx">trim</span><span class="p">(</span><span class="nv">$h</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;CREATE TABLE </span><span class="si">$tablename</span><span class="s2"></span>
+</span><span class='line'><span class="s2">                         (</span>
+</span><span class='line'><span class="s2">                            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,&quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">foreach</span><span class="p">(</span><span class="nv">$headers</span> <span class="k">as</span> <span class="nv">$h</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$sqls</span><span class="p">[]</span><span class="o">=</span><span class="s2">&quot; `&quot;</span> <span class="o">.</span> <span class="nx">db_in</span><span class="p">(</span><span class="nv">$h</span><span class="p">)</span> <span class="o">.</span> <span class="s2">&quot;` TEXT NOT NULL &quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="nv">$sql</span> <span class="o">.=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="nv">$sqls</span><span class="p">)</span> <span class="o">.</span> <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">                        ) ENGINE = MYISAM &quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="nx">db_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;insert into </span><span class="si">$tablename</span><span class="s2"> set &quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="nv">$sqls</span><span class="o">=</span><span class="k">array</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">foreach</span><span class="p">(</span><span class="nv">$headers</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$h</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$sqls</span><span class="p">[]</span> <span class="o">=</span> <span class="s2">&quot;`</span><span class="si">$h</span><span class="s2">` = &#39;&quot;</span> <span class="o">.</span> <span class="nx">db_in</span><span class="p">(</span><span class="nv">$r</span><span class="p">[</span><span class="nv">$k</span><span class="p">])</span> <span class="o">.</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$sql</span> <span class="o">.=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="nv">$sqls</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">db_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">pbar</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-09-02T10:46:26+01:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2009</time>
         
       </p>
@@ -616,55 +730,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-08-17T12:12:46+01:00" pubdate data-updated="true">Aug 17<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/seo/google-keyword-research.html">Google Keyword Research</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>Just came across another useful keyword research tool.</p>
-
-<p><a href="http://www.google.com/insights/search/"><a href="http://www.google.com/insights/search/">http://www.google.com/insights/search/</a></a></p>
-
-<p>This is a bit like the google trends tool but with more detailed information. Handy helping to choose which variations of a search term to go for.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -688,6 +753,8 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
+    
     <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
     
     <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
@@ -695,8 +762,6 @@ You should probably look up more recent blog posts related to the subject you ar
     <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
     
     <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
-    
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
     
   </div>
 </section>
@@ -777,7 +842,7 @@ You should probably look up more recent blog posts related to the subject you ar
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

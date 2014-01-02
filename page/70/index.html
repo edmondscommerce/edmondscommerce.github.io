@@ -128,6 +128,173 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-02-10T13:58:27+00:00" pubdate data-updated="true">Feb 10<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/php/updated-mysql-dump-splitter-and-cleaner.html">Updated MySQL Dump Splitter and Cleaner</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>My MySQL dump splitting script has come in handy countless times. Recently I also needed to remove keys from an SQL dump to enable me to import a dump that had keys associated with text columns.</p>
+
+<p>Here is the updated script</p>
+
+<p>*note &ndash; now updated again to strip out any drop table statements if splitting</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="cm">/*MySQL Dump Split to Tables</span>
+</span><span class='line'><span class="cm">* script supplied by Edmonds Commerce</span>
+</span><span class='line'><span class="cm">* www.edmondscommerce.co.uk</span>
+</span><span class='line'><span class="cm">* if you like it, please link back with a do-follow</span>
+</span><span class='line'><span class="cm">* </span>
+</span><span class='line'><span class="cm">* Now updated with better regex and also the ability to strip out keys other than the primary</span>
+</span><span class='line'><span class="cm">*/</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;MySQL Dump Split to Tables + Remove Keys&lt;/h1&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nb">set_time_limit</span><span class="p">(</span><span class="mi">600</span><span class="p">);</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">])){</span>
+</span><span class='line'>  <span class="k">echo</span> <span class="s1">&#39;&lt;form&gt;&lt;b&gt;Dump File Path:&lt;/b&gt; &lt;input name=&quot;dump_file&quot;&gt; &lt;input type=&quot;submit&quot; value=&quot;go&quot;&gt;&lt;select name=&quot;operation&quot;&gt;&lt;option value=&quot;split&quot;&gt;split by tables&lt;/option&gt;&lt;option value=&quot;keys&quot;&gt;remove keys other than primary&lt;/option&gt;&lt;option value=&quot;both&quot;&gt;both&lt;/option&gt;&lt;/select&gt;&lt;/form&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%keys|both%&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;operation&#39;</span><span class="p">])){</span>
+</span><span class='line'>      <span class="nv">$contents</span> <span class="o">=</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">]);</span>
+</span><span class='line'>      <span class="nv">$pattern</span> <span class="o">=</span> <span class="s1">&#39;%,(s+?)KEY(.*?))%si&#39;</span><span class="p">;</span>
+</span><span class='line'>      <span class="nv">$nokeys</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="nv">$pattern</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$contents</span><span class="p">);</span>     
+</span><span class='line'>      <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nokeys.sql&#39;</span><span class="p">;</span>
+</span><span class='line'>      <span class="nb">file_put_contents</span><span class="p">(</span><span class="s1">&#39;nokeys.sql&#39;</span><span class="p">,</span> <span class="nv">$nokeys</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%split|both%&#39;</span><span class="p">,</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;operation&#39;</span><span class="p">])){</span>
+</span><span class='line'>      <span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Splitting File&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>      <span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'>      <span class="nv">$handle</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;failed openeing source file &#39;</span> <span class="o">.</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">]);</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nv">$handle</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nb">feof</span><span class="p">(</span><span class="nv">$handle</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nv">$line</span> <span class="o">=</span> <span class="nb">fgets</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>    
+</span><span class='line'>              <span class="k">if</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%^drop table(.+?);%i&#39;</span><span class="p">,</span> <span class="nv">$line</span><span class="p">)){</span>
+</span><span class='line'>                  <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>              <span class="p">}</span>                    
+</span><span class='line'>              <span class="k">if</span><span class="p">(</span><span class="nb">stristr</span><span class="p">(</span><span class="nv">$line</span><span class="p">,</span> <span class="s1">&#39;CREATE TABLE&#39;</span><span class="p">)){</span>
+</span><span class='line'>                  <span class="k">echo</span> <span class="s1">&#39;. &#39;</span><span class="p">;</span>
+</span><span class='line'>                  <span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$out</span><span class="p">)){</span>
+</span><span class='line'>                      <span class="nb">fclose</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+</span><span class='line'>                      <span class="nb">unset</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+</span><span class='line'>                  <span class="p">}</span>
+</span><span class='line'>                  <span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%CREATE TABLE (`|)(w+)(`|)(s+)($%i&#39;</span><span class="p">,</span> <span class="nv">$line</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">);</span>
+</span><span class='line'>                  <span class="nv">$table_name</span> <span class="o">=</span> <span class="nv">$matches</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span><span class='line'>                  <span class="nv">$out</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="s1">&#39;output/&#39;</span><span class="o">.</span><span class="nv">$table_name</span> <span class="o">.</span> <span class="s1">&#39;.sql&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;failed to create file &#39;</span> <span class="o">.</span> <span class="nv">$table_name</span> <span class="o">.</span> <span class="s1">&#39;.sql&#39;</span><span class="p">);</span>
+</span><span class='line'>                  <span class="nb">fwrite</span><span class="p">(</span><span class="nv">$out</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">.</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;failed writing to file &#39;</span> <span class="o">.</span> <span class="nv">$table_name</span> <span class="o">.</span> <span class="s1">&#39;.sql&#39;</span><span class="p">);</span>
+</span><span class='line'>              <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>                  <span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$out</span><span class="p">)){</span>
+</span><span class='line'>                      <span class="nb">fwrite</span><span class="p">(</span><span class="nv">$out</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">.</span> <span class="s2">&quot;n&quot;</span><span class="p">);</span>
+</span><span class='line'>                  <span class="p">}</span>
+</span><span class='line'>              <span class="p">}</span>        
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="nb">fclose</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+</span><span class='line'>          <span class="nb">fclose</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span> <span class="s1">&#39;no handle on file - does it exist - permissions...&#39;</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;Done&lt;/h1&gt;&#39;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>More&#8230;</h4>
+
+
+<p><a href="http://www.edmondscommerce.co.uk/blog/mysql/updated-mysql-dump-splitter-and-cleaner/" rel="nofollow">Updated <b>MySQL Dump</b> Splitter and Cleaner | Edmonds Commerce Blog</a><br><a href="http://www.branedy.net/?p=790" rel="nofollow">Branedy » Blog Archive » Wordpress <b>MySQL</b> exercises</a><br><a href="http://blog.drawcode.com/2009/02/10/python-script-to-backup-mysql-databases-wordpress-or-other-databases/" rel="nofollow">Python Script to Backup MySql Databases (Wordpress or other databases)</a><br><a href="http://www.philaahzophy.com/2008/12/24/importing-large-mysql-databases-with-bigdump/" rel="nofollow">Importing Large MySQL Databases With BigDump</a><br><a href="http://garagetechblog.com/2009/03/03/mysql-upgrade-1and1-is-not-the-best-host-in-the-world/" rel="nofollow"><b>MySQL</b> Upgrade: 1and1 is not the best host in the world | TheGarage <b>&hellip;</b></a><br></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-02-09T14:49:18+00:00" pubdate data-updated="true">Feb 9<span>th</span>, 2009</time>
         
       </p>
@@ -593,91 +760,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-01-28T10:28:57+00:00" pubdate data-updated="true">Jan 28<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/ssh-command-line-mysql-dump-and-compress.html">SSH / Command Line Mysql Dump and Compress</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>Some times you are working on a database that is just too big to export and import via phpMyAdmin. In those circumstances the best alternative is to use the Linux command line, usually via SSH.</p>
-
-<p>If you want to be able to download the file easily via FTP, you need to first of all go to your web root. For example:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>cd /home/myhome/public_html
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you are not sure where you web root is, you can log in via FTP and copy the path displayed in the remote pane of the FTP programme.</p>
-
-<p>Then to create the database dump run the following command, replacing the dbuser and dbname with the mysql username and the name of the database you want to back up.</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>mysqldump --opt -u dbuser -p dbname &gt; dbname.sql
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You will then be prompted to enter the password for that mysql user. Enter this and mysql will then create an SQL dump file in your web root.</p>
-
-<p>If the dump file is really big, it is usually a good idea to then compress this file to make moving it around a bit easier. To create a gzip compressed copy of the file, use the following command, replacing dbname.sql with the actual database name you used.</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>gzip -c dbname.sql&gt;dbname.sql.gz
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>At this point you might decide to delete the uncompressed SQL file to conserve space. To do that run the following command, again replacing dbname.sql with the actual name of the database.</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>rm -f dbname.sql
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -701,6 +783,8 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
+    
     <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
     
     <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
@@ -708,8 +792,6 @@ You should probably look up more recent blog posts related to the subject you ar
     <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
     
     <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
-    
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
     
   </div>
 </section>
@@ -790,7 +872,7 @@ You should probably look up more recent blog posts related to the subject you ar
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
