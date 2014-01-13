@@ -128,219 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-09T15:59:14+01:00" pubdate data-updated="true">Aug 9<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/safe-rm-saves-you-from-rm-rf.html">Safe-rm - Saves You From Rm -rf /*</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Okay, so it&rsquo;s a sysadmin&rsquo;s nightmare that you might when tired miss out a dot from an rm -rf ./* and whilst you shouldn&rsquo;t run as root, there are times when permissions problems push you into it.</p>
-
-<p>This little gem allows you to blacklist folders from rm (such as /etc /bin and other system directories, along with any custom ones you might want to protect).</p>
-
-<p>It&rsquo;s in debian/ubuntu repositories so apt-get install safe-rm is quite useful, but it seems to be nowhere to be found for CentOS/RHEL, so we packaged it up (one of our employees used to be a package maintainer for a linux distro) for CentOS servers.</p>
-
-<p>The original url for safe-rm is <a href="https://launchpad.net/safe-rm" title="https://launchpad.net/safe-rm"><a href="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a></a> and our rpm is available <a href="http://www.edmondscommerce.co.uk/stuff/safe-rm-0.8-1.x86_64.rpm" title="here">here</a> &ndash; Feel free to mirror this elsewhere.</p>
-
-<p>Next up: <a href="http://www.edmondscommerce.co.uk/linux/creating-rpms/" title="how we created the rpm">how we created the rpm</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-08T13:43:30+01:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-realpath-for-none-existant-paths.html">PHP Realpath for None Existant Paths</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you want the functionality of realpath, to take a path containing relative elements such as /../ then this little function is exactly what you are looking for.</p>
-
-<p>PHP&rsquo;s built in realpath function will return false if the file or folder does not exist. Unfortunately when using complex paths then this can make debugging things a little complicated.</p>
-
-<p>To resolve this simply use this function:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">normalizePath</span><span class="p">(</span><span class="nv">$path</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$path</span><span class="p">),</span> <span class="nb">create_function</span><span class="p">(</span><span class="s1">&#39;$a, $b&#39;</span><span class="p">,</span> <span class="s1">&#39;</span>
-</span><span class='line'><span class="s1">         if($a === 0)</span>
-</span><span class='line'><span class="s1">             $a = &amp;quot;/&amp;quot;;</span>
-</span><span class='line'>
-</span><span class='line'><span class="s1">         if($b === &amp;quot;&amp;quot; || $b === &amp;quot;.&amp;quot;)</span>
-</span><span class='line'><span class="s1">             return $a;</span>
-</span><span class='line'>
-</span><span class='line'><span class="s1">         if($b === &amp;quot;..&amp;quot;)</span>
-</span><span class='line'><span class="s1">             return dirname($a);</span>
-</span><span class='line'>
-</span><span class='line'><span class="s1">         return preg_replace(&amp;quot;/\/+/&amp;quot;, &amp;quot;/&amp;quot;, &amp;quot;$a/$b&amp;quot;);</span>
-</span><span class='line'><span class="s1">     &#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For example:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nb">dirname</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;/../../../folder/&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nx">normalizePath</span><span class="p">(</span><span class="nv">$path</span><span class="p">);</span>
-</span><span class='line'><span class="k">echo</span> <span class="nv">$path</span><span class="p">;</span> <span class="c1">// /var/www/vhosts/domain.com/folder</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-07T14:48:08+01:00" pubdate data-updated="true">Aug 7<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/git/git-diff-colours-by-default.html">Git Diff Colours by Default</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you want to make git-diff use colours by default, try running this little command:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">echo</span> <span class="s1">&#39;[color]</span>
-</span><span class='line'><span class="s1"> branch = auto</span>
-</span><span class='line'><span class="s1"> diff = auto</span>
-</span><span class='line'><span class="s1"> status = auto</span>
-</span><span class='line'><span class="s1">[color &quot;branch&quot;]</span>
-</span><span class='line'><span class="s1"> current = yellow reverse</span>
-</span><span class='line'><span class="s1"> local = yellow</span>
-</span><span class='line'><span class="s1"> remote = green</span>
-</span><span class='line'><span class="s1">[color &quot;diff&quot;]</span>
-</span><span class='line'><span class="s1"> meta = yellow bold</span>
-</span><span class='line'><span class="s1"> frag = magenta bold</span>
-</span><span class='line'><span class="s1"> old = red</span>
-</span><span class='line'><span class="s1"> new = cyan</span>
-</span><span class='line'><span class="s1">[color &quot;status&quot;]</span>
-</span><span class='line'><span class="s1"> added = yellow</span>
-</span><span class='line'><span class="s1"> changed = green</span>
-</span><span class='line'><span class="s1"> untracked = cyan&#39;</span> &gt;&gt; ~/.gitconfig
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Simply copy and paste the above to your command line and hit return.</p>
-
-<p>Then if you run:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>git diff master..BRANCH
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You will get a nice coloured display</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-01T09:50:01+01:00" pubdate data-updated="true">Aug 1<span>st</span>, 2012</time>
         
       </p>
@@ -684,6 +471,308 @@ cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<e
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-10T16:29:28+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-security-patch-script.html">Magento Security Patch Script</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>We are currently offering a free service to apply the security patches for any Magento store. <a href="http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/">You can read all about that here</a>.</p>
+
+<p>For those of you who are comfortable SSHing into your server and running things manually but would like this to be as easy as possible, you can use our bash script to automatically determine which Magento security patch you require and then apply it.</p>
+
+<p>Simply run the following command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>wget -qO- http://www.edmondscommerce.co.uk/stuff/applysecuritypatch.sh | /bin/sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For information, this is the source of the above file.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f app/Mage.php <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Not in the magento basedir. please run from public_html, httpdocs, www or wherever index.php is.&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>99
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">WGET_BINARY</span><span class="o">=</span><span class="k">$(</span>which wget<span class="k">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;&quot;</span> <span class="o">=</span> <span class="s2">&quot;$WGET_BINARY&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Can&#39;t find wget in path... can&#39;t continue&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>98
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">MAGENTO_VERSION</span><span class="o">=</span><span class="k">$(</span>grep <span class="s1">&#39;function getVersionInfo\(\)&#39;</span> -A6 app/Mage.php | sed s/<span class="o">[</span>^0-9<span class="o">]</span>//g | tr <span class="s1">&#39;\n&#39;</span> <span class="s1">&#39;.&#39;</span> | sed s/<span class="s1">&#39;\.\.*&#39;</span>// | sed s/<span class="s1">&#39;\.$&#39;</span>//<span class="k">)</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Your Magento version is $MAGENTO_VERSION&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">export</span> <span class="k">$(</span>grep <span class="s1">&#39;function getVersionInfo()&#39;</span> -A6 app/Mage.php | <span class="nv">grep</span> <span class="o">=</span> | sed s/,// | sed s/<span class="se">\&gt;</span>// | sed s/<span class="s1">&#39;[\t ]&#39;</span>//g | tr <span class="s2">&quot;a-z&quot;</span> <span class="s2">&quot;A-Z&quot;</span> | sed s/^/MAGENTO_/ | sed s/<span class="s2">&quot;&#39;&quot;</span>//g<span class="k">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">set</span> | grep MAGENTO
+</span><span class='line'>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c">#Community Edition 1.4.0.0 through 1.4.1.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch</span>
+</span><span class='line'><span class="c">#Community Edition 1.4.2.0 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch</span>
+</span><span class='line'><span class="c">#Community Edition 1.5.0.0 through 1.7.0.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$MAGENTO_MAJOR&quot;</span> -eq <span class="s2">&quot;1&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  if</span> <span class="o">[</span> <span class="s2">&quot;$MAGENTO_MINOR&quot;</span> -eq <span class="s2">&quot;4&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> <span class="nv">$MAGENTO_PATCH</span> -lt <span class="s2">&quot;2&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento &lt; 1.4.2.0 - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.4.2.0 - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">  elif</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -gt <span class="s2">&quot;4&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -lt <span class="s2">&quot;7&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">elif</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -eq <span class="s2">&quot;7&quot;</span> -a <span class="nv">$MAGENTO_PATCH</span> -eq <span class="s2">&quot;0&quot;</span> -a <span class="nv">$MAGENTO_REVISION</span> -lt <span class="s2">&quot;2&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.7.0.2 - already patched.&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">  fi</span>
+</span><span class='line'><span class="k">else </span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;You&#39;re not running version 1.x.x.x of Magento, I have no idea what to do!&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>97
+</span><span class='line'><span class="k">fi </span>
+</span><span class='line'>
+</span><span class='line'>wget -O - <span class="nv">$CORRECT_PATCH</span> 2&gt; /dev/null | patch -p0
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Patch succeeded.&quot;</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;For some reason the patch failed.  See the output above.&quot;</span>
+</span><span class='line'>  <span class="nb">echo</span> <span class="s2">&quot;You could attempt to download the patch manually and apply it - the url is :- &quot;</span>
+</span><span class='line'>  <span class="nb">echo</span> <span class="nv">$CORRECT_PATCH</span>
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Please note this script is supplied without any warranty, use at your own risk. We are not supplying the patch files simply making it easy to download and apply the correct one.</p>
+
+<p>We strongly recommend you patch your store as soon as possible.</p>
+
+<p><b><a href="http://www.edmondscommerce.co.uk/contact-us/?about=Free+Magento+Security+Fix"> If you need help, just ask!</a></b></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-10T13:07:02+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-security-vulnerability-free-assistance.html">Magento Security Vulnerability + Free Assistance</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>The magento platform is based on a PHP framework called Zend Framework.</p>
+
+<p>Recently a bug was found in Zend Framework which potentially allows attackers to read any file on your server. This could mean they could gain access to your mysql server credentials for example.</p>
+
+<p>You can read the full details <a href="http://www.magentocommerce.com/blog/comments/update-zend-framework-vulnerability-security-update/">here</a>.</p>
+
+<p>The actual bug details for Zend Framework are in this <a href="http://framework.zend.com/security/advisory/ZF2012-01">security advisory</a>.</p>
+
+<h3>Free Security Patching Service</h3>
+
+
+<p>In a nutshell this represents a serious security hole that you need to plug as soon as possible. Fixing this issue is very simple indeed if you know what you are doing.</p>
+
+<p>For this reason Edmonds Commerce are happy to offer <b>FREE</b> assistance in applying this patch to any Magento store owner whether you are a current client or not. We will not charge you in any way for this service.</p>
+
+<p>To request <b>FREE</b> assistance <a href="/contact-us/?about=Free+Magento+Security+Fix"><b>contact us today</b></a></p>
+
+<h3>Donation to Charity</h3>
+
+
+<p>If you choose to, you could make a donation to cover this service here:
+<a href="http://www.justgiving.com/EdmondsCommerce"><a href="http://www.justgiving.com/EdmondsCommerce">http://www.justgiving.com/EdmondsCommerce</a></a></p>
+
+<h3>Please Note</h3>
+
+
+<p>We will need you to give us shell (otherwise known as SSH) access to your server if available.</p>
+
+<p>If you are on a shared hosting service that is not able to supply shell access, we would suggest you ask your hosting company to help you with this issue. Feel free to refer them to this page.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-25T12:20:33+01:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/how-to-restore-a-phpmyadmin-magento-backup.html">How to Restore a Phpmyadmin Magento Backup</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>So, if you&rsquo;ve ever had the situation where the only backup of a magento database has been done through phpmyadmin (hint: don&rsquo;t do this, use the inbuilt backup tool or lightbackup magento extension), you need to set up some magic at the top and bottom of the dump files :&ndash;</p>
+
+<p>Add the following at the top :&ndash;
+<code>SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT;
+SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS;
+SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION;
+SET NAMES utf8;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=&lsquo;NO_AUTO_VALUE_ON_ZERO&rsquo;;
+SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0;</code></p>
+
+<p>and the following at the bottom :
+<code>SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT;
+SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS;
+SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;
+SET SQL_NOTES=@OLD_SQL_NOTES;</code></p>
+
+<p>This can also be done if you use some other backup systems (we&rsquo;ve seen a table-per-file system too), in that instance, we created 00-head.sql and zz-foot.sql containing the above and create a single backup with &lsquo;cat *.sql > all.sql&rsquo; before restoring.</p>
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -707,15 +796,15 @@ cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<e
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
-    
-    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
-    
-    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
-    
     <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
     
     <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    
+    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    
+    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    
+    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
     
   </div>
 </section>
@@ -796,7 +885,7 @@ cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<e
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

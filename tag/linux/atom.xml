@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: linux | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/linux/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-01-13T17:30:01+00:00</updated>
+  <updated>2013-12-09T19:04:45+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,149 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Bash Find Files and Echo Filename and Contents]]></title>
-    <link href="http://edmondscommerce.github.io/bash/bash-find-files-and-echo-filename-and-contents.html"/>
-    <updated>2014-01-13T17:18:55+00:00</updated>
-    <id>http://edmondscommerce.github.io/bash/bash-find-files-and-echo-filename-and-contents</id>
-    <content type="html"><![CDATA[<p>I thought this one would be easy but actually its taken a bit of messing about.</p>
-
-<p>The goal was to find files matching a pattern, in this case a file name, and then echo out the full path to the file and also the file contents.</p>
-
-<p>If you are interested, the reason I was doing this was to understand the <em>interesting</em> approach that the ORO Platform has taken to setting up the AppKernel bundles in Symfony2.</p>
-
-<p>The command is here:</p>
-
-<p><code>
- find . -type f -iwholename '*bundles.yml' | xargs -I % bash -c "echo ''; echo '----------------------'; echo %; cat %; echo '';"
-</code></p>
-
-<p>I have added in some extra echos to make it format nicely but the main thing is that I am using xargs to handle the results from find.</p>
-
-<p>The individual result is assigned to the % character. Then a sub shell is instantiated to manage a specific command that both echos % itself and then uses cat to echo the contents of %.</p>
-
-<p>This gave me an output like this:</p>
-
-<h2>```</h2>
-
-<p>./vendor/oro/platform/src/Oro/Bundle/ImportExportBundle/Resources/config/oro/bundles.yml
-bundles:</p>
-
-<pre><code>- Oro\Bundle\ImportExportBundle\OroImportExportBundle
-</code></pre>
-
-<hr />
-
-<p>./vendor/oro/platform/src/Oro/Bundle/PlatformBundle/Resources/config/oro/bundles.yml
-bundles:</p>
-
-<pre><code>- { name: Symfony\Bundle\FrameworkBundle\FrameworkBundle, priority: -255 }
-- { name: Symfony\Bundle\SecurityBundle\SecurityBundle, priority: -250 }
-- { name: Symfony\Bundle\TwigBundle\TwigBundle, priority: -245 }
-- { name: Symfony\Bundle\MonologBundle\MonologBundle, priority: -240 }
-- { name: Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle, priority: -235 }
-- { name: Symfony\Bundle\AsseticBundle\AsseticBundle, priority: -230 }
-- { name: Doctrine\Bundle\DoctrineBundle\DoctrineBundle, priority: -225 }
-- { name: Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle, priority: -220 }
-- { name: Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle, priority: -215 }
-- { name: JMS\SerializerBundle\JMSSerializerBundle, kernel: true, priority: -210 }
-- { name: Knp\Bundle\PaginatorBundle\KnpPaginatorBundle, priority: -205 }
-- { name: Knp\Bundle\MenuBundle\KnpMenuBundle, priority: -200 }
-- { name: FOS\RestBundle\FOSRestBundle, priority: -195 }
-- { name: FOS\JsRoutingBundle\FOSJsRoutingBundle, priority: -190 }
-- { name: Nelmio\ApiDocBundle\NelmioApiDocBundle, priority: -185 }
-- { name: BeSimple\SoapBundle\BeSimpleSoapBundle, priority: -180 }
-- { name: Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle, priority: -175 }
-- { name: Escape\WSSEAuthenticationBundle\EscapeWSSEAuthenticationBundle, priority: -170 }
-- { name: Liip\ImagineBundle\LiipImagineBundle, priority: -165 }
-- { name: Genemu\Bundle\FormBundle\GenemuFormBundle, priority: -155 }
-- { name: A2lix\TranslationFormBundle\A2lixTranslationFormBundle, priority: -150 }
-- { name: Lexik\Bundle\MaintenanceBundle\LexikMaintenanceBundle, priority: -145 }
-- Oro\Bundle\PlatformBundle\OroPlatformBundle
-</code></pre>
-
-<p>```</p>
-
-<p>And you can see that the bundle file I was looking for is in the Platform Bundle.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Upgrading from Fedora 19 to 20 using FedUp]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html"/>
-    <updated>2014-01-03T19:32:48+00:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup</id>
-    <content type="html"><![CDATA[<p>I decided to upgrade to the latest version because why not, its the first Friday of the year.</p>
-
-<p>The first thing to do is head over to <a href="https://fedoraproject.org/wiki/FedUp">this page</a> which explains how to use the tool.</p>
-
-<p>I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:</p>
-
-<p><code>
-sudo yum -y --enablerepo=updates-testing install fedup
-</code></p>
-
-<p>You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.</p>
-
-<p><code>
-sudo yum -y update
-</code></p>
-
-<p>Once that is all done then you need to run the fedup command itself:</p>
-
-<p><code>
-sudo yum -y update fedup fedora-release
-sudo fedup --network 20
-</code></p>
-
-<p><em>I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:</em>
-<code>
-sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
-sudo fedup --network 20
-</code></p>
-
-<p>Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
-It takes a while, make a brew or something.</p>
-
-<p>Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
-<a href="https://extensions.gnome.org/local/">https://extensions.gnome.org/local/</a> and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
-When that&rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.</p>
-
-<p>For me the only one I&rsquo;m really going to miss is the <a href="https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/">Quick Close in Overview</a> which is really handy, hopefully will be updated soon.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fedora Yum Update Failing - RPMFusion + Solution]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html"/>
-    <updated>2014-01-02T10:42:59+00:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution</id>
-    <content type="html"><![CDATA[<p>I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.</p>
-
-<p>To see what was really going on I ran yum update from the command line</p>
-
-<p><code>
-sudo yum -y update
-</code></p>
-
-<p>This died with the following error message:</p>
-
-<p><code>
-Couldn't open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19
-</code></p>
-
-<p>It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.</p>
-
-<p>To do that you can run this simple command (again in the command line):</p>
-
-<p><code>
-su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
-</code></p>
-
-<p>I did this and then ran the yum update command again and everything is fixed.</p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Side by Side diff on the command line]]></title>
@@ -219,6 +76,64 @@ Buckley also engages in designing beautiful vintage inspired pieces in the silve
 <p>Here is a quote from Mark Noble, IT Manager at Buckley Jewellery:</p>
 
 <p><em>“Buckley Jewellery originally approached <a href="http://www.edmondscommerce.co.uk">Edmonds Commerce</a> to take our existing site and develop it onto a <a href="http://www.edmondscommerce.co.uk/platforms/magento/">Magento platform</a>. Since this first project we have used Joseph and his team for a further website and additional work to develop &amp; expand our ecommerce business. The offer of installing the Magento patch across our websites was typical of a company who provide an honest and refreshing approach to website design. I would not hesitate to recommend Edmonds Commerce for any ecommerce development and advice”. </em></p>
+
+<p><img src="/assets/screenshot-thumb1.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Technical Support and Development]]></title>
+    <link href="http://edmondscommerce.github.io/featured/magento-technical-support-and-development.html"/>
+    <updated>2013-02-22T13:23:05+00:00</updated>
+    <id>http://edmondscommerce.github.io/featured/magento-technical-support-and-development</id>
+    <content type="html"><![CDATA[<p>As part of our retainer services we offer Ritesim.com an ongoing monthly support service for their busy Magento site. This includes assistance with things like upgrades and bug fixes along with phone support and much more.</p>
+
+<p><img src="/assets/screenshot-thumb2.png"></p>
+
+<p>Ritesim.com International Phone Cards</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Correct recursive backups in bash]]></title>
+    <link href="http://edmondscommerce.github.io/bash/correct-recursive-backups-in-bash.html"/>
+    <updated>2013-02-20T20:54:57+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/correct-recursive-backups-in-bash</id>
+    <content type="html"><![CDATA[<p>Sometime a backup script can go wrong, and rather the overwrite the old files you place a copy of the new ones into the same folder.</p>
+
+<p>This can then escalate and before you know it you have multiple levels of the same files.</p>
+
+<p>If you just want to flatten these files then this script can do that you</p>
+
+<p>```bash</p>
+
+<p>// The duplicated directory
+DUPLICATED_DIR_NAME=&lsquo;uploads&rsquo;
+// A new directory for the files to go into
+NEW_DIR_NAME=&lsquo;realuploads&rsquo;
+for f in <code>find ./ | grep $DUPLICATED_DIR_NAME/$DUPLICATED_DIR_NAME</code>;
+do
+NEWFILE=<code>echo $f | sed 's/$DUPLICATED_DIR_NAME\//\//g'</code>;
+NEWDIR=../$NEW_DIR_NAME/<code>dirname $NEWFILE</code>;
+if [[ ! -d $NEWDIR ]]
+then
+mkdir $NEWDIR;
+fi
+cp -f &quot;$f&quot; ../$NEW_DIR_NAME/$NEWFILE;
+done</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Implementation of Jewellery Site (White Label)]]></title>
+    <link href="http://edmondscommerce.github.io/featured/magento-implementation-of-jewellery-site-white-label.html"/>
+    <updated>2013-02-20T20:19:01+00:00</updated>
+    <id>http://edmondscommerce.github.io/featured/magento-implementation-of-jewellery-site-white-label</id>
+    <content type="html"><![CDATA[<p>As part of our white label service we provided the development and design implementation requirements for a large London agency to deliver a high quality Magento site on budget and time.</p>
+
+<p>The site required some customised functionality along with a full bespoke design implementation.</p>
 
 <p><img src="/assets/screenshot-thumb1.png"></p>
 ]]></content>

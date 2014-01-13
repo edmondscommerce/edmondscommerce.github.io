@@ -128,189 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-08T11:30:43+01:00" pubdate data-updated="true">Oct 8<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/phpnw12-round-up.html">#PHPNW12 Round UP</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>All of the PHP developers from Edmonds Commerce made our annual pilgramage over the Pennines to Manchester this weekend to visit arguably one of the best PHP conferences around &ndash; PHP North West, PHPNW for short.</p>
-
-<p>This is a three track conference with a diverse range of expert PHP developers giving presentations on some really interesting topics. The team split up and chose their own route through the choice of talks meaning that between us all we got a real flavour of the entire conference.</p>
-
-<p>They Keynote by Ade Oshineye was all to do with API development and DevX &ndash; developer experience as opposed to the more usual and in vogue UX &ndash; user experience. The point being that users are often getting a lot of thought put into their experiences but developers are often given sparsely documented and unwieldy APIs to work with. The metaphor of a door with an ambiguous push/pull requirement was really apt.</p>
-
-<p>Particular highlights for me included the <a href="http://nodephp.org/" target="_blank">ReactPHP</a> talk by Igor Wiedler which was both entertaining and really informative. The <a href="http://www.zeromq.org/" target="_blank">ØMQ (zero MQ)</a> layer looks really interesting among other things. The guys that went to the Data structures talk by Patrick Allaert were really impressed with that.</p>
-
-<p>Take homes from the conference in terms of projects and technologies to keep an eye on include the following:</p>
-
-<p><a href="http://getcomposer.org/" target="_blank">Composer</a></p>
-
-<p><a href="http://silex.sensiolabs.org/" target="_blank">Silex Framework</a></p>
-
-<p><a href="http://nodephp.org/" target="_blank">React PHP</a></p>
-
-<p><a href="http://www.zeromq.org/" target="_blank">ØMQ</a></p>
-
-<p><a href="http://aws.amazon.com/code/6752709412171743">Amazon Web Services Command Line Tools</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-18T11:09:09+01:00" pubdate data-updated="true">Sep 18<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/mysql-5-1-to-5-5-migration.html">MySQL 5.1 to 5.5 Migration</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>According to pretty much every source there&rsquo;s only one sensible way to migrate from 5.0, 5.1 or 5.2 to 5.5 of mysql (or mariadb/percona for that matter), and it&rsquo;s not pretty (for a server with only two active magento installations for instance, this will take about 3 hours).</p>
-
-<p>The answer is that you have to do an sql dump and restore.  This does take an age but does at least provide the reassurance that you are going to have nice clean databases after the upgrade.</p>
-
-<p>So the commands are :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>mysqldump --all-databases --routines --events &gt; fulldump.sql
-</span><span class='line'>mysqldump mysql --tables user &gt; users.sql
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then upgrade mysql binaries to 5.5 and empty the database directory &ndash; such as /var/lib/mysql and start mysql with it&rsquo;s script (e.g. /etc/init.d/mysql start).   Note, if you&rsquo;re using a distribution that doesn&rsquo;t come with start scripts, you may want to run mysql_install as root before starting mysql however you start it.</p>
-
-<p>Then the following will restore the databases and users :</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>mysql -u root <span class="c"># add -p if you set up a default password when upgrading/installing 5.5</span>
-</span><span class='line'><span class="se">\r</span> mysql
-</span><span class='line'><span class="nb">source </span>users.sql
-</span><span class='line'><span class="nb">source </span>fulldump.sql
-</span><span class='line'>FLUSH PRIVILEGES;
-</span><span class='line'><span class="se">\q</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-17T15:00:01+01:00" pubdate data-updated="true">Sep 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/transfer-server-permissions.html">Transfer Server Permissions</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>So sometimes you might have a restored backup without the correct permissions (whether that be because the backup didn&rsquo;t store the permissions, the file system refused to take them, or you simply forgot to add the -p flag to tar!) and you want to copy the permissions from one machine to another.</p>
-
-<p>Here&rsquo;s a little script to do just that that we found whilst browsing the internet to do just that (uses perl and find) :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>find / -type f -o -type d 2&gt;/dev/null | <span class="k">while </span><span class="nb">read </span>FILE; <span class="k">do   </span>perl -le<span class="s1">&#39;</span>
-</span><span class='line'><span class="s1">    printf &quot;chmod %o \&quot;%s\&quot;\n&quot;, 07777 &amp; (stat)[2], $_</span>
-</span><span class='line'><span class="s1">    for @ARGV</span>
-</span><span class='line'><span class="s1">  &#39;</span> <span class="s2">&quot;$FILE&quot;</span>; <span class="k">done</span> &gt; /tmp/file_perms.sh
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you run that on the server with the correct permissions, then transfer the file to the server with the wrong permissions and run the file with the following command, it will fix the perms on that server :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sh /tmp/file_perms.sh
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Which may save a lot of transfer time restoring a new backup.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T13:20:23+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
         
       </p>
@@ -664,6 +481,202 @@
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-06T10:11:04+01:00" pubdate data-updated="true">Sep 6<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/zend-framework-2-0-released-now-stable.html">Zend Framework 2.0 Released - Now Stable!</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Exciting times in the php world, Zend Framework 2.0 stable has been released!</p>
+
+<p>Magento is currently based on the 1.x branch of Zend, and Magento 2 is aiming to be on Zend Framework 2 (ZF2) so this puts the world one step closer to Magento 2.0.</p>
+
+<p>The full announcement is <a href="http://framework.zend.com/blog/zend-framework-2-0-0-stable-released.html" title="Zend Framework 2 Release Blog Post">here</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-05T13:48:20+01:00" pubdate data-updated="true">Sep 5<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/mate-make-keyboard-calculator-button-work-again-and-gedit-etc.html">Mate: Make Keyboard Calculator Button Work Again, and Gedit Etc.</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>One of the things that has not yet been fixed in mate is that the physical calculator button available on a lot of keyboards is mapped to &ldquo;gcalctool&rdquo; still but mate calls this &ldquo;mate-calc&rdquo;</p>
+
+<p>A quick and easy fix is to ensure you have a bin folder inside your home directory (e.g. /home/edmondscommerce/bin/ ) and run the following commands at a shell :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> ~/bin
+</span><span class='line'>ln -s <span class="sb">`</span>which mate-calc<span class="sb">`</span> gcalctool
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This means that anything that calls gcalctool will call mate-calc by default.  The bin directory has to exist at login time to be added to the path so you may have to log out and back in to enable it.</p>
+
+<p>If you have gnomey habits like pressing Alt+F2 and typing &ldquo;gedit&rdquo; you might find the following few aliases are handy too :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ln -s <span class="sb">`</span>which caja<span class="sb">`</span> nautilus
+</span><span class='line'>ln -s <span class="sb">`</span>which pluma<span class="sb">`</span> gedit
+</span><span class='line'>ln -s  <span class="sb">`</span>which evince<span class="sb">`</span> atril
+</span><span class='line'>ln -s  <span class="sb">`</span>which eog<span class="sb">`</span> eom
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-05T10:28:01+01:00" pubdate data-updated="true">Sep 5<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/linux%20mint/how-to-get-compiz-working-with-linux-mint-13-maya-and-mate.html">How to Get Compiz Working With Linux Mint 13 (Maya) and MATE</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>With the Gnome world moving on to Gnome Shell and Unity some of us are finding frustrating  the lack of ability to tweak and configure afforded to us by Gnome 2. MATE has gone a long way to ensuring that we can continue to use the familiar desktop environment without the worry of using an outdated and insecure version of your favourite distribution.</p>
+
+<p>One such area where an immense ability to configure our DE is Compiz which is no longer compatible with Gnome Shell. Using Compiz with MATE requires a little tweaking for it to work, but ultimately is as functional as it&rsquo;s always been.</p>
+
+<h2>Setting configurations</h2>
+
+
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>compiz --replace
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Because Compiz is installed out of the box on Mint 13 (Maya), this does work. However you&rsquo;ll find yourself with ugly window decoration which doesn&rsquo;t fit in with your windows.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mateconf-editor
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Navigate to <strong>/desktop/mate/session/required_components/windowmanager</strong> and set the value to <strong>compiz</strong></p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>gconf-editor
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Navigate to <strong>/apps/metacity/general/theme</strong> and set the value to your Metacity theme name. Mint&rsquo;s default is <strong>Mint-X</strong></p>
+
+<h2>Setting up Compiz plugins</h2>
+
+
+<p>You might find you need to tell Compiz to use the new Window Decorator. In CompizConfigSettingsManager you&rsquo;ll need to set the same into the Window Decoration plugin. Set the Command field to <strong>marco &mdash;replace</strong></p>
+
+<p>You&rsquo;ll need to enable some other Window Manager must-haves in the following plugins: <strong>Move Window</strong>, <strong>Resize Window</strong>, <strong>Grid</strong> and <strong>Application Switcher</strong> for alt+tab</p>
+
+<p>This should be enough to get you going &ndash; I have the Scale plugin working (for Exposé style window switching)</p>
+
+<p>It&rsquo;s still a little rough around the edges &ndash; here&rsquo;s a few issues I still have, with solutions:</p>
+
+<h2>Compiz occasionally crashes on MATE</h2>
+
+
+<p>Switch to another tty (Ctrl+Alt+F1) and run</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>marco --replace -d 0:0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once back in your X display, run alt+F2 and run compiz &mdash;replace again</p>
+
+<h2>Workspace switching doesn&#8217;t work in MATE</h2>
+
+
+<p>Set the amount of workspaces you&rsquo;d like in CCSM > General Options > Desktop Size. Set your Horizontal Virtual Size and set Vertical Virtual Size to 1
+Set your panel&rsquo;s workspace switcher to Number of Workspaces: 1</p>
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -687,15 +700,15 @@
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
-    
-    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
-    
-    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
-    
     <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
     
     <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    
+    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    
+    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    
+    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
     
   </div>
 </section>
@@ -776,7 +789,7 @@
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
