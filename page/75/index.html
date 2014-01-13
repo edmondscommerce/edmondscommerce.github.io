@@ -128,6 +128,649 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-07-31T15:11:08+01:00" pubdate data-updated="true">Jul 31<span>st</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-recursive-create-path-if-not-exists.html">PHP: Recursive Create Path (if Not Exists)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Handling directories and files with PHP is a snap. However, with this handy function you can always be sure that the destination directory path for your files will exist.</p>
+
+<p>If you pass a path with a filename at teh end, set the second parameter to true eg make_path($path, true)</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="cm">/*Create  Directory Tree if Not Exists</span>
+</span><span class='line'><span class="cm">If you are passing a path with a filename on the end, pass true as the second parameter to snip it off */</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">make_path</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">,</span> <span class="nv">$is_filename</span><span class="o">=</span><span class="k">false</span><span class="p">){</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="nv">$is_filename</span><span class="p">){</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nv">$pathname</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">strrpos</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Check if directory already exists</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">)</span> <span class="o">||</span> <span class="k">empty</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Ensure a file does not already exist with the same name</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nv">$pathname</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;\\&#39;</span><span class="p">),</span> <span class="nx">DIRECTORY_SEPARATOR</span><span class="p">,</span> <span class="nv">$pathname</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nb">trigger_error</span><span class="p">(</span><span class="s1">&#39;mkdirr() File exists&#39;</span><span class="p">,</span> <span class="nx">E_USER_WARNING</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Crawl up the directory tree</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nv">$next_pathname</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">strrpos</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">,</span> <span class="nx">DIRECTORY_SEPARATOR</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">make_path</span><span class="p">(</span><span class="nv">$next_pathname</span><span class="p">,</span> <span class="nv">$mode</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">return</span> <span class="nb">mkdir</span><span class="p">(</span><span class="nv">$pathname</span><span class="p">,</span> <span class="nv">$mode</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-07-18T13:09:13+01:00" pubdate data-updated="true">Jul 18<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/curl/php-curl-curlopt_followlocation-and-open_basedir-or-safe-mode.html">PHP, cURL, CURLOPT FOLLOWLOCATION and Open Basedir or Safe Mode</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are trying to get a curl script which needs follow on location functionality to run on a server which has either open_basedir or safe mode enabled you will get an error message similar to the following:</p>
+
+<p><strong>CURLOPT_FOLLOWLOCATION cannot be activated when in safe_mode or an open_basedir is set</strong></p>
+
+<p>After a bit of digging, some kind soul has put a workaround <a href="http://au.php.net/manual/ro/function.curl-setopt.php#71313">here</a></p>
+
+<p>Here is how to use the function</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">curl</span><span class="p">(</span><span class="nv">$url</span><span class="p">){</span>
+</span><span class='line'><span class="nv">$go</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'><span class="c1">//follow on location problems</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">ini_get</span><span class="p">(</span><span class="s1">&#39;open_basedir&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="o">&amp;&amp;</span> <span class="nb">ini_get</span><span class="p">(</span><span class="s1">&#39;safe_mode&#39;</span> <span class="o">==</span> <span class="s1">&#39;Off&#39;</span><span class="p">)){</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_FOLLOWLOCATION</span><span class="p">,</span> <span class="nv">$l</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$syn</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$go</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$syn</span> <span class="o">=</span> <span class="nx">curl_redir_exec</span><span class="p">(</span><span class="nv">$go</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">curl_close</span><span class="p">(</span><span class="nv">$go</span><span class="p">);</span>
+</span><span class='line'><span class="k">return</span> <span class="nv">$syn</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//follow on location problems workaround</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nf">curl_redir_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="nv">$curl_loops</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="nv">$curl_max_loops</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$curl_loops</span><span class="o">++</span> <span class="o">&gt;=</span> <span class="nv">$curl_max_loops</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$curl_loops</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="k">FALSE</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_HEADER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$data</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">list</span><span class="p">(</span><span class="nv">$header</span><span class="p">,</span> <span class="nv">$data</span><span class="p">)</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nv">$data</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$http_code</span> <span class="o">=</span> <span class="nb">curl_getinfo</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLINFO_HTTP_CODE</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$http_code</span> <span class="o">==</span> <span class="mi">301</span> <span class="o">||</span> <span class="nv">$http_code</span> <span class="o">==</span> <span class="mi">302</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$matches</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/Location:(.*?)\n/&#39;</span><span class="p">,</span> <span class="nv">$header</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$url</span> <span class="o">=</span> <span class="o">@</span><span class="nb">parse_url</span><span class="p">(</span><span class="nx">trim</span><span class="p">(</span><span class="nb">array_pop</span><span class="p">(</span><span class="nv">$matches</span><span class="p">)));</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$url</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//couldn&#39;t process the url to redirect to</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$curl_loops</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="nv">$data</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$last_url</span> <span class="o">=</span> <span class="nb">parse_url</span><span class="p">(</span><span class="nb">curl_getinfo</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLINFO_EFFECTIVE_URL</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$last_url</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$last_url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$last_url</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$new_url</span> <span class="o">=</span> <span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">]</span> <span class="o">.</span> <span class="s1">&#39;://&#39;</span> <span class="o">.</span> <span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">.</span> <span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span> <span class="o">.</span> <span class="p">(</span><span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span><span class="o">?</span><span class="s1">&#39;?&#39;</span><span class="o">.</span><span class="nv">$url</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span><span class="o">:</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$new_url</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="nx">curl_redir_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$curl_loops</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="nv">$data</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-07-18T10:40:19+01:00" pubdate data-updated="true">Jul 18<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/regular%20expressions/regular-expression-test-tool.html">Regular Expression Test Tool</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Creating regular expressions can sometimes be a frustrating experience. Generally I find using regular expressions intuitive and easy, with quick and powerful results. However every now and then you stumble into a regular expression scenario that you just can&rsquo;t seem to crack.</p>
+
+<p>When this happens you might find yourself trying and trying different regular expressions and then echoing out the results and trying to figure out what is going wrong.</p>
+
+<p>At times like this, a regular expression testing tool is invaluable. If like me though you don&rsquo;t really like to shell out on something that you are probably hardly ever going to use then this online <a rel="nofollow" href="http://www.solmetra.lt/scripts/regex/index.php">regular expression tester</a> is great.</p>
+
+<p>Thanks goes out to these guys for hosting such a simple but eminently useful little tool :&ndash;)</p>
+
+<p><b>Further Reading</b></p>
+
+<p><a rel="nofollow" href="http://weblogs.asp.net/rosherove/articles/6863.aspx"><a href="http://weblogs.asp.net">http://weblogs.asp.net</a></a>
+<a rel="nofollow" href="http://www.imneebu.com/2007/11/15/matching-a-valid-email-address-with-regular-expressions/"><a href="http://www.imneebu.com/">http://www.imneebu.com/</a></a>
+<a rel="nofollow" href="http://openoffice.blogs.com/openoffice/2008/02/how-to-do-regul.html"><a href="http://openoffice.blogs.com/">http://openoffice.blogs.com/</a></a>
+<a rel="nofollow" href="http://www.oreillygmt.co.uk/2007/02/review_of_maste.html"><a href="http://www.oreillygmt.co.uk/">http://www.oreillygmt.co.uk/</a></a>
+<a rel="nofollow" href="http://spellbook.infinitiv.it/2006/07/12/php-regular-expressions.htm"><a href="http://spellbook.infinitiv.it/">http://spellbook.infinitiv.it/</a></a>
+<a rel="nofollow" href="http://www.alexschultz.co.uk/weblog/2007/08/google-analytic.html"><a href="http://www.alexschultz.co.uk/">http://www.alexschultz.co.uk/</a></a>
+<a rel="nofollow" href="http://www.colinneller.com/blog/RegExUserGroupTalk.aspx"><a href="http://www.colinneller.com/blog/">http://www.colinneller.com/blog/</a></a>
+<a rel="nofollow" href="http://www.embracingchaos.com/2007/04/rhapsody_grease.html"><a href="http://www.embracingchaos.com/">http://www.embracingchaos.com/</a></a>
+<a rel="nofollow" href="http://www.hanselman.com/blog/InternationalizedRegularExpressions.aspx"><a href="http://www.hanselman.com/blog/">http://www.hanselman.com/blog/</a></a>
+<a rel="nofollow" href="http://www.phpclasses.org/browse/package/3211.html"><a href="http://www.phpclasses.org/browse/package/3211.html">http://www.phpclasses.org/browse/package/3211.html</a></a>
+<a rel="nofollow" href="http://www.phpclasses.org/reviews/id/0596514271.html"><a href="http://www.phpclasses.org/reviews/id/0596514271.html">http://www.phpclasses.org/reviews/id/0596514271.html</a></a>
+<a rel="nofollow" href="http://blogs.oracle.com/otn/2004/12/sql_regular_expressions_sessio.html"><a href="http://blogs.oracle.com/">http://blogs.oracle.com/</a></a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-07-09T10:21:40+01:00" pubdate data-updated="true">Jul 9<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/excel/php-dead-easy-excel-export.html">PHP : Dead Easy Excel Export</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Some people like their excel files. For people who want their data exported in an excel format checkout this chunk of code. It&rsquo;s really easy :&ndash;)</p>
+
+<p>First of all you need to download this <a href="http://www.phpclasses.org/browse/package/1919.html" title="php excel" target="_blank">php excel class </a></p>
+
+<p>Now try this code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$query</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="s2">&quot;select * from table&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="k">while</span><span class="p">(</span><span class="nv">$q</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$query</span><span class="p">)){</span>
+</span><span class='line'>  <span class="nv">$output</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$q</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">require_once</span> <span class="s2">&quot;excel.php&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$export_file</span> <span class="o">=</span> <span class="s2">&quot;xlsfile://export.xls&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$fp</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="nv">$export_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_resource</span><span class="p">(</span><span class="nv">$fp</span><span class="p">))</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">die</span><span class="p">(</span><span class="s2">&quot;Cannot open </span><span class="si">$export_file</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nb">fwrite</span><span class="p">(</span><span class="nv">$fp</span><span class="p">,</span> <span class="nb">serialize</span><span class="p">(</span><span class="nv">$output</span><span class="p">));</span>
+</span><span class='line'><span class="nb">fclose</span><span class="p">(</span><span class="nv">$fp</span><span class="p">);</span>
+</span><span class='line'><span class="nx">header</span> <span class="p">(</span><span class="s2">&quot;Content-Type: application/x-msexcel&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">header</span> <span class="p">(</span><span class="s2">&quot;Content-Disposition: attachment; filename=</span><span class="se">\&quot;</span><span class="s2">exports.xls</span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="p">);</span>
+</span><span class='line'><span class="nb">readfile</span><span class="p">(</span><span class="s2">&quot;xlsfile://export.xls&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="k">exit</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s got to be the easiest thing you have ever done in PHP. Thanks goes to the excellent PHP Classes site.</p>
+
+<p><strong>Here is some further reading:</strong>
+<a rel="nofollow" href="http://ewbi.blogs.com/develops/2007/05/php_excel_formu.html">PHP Excel Formula Parser</a>
+<a rel="nofollow" href="http://chumby.net/2007/03/27/php-excel-export-class/">PHP Excel Export class</a>
+<a rel="nofollow" href="http://www.oracleappsblog.com/index.php/weblog/comments/88/">Export data directly to Excel by configuring the MIME Type Profile Option</a>
+<a rel="nofollow" href="http://blogs.vinuthomas.com/2008/06/07/power-your-php-business-logic-with-excel/">Power your PHP Business Logic with Excel</a>
+<a rel="nofollow" href="http://amiworks.co.in/talk/readingparsing-excel-spreadsheet-using-php/">Reading/Parsing Excel Spreadsheet using PHP</a>
+<a rel="nofollow" href="http://jaxn.org/article/2003/11/11/using-php-to-create-excel-spreadsheets/"></a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-07-02T17:54:57+01:00" pubdate data-updated="true">Jul 2<span>nd</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/ultimate-oscommerce-checkout-fast-and-friendly.html">Ultimate osCommerce Checkout - Fast and Friendly</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>I have recently completed the second stage of development for my ultimate oscommerce checkout system. This is a replacement for the standard osCommerce checkout which splits into numerous stages, meaning that to actually place an order meant visiting about 5 different pages.</p>
+
+<p>My system rolls every single stage into a single page for entering details and a subsequent confirmation page simply to allow the customer to double check the details.</p>
+
+<p>I have now finished adding full and detailed AJAX error checking so that as the customer fills out the fast checkout page, their input is checked and validated. If their input is OK the input box turns green, otherwise it turns pinky-red and a red error message box displays telling them exactly what the problem is.</p>
+
+<p>This means that it will be nearly impossible for a customer&rsquo;s checkout process to be complicated by breaking one of the oscommerce character limits or making some other error.</p>
+
+<p>If you want your osCommerce checkout to be as fast and userfriendly as possible then you need to sign up for:</p>
+
+<p><strong>Edmonds Commerce Ultimate osCommerce Checkout</strong></p>
+
+<p>Here are a few screen shots of the system running on a client site.</p>
+
+<p><strong>Existing Customer Login</strong></p>
+
+<p>validates email address and checks that the email address is registered</p>
+
+<p><img src="http://www.edmondscommerce.co.uk/blog/wp-content/uploads/2008/07/screenshot-guitar-drums-and-music-shop-playrecordnet-uk-mozilla-firefox.jpg" alt="Existing Customer" /></p>
+
+<p><strong>Validates Inputs</strong></p>
+
+<p>Validates email addresses to help prevent typos and also checks that double entry of email or password matches up.</p>
+
+<p><img src="http://www.edmondscommerce.co.uk/blog/wp-content/uploads/2008/07/screenshot-guitar-drums-and-music-shop-playrecordnet-uk-mozilla-firefox-1.jpg" alt="validate email" /></p>
+
+<p><strong>Set Account, Shipping and Billing Address in One Page</strong></p>
+
+<p>The Fast Checkout system automatically defaults the shipping and billing address to the acccount address. If the customer wants to set another address for either of these, an expandable section allows them to enter a new address or select an existing address book entry. Incorporates full AJAX error checking.</p>
+
+<p><img src="http://www.edmondscommerce.co.uk/blog/wp-content/uploads/2008/07/screenshot-guitar-drums-and-music-shop-playrecordnet-uk-mozilla-firefox-2.jpg" alt="shipping billing address" /></p>
+
+<p><strong>Price </strong></p>
+
+<p>This system can be set up on your site for £997. If you are interested in having the ultimate checkout experience and ensuring that you convert the maximum amount of baskets then<a href="http://www.edmondscommerce.co.uk/contact-about-ultimate-oscommerce-checkout.html" title="Ultimate osCommerce Checkout"> get in touch with Edmonds Commerce today.</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-06-20T13:02:03+01:00" pubdate data-updated="true">Jun 20<span>th</span>, 2008</time>
         
       </p>
@@ -561,310 +1204,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-05-21T13:29:57+01:00" pubdate data-updated="true">May 21<span>st</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/oscommerce/oscommerce-contribution-released-server-migration-synchronisation.html">osCommerce Contribution Released: Server Migration Synchronisation</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p><a href="http://addons.oscommerce.com/info/5958">Server Migration Orders / Customers Synchronisation</a></p>
-
-<p>This contribution is for people who have moved or are moving server. When this happens you have to update your DNS records to point your domain name at your new server. However it takes a little bit of time for this change to fully propogate through the internet meaning that for a period you will take orders at both servers.</p>
-
-<p>Once your DNS has fully propogated you can use this system to generate a mysql dump of all of the orders/customers on your old site that need to be moved across to the new server.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-05-21T12:14:15+01:00" pubdate data-updated="true">May 21<span>st</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/php/php-generated-sql.html">PHP Generated SQL</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>If you find yourself laboriously building SQL queries by typing each field = &lsquo;value&rsquo; statement&hellip; think again.</p>
-
-<p>Imagine this:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$sql_query</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="s2">&quot;select * from table&quot;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$insert_elsewhere_sql</span> <span class="o">=</span> <span class="s2">&quot;INSERT INTO other_table SET &quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">while</span><span class="p">(</span><span class="nv">$s</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$sql_query</span><span class="p">)){</span>
-</span><span class='line'>  <span class="k">foreach</span><span class="p">(</span><span class="nv">$s</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$v</span><span class="p">){</span>
-</span><span class='line'>  <span class="nv">$insert_elsewhere_sql</span> <span class="o">.=</span> <span class="s2">&quot;</span><span class="si">$k</span><span class="s2"> = &#39;</span><span class="si">$v</span><span class="s2">&#39;, &quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$insert_elsewhere_sql</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$insert_elsewhere_sql</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This will generate a valid SQL insert statement with all of your field, value pairs set up.</p>
-
-<p>Time saver or what?</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-05-14T21:06:28+01:00" pubdate data-updated="true">May 14<span>th</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/purashop-seo-services.html">Purashop : SEO Services</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>I am right in the middle of a big SEO overhaul for <a href="http://www.purashop.com">purashop</a> who have been good clients of mine for a while now.</p>
-
-<p>My initial project for them was a fast checkout system. Getting rid of the standard osCommerce checkout procedure and rolling it all up into a single page which is loads faster, easier to use and much more customer friendly.</p>
-
-<p>They have recently asked me to help them out with their search engine optimisation. The first thing I have done is install my bespoke SEO URLs system. This includes product, category and manufacturer SEO URLs. It even includes SEO page urls, no .html?page= for these guys, it&rsquo;s a full static looking URLs system and runs with even less server load than the original oscommerce.</p>
-
-<p>This is a major contrast with the Edmonds Commerce approach to SEO URLs compared with other systems out there. I have seen people who are using systems which dynamically preg_replace every single URL after it has already been generated, adding a huge amount of server load.</p>
-
-<p>The extra icing on the cake though is the SEO URLs search system combined with a search logging system and a <a href="http://www.purashop.com/popular_searches.php">popular searches</a> page. This page is excellent as it is not only a nice resource for customers, but is incredibly search engine friendly. As the content is dictated by the searches performed on the site, the page constantly keeps itself up to date with the latest trends and will constantly optimise their site for the most relevant and active topics of the moment.</p>
-
-<p>I am continuing to tweak and improve their SEO package and have high hopes for a marked improvement in traffic in the not too distant future.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-05-14T08:47:50+01:00" pubdate data-updated="true">May 14<span>th</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/gd/flash/graphs/flash-and-php-charts-and-graphs.html">Flash and PHP Charts and Graphs</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>It is entirely possible and easy enough to create all kinds of charts and graphs using only PHP along with the GD library.</p>
-
-<p>These days PHP is generally compiled with the GD library enabled so it is highly likely that you already have access to it. It is a powerful system, unfortunately often only used for creating thumbnail images.</p>
-
-<p>For building management information systems with real time generated graphs there are some excellent classes available which will help you display information in a graphical and therefore easier to understand manner.</p>
-
-<p>Checkout these great free graph classes:</p>
-
-<p><a href="http://www.phpclasses.org/browse/package/4299.html" rel="nofollow">Class: Google Graph</a>
-<a href="http://www.phpclasses.org/browse/package/1567.html" rel="nofollow">Class: Bar Graph generator</a>
-<a href="http://www.phpclasses.org/browse/package/176.htmll" rel="nofollow">Class: Graph Drawing Class 2</a></p>
-
-<p>However, sometime the graphics produced by GD simply are not flash enough for your application.</p>
-
-<p>When you want something really flashy on your web site then you really can&rsquo;t go wrong using flash.</p>
-
-<p>There are a few flash graph packages you can purchase online for not too much cash. However if you prefer to keep it all open source then I highly recommend checking out this open source flash graph class.</p>
-
-<p><a href="http://teethgrinder.co.uk/open-flash-chart/index.php" rel="nofollow">Open Flash Chart project</a></p>
-
-<p><b>Further Reading:</b></p>
-
-<p><a rel="nofollow" href="http://noteplog.com/flash-graphs-open-source-charts/">noteplog.com</a>
-<a rel="nofollow" href="http://bivald.com/lessons-learned/2007/07/double-yaxis-contribution-incl.html">bivald.com</a>
-<a rel="nofollow" href="http://blogs.sun.com/bdonovan/entry/adding_an_openflash_chart_to">blogs.sun.com</a>
-<a rel="nofollow" href="http://www.webappers.com/2007/12/27/open-flash-chart-flash-charting-component-for-free/">www.webappers.com</a>
-<a rel="nofollow" href="http://blogulate.com/content/great-looking-charts-in-seconds-with-open-flash-chart/">blogulate.com</a>
-<a rel="nofollow" href="http://www.linewbie.com/2007/11/create-impressive-charts-with-open-flash-chart.html">www.linewbie.com</a>
-<a rel="nofollow" href="http://hotware.wordpress.com/2008/04/21/open-flash-chart-a-free-flash-based-charting-solution/">hotware.wordpress.com</a>
-<a rel="nofollow" href="http://wordpress.designpraxis.at/2007/11/04/open-source-flash-chart-library/">wordpress.designpraxis.at</a>
-<a rel="nofollow" href="http://www.stat.columbia.edu/~cook/movabletype/archives/2007/10/how_to_make_a_c.html">www.stat.columbia.edu</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-05-07T15:23:47+01:00" pubdate data-updated="true">May 7<span>th</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/oscommerce/oscommerce-output-queries-debug-store-speed-optimisation.html">osCommerce Output Queries Debug : Store Speed Optimisation</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>A common requirement for oscommerce store owners is to try to get pages loading faster.</p>
-
-<p>Part of the problem is that each oscommerce install is different, with a mixture of contributions and bespoke customisations all making their own database queries and causing their own problems. The first part of the solution is to actually be able to see what is going on. For this you need to install the <a href="http://www.oscommerce.com/community/contributions,2575" rel="nofollow">Output Queries Debug</a> contribution for osCommerce.</p>
-
-<p>After that, it is really down to looking through the debug information and tracking down the errant code or SQL and trying to tidy it up.</p>
-
-<p>This is something we specialise in, if you need any help getting your oscommerce store up to speed, simply get in touch.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -888,15 +1227,15 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
     
-    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
-    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
-    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
+    <a class="list-group-item " href="/phpstorm-7-dot-1-released.html">PhpStorm 7.1 Released</a>
     
   </div>
 </section>
@@ -977,7 +1316,7 @@ You should probably look up more recent blog posts related to the subject you ar
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

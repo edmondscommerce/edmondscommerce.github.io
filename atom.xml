@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2013-12-09T19:04:45+00:00</updated>
+  <updated>2014-01-13T18:37:30+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,204 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Database Diagrams in PhpStorm]]></title>
+    <link href="http://edmondscommerce.github.io/php/database-diagrams-in-phpstorm.html"/>
+    <updated>2014-01-13T18:16:29+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/database-diagrams-in-phpstorm</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently been handed a new project and wanted to get a better understanding of how everything was supposed to fit together.</p>
+
+<p>As I&rsquo;m using PhpStorm, I decided to try the built in tools to see how they work and what they can generate.</p>
+
+<p>To get these working you need to do a bit of set-up first, so the process is documented here:</p>
+
+<p>There should be a Database option in the toolbar, click on this and then click the green cross &ndash;> Data Source and the Database engine you are using.</p>
+
+<p>After this a new window will appear asking you to set-up the options needed to connect. Fill in the credentials that are required and then test the connection to ensure that everything is working correctly.</p>
+
+<p>Once this has been done, the Database window should fill up with the different tables in you database. From here you can quickly see how each table is structured, browse the data that is there, bring up a console (Ctrl + Shift + F10) or generate a database diagram (Ctrl + Shift + Alt + U)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bash Find Files and Echo Filename and Contents]]></title>
+    <link href="http://edmondscommerce.github.io/bash/bash-find-files-and-echo-filename-and-contents.html"/>
+    <updated>2014-01-13T17:18:55+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/bash-find-files-and-echo-filename-and-contents</id>
+    <content type="html"><![CDATA[<p>I thought this one would be easy but actually its taken a bit of messing about.</p>
+
+<p>The goal was to find files matching a pattern, in this case a file name, and then echo out the full path to the file and also the file contents.</p>
+
+<p>If you are interested, the reason I was doing this was to understand the <em>interesting</em> approach that the ORO Platform has taken to setting up the AppKernel bundles in Symfony2.</p>
+
+<p>The command is here:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> find . -type f -iwholename '*bundles.yml' | xargs -I % bash -c "echo ''; echo '----------------------'; echo %; cat %; echo '';"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I have added in some extra echos to make it format nicely but the main thing is that I am using xargs to handle the results from find.</p>
+
+<p>The individual result is assigned to the % character. Then a sub shell is instantiated to manage a specific command that both echos % itself and then uses cat to echo the contents of %.</p>
+
+<p>This gave me an output like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>----------------------
+</span><span class='line'>./vendor/oro/platform/src/Oro/Bundle/ImportExportBundle/Resources/config/oro/bundles.yml
+</span><span class='line'>bundles:
+</span><span class='line'>    - Oro\Bundle\ImportExportBundle\OroImportExportBundle
+</span><span class='line'>
+</span><span class='line'>----------------------
+</span><span class='line'>./vendor/oro/platform/src/Oro/Bundle/PlatformBundle/Resources/config/oro/bundles.yml
+</span><span class='line'>bundles:
+</span><span class='line'>    - { name: Symfony\Bundle\FrameworkBundle\FrameworkBundle, priority: -255 }
+</span><span class='line'>    - { name: Symfony\Bundle\SecurityBundle\SecurityBundle, priority: -250 }
+</span><span class='line'>    - { name: Symfony\Bundle\TwigBundle\TwigBundle, priority: -245 }
+</span><span class='line'>    - { name: Symfony\Bundle\MonologBundle\MonologBundle, priority: -240 }
+</span><span class='line'>    - { name: Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle, priority: -235 }
+</span><span class='line'>    - { name: Symfony\Bundle\AsseticBundle\AsseticBundle, priority: -230 }
+</span><span class='line'>    - { name: Doctrine\Bundle\DoctrineBundle\DoctrineBundle, priority: -225 }
+</span><span class='line'>    - { name: Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle, priority: -220 }
+</span><span class='line'>    - { name: Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle, priority: -215 }
+</span><span class='line'>    - { name: JMS\SerializerBundle\JMSSerializerBundle, kernel: true, priority: -210 }
+</span><span class='line'>    - { name: Knp\Bundle\PaginatorBundle\KnpPaginatorBundle, priority: -205 }
+</span><span class='line'>    - { name: Knp\Bundle\MenuBundle\KnpMenuBundle, priority: -200 }
+</span><span class='line'>    - { name: FOS\RestBundle\FOSRestBundle, priority: -195 }
+</span><span class='line'>    - { name: FOS\JsRoutingBundle\FOSJsRoutingBundle, priority: -190 }
+</span><span class='line'>    - { name: Nelmio\ApiDocBundle\NelmioApiDocBundle, priority: -185 }
+</span><span class='line'>    - { name: BeSimple\SoapBundle\BeSimpleSoapBundle, priority: -180 }
+</span><span class='line'>    - { name: Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle, priority: -175 }
+</span><span class='line'>    - { name: Escape\WSSEAuthenticationBundle\EscapeWSSEAuthenticationBundle, priority: -170 }
+</span><span class='line'>    - { name: Liip\ImagineBundle\LiipImagineBundle, priority: -165 }
+</span><span class='line'>    - { name: Genemu\Bundle\FormBundle\GenemuFormBundle, priority: -155 }
+</span><span class='line'>    - { name: A2lix\TranslationFormBundle\A2lixTranslationFormBundle, priority: -150 }
+</span><span class='line'>    - { name: Lexik\Bundle\MaintenanceBundle\LexikMaintenanceBundle, priority: -145 }
+</span><span class='line'>    - Oro\Bundle\PlatformBundle\OroPlatformBundle</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And you can see that the bundle file I was looking for is in the Platform Bundle.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Upgrading from Fedora 19 to 20 using FedUp]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html"/>
+    <updated>2014-01-03T19:32:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup</id>
+    <content type="html"><![CDATA[<p>I decided to upgrade to the latest version because why not, its the first Friday of the year.</p>
+
+<p>The first thing to do is head over to <a href="https://fedoraproject.org/wiki/FedUp">this page</a> which explains how to use the tool.</p>
+
+<p>I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y --enablerepo=updates-testing install fedup</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once that is all done then you need to run the fedup command itself:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update fedup fedora-release
+</span><span class='line'>sudo fedup --network 20</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:</em></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
+</span><span class='line'>sudo fedup --network 20</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
+It takes a while, make a brew or something.</p>
+
+<p>Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
+<a href="https://extensions.gnome.org/local/">https://extensions.gnome.org/local/</a> and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
+When that&rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.</p>
+
+<p>For me the only one I&rsquo;m really going to miss is the <a href="https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/">Quick Close in Overview</a> which is really handy, hopefully will be updated soon.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fedora Yum Update Failing - RPMFusion + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html"/>
+    <updated>2014-01-02T10:42:59+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution</id>
+    <content type="html"><![CDATA[<p>I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.</p>
+
+<p>To see what was really going on I ran yum update from the command line</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This died with the following error message:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Couldn't open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.</p>
+
+<p>To do that you can run this simple command (again in the command line):</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I did this and then ran the yum update command again and everything is fixed.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PhpStorm 7.1 Released]]></title>
+    <link href="http://edmondscommerce.github.io/phpstorm-7-dot-1-released.html"/>
+    <updated>2013-12-20T12:08:35+00:00</updated>
+    <id>http://edmondscommerce.github.io/phpstorm-7-dot-1-released</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Code Blocks with Liquid or Twig Tags using Octopress]]></title>
@@ -616,173 +814,6 @@ and can simply run</p>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Vim Locking Up, Always When you are Ready to Save? Solution]]></title>
-    <link href="http://edmondscommerce.github.io/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html"/>
-    <updated>2013-10-04T10:33:41+01:00</updated>
-    <id>http://edmondscommerce.github.io/linux/vim-locking-up-always-when-you-are-ready-to-save-solution</id>
-    <content type="html"><![CDATA[<p>If you are constantly frustated by Vim freezing up on you are editing a file on a server then this is quite possibly your problem, and your solution.</p>
-
-<p>The issue is that most text editors and IDEs have [ctrl]+[s] mapped to save. If you do a lot of file editing then you probably bash the [ctrl]+[s] combo all the time, without even thinking about it&hellip;</p>
-
-<p>Now back to Vim. As it is running in the terminal then it can be frozen by using the [ctrl]+[s] combination. You probably weren&rsquo;t aware of that feature.</p>
-
-<p>To bring things back to life, just hit the [ctrl]+[q] combo. There are ways to permanently disable this which you can try.</p>
-
-<p>For full information on this, check out this great <a href="http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal" target="_blank">stack exchange page</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Magento 1.8 released]]></title>
-    <link href="http://edmondscommerce.github.io/magento/magento-1-8-released.html"/>
-    <updated>2013-09-30T10:01:28+01:00</updated>
-    <id>http://edmondscommerce.github.io/magento/magento-1-8-released</id>
-    <content type="html"><![CDATA[<p>Today I got a notification through that Magento 1.8 had finally been released.</p>
-
-<p>This has been in beta since alpha since April, and contains server fixes that a lot of people have been waiting for.</p>
-
-<p>The most important one for UK vendors is that the rounding issue in tax calculations has been fixed.</p>
-
-<p>There are also improvements to caching and database performance. The full release notes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/ce-18-later-release-notes">here</a></p>
-
-<p>These are issues that have affected merchants since that change in the VAT rate, so we would recommend upgrading for everyone at this time.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[A Great Way to Simplify Git Merges]]></title>
-    <link href="http://edmondscommerce.github.io/git/a-great-way-to-simplify-git-merges.html"/>
-    <updated>2013-09-26T17:34:04+01:00</updated>
-    <id>http://edmondscommerce.github.io/git/a-great-way-to-simplify-git-merges</id>
-    <content type="html"><![CDATA[<p>If you are struggling with a git merge with a long list of failed merge files then this little trick might be helpful.</p>
-
-<p>The standard approach is to go file by file and use git mergetool to open the files in a tool like Meld and then manually manage the differences. In many cases though you know exactly which version you want and this is simply a laborious process that doesn&rsquo;t really require human input.</p>
-
-<p>The solution to this is deceptively simple. All you need to do is to check out the file from the branch you want to keep the version of. If you have an entire directory where you know that the branch (for example master) has the correct version then you can check out that entire directory.</p>
-
-<p>You might find that sensible use of this technique can save you lots of time and really make the mergetool the one you use for the files where you really do need to merge.</p>
-
-<p>Thanks to <a href="http://stackoverflow.com/questions/914939/simple-tool-to-accept-theirs-or-accept-mine-on-a-whole-file-using-git?answertab=active#tab-top">this StackOverflow answer</a> for simplifying this for me.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[During git pull: error: RPC failed; result=56, HTTP code = 200 [x] KiB/s       fatal: The remote end hung up unexpectedly]]></title>
-    <link href="http://edmondscommerce.github.io/git/during-git-pull-error-rpc-failed-result56-http-code-200-x-kibs-fatal-the-remote-end-hung-up-unexpectedly.html"/>
-    <updated>2013-09-16T15:07:54+01:00</updated>
-    <id>http://edmondscommerce.github.io/git/during-git-pull-error-rpc-failed-result56-http-code-200-x-kibs-fatal-the-remote-end-hung-up-unexpectedly</id>
-    <content type="html"><![CDATA[<p>If you receive this series of errors during a git pull (after the Receiving Objects stage):</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>$ git pull
-</span><span class='line'>Password for 'https://xxxxxxxxxx@bitbucket.org': 
-</span><span class='line'>remote: Counting objects: 1011, done.
-</span><span class='line'>remote: Compressing objects: 100% (394/394), done.
-</span><span class='line'>error: RPC failed; result=56, HTTP code = 200 51 KiB/s      
-</span><span class='line'>fatal: The remote end hung up unexpectedly
-</span><span class='line'>fatal: early EOF
-</span><span class='line'>fatal: index-pack failed
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>a quick solution is to use ssh to pull rather than the https protocol</p>
-
-<p>Hope this helps</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[What Is User Experience & Why Bother?]]></title>
-    <link href="http://edmondscommerce.github.io/web%20design/what-is-user-experience-why-bother.html"/>
-    <updated>2013-09-02T07:50:51+01:00</updated>
-    <id>http://edmondscommerce.github.io/web%20design/what-is-user-experience-why-bother</id>
-    <content type="html"><![CDATA[<p>If you are running an E-Commerce store then you&rsquo;ve probably received various offers to improve the online shopping experience, optimize conversion rate and so on. All these offers are a part of a user experience. For example &ndash; if you receive an offer to improve your online store&rsquo;s shopping experience then most likely the service provider will go thorough the sales funnel, get some valuable input by <a href="http://www.edmondscommerce.co.uk/conversion-rate-optimization/using-advanced-analytics-to-improve-conversion-rates/" title="Using Advanced Analytics to Improve Conversion Rates" target="_blank">setting up and analysing your website metrics</a>, conduct a user survey by online forms and ask directly to the customers via email or even give them a private call.
-All of the above is necessary to really understand how your users (customers) interact with your site, how:</p>
-
-<ul>
-    <li>valuable</li>
-
-    <li>findable</li>
-
-    <li>usable</li>
-
-    <li>desirable</li>
-
-    <li>accessible</li>
-
-    <li>credible</li>
-</ul>
-
-
-<p>they found your site or offer to be. As for those who need a definition &ndash; <a href="http://en.wikipedia.org/wiki/User_experience" title="User Experience - Wikipedia" target="_blank">here&rsquo;s what wikipedia says about user experience</a> &ndash; <em>User experience (UX) involves a person&rsquo;s emotions about using a particular product, system or service. User experience highlights the experiential, affective, meaningful and valuable aspects of human-computer interaction and product ownership. Additionally, it includes a person’s perceptions of the practical aspects such as utility, ease of use and efficiency of the system. User experience is subjective in nature because it is about individual perception and thought with respect to the system. User experience is dynamic as it is constantly modified over time due to changing circumstances and new innovations.</em></p>
-
-<h2>So, what elements the user experience should contain?</h2>
-
-
-<p><img src="http://edmondscommerce.github.io/assets/UserExperience.png"></p>
-
-<h3>Valuable</h3>
-
-
-<p>The solution must deliver measurable value for site owners or interested group. It can be conversions, leads, subscriptions, etc.</p>
-
-<h3>Findable</h3>
-
-
-<p>Make it easy to find what your target audience is looking for, not only by optimizing search engines but focusing on internal navigation</p>
-
-<h3>Usable</h3>
-
-
-<p>Ease of use is extremely important; it must be intuitive and fluid. You need to create a funnel that leads your audience to your goal effectively</p>
-
-<h3>Desirable</h3>
-
-
-<p>Your target audience must have a strong desire to use your solution whether it’s for content, experience or emotions</p>
-
-<h3>Accessible</h3>
-
-
-<p>The solution must be easily accessible for your target audience – whether it’s technological requirements or people with disabilities</p>
-
-<h3>Credible</h3>
-
-
-<p>Your solution must be credible by all means. It has to build trust in your particular target audience by including important credibility factors</p>
-
-<h2>What’s In It For You?</h2>
-
-
-<p>The benefits are pretty obvious. In this stage we help you to identify your market and learn about your target audience behavior and needs as much as possible. These real world insights are extremely valuable and perform a key role in a project life-cycle. In short – careful planning allows you to focus on most beneficial features first and drive more revenue with minimum effort.</p>
-
-<h2>Why Plan?</h2>
-
-
-<p>When embarking on a project to launch or relaunch an e-commerce web site it can seem like a daunting and overwhelming prospect. The danger is that without <a href="http://www.edmondscommerce.co.uk/web-project-management/guidelines-of-effective-web-project-workflow/" title="Guidelines of Effective Web Project Management" target="_blank">proper planning and project management</a>, the final outcome can be much less effective and efficient than if proper planning and preliminary research is used to define clear goals and then ensure these are met</p>
-
-<h2>Why Work With Us?</h2>
-
-
-<p>Edmonds Commerce is specifically focused on E-Commerce projects. We have experienced and professional team of certified Magento and Zend developers, User Experience, Design and Strategy experts. We tend to become partners and build a lasting business relationship which is proven by our long term clients of some of most promising UK’s e-commerce stores and businesses all over the Europe.</p>
-
-<h2>What’s Next?</h2>
-
-
-<p>We are happy to hear more about your upcoming or existing e-commerce project. Please get in touch with us and explain your vision, goals, requirements and deadlines. Discover how we can help you.</p>
 ]]></content>
   </entry>
   

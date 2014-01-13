@@ -128,6 +128,411 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-25T17:42:32+01:00" pubdate data-updated="true">Jul 25<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/how-to-get-a-list-of-all-modules-in-magento.html">How to Get a List of All Modules in Magento</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I was recently asked to generate a list of all of the modules in a copy of magento.</p>
+
+<p>To this I put together this quick one-line bash command to go through the modules folder and output the content</p>
+
+<p><code>
+cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active&rdquo; | grep -v &ldquo;&lt;.*active&rdquo; | sed &rsquo;s/&lt;//g' | sed &rsquo;s/>//g' | awk &lsquo;{print $1}&rsquo; | sort | uniq > /path/to/file
+</code></p>
+
+<p>If you just the active modules then run this instead
+<code>
+cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<em>true&rdquo; | grep -v &ldquo;&lt;.</em>active&rdquo; | sed &rsquo;s/&lt;//g' | sed &rsquo;s/>//g' | awk &lsquo;{print $1}&rsquo; | sort | uniq > /path/to/file
+</code></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-17T11:02:21+01:00" pubdate data-updated="true">Jul 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-rounding-errors-1-6-0.html">Magento Rounding Errors (1.6.0+)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>The latest version of Magento has a fairly major issue that mostly affects UK and EU businesses, in the way it calculates taxes.</p>
+
+<p>One of the most obvious situations is if you sell something worth £24.99 (inc. tax) and enter that as the price in Magento.  The thread on the Magento forum is <a href="http://www.magentocommerce.com/boards/viewthread/247201/">here</a>.</p>
+
+<p>On the front end (if you have left the standard price templates alone) you will in 1.6.2+ see a price of £24.98.</p>
+
+<p>This is because Magento first takes off the tax, then adds it back on, unfortunately a rounding error creeps in at one or the other side of the process.</p>
+
+<p>Magento claims this is fixed in 1.7.0.1 but from reports we have seen this is not the case.  There are two current fixes but they both have issues.</p>
+
+<p>The first (listed <a href="http://www.magentocommerce.com/boards/viewreply/353791/">here</a>) is to override the store rounding system and have Magento work to 4 decimal places instead of 2.  That&rsquo;s fine and works but if you have a payment gateway that gets fed the line items (such as Paypal Express Checkout for instance), the total does not match the line items (probably because it is passed a 4dp number and it doesn&rsquo;t match the totals of the 2dp items).</p>
+
+<p>Another option (as mentioned <a href="http://www.magentocommerce.com/boards/viewreply/361474/">here</a>) is to assume no rounding where it is not specified rather than assuming rounding.  This won&rsquo;t cause problems with gateways but then you do need to fiddle with your templates to make sure your prices are displayed with tax.</p>
+
+<p>As mentioned, we haven&rsquo;t actually seen a solution that works across the board and is right with stats, payment gateways, frontend and backend.  It&rsquo;s a major bug and hopefully the next release of Magento will fix this.</p>
+
+<p>This appears to be most prevalent when using the &ldquo;Prices include tax in backend&rdquo; setting as the tax calculation only gets done once if you enter pre-tax prices and have the tax only added on.  That isn&rsquo;t to say that it will always calculate the tax correctly that way round either, just that this particular rounding issue is not as visible.</p>
+
+<p>Also, the fixes listed on that thread involve modifying core files &ndash; <strong>don&rsquo;t do this!</strong> copy the files to /app/code/local/Mage from /app/code/core/Mage and modify them in there.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-10T16:29:28+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-security-patch-script.html">Magento Security Patch Script</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>We are currently offering a free service to apply the security patches for any Magento store. <a href="http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/">You can read all about that here</a>.</p>
+
+<p>For those of you who are comfortable SSHing into your server and running things manually but would like this to be as easy as possible, you can use our bash script to automatically determine which Magento security patch you require and then apply it.</p>
+
+<p>Simply run the following command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>wget -qO- http://www.edmondscommerce.co.uk/stuff/applysecuritypatch.sh | /bin/sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For information, this is the source of the above file.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f app/Mage.php <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Not in the magento basedir. please run from public_html, httpdocs, www or wherever index.php is.&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>99
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">WGET_BINARY</span><span class="o">=</span><span class="k">$(</span>which wget<span class="k">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;&quot;</span> <span class="o">=</span> <span class="s2">&quot;$WGET_BINARY&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Can&#39;t find wget in path... can&#39;t continue&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>98
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">MAGENTO_VERSION</span><span class="o">=</span><span class="k">$(</span>grep <span class="s1">&#39;function getVersionInfo\(\)&#39;</span> -A6 app/Mage.php | sed s/<span class="o">[</span>^0-9<span class="o">]</span>//g | tr <span class="s1">&#39;\n&#39;</span> <span class="s1">&#39;.&#39;</span> | sed s/<span class="s1">&#39;\.\.*&#39;</span>// | sed s/<span class="s1">&#39;\.$&#39;</span>//<span class="k">)</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Your Magento version is $MAGENTO_VERSION&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">export</span> <span class="k">$(</span>grep <span class="s1">&#39;function getVersionInfo()&#39;</span> -A6 app/Mage.php | <span class="nv">grep</span> <span class="o">=</span> | sed s/,// | sed s/<span class="se">\&gt;</span>// | sed s/<span class="s1">&#39;[\t ]&#39;</span>//g | tr <span class="s2">&quot;a-z&quot;</span> <span class="s2">&quot;A-Z&quot;</span> | sed s/^/MAGENTO_/ | sed s/<span class="s2">&quot;&#39;&quot;</span>//g<span class="k">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">set</span> | grep MAGENTO
+</span><span class='line'>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c">#Community Edition 1.4.0.0 through 1.4.1.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch</span>
+</span><span class='line'><span class="c">#Community Edition 1.4.2.0 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch</span>
+</span><span class='line'><span class="c">#Community Edition 1.5.0.0 through 1.7.0.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$MAGENTO_MAJOR&quot;</span> -eq <span class="s2">&quot;1&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  if</span> <span class="o">[</span> <span class="s2">&quot;$MAGENTO_MINOR&quot;</span> -eq <span class="s2">&quot;4&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> <span class="nv">$MAGENTO_PATCH</span> -lt <span class="s2">&quot;2&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento &lt; 1.4.2.0 - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.4.2.0 - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">  elif</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -gt <span class="s2">&quot;4&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -lt <span class="s2">&quot;7&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">elif</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -eq <span class="s2">&quot;7&quot;</span> -a <span class="nv">$MAGENTO_PATCH</span> -eq <span class="s2">&quot;0&quot;</span> -a <span class="nv">$MAGENTO_REVISION</span> -lt <span class="s2">&quot;2&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.7.0.2 - already patched.&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">  fi</span>
+</span><span class='line'><span class="k">else </span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;You&#39;re not running version 1.x.x.x of Magento, I have no idea what to do!&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>97
+</span><span class='line'><span class="k">fi </span>
+</span><span class='line'>
+</span><span class='line'>wget -O - <span class="nv">$CORRECT_PATCH</span> 2&gt; /dev/null | patch -p0
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Patch succeeded.&quot;</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;For some reason the patch failed.  See the output above.&quot;</span>
+</span><span class='line'>  <span class="nb">echo</span> <span class="s2">&quot;You could attempt to download the patch manually and apply it - the url is :- &quot;</span>
+</span><span class='line'>  <span class="nb">echo</span> <span class="nv">$CORRECT_PATCH</span>
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Please note this script is supplied without any warranty, use at your own risk. We are not supplying the patch files simply making it easy to download and apply the correct one.</p>
+
+<p>We strongly recommend you patch your store as soon as possible.</p>
+
+<p><b><a href="http://www.edmondscommerce.co.uk/contact-us/?about=Free+Magento+Security+Fix"> If you need help, just ask!</a></b></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-10T13:07:02+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-security-vulnerability-free-assistance.html">Magento Security Vulnerability + Free Assistance</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>The magento platform is based on a PHP framework called Zend Framework.</p>
+
+<p>Recently a bug was found in Zend Framework which potentially allows attackers to read any file on your server. This could mean they could gain access to your mysql server credentials for example.</p>
+
+<p>You can read the full details <a href="http://www.magentocommerce.com/blog/comments/update-zend-framework-vulnerability-security-update/">here</a>.</p>
+
+<p>The actual bug details for Zend Framework are in this <a href="http://framework.zend.com/security/advisory/ZF2012-01">security advisory</a>.</p>
+
+<h3>Free Security Patching Service</h3>
+
+
+<p>In a nutshell this represents a serious security hole that you need to plug as soon as possible. Fixing this issue is very simple indeed if you know what you are doing.</p>
+
+<p>For this reason Edmonds Commerce are happy to offer <b>FREE</b> assistance in applying this patch to any Magento store owner whether you are a current client or not. We will not charge you in any way for this service.</p>
+
+<p>To request <b>FREE</b> assistance <a href="/contact-us/?about=Free+Magento+Security+Fix"><b>contact us today</b></a></p>
+
+<h3>Donation to Charity</h3>
+
+
+<p>If you choose to, you could make a donation to cover this service here:
+<a href="http://www.justgiving.com/EdmondsCommerce"><a href="http://www.justgiving.com/EdmondsCommerce">http://www.justgiving.com/EdmondsCommerce</a></a></p>
+
+<h3>Please Note</h3>
+
+
+<p>We will need you to give us shell (otherwise known as SSH) access to your server if available.</p>
+
+<p>If you are on a shared hosting service that is not able to supply shell access, we would suggest you ask your hosting company to help you with this issue. Feel free to refer them to this page.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-25T12:20:33+01:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/how-to-restore-a-phpmyadmin-magento-backup.html">How to Restore a Phpmyadmin Magento Backup</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>So, if you&rsquo;ve ever had the situation where the only backup of a magento database has been done through phpmyadmin (hint: don&rsquo;t do this, use the inbuilt backup tool or lightbackup magento extension), you need to set up some magic at the top and bottom of the dump files :&ndash;</p>
+
+<p>Add the following at the top :&ndash;
+<code>SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT;
+SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS;
+SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION;
+SET NAMES utf8;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=&lsquo;NO_AUTO_VALUE_ON_ZERO&rsquo;;
+SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0;</code></p>
+
+<p>and the following at the bottom :
+<code>SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT;
+SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS;
+SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;
+SET SQL_NOTES=@OLD_SQL_NOTES;</code></p>
+
+<p>This can also be done if you use some other backup systems (we&rsquo;ve seen a table-per-file system too), in that instance, we created 00-head.sql and zz-foot.sql containing the above and create a single backup with &lsquo;cat *.sql > all.sql&rsquo; before restoring.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-21T17:07:20+01:00" pubdate data-updated="true">Jun 21<span>st</span>, 2012</time>
         
       </p>
@@ -463,229 +868,6 @@ and restart netbeans.  Suddenly, netbeans will listen on tcp (ipv4) and xdebug w
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-06-01T15:12:22+01:00" pubdate data-updated="true">Jun 1<span>st</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/enable-category-pages-to-display-subcategories.html">Enable Category Pages to Display Subcategories</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Thinking of being able to set different Magento Categories to display its sub-categories which can be controllable in the Magento admin i.e. <img src="/assets/Screenshot-New-Category-Manage-Categories-Categories-Catalog-Magento-Admin-Chromium-150x150.png">
-</p>
-You might be interested in using or viewing the zipped file here;<a href='http://www.edmondscommerce.co.uk/wp-content/uploads/2012/06/subcat.zip'>subcat</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-31T16:39:50+01:00" pubdate data-updated="true">May 31<span>st</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/display-out-of-stock-products-part-of-a-configurable-product.html">Display Out-of-stock Products Part of a Configurable Product</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In a situation where you want Magento to display out of stock product options of a configurable products, overriding getAllowProducts() function in Mage_Catalog_Block_Product_View_Type_Configurable is where you should be looking, change</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$product</span><span class="o">-&gt;</span><span class="na">isSaleable</span><span class="p">())</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>         <span class="nv">$products</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$product</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>to</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$products</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$product</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Bingo!!!</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-30T10:49:15+01:00" pubdate data-updated="true">May 30<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/phpmyadmin-increase-tables-displayed-in-left-column.html">phpMyAdmin Increase Tables Displayed in Left Column</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are using the latest version of phpMyAdmin you have no doubt spotted the nice javascript table select system that allows you to type keywords that filter the list of tables down to the one you are looking for.</p>
-
-<p>However if you are dealing with a system that has a lot of tables, the list is paged and unfortunately this javascript system does not filter the entire table list, just the current page.</p>
-
-<p>The solution is to add one line to your config.inc.php in the phpMyAdmin root.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$cfg</span><span class="p">[</span><span class="s1">&#39;MaxTableList&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-24T15:00:27+01:00" pubdate data-updated="true">May 24<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/tip-should-have-run-that-in-screen-now-you-can.html">Tip: Should Have Run That in Screen? Now You Can!</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Ever started a long process running that you thought wouldn&rsquo;t take long and then thought &ldquo;I should have run that in screen&rdquo;?</p>
-
-<p>Well, thanks to an ingenious programmer, you can actually do that!</p>
-
-<p>The app is called reptyr, is at <a href="https://github.com/nelhage/reptyr"><a href="https://github.com/nelhage/reptyr">https://github.com/nelhage/reptyr</a></a> and there&rsquo;s a ubuntu ppa <a href="https://launchpad.net/~broder/+archive/reptyr">here</a> Note: I compiled from scratch as the ppa didn&rsquo;t seem to work for me.</p>
-
-<p>So, all you need to do is open a terminal (press Ctrl-Z to stop the task if you only have one and don&rsquo;t want to open a new one), run screen (or tmux etc) and type &ldquo;reptyr 1234&rdquo; where 1234 is the process id (pid) of the program to pull to your current terminal.  To get the pid, &ldquo;ps waux&rdquo; usually gives all the info you need to identify it.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-23T12:04:48+01:00" pubdate data-updated="true">May 23<span>rd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/sales-reporting-zero-for-second-store-in-magento.html">Sales Reporting Zero for Second Store in Magento</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p><img src="/assets/base_rate.png">
-If you are running multi site Magento with different currencies and are finding that the sales reports on the stores that don&rsquo;t use the Magento default currency all show zero this probably means the currency conversion rates have not been configured. Due to the way Magento orders work existing orders will not have there conversion rate updated. There is no way to do this from the admin, the only real option is to update the orders directly in the database.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -709,15 +891,15 @@ If you are running multi site Magento with different currencies and are finding 
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
     
-    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
-    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
-    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
+    <a class="list-group-item " href="/phpstorm-7-dot-1-released.html">PhpStorm 7.1 Released</a>
     
   </div>
 </section>
@@ -798,7 +980,7 @@ If you are running multi site Magento with different currencies and are finding 
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

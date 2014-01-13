@@ -128,6 +128,331 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-20T15:19:23+00:00" pubdate data-updated="true">Jan 20<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/how-to-get-a-configurable-products-parent-in-magento.html">How to Get a Configurable Products Parent in Magento</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I recently needed magento to be able to load a product, and if that product was part of a configurable product detect this and return the parent product if that existed. Looking around google I came across this code snippet and thought it should work</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_product</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$productId</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$parentIdArray</span> <span class="o">=</span> <span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">loadParentProductIds</span><span class="p">()</span>
+</span><span class='line'>                 <span class="o">-&gt;</span><span class="na">getData</span><span class="p">(</span><span class="s1">&#39;parent_product_ids&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$parentIdArray</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// do something</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem is that the loadParentProductIds method was depreciated in 1.4.2.0 and I&rsquo;m running 1.6. The new way of doing detecting if a product has a parent is to do this</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$configurable_product_model</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product_type_configurable&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$parentIdArray</span><span class="o">=</span> <span class="nv">$configurable_product_model</span><span class="o">-&gt;</span><span class="na">getParentIdsByChild</span><span class="p">(</span><span class="nv">$productId</span><span class="p">);</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$parentIdArray</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// do something</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using this method I overrode the Mage_Catalog_Model_Product class and added this method, which will always return a configurable product if the product is associated with one. Be aware, that if you products belong to more than one configurable product you will have to modify the logic</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getConfigurableProduct</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">type_id</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="s1">&#39;configurable&#39;</span><span class="o">:</span>
+</span><span class='line'>          <span class="k">return</span> <span class="nv">$this</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>          <span class="nv">$configurable_product_model</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product_type_configurable&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="nv">$parentId</span><span class="o">=</span> <span class="nv">$configurable_product_model</span><span class="o">-&gt;</span><span class="na">getParentIdsByChild</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">());</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$parentId</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$parentId</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nv">$this</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-19T16:15:47+00:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/job/php-job-bradford.html">PHP Job Bradford</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are a PHP developer looking for a job in the Bradford area then please do get in touch with Edmonds Commerce.</p>
+
+<p>We are a team of PHP developers who focus on e-commerce based on open source packages such as <a href="http://www.edmondscommerce.co.uk">Magento</a>, osCommerce, Prestashop, OpenCart and others. We also do a fair bit of Wordpress, Drupal, Zend Framework etc as well. We even do bespoke PHP development.</p>
+
+<p>If you are a skilled PHP developer and would like to join a team of enthusiastic developers in a friendly flexible environment with a focus on productivity, personal skills development and fun then get in touch with us today.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-19T14:07:23+00:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/netbeans/netbeans-error-wavy-line-alternative.html">Netbeans Error Wavy Line - Alternative</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you use Netbeans then you have no doubt seen the red wavy underline that pops under lines that have errors.</p>
+
+<p>Unfortunatley if your errors relate to punctuation, eg concatenation full stops, then the red wavy line can actually obscure these making finding and fixing the error tricky.</p>
+
+<p>An nice alternative is to set Netbeans to use a red strikethrough instead of the wavy line. This is just as visilble but does not obscure punctuation in any way making finding and fixing the error a lot easier.</p>
+
+<p>To change this simply go to Tools->Options->Fonts &amp; Colors</p>
+
+<p>Then Set Language to All Languages</p>
+
+<p>Then select Error in the category drop down</p>
+
+<p>Simply change the Effects: drop down from Wave Underlined line to Strike Through</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-18T18:53:29+00:00" pubdate data-updated="true">Jan 18<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/php-5-2-9-and-below-bug-with-magento-magic-methods.html">PHP 5.2.9 and Below Bug With Magento Magic Methods</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Just found out this bug that occurs when you try to call an overridden Magento magic methods within the override method. I created a custom attribute for a product with code &ldquo;price_grid_csv&rdquo;  and I needed to still call the actual Magento magic method; see the below code</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getPriceGridCsv</span><span class="p">(){</span>
+</span><span class='line'><span class="nv">$price_csv</span><span class="o">=</span><span class="k">parent</span><span class="o">::</span><span class="na">getPriceGridCsv</span><span class="p">();</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="nx">condition</span><span class="p">)</span>
+</span><span class='line'><span class="nv">$price_csv</span><span class="o">=&lt;</span><span class="nx">further</span> <span class="nx">processing</span> <span class="nx">of</span> <span class="nv">$price_csv</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">return</span> <span class="nv">$price_csv</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By default parent::getPriceGridCsv() should return the value of the current object with attribute code price_grid_csv, but it does not because it breaks the camel case structure of the method name by changing getPriceGridCsv to getpricegridcsv which breaks magento from returning the current object attribute with this code.</p>
+
+<p>The way I got around this was by simply calling $this->getData(&lsquo;price_grid_csv&rsquo;) or by running Magento on PHP versions higher than 5.2.9, but I would recommend the first solution in order to make your code PHP version independent.</p>
+
+<p>Also note that  LAMP 1.7.1 is packaged with PHP 5.2.9</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-17T19:43:24+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/unable-to-do-string-comparisions-on-magento-urls-solution.html">Unable to Do String Comparisions on Magento Urls [Solution]</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I have been making a mwnu system for magento that would allow a client to add extra links to CMS page to top menu through a static block. One of the requirements was when you clicked the link the menu should display as active.</p>
+
+<p>To do this I extended the Category_Navigation Block so it would get the content of the static block and then check each href against the current url. If they matched then it would add the active class to the menu structure. This worked perfectly when running locally, so I pushed it to our staging site where it broke.</p>
+
+<p>Assuming that there was a difference with the url structure on the stagin site that I hadn&rsquo;t anticipated, I echoed out the link variables and compared them, but they looked identical. Thinking there may be spacing that had snuck past trim, I var_dumped them and again they looked identical, apart for the fact that the character count was different.</p>
+
+<p>After much messing around I came to two conclusions. Firstly Magento will append a session id to urls if you&rsquo;re using multi-store, and far more importantly, this extra information is not displayed if you var_dump the variable. I finally found this by turning the string into an array and echoing each character onto a new line, like so</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$link</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getUrl</span><span class="p">();</span>
+</span><span class='line'><span class="c1">// outputs http://www.example.com/index.php</span>
+</span><span class='line'><span class="nb">var_dump</span><span class="p">(</span><span class="nv">$link</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$array</span> <span class="o">=</span> <span class="nb">preg_split</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">,</span> <span class="nv">$link</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$array</span> <span class="k">as</span> <span class="nv">$char</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="c1">// simplified replace with print($char.&quot;\n&quot;) to get each character on a new line</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="nv">$char</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">// outputs http://www.example.com/index.php?___SID=U</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To solve this replace your link with the following</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$link</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;%\?.*%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getLink</span><span class="p">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and it will work the way that you expect.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-17T16:13:03+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
         
       </p>
@@ -393,245 +718,6 @@ PeterZ presentations:
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-12T18:02:17+00:00" pubdate data-updated="true">Jan 12<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/compare-two-columns-in-mysql.html">Compare Two Columns in Mysql</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Many database queries rely on seeing if two columns match / differ, however sometimes you may want to check if either column contains a sub-string of the other. MySql allows you to do this, but it isn&rsquo;t that well documented, so hopefully this will help someone looking for this in the future</p>
-
-<p><code>
-SELECT *
-FROM</p>
-
-<pre><code>`table`
-</code></pre>
-
-<p>WHERE</p>
-
-<pre><code>`col1` LIKE CONCAT('%', `col2`, '%')
-OR col2 LIKE CONCAT('%',`col1`,'%')
-</code></pre>
-
-<p></code></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-12T12:28:54+00:00" pubdate data-updated="true">Jan 12<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/security/got-the-insecure-content-on-a-secure-https-page-problem-easy-solution.html">Got the Insecure Content on a Secure HTTPs Page Problem - Easy Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Often you will see SSL warnings or errors related to insecure content being displayed on a secure page.</p>
-
-<p>This could be as simple as one javascript file or image that is being included via http rather than https, though some times this can be a bit tricky to track down.</p>
-
-<p>The easiest solution is to hit this site:</p>
-
-<p><a href="http://www.whynopadlock.com/"><a href="http://www.whynopadlock.com/">http://www.whynopadlock.com/</a></a></p>
-
-<p>This will give you a clear report of the problems and should help you quickly find and fix them.</p>
-
-<p>Alternatively if you use Chrome you may see the details in the Javascript console.</p>
-
-<p>Once you know what elements are being called by http as opposed to https, you simply need to make them use https or remove them altogether.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-11T18:25:16+00:00" pubdate data-updated="true">Jan 11<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-1-6-2-released.html">Magento 1.6.2 Released</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Magento have released the latest version of Magento CE (community edition), 1.6.2.0</p>
-
-<p>Major interest to most of our clients will be the refactoring of the indexing process to prevent duplicate indexing processes.</p>
-
-<p>Along with that is a nice list of fixes.</p>
-
-<p>If you are looking to upgrade your Magento store to the latest version simply <a href="/contact-us/">get in touch</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-11T16:27:41+00:00" pubdate data-updated="true">Jan 11<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/formatting-the-output-from-tail.html">Formatting the Output From Tail</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you need to monitor a log file in real time, then using a combination of tail and grep will allow you to watch the important parts of the file. However if the log file spans more than one line then it can quickly become difficult to read.</p>
-
-<p>By using sed you are able to format the text so it is easier to read like this</p>
-
-<p><code>
-tail -f /path/to/file | sed -u G | grep -A 1 searchTerm
-</code></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-11T12:46:35+00:00" pubdate data-updated="true">Jan 11<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-and-ebay-integration-now-free.html">Magento and eBay Integration Now Free</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Thanks to the acquisition of Magento by eBay, one of the major extension developers, Ess, now has an agreement with eBay/Magento to provide their integration extension free.</p>
-
-<p><a href="http://m2epro.ess-ua.com/">Here&rsquo;s their site</a> and <a href="http://www.magentocommerce.com/magento-connect/ebay-magento-integration-order-importing-and-stock-level-synchronization.html">here&rsquo;s the extension on Magento Connect</a></p>
-
-<p>It&rsquo;s also worth knowing that the extension is avaiable on Magento Go, so if you&rsquo;re looking for hosted-only, management-free eCommerce with integration with eBay, that might be an option.  Remember that Magento Go is not extendable by third parties though as it is a locked-down solution.</p>
-
-<p>Anyway, some of the features of the extension are :&ndash;</p>
-
-<ul>
-<li>Stock Level Synchronisation between eBay and Magento Stores</li>
-<li>Create eBay listing templates which can create eBay listings direct from your Magento products</li>
-<li>Multiple eBay accounts per store</li>
-<li>Automatically leave feedback</li>
-<li>eBay transaction and order import</li>
-</ul>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -655,15 +741,15 @@ tail -f /path/to/file | sed -u G | grep -A 1 searchTerm
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
     
-    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
-    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
-    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
+    <a class="list-group-item " href="/phpstorm-7-dot-1-released.html">PhpStorm 7.1 Released</a>
     
   </div>
 </section>
@@ -744,7 +830,7 @@ tail -f /path/to/file | sed -u G | grep -A 1 searchTerm
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

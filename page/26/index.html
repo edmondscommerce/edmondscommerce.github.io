@@ -128,6 +128,640 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-02-07T17:14:39+00:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/netbeans/netbeans-disable-transparent-undocked-windows.html">Netbeans Disable Transparent Undocked Windows</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have a dual monitor setup you might decide to undock some of your Netbeans windows, for example for running XDebug sessions or PHPUnit testing.</p>
+
+<p>However you will find that by default, Netbeans sets the transparency of these windows to unreadable levels when they are not active.</p>
+
+<p>This really defeats the object and is quite irritating.</p>
+
+<p>I spent a long time under the false impression that this was some errant compiz setting and trying to figure it out that way.</p>
+
+<p>Turns out that this is a Netbeans &ldquo;feature&rdquo; and you can disable it with a single untick of a box.</p>
+
+<p>Tools->Options->Miscellaneous->Appearance</p>
+
+<p>untick the &ldquo;Transparent floating windows&rdquo; box</p>
+
+<p>Enjoy lots of usable desk space in Netbeans!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-02-01T17:25:50+00:00" pubdate data-updated="true">Feb 1<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/yii-setting-up-authorisation-the-missing-manual.html">Yii Setting Up Authorisation - the Missing Manual</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Reading the generally very clear and concise Yii documentation you can quickly get started with the framework.</p>
+
+<p>However one issue that I struggled to be clear on is setting up the database driven authorisation system.</p>
+
+<p>I recommend reading <a href="http://danaluther.blogspot.com/2010/03/yii-authentication-via-database.html">this blog post</a> which finally helped me to understand wth I was supposed to do. The official documentation is <a href="http://www.yiiframework.com/doc/guide/1.1/en/topics.auth#defining-authorization-hierarchy">here</a> which you should also read.</p>
+
+<p>There are a few key points that are not really clear but are important.</p>
+
+<p><strong>1. You need to create the tables.
+</strong>
+There is a file: yii/framework/web/auth/schema-mysql.sql</p>
+
+<p>You need to run this on your database to build the necessary tables#</p>
+
+<p><strong>2. Creating the rules &ndash; use the Yii Shell
+</strong>
+You will see examples of PHP code that defines rules etc. You may wonder where the hell you are supposed to put this code and also is it really a good idea to run this kind of code on every page load, seems odd.</p>
+
+<p>Well the answer is you are only meant to run it once and you can either make a PHP script that runs it or even nicer is to use the Yii interactive shell and paste the lines in one at a time to execute them.</p>
+
+<p><strong>Using the Yii Shell</strong></p>
+
+<p>Go to your web root on the command line (I&rsquo;m using Linux, good luck if you aren&rsquo;t)</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd ~/Projects/yii-projects/public
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now run the yiic tool from the web root with the shell flag</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>protected/yiic shell
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You now have an interactive PHP shell with the Yii framework available. You can create models, crud etc as you might have done in Gii, but you can also run PHP code directly, including working with Yii objects &ndash; such as the authManager</p>
+
+<p>Try this:</p>
+
+<p>Paste this line into your Yii shell and hit return</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>$auth=Yii:app()-&gt;authManager;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then this line and hit return</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>var_dump($auth);
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should see a var dump of the CDbAuthManager object</p>
+
+<p>Now when you see examples such as this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$auth</span><span class="o">=</span><span class="nx">Yii</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">authManager</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$auth</span><span class="o">-&gt;</span><span class="na">createOperation</span><span class="p">(</span><span class="s1">&#39;createPost&#39;</span><span class="p">,</span><span class="s1">&#39;create a post&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$auth</span><span class="o">-&gt;</span><span class="na">createOperation</span><span class="p">(</span><span class="s1">&#39;readPost&#39;</span><span class="p">,</span><span class="s1">&#39;read a post&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$auth</span><span class="o">-&gt;</span><span class="na">createOperation</span><span class="p">(</span><span class="s1">&#39;updatePost&#39;</span><span class="p">,</span><span class="s1">&#39;update a post&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$auth</span><span class="o">-&gt;</span><span class="na">createOperation</span><span class="p">(</span><span class="s1">&#39;deletePost&#39;</span><span class="p">,</span><span class="s1">&#39;delete a post&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You realise that this is something you can do ONCE to set up these roles, and a great way to do that is via the Yii Shell.</p>
+
+<p>Have fun ;)</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-31T14:51:37+00:00" pubdate data-updated="true">Jan 31<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/jquery/create-a-scrollable-menu-with-an-onhover-effect.html">Create a Scrollable Menu With an onHover Effect</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I was recently asked by a client to create a scrollable, navigation menu for their site. However, they wanted it to have an onHover submenu that expanded to the side, over the top of the scrollbar.</p>
+
+<p>The problem with this is that there is noway to do this using normal css, over the overflow:scroll hides the sub menu. If you put the submenus into a different div outside the scrollable area, then you can run into problems with the onHover thinking you&rsquo;ve left the target.</p>
+
+<p>To get round this I put together the following jQuery, HTML and CSS, which I hope will help someone.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;categories&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;level0 first parent&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;path/to/link&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;p&gt;</span>First Item<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;ul</span> <span class="na">style=</span><span class="s">&quot;display:none&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;level1 first parent&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;path/to/link&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                      <span class="nt">&lt;p&gt;</span>sublevel-1<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;ul</span> <span class="na">style=</span><span class="s">&quot;display:none&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                      <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;level2 first&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                          <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;path/to/link&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                              <span class="nt">&lt;p&gt;</span>sub-sublevel1<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>                          <span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>                      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;level0&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;path/to/link&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;p&gt;</span>Second Item<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;hoverMenu&quot;</span> <span class="na">style=</span><span class="s">&quot;display: none; &quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;subHoverMenu&quot;</span> <span class="na">style=</span><span class="s">&quot;display: none; &quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nc">.categories</span><span class="p">{</span><span class="k">background</span><span class="o">:</span><span class="nb">white</span><span class="p">;</span><span class="k">height</span><span class="o">:</span><span class="m">310px</span><span class="p">;</span><span class="k">overflow</span><span class="o">:</span><span class="k">scroll</span><span class="p">;</span><span class="k">overflow-x</span><span class="o">:</span><span class="k">hidden</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nc">.active</span><span class="p">{</span><span class="k">background</span><span class="o">:</span><span class="nb">red</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nt">ul</span><span class="p">{</span><span class="k">padding</span><span class="o">:</span><span class="m">9px</span> <span class="m">10px</span> <span class="m">0</span> <span class="m">10px</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nt">ul</span> <span class="nt">li</span> <span class="nt">a</span><span class="p">{</span><span class="k">color</span><span class="o">:</span><span class="nb">black</span><span class="p">;</span><span class="k">height</span><span class="o">:</span><span class="m">21px</span><span class="p">;</span><span class="k">line-height</span><span class="o">:</span><span class="m">21px</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nt">ul</span> <span class="nt">li</span> <span class="nt">a</span> <span class="nt">p</span><span class="p">{</span><span class="k">font-size</span><span class="o">:</span><span class="m">13px</span><span class="p">;</span><span class="k">padding</span><span class="o">:</span><span class="m">0</span> <span class="m">0</span> <span class="m">0</span> <span class="m">0</span><span class="p">;</span><span class="k">margin</span><span class="o">:</span><span class="m">0</span> <span class="m">0</span> <span class="m">0</span> <span class="m">0</span><span class="p">;</span><span class="k">white-space</span><span class="o">:</span><span class="k">nowrap</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nf">#hoverMenu</span><span class="p">{</span><span class="k">background</span><span class="o">:</span><span class="nb">white</span><span class="p">;</span><span class="k">height</span><span class="o">:</span><span class="k">auto</span><span class="p">;</span><span class="k">position</span><span class="o">:</span><span class="k">absolute</span><span class="p">;</span><span class="k">width</span><span class="o">:</span><span class="k">auto</span><span class="p">;</span><span class="k">z-index</span><span class="o">:</span><span class="m">150</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nf">#hoverMenu</span> <span class="nc">.active</span><span class="p">{</span><span class="k">background</span><span class="o">:</span><span class="nb">red</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nf">#hoverMenu</span> <span class="nt">li</span><span class="p">{</span><span class="k">padding</span><span class="o">:</span><span class="m">5px</span> <span class="m">10px</span> <span class="m">5px</span> <span class="m">20px</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nf">#hoverMenu</span> <span class="nt">p</span><span class="p">{</span><span class="k">color</span><span class="o">:</span><span class="nb">black</span><span class="p">;</span><span class="k">font-size</span><span class="o">:</span><span class="m">13px</span><span class="p">;</span><span class="k">white-space</span><span class="o">:</span><span class="k">nowrap</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nf">#hoverMenu</span> <span class="nf">#subHoverMenu</span><span class="p">{</span><span class="k">background</span><span class="o">:</span><span class="nb">white</span><span class="p">;</span><span class="k">width</span><span class="o">:</span><span class="k">auto</span><span class="p">;</span><span class="k">height</span><span class="o">:</span><span class="k">auto</span><span class="p">;</span><span class="k">position</span><span class="o">:</span><span class="k">absolute</span><span class="p">;</span><span class="k">z-index</span><span class="o">:</span><span class="m">150</span><span class="p">;}</span>
+</span><span class='line'><span class="nc">.categories</span> <span class="nf">#hoverMenu</span> <span class="nf">#subHoverMenu</span> <span class="nc">.active</span><span class="p">{</span><span class="k">background</span><span class="o">:</span><span class="nb">red</span><span class="p">;}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>   <span class="nx">jQuery</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">jQuery</span><span class="p">(</span><span class="s2">&quot;.categories li.level0&quot;</span><span class="p">).</span><span class="nx">mouseenter</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">siblings</span><span class="p">().</span><span class="nx">removeClass</span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">addClass</span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">hasClass</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu ul&#39;</span><span class="p">).</span><span class="nx">remove</span><span class="p">();</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">pos</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">position</span><span class="p">();</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">mouseX</span> <span class="o">=</span> <span class="nx">pos</span><span class="p">.</span><span class="nx">left</span> <span class="o">+</span> <span class="mi">175</span><span class="p">;</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">mouseY</span> <span class="o">=</span> <span class="nx">pos</span><span class="p">.</span><span class="nx">top</span><span class="p">;</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">subMenu</span><span class="o">=</span><span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">children</span><span class="p">(</span><span class="s1">&#39;ul:first&#39;</span><span class="p">)</span>
+</span><span class='line'>              <span class="nx">subMenu</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">).</span><span class="nx">show</span><span class="p">().</span><span class="nx">appendTo</span><span class="p">(</span><span class="s1">&#39;#hoverMenu&#39;</span><span class="p">);</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">({</span><span class="s1">&#39;top&#39;</span><span class="o">:</span><span class="nx">mouseY</span><span class="p">,</span><span class="s1">&#39;left&#39;</span><span class="o">:</span><span class="nx">mouseX</span><span class="p">});</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu&#39;</span><span class="p">).</span><span class="nx">show</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu ul&#39;</span><span class="p">).</span><span class="nx">remove</span><span class="p">();</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu&#39;</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="nx">jQuery</span><span class="p">(</span><span class="s2">&quot;.categories li.level1&quot;</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;mouseenter&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">siblings</span><span class="p">().</span><span class="nx">removeClass</span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">addClass</span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">children</span><span class="p">(</span><span class="s1">&#39;ul&#39;</span><span class="p">).</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#subHoverMenu&#39;</span><span class="p">).</span><span class="nx">empty</span><span class="p">();</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">subPos</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">position</span><span class="p">();</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">subMouseX</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">outerWidth</span><span class="p">();</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">subMouseY</span> <span class="o">=</span> <span class="nx">subPos</span><span class="p">.</span><span class="nx">top</span><span class="p">;</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">subSubMenu</span><span class="o">=</span><span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">children</span><span class="p">(</span><span class="s1">&#39;ul:first&#39;</span><span class="p">)</span>
+</span><span class='line'>              <span class="nx">subSubMenu</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">).</span><span class="nx">show</span><span class="p">().</span><span class="nx">appendTo</span><span class="p">(</span><span class="s1">&#39;#subHoverMenu&#39;</span><span class="p">);</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#subHoverMenu&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">({</span><span class="s1">&#39;top&#39;</span><span class="o">:</span><span class="nx">subMouseY</span><span class="p">,</span><span class="s1">&#39;left&#39;</span><span class="o">:</span><span class="nx">subMouseX</span><span class="p">});</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#subHoverMenu&#39;</span><span class="p">).</span><span class="nx">show</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#subHoverMenu&#39;</span><span class="p">).</span><span class="nx">empty</span><span class="p">().</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="nx">jQuery</span><span class="p">(</span><span class="s2">&quot;.categories li.level2&quot;</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;mouseenter&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">siblings</span><span class="p">().</span><span class="nx">removeClass</span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">addClass</span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu&#39;</span><span class="p">).</span><span class="nx">mouseleave</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu ul&#39;</span><span class="p">).</span><span class="nx">remove</span><span class="p">();</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hovermenu&#39;</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#subHoverMenu&#39;</span><span class="p">).</span><span class="nx">empty</span><span class="p">().</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#subHoverMenu&#39;</span><span class="p">).</span><span class="nx">mouseleave</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">empty</span><span class="p">().</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;.categories&#39;</span><span class="p">).</span><span class="nx">mouseleave</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu ul&#39;</span><span class="p">).</span><span class="nx">remove</span><span class="p">();</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#hoverMenu&#39;</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#subHoverMenu&#39;</span><span class="p">).</span><span class="nx">empty</span><span class="p">().</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>          <span class="nx">jQuery</span><span class="p">(</span><span class="s2">&quot;.col-left .category-list .categories li&quot;</span><span class="p">).</span><span class="nx">removeClass</span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>  <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Obviously, change styles and content as required</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-31T14:04:27+00:00" pubdate data-updated="true">Jan 31<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/start-windows-on-a-specified-workspace.html">Start Windows on a Specified Workspace</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I rely on multiple desktops in order to keep my workflow organised. However each time I start up my computer I have to move these windows onto the correct desktop, which is a pain. Thankfully there is a way to place each window onto it&rsquo;s own desktop when your computer starts. This will explain the basics of doing this.</p>
+
+<p>First you need to install a tool called wmcrtl. On ubuntu you can do this by running this command</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install wmctrl</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once this is installed you need to see how it thinks you desktop is set up. You can do this by running this command</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wmctrl -d</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which give me the following result</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>0  * DG: 13440x1050  VP: 0,0  WA: 0,24 3360x1002  Workspace 1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The important part is the 13440x1050 &ndash; which corresponds to 8 1680x1050 desktops. Some versions of ubuntu put each desktop as a separate workspace, if so you&rsquo;ll need to modify the instructions slightly.</p>
+
+<p>At this point you can move you windows around so they are where you want them to be. Once you are happy with your layout, run the following command</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wmctrl -lG</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which will give you something similar to this</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>0x0340002e  0 3360 48   1680 1002 ross-desktop Add New Post ‹ Edmonds Commerce — WordPress - Chromium
+</span><span class='line'>0x02a00077  0 23002 106  253  970  ross-desktop Buddy List
+</span><span class='line'>0x02200004  0 0    58   1680 1021 ross-desktop Terminal
+</span><span class='line'>0x06400003  0 6720 58   1680 1021 ross-desktop *untitled - Geany
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This can be broken down as follows</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>window-id desktop-number  x-ofset y-ofset width   height  machine-name    window-title
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using this information you can put together a script that will run at startup to launch you windows.</p>
+
+<p><strong>NB This script relies on the window title to move a window. This works because the script will be run at startup and it is assumed that you will only have one instance of each program running. If you plan to have multiple windows open, then you will need to get the window-id, go through the man pages for ways of doing this.</strong></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>#!/bin/bash
+</span><span class='line'>geany /tmp/scratch.sql /tmp/scratch.php &
+</span><span class='line'>x-terminal-emulator &
+</span><span class='line'># allow the windows to spawn before moving them
+</span><span class='line'>sleep 5
+</span><span class='line'># select and move the windows
+</span><span class='line'># format wmctrl -r "window to move" -e gravity,x-pos,y-pos,width,height (-1 keeps the current value)
+</span><span class='line'>wmctrl -r "scratch.php - /tmp - Geany" -e 0,6720,0,-1,-1
+</span><span class='line'>wmctrl -r "Terminal" -e 0,3360,0,-1,-1
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>save the file and make it executable, and then run it at startup to have your windows automatically appear where you want them. This is just scratching the surface of what wmctrl can do, so if you want to carry out more windows management from the command line go through the man pages and see if it can do what you want.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-30T17:25:16+00:00" pubdate data-updated="true">Jan 30<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/plesk/how-to-extract-files-from-plesk-backups.html">How to Extract Files From Plesk Backups</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>So you have a plesk backup file and you want to extract and open the files from it? No problem. This blog will show you how.</p>
+
+<p>The file is a mime file. The &ldquo;mpack&rdquo; package will let you unpack it.</p>
+
+<p>First we install the &ldquo;mpack&rdquo; package</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install mpack</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s imagine your file is called &ldquo;pleskDump.gz&rdquo;. If it doesn&rsquo;t have a &ldquo;.gz&rdquo; at the end it might not be bad to add it as some environments will complain if it&rsquo;s absent.</p>
+
+<p>Next we unzip the file</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gunzip pleskDump.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s un-mime the file</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir pleskDumpOutput
+</span><span class='line'>cd pleskDumpOutput
+</span><span class='line'>cat ../pleskDump | munpack</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have a bunch of regular tar files, but be careful, if we just extract them, the root folders will not be recreated. In order to keep things together, it&rsquo;s best now to look at the output you have. Let&rsquo;s take a made up example:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>example-domain.com.httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that the format is essentially domain.rootfolder or in another way, the tar files have your domain name they are archiving, then a dot, then the name of the root folder they made up. We take that root folder and create it like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir rootfolder</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s apply that idea to our previoud example; &ldquo;example-domain.com&rdquo;</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s time to untar into the folder you just created, let&rsquo;s assume you just created &ldquo;httpdocs&rdquo;</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>tar -xvf example-domain.com.httpdocs -C httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There you go! You can now output any of the folders you wanted.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-23T15:22:03+00:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2012</time>
         
       </p>
@@ -459,331 +1093,6 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-20T15:19:23+00:00" pubdate data-updated="true">Jan 20<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/how-to-get-a-configurable-products-parent-in-magento.html">How to Get a Configurable Products Parent in Magento</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I recently needed magento to be able to load a product, and if that product was part of a configurable product detect this and return the parent product if that existed. Looking around google I came across this code snippet and thought it should work</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_product</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$productId</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$parentIdArray</span> <span class="o">=</span> <span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">loadParentProductIds</span><span class="p">()</span>
-</span><span class='line'>                 <span class="o">-&gt;</span><span class="na">getData</span><span class="p">(</span><span class="s1">&#39;parent_product_ids&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$parentIdArray</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>    <span class="c1">// do something</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The problem is that the loadParentProductIds method was depreciated in 1.4.2.0 and I&rsquo;m running 1.6. The new way of doing detecting if a product has a parent is to do this</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$configurable_product_model</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product_type_configurable&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$parentIdArray</span><span class="o">=</span> <span class="nv">$configurable_product_model</span><span class="o">-&gt;</span><span class="na">getParentIdsByChild</span><span class="p">(</span><span class="nv">$productId</span><span class="p">);</span>
-</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$parentIdArray</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>    <span class="c1">// do something</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Using this method I overrode the Mage_Catalog_Model_Product class and added this method, which will always return a configurable product if the product is associated with one. Be aware, that if you products belong to more than one configurable product you will have to modify the logic</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getConfigurableProduct</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">switch</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">type_id</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">case</span> <span class="s1">&#39;configurable&#39;</span><span class="o">:</span>
-</span><span class='line'>          <span class="k">return</span> <span class="nv">$this</span><span class="p">;</span>
-</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>      <span class="k">default</span><span class="o">:</span>
-</span><span class='line'>          <span class="nv">$configurable_product_model</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product_type_configurable&#39;</span><span class="p">);</span>
-</span><span class='line'>          <span class="nv">$parentId</span><span class="o">=</span> <span class="nv">$configurable_product_model</span><span class="o">-&gt;</span><span class="na">getParentIdsByChild</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">());</span>
-</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$parentId</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="p">{</span>
-</span><span class='line'>              <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$parentId</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</span><span class='line'>          <span class="p">}</span>
-</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">return</span> <span class="nv">$this</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-19T16:15:47+00:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/job/php-job-bradford.html">PHP Job Bradford</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are a PHP developer looking for a job in the Bradford area then please do get in touch with Edmonds Commerce.</p>
-
-<p>We are a team of PHP developers who focus on e-commerce based on open source packages such as <a href="http://www.edmondscommerce.co.uk">Magento</a>, osCommerce, Prestashop, OpenCart and others. We also do a fair bit of Wordpress, Drupal, Zend Framework etc as well. We even do bespoke PHP development.</p>
-
-<p>If you are a skilled PHP developer and would like to join a team of enthusiastic developers in a friendly flexible environment with a focus on productivity, personal skills development and fun then get in touch with us today.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-19T14:07:23+00:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/netbeans/netbeans-error-wavy-line-alternative.html">Netbeans Error Wavy Line - Alternative</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you use Netbeans then you have no doubt seen the red wavy underline that pops under lines that have errors.</p>
-
-<p>Unfortunatley if your errors relate to punctuation, eg concatenation full stops, then the red wavy line can actually obscure these making finding and fixing the error tricky.</p>
-
-<p>An nice alternative is to set Netbeans to use a red strikethrough instead of the wavy line. This is just as visilble but does not obscure punctuation in any way making finding and fixing the error a lot easier.</p>
-
-<p>To change this simply go to Tools->Options->Fonts &amp; Colors</p>
-
-<p>Then Set Language to All Languages</p>
-
-<p>Then select Error in the category drop down</p>
-
-<p>Simply change the Effects: drop down from Wave Underlined line to Strike Through</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-18T18:53:29+00:00" pubdate data-updated="true">Jan 18<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/php-5-2-9-and-below-bug-with-magento-magic-methods.html">PHP 5.2.9 and Below Bug With Magento Magic Methods</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Just found out this bug that occurs when you try to call an overridden Magento magic methods within the override method. I created a custom attribute for a product with code &ldquo;price_grid_csv&rdquo;  and I needed to still call the actual Magento magic method; see the below code</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getPriceGridCsv</span><span class="p">(){</span>
-</span><span class='line'><span class="nv">$price_csv</span><span class="o">=</span><span class="k">parent</span><span class="o">::</span><span class="na">getPriceGridCsv</span><span class="p">();</span>
-</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="nx">condition</span><span class="p">)</span>
-</span><span class='line'><span class="nv">$price_csv</span><span class="o">=&lt;</span><span class="nx">further</span> <span class="nx">processing</span> <span class="nx">of</span> <span class="nv">$price_csv</span><span class="o">&gt;</span>
-</span><span class='line'><span class="k">return</span> <span class="nv">$price_csv</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>By default parent::getPriceGridCsv() should return the value of the current object with attribute code price_grid_csv, but it does not because it breaks the camel case structure of the method name by changing getPriceGridCsv to getpricegridcsv which breaks magento from returning the current object attribute with this code.</p>
-
-<p>The way I got around this was by simply calling $this->getData(&lsquo;price_grid_csv&rsquo;) or by running Magento on PHP versions higher than 5.2.9, but I would recommend the first solution in order to make your code PHP version independent.</p>
-
-<p>Also note that  LAMP 1.7.1 is packaged with PHP 5.2.9</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-17T19:43:24+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/unable-to-do-string-comparisions-on-magento-urls-solution.html">Unable to Do String Comparisions on Magento Urls [Solution]</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I have been making a mwnu system for magento that would allow a client to add extra links to CMS page to top menu through a static block. One of the requirements was when you clicked the link the menu should display as active.</p>
-
-<p>To do this I extended the Category_Navigation Block so it would get the content of the static block and then check each href against the current url. If they matched then it would add the active class to the menu structure. This worked perfectly when running locally, so I pushed it to our staging site where it broke.</p>
-
-<p>Assuming that there was a difference with the url structure on the stagin site that I hadn&rsquo;t anticipated, I echoed out the link variables and compared them, but they looked identical. Thinking there may be spacing that had snuck past trim, I var_dumped them and again they looked identical, apart for the fact that the character count was different.</p>
-
-<p>After much messing around I came to two conclusions. Firstly Magento will append a session id to urls if you&rsquo;re using multi-store, and far more importantly, this extra information is not displayed if you var_dump the variable. I finally found this by turning the string into an array and echoing each character onto a new line, like so</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$link</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getUrl</span><span class="p">();</span>
-</span><span class='line'><span class="c1">// outputs http://www.example.com/index.php</span>
-</span><span class='line'><span class="nb">var_dump</span><span class="p">(</span><span class="nv">$link</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$array</span> <span class="o">=</span> <span class="nb">preg_split</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">,</span> <span class="nv">$link</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$array</span> <span class="k">as</span> <span class="nv">$char</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="c1">// simplified replace with print($char.&quot;\n&quot;) to get each character on a new line</span>
-</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="nv">$char</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="c1">// outputs http://www.example.com/index.php?___SID=U</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To solve this replace your link with the following</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$link</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;%\?.*%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getLink</span><span class="p">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and it will work the way that you expect.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -807,15 +1116,15 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
     
-    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
-    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
-    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
+    <a class="list-group-item " href="/phpstorm-7-dot-1-released.html">PhpStorm 7.1 Released</a>
     
   </div>
 </section>
@@ -896,7 +1205,7 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

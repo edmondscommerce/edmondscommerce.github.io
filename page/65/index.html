@@ -128,6 +128,470 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-05-11T15:00:46+01:00" pubdate data-updated="true">May 11<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-bulk-cache-index-update-script.html">Magento Bulk Cache / Index Update Script</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are doing any kind of bulk updating etc then you also need to make sure that you rebuild all of the caches and indexes after your bulk updates otherwise things can go wrong.</p>
+
+<p>I have just managed to get the following script to work including when flat catalog is enabled (thanks to <a href="http://www.nicksays.co.uk/2009/02/testing-magento-modules/" target="_blank">Nick of Meanbee</a> for the Mage::app() tip).</p>
+
+<p>This script can be called from the browser (I would highly recommend some form of IP restriction or other security) or called from a cron job.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nv">$magePath</span> <span class="o">=</span> <span class="s1">&#39;/path/to/Mage.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="k">require_once</span> <span class="nv">$magePath</span><span class="p">;</span>
+</span><span class='line'><span class="c1">//Varien_Profiler::enable();</span>
+</span><span class='line'><span class="c1">//Mage::setIsDeveloperMode(true);</span>
+</span><span class='line'><span class="c1">//ini_set(&#39;display_errors&#39;, 1);</span>
+</span><span class='line'><span class="nb">umask</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">setCurrentStore</span><span class="p">(</span><span class="nx">Mage_Core_Model_App</span><span class="o">::</span><span class="na">ADMIN_STORE_ID</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Cleaning overall Cache&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="c1">// clean overall cache</span>
+</span><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">cleanCache</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;done&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Cleaning Catalog Rewrites&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="c1">// clear &#39;refresh_catalog_rewrites&#39;:</span>
+</span><span class='line'><span class="c1">//Mage::getSingleton(&#39;catalog/url&#39;)-&gt;refreshRewrites();</span>
+</span><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/url&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">refreshRewrites</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;Catalog Rewrites was refreshed succesfuly&lt;br&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Cleaning Image Cache&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="c1">//  clear &#39;clear_images_cache&#39;:</span>
+</span><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product_image&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">clearCache</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;Image cache was cleared succesfuly&lt;br&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Cleaning Layered Navigation&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="c1">//  clear &#39;refresh_layered_navigation&#39;:</span>
+</span><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;catalogindex/indexer&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">plainReindex</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;Layered Navigation Indices was refreshed succesfuly&lt;br&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Clearing out Search Index&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalogsearch/fulltext&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">rebuildIndex</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;Search index was rebuilt succesfully&lt;br&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Rebuilding Flat Category&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getResourceSingleton</span><span class="p">(</span><span class="s1">&#39;catalog/category_flat&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">rebuild</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;flat category was rebuilt successfully&lt;br&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Rebuilding Flat Products&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getResourceSingleton</span><span class="p">(</span><span class="s1">&#39;catalog/product_flat_indexer&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">rebuild</span><span class="p">();</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;flat product was rebuilt successfully&lt;br&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>More&#8230;</h4>
+
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://ecommerce.aheadworks.com/blog/2009/05/magento-world-newsletter-may-5-2009/" rel="nofollow"&gt;Magento World Newsletter (May 5, 2009)&lt;/a&gt;&lt;br&gt;&lt;a href="http://kernelhack.com/?p=37" rel="nofollow"&gt;How to add custom fields to &lt;b&gt;Magento&lt;/b&gt; checkout | KERNELHACK.com&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.magento.cn/111/ecommerce-seo/magento-stores-ecommerce-search-engine-optimization/" rel="nofollow"&gt;&lt;b&gt;Magento&lt;/b&gt; Stores Ecommerce Search Engine Optimization, &lt;b&gt;Magento&lt;/b&gt; store &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-05-08T19:39:27+01:00" pubdate data-updated="true">May 8<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/oscommerce/creloaded-uk.html">CRE Loaded UK</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>I&rsquo;ve been spending a hell of a lot of time coding <b>Magento</b> recently, and for any full time serious ecommerce business I would recommend a Magento solution. However I have spent much more of my time coding <b>osCommerce</b> and usually <b>CRE Loaded</b> osCommerce based ecommerce sites.</p>
+
+<p>CRELoaded is still a great package (once you get rid of the annoying nags and ads) and is really taking the osCommerce platform and polishing it up to a nice usable fully featured system. If you are looking for a UK based developer who specialises in ecommerce, osCommerce and CRELoaded development then definitely get in touch. Don&rsquo;t be surprised though if I mention that Magento is definitely worth a close look!<h4>More&hellip;</h4></p>
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;/div&gt;
+</code></pre>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-30T14:50:24+01:00" pubdate data-updated="true">Apr 30<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/zend%20framework/zend-framework-more-detailed-stack-trace.html">Zend Framework More Detailed Stack Trace</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If like me you kicked off your Zend Framework experience with the Quick Start and have kept the error controller system of the Quick Start for your other ZF projects, you might find this little snippet useful.</p>
+
+<p>The Quick Start uses the Exception::getTraceAsString() method to give you the stack trace. Unfortunately this function seems to snip off a bit of useful info.. almost tantalising you with the info but not quite giving you enough to actually know what is going wrong!</p>
+
+<p>To get a more detailed stack trace, I recommend changing this and using the Exception::getTrace() function which returns and array of the trace. You can then echo out all of this info in full.</p>
+
+<p>For me (as I have xdebug for my dev environment, which is the only place you should be dumping stack traces anyway) I use the following chunk of code in my views/scripts/error/error.phtml</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span> <span class="c1">// application/views/scripts/error/error.phtml ?&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">An</span> <span class="nx">error</span> <span class="nx">occurred</span><span class="o">&lt;/</span><span class="nx">h1</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">h2</span><span class="o">&gt;&lt;?=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">message</span> <span class="cp">?&gt;</span><span class="x">&lt;/h2&gt; </span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;?</span> <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;production&#39;</span> <span class="o">!=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">env</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">    &lt;h3&gt;Exception information:&lt;/h3&gt; </span>
+</span><span class='line'><span class="x">    &lt;p&gt; </span>
+</span><span class='line'><span class="x">        &lt;b&gt;Message:&lt;/b&gt; </span><span class="cp">&lt;?</span><span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">exception</span><span class="o">-&gt;</span><span class="na">getMessage</span><span class="p">()</span> <span class="cp">?&gt;</span><span class="x"> </span>
+</span><span class='line'><span class="x">    &lt;/p&gt; </span>
+</span><span class='line'><span class="x">    &lt;h3&gt;Request Parameters:&lt;/h3&gt; </span>
+</span><span class='line'><span class="x">    &lt;pre&gt;</span><span class="cp">&lt;?</span> <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">request</span><span class="o">-&gt;</span><span class="na">getParams</span><span class="p">())</span> <span class="cp">?&gt;</span><span class="x">&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="x">    &lt;h3&gt;Stack Trace 2:&lt;/h3&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;?php</span>
+</span><span class='line'>    <span class="k">foreach</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">exception</span><span class="o">-&gt;</span><span class="na">getTrace</span><span class="p">()</span> <span class="k">as</span> <span class="nv">$t</span><span class="p">){</span>
+</span><span class='line'>        <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$t</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="cp">&lt;?</span> <span class="k">endif</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-29T07:34:30+01:00" pubdate data-updated="true">Apr 29<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/internet%20news/nice-hi-res-desktops.html">Nice Hi Res Desktops</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>This is my favourite source for hi resolution desktop images. Some really nice pictures and all available in resolutions to suit whichever display you have.</p>
+
+<p><a href="http://interfacelift.com/wallpaper_beta/downloads/date/any/?promo=disabled"><a href="http://interfacelift.com">http://interfacelift.com</a></a><h4>More&hellip;</h4></p>
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://www.technixupdate.com/displayfusion-set-different-desktop-wallpaper-on-dual-multi-monitor-or-extended-monitor/" rel="nofollow"&gt;DisplayFusion: Set Different &lt;b&gt;Desktop&lt;/b&gt; Wallpaper On Dual Multi &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.whoismadhur.com/2009/04/19/change-desktop-wallpaper-periodically-with-thetawall/" rel="nofollow"&gt;Change &lt;b&gt;Desktop&lt;/b&gt; Wallpaper Periodically with ThetaWall&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-28T13:56:31+01:00" pubdate data-updated="true">Apr 28<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/zend%20framework/flushing-zend-framework.html">Flushing Zend Framework</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>I have recently been messing around trying to figure out the best way of running long processes within a Zend Framework App.</p>
+
+<p>Usually I would code in regular flush(); commands to make sure that the browser didnt time out and also that the user can see that something is happening.</p>
+
+<p>However, the standard MVC structure of the default ZF application system wraps the entire response in an output buffer which is only flushed once everything is done. This has lots of advantages including allowing to add extra headers (FirePHP) on the fly throughout the application process.</p>
+
+<p>For long running scripts though, it is important for me to flush output. My solution to this is twofold.</p>
+
+<p>Firstly set up an &lsquo;output&rsquo; action in my base controller. The output action is looking for an &lsquo;act&rsquo; parameter in its view script. This act param is then used to generate a url string based on the current controller and the action as the act param. This url string is then used to create an iframe which will be used to output the flushing results of the long running script.</p>
+
+<p>For the long running script action itself, I am going to disable layout and also disable view render. Its really important to switch both of these off.</p>
+
+<p>The following needs to be declared at the top of any action that you intend to be viewed via the output iframe.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="c1">// accessed via output action</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">longrunningAction</span><span class="p">(){</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_helper</span><span class="o">-&gt;</span><span class="na">layout</span><span class="o">-&gt;</span><span class="na">disableLayout</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_helper</span><span class="o">-&gt;</span><span class="na">viewRenderer</span><span class="o">-&gt;</span><span class="na">setNoRender</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_model</span><span class="o">-&gt;</span><span class="na">grabImages</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I am free to echo out basic HTML and also call flush from within my model. To flush the output you need to call both ob_flush() and then flush(). To make this easier I set up a static method in my static Tools class</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">flush</span><span class="p">(){</span>
+</span><span class='line'>        <span class="nb">ob_flush</span><span class="p">();</span>
+</span><span class='line'>        <span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One issue I have had though is that any time the ZF internals try to add a header, you will get a basically meaningless exception telling you that headers have already been sent. It doesn&rsquo;t tell you what header was attempted to be added or why, so you can be left out in the cold a bit when trying to debug.</p>
+
+<p>If anyone knows a good workaround for this, or can offer a better solution for handling these long running processes I would love to hear about it.<h4>More&hellip;</h4></p>
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://health.nicheultra.com/2009/04/28/gall-bladder-liver-flush/" rel="nofollow"&gt;How Healthy Are You? » Gall Bladder Liver &lt;b&gt;Flush&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.acaiberrybase.com/power-flush-500/" rel="nofollow"&gt;Power &lt;b&gt;Flush&lt;/b&gt; 500&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.tenteges.com/uncategorized/flush-with-class-tenn-bathroom-voted-best-in-us-ap" rel="nofollow"&gt;&lt;b&gt;Flush&lt;/b&gt; with class: Tenn. bathroom voted best in US (AP) : TENTEGES&lt;/a&gt;&lt;br&gt;&lt;a href="http://groaner.gophercentral.com/?p=301" rel="nofollow"&gt;The Daily Groaner » Blog Archive » &lt;b&gt;Flush&lt;/b&gt; The Toilet&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.arcadianlighting.com/plc-lighting-flush-mount-ceiling-light-available-finish/" rel="nofollow"&gt;PLC Lighting &lt;b&gt;flush&lt;/b&gt; mount ceiling light available finish | Lighting &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.gsdesign.ro/blog/zend-framework-losing-session-on-swfflash-upload/" rel="nofollow"&gt;&lt;b&gt;zend framework&lt;/b&gt; losing session on swf/flash upload | GS Design&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.ekini.net/2009/03/04/zend-framework-connecting-to-2-databases/" rel="nofollow"&gt;&lt;b&gt;Zend Framework&lt;/b&gt;: Connecting to 2 databases | eKini: Web Developer Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.ekini.net/2009/03/03/extending-the-models-in-zend-framework-better-readability-easier-to-maintain/" rel="nofollow"&gt;Extending the Models in &lt;b&gt;Zend Framework&lt;/b&gt; = Better readability + &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-28T11:07:26+01:00" pubdate data-updated="true">Apr 28<span>th</span>, 2009</time>
         
       </p>
@@ -471,337 +935,6 @@ To dump all of the databases into one single file we can use the following mysql
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-19T09:36:53+01:00" pubdate data-updated="true">Apr 19<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/zend%20framework/zend-form-disable-fields.html">Zend Form Disable Fields</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>I use this little function as part of my base form class to enable me to easily lock certain form elements.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">lockField</span><span class="p">(</span><span class="nv">$field</span><span class="p">){</span>
-</span><span class='line'>        <span class="nv">$elem</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getElement</span><span class="p">(</span><span class="nv">$field</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$elem</span><span class="o">-&gt;</span><span class="na">setAttrib</span><span class="p">(</span><span class="s1">&#39;disabled&#39;</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$elem</span><span class="o">-&gt;</span><span class="na">setAttrib</span><span class="p">(</span><span class="s1">&#39;readonly&#39;</span><span class="p">,</span><span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>usage might be like the following:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">makeForm</span><span class="p">(</span><span class="nv">$action</span><span class="p">){</span>
-</span><span class='line'>  <span class="nv">$form</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">My_Form</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="o">=&gt;</span><span class="nv">$action</span><span class="p">));</span>
-</span><span class='line'>  <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">addElement</span><span class="p">(</span><span class="o">..</span> <span class="nx">custom</span> <span class="nx">form</span> <span class="nx">add</span> <span class="nx">element</span> <span class="nx">function</span><span class="p">);</span>
-</span><span class='line'>  <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">lockField</span><span class="p">(</span><span class="s1">&#39;fieldname&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">addSubmit</span><span class="p">(</span><span class="o">..</span> <span class="nx">custom</span> <span class="nx">add</span> <span class="nx">submit</span> <span class="nx">function</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nv">$form</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-17T10:43:08+01:00" pubdate data-updated="true">Apr 17<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-sites-go-down-if-magentocommercecom-goes-down.html">Magento Sites Go Down if Magentocommerce.com Goes Down</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>It looks like Magento sites have a weakness where they throw a fatal error on the admin side if they can not connect to the Magentocommerce site to check for updates.</p>
-
-<p>I will post the solution to this shortly, but Magento &ndash; please make sure this is fixed ASAP.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-17T07:46:07+01:00" pubdate data-updated="true">Apr 17<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/grub-error-21-on-a-laptop-solution.html">Grub Error 21 on a Laptop + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>If you ever get Grub Error 21 when trying to boot your Linux laptop or notebook then this post is for you.</p>
-
-<p>Grub Error 21 means that it cannot find the hard disk. On a desktop machine this probably means that you need to fix Grub itself. Just google for Grub error 21 or supergrub.</p>
-
-<p>However on laptops I seem to suffer this problem on a regular basis. The problem is that the hard drives are not firmly attached and can become dislodged.</p>
-
-<p>To fix it just open up your laptop HD enclosure and make sure it&rsquo;s firmly attached. I also like to roll up a bit of paper and wedge it in there so that it can&rsquo;t slide out again in future.</p>
-
-<p>Hope this helps out someone else :&ndash;)<h4>More&hellip;</h4></p>
-
-<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;/div&gt;
-</code></pre>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-15T14:59:25+01:00" pubdate data-updated="true">Apr 15<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/zend%20framework/zend-framework-db-exceptions-show-sql.html">Zend Framework DB Exceptions - Show SQL</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>Its all well and good showing me the MySQL error information, but these kinds of messages always refer to the actual SQL being submitted.</p>
-
-<p>As Zend_Db is an abstraction layer, it is often not exactly clear precisely what SQL is being submitted and causing an error.</p>
-
-<p>To fix this and make the exceptions display the actual SQL as well, you need to make a small edit to the file Zend/Db/Statement/{adapter}.php</p>
-
-<p>For me I tend to use the Mysqli adapter so I have edited the file Mysqli.php</p>
-
-<p>In there is a function _prepare.</p>
-
-<p>Line 84 of that file I have updated to the following:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">throw</span> <span class="k">new</span> <span class="nx">Zend_Db_Statement_Mysqli_Exception</span><span class="p">(</span><span class="s2">&quot;Mysqli prepare error: &quot;</span> <span class="o">.</span> <span class="nv">$mysqli</span><span class="o">-&gt;</span><span class="na">error</span> <span class="o">.</span> <span class="s2">&quot;&lt;br&gt;&lt;br&gt;SQL:&lt;br&gt;&quot;</span> <span class="o">.</span> <span class="nv">$sql</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>if you wanted to do the same for a different adapter, it should be easy enough to add the <code>php
-. "&lt;br&gt;&lt;br&gt;SQL:&lt;br&gt;" . $sql
-</code> bit to it.<h4>More&hellip;</h4></p>
-
-<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://www.qc4blog.com/?p=390" rel="nofollow"&gt;call sql functions with Zend_Db&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.welmers.net/bastiaan/2008/12/zend_db-and-utf-8.html" rel="nofollow"&gt;Bastiaans Blog » Blog Archive » &lt;b&gt;Zend_Db&lt;/b&gt; and UTF-8&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.qc4blog.com/?p=396" rel="nofollow"&gt;Zend_Db &amp;amp; transactions&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
-</code></pre>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-11T10:28:44+01:00" pubdate data-updated="true">Apr 11<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/zend%20framework/zend-framework-1and1-index-controller-404s-solution.html">Zend Framework 1and1 Index Controller 404s + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>Been tearing my hair out this morning trying to figure out why a Zend Framework based app was giving me 404 messages on any actions that specified the index controller. To explain, any URL that ended with /index or index/{action_name} would give me the ugly 1and1 404 message.</p>
-
-<p>locally of course it worked fine. I messed around with my error controller but it seemed that the ZF app wasn&rsquo;t even being consulted, this was a lower level 404 error.</p>
-
-<p>After some digging around, the solution is to disable something called MultiViews. The MultiViews option allows a file to be called even if the extension is not loaded, so index would look for any files called index, regardless of their extension.</p>
-
-<p>I&rsquo;m not really sure why you would want this behaviour, maybe that&rsquo;s why I have never encountered it before. Anyway, to disable it and get your app working the way you want, simply add the following line to your htaccess file:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>Options -MultiViews
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For information, this is my full htaccess file that works on 1and1 hosting:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>Options -MultiViews
-</span><span class='line'>RewriteEngine On
-</span><span class='line'>RewriteCond %{REQUEST_FILENAME} -s [OR]
-</span><span class='line'>RewriteCond %{REQUEST_FILENAME} -l [OR]
-</span><span class='line'>RewriteCond %{REQUEST_FILENAME} -d
-</span><span class='line'>RewriteRule ^.*$ - [NC,L]
-</span><span class='line'>RewriteRule ^.*$ /path/from/docroot/public/ [NC,L]
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This particular app is running from a subfolder. If your public folder is the document root then that line would simply be /<h4>More&hellip;</h4></p>
-
-<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://www.edmondscommerce.co.uk/blog/php/1and1-has-gui-unzip-functionality/" rel="nofollow"&gt;&lt;b&gt;1and1&lt;/b&gt; has GUI Unzip Functionality | Edmonds Commerce Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://zendguru.wordpress.com/2008/11/12/zend-pagination-example/" rel="nofollow"&gt;&lt;b&gt;Zend&lt;/b&gt; Pagination example « &lt;b&gt;Zend Framework&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://darkyblog.darkylandia.es/2007/12/24/zend-framework-mod_rewrite-y-apache-13/" rel="nofollow"&gt;Darky’s Blog » Blog Archive » &lt;b&gt;Zend Framework&lt;/b&gt;, mod_rewrite y Apache 1.3&lt;/a&gt;&lt;br&gt;&lt;a href="http://elliottback.com/wp/1and1-sucks/" rel="nofollow"&gt;&lt;b&gt;1and1&lt;/b&gt; Sucks: &lt;b&gt;1&amp;amp;1&lt;/b&gt; Will Rip You Off — Elliott C. Back&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
-</code></pre>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -825,15 +958,15 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
     
-    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
-    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
-    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
+    <a class="list-group-item " href="/phpstorm-7-dot-1-released.html">PhpStorm 7.1 Released</a>
     
   </div>
 </section>
@@ -914,7 +1047,7 @@ You should probably look up more recent blog posts related to the subject you ar
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

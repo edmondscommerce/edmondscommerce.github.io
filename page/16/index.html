@@ -128,6 +128,326 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-07T14:35:37+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-stack-traces-you-can-click-on-in-phpstorm.html">PHP Stack Traces You Can Click on! (in PhpStorm)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Having a stack trace is very handy at times but wouldn&rsquo;t it be nice if you could click on the filename in the stack trace in your browser and your IDE take you to the file and line that it&rsquo;s talking about?</p>
+
+<p>Well, with PhpStorm and kint, you can!  Using a plugin called Remote Call, the PhpStorm IDE can listen on a port and go to files and line numbers via an ajax call.</p>
+
+<p>To configure this, grab the latest version of kint, and copy it&rsquo;s sample config to an actual config file, and edit the section about pathDisplayCallback to look like this :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_kintSettings</span><span class="p">[</span><span class="s1">&#39;pathDisplayCallback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;_kintLine&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">_kintLine</span><span class="p">(</span> <span class="nv">$file</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">=</span> <span class="k">NULL</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nv">$line</span> <span class="p">)</span> <span class="p">{</span> <span class="c1">// means this is called from resource type dump</span>
+</span><span class='line'>                <span class="k">return</span> <span class="nv">$file</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s2">&quot;&lt;u&gt;&lt;a class=</span><span class="se">\&quot;</span><span class="s2">kint-ide-link</span><span class="se">\&quot;</span><span class="s2"> href=</span><span class="se">\&quot;</span><span class="s2">http://localhost:8091/?message=</span><span class="si">{</span><span class="nv">$file</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">.</span> <span class="nv">$file</span> <span class="o">.</span> <span class="s2">&quot;&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can even be clever with regex to make the filenames be relative &ndash; for instance, we run our projects from a directory below one called, oddly enough &ldquo;projects&rdquo; and our function looks like this :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">_kintLine</span><span class="p">(</span> <span class="nv">$file</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">=</span> <span class="k">NULL</span> <span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>        <span class="nv">$shortname</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;#.*/[Pp]rojects/[^/]*/#&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nv">$line</span> <span class="p">)</span> <span class="p">{</span> <span class="c1">// means this is called from resource type dump</span>
+</span><span class='line'>                <span class="k">return</span> <span class="nv">$shortname</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s2">&quot;&lt;u&gt;&lt;a class=</span><span class="se">\&quot;</span><span class="s2">kint-ide-link</span><span class="se">\&quot;</span><span class="s2"> href=</span><span class="se">\&quot;</span><span class="s2">http://localhost:8091/?message=</span><span class="si">{</span><span class="nv">$file</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">.</span> <span class="nv">$shortname</span> <span class="o">.</span> <span class="s2">&quot;&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, if you call Kint::trace(); from your file that you&rsquo;ve included Kint.class.php from, you get a clickable stacktrace!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-07T12:49:46+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/free-computer-science-and-programming-online-courses.html">Free Computer Science and Programming Online Courses</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are looking to increase your knowledge in a variety of fields and are open to online training then you could be interested in this site:</p>
+
+<p><a href="http://www.coursera.org/" target="_blank">www.coursera.org</a></p>
+
+<p>There are loads of courses on there but of particular interest to us are the computer science ones. Not had a close look at them but they do look interesting and the fact they are free is of course a bonus!</p>
+
+<p><a href="https://www.coursera.org/category/cs-programming" target="_blank"><a href="https://www.coursera.org/category/cs-programming">https://www.coursera.org/category/cs-programming</a></a> is the list of free computer programming courses</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-06T10:11:04+01:00" pubdate data-updated="true">Sep 6<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/zend-framework-2-0-released-now-stable.html">Zend Framework 2.0 Released - Now Stable!</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Exciting times in the php world, Zend Framework 2.0 stable has been released!</p>
+
+<p>Magento is currently based on the 1.x branch of Zend, and Magento 2 is aiming to be on Zend Framework 2 (ZF2) so this puts the world one step closer to Magento 2.0.</p>
+
+<p>The full announcement is <a href="http://framework.zend.com/blog/zend-framework-2-0-0-stable-released.html" title="Zend Framework 2 Release Blog Post">here</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-05T13:48:20+01:00" pubdate data-updated="true">Sep 5<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/mate-make-keyboard-calculator-button-work-again-and-gedit-etc.html">Mate: Make Keyboard Calculator Button Work Again, and Gedit Etc.</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>One of the things that has not yet been fixed in mate is that the physical calculator button available on a lot of keyboards is mapped to &ldquo;gcalctool&rdquo; still but mate calls this &ldquo;mate-calc&rdquo;</p>
+
+<p>A quick and easy fix is to ensure you have a bin folder inside your home directory (e.g. /home/edmondscommerce/bin/ ) and run the following commands at a shell :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> ~/bin
+</span><span class='line'>ln -s <span class="sb">`</span>which mate-calc<span class="sb">`</span> gcalctool
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This means that anything that calls gcalctool will call mate-calc by default.  The bin directory has to exist at login time to be added to the path so you may have to log out and back in to enable it.</p>
+
+<p>If you have gnomey habits like pressing Alt+F2 and typing &ldquo;gedit&rdquo; you might find the following few aliases are handy too :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ln -s <span class="sb">`</span>which caja<span class="sb">`</span> nautilus
+</span><span class='line'>ln -s <span class="sb">`</span>which pluma<span class="sb">`</span> gedit
+</span><span class='line'>ln -s  <span class="sb">`</span>which evince<span class="sb">`</span> atril
+</span><span class='line'>ln -s  <span class="sb">`</span>which eog<span class="sb">`</span> eom
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-05T10:28:01+01:00" pubdate data-updated="true">Sep 5<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/linux%20mint/how-to-get-compiz-working-with-linux-mint-13-maya-and-mate.html">How to Get Compiz Working With Linux Mint 13 (Maya) and MATE</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>With the Gnome world moving on to Gnome Shell and Unity some of us are finding frustrating  the lack of ability to tweak and configure afforded to us by Gnome 2. MATE has gone a long way to ensuring that we can continue to use the familiar desktop environment without the worry of using an outdated and insecure version of your favourite distribution.</p>
+
+<p>One such area where an immense ability to configure our DE is Compiz which is no longer compatible with Gnome Shell. Using Compiz with MATE requires a little tweaking for it to work, but ultimately is as functional as it&rsquo;s always been.</p>
+
+<h2>Setting configurations</h2>
+
+
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>compiz --replace
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Because Compiz is installed out of the box on Mint 13 (Maya), this does work. However you&rsquo;ll find yourself with ugly window decoration which doesn&rsquo;t fit in with your windows.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mateconf-editor
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Navigate to <strong>/desktop/mate/session/required_components/windowmanager</strong> and set the value to <strong>compiz</strong></p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>gconf-editor
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Navigate to <strong>/apps/metacity/general/theme</strong> and set the value to your Metacity theme name. Mint&rsquo;s default is <strong>Mint-X</strong></p>
+
+<h2>Setting up Compiz plugins</h2>
+
+
+<p>You might find you need to tell Compiz to use the new Window Decorator. In CompizConfigSettingsManager you&rsquo;ll need to set the same into the Window Decoration plugin. Set the Command field to <strong>marco &mdash;replace</strong></p>
+
+<p>You&rsquo;ll need to enable some other Window Manager must-haves in the following plugins: <strong>Move Window</strong>, <strong>Resize Window</strong>, <strong>Grid</strong> and <strong>Application Switcher</strong> for alt+tab</p>
+
+<p>This should be enough to get you going &ndash; I have the Scale plugin working (for Exposé style window switching)</p>
+
+<p>It&rsquo;s still a little rough around the edges &ndash; here&rsquo;s a few issues I still have, with solutions:</p>
+
+<h2>Compiz occasionally crashes on MATE</h2>
+
+
+<p>Switch to another tty (Ctrl+Alt+F1) and run</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>marco --replace -d 0:0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once back in your X display, run alt+F2 and run compiz &mdash;replace again</p>
+
+<h2>Workspace switching doesn&#8217;t work in MATE</h2>
+
+
+<p>Set the amount of workspaces you&rsquo;d like in CCSM > General Options > Desktop Size. Set your Horizontal Virtual Size and set Vertical Virtual Size to 1
+Set your panel&rsquo;s workspace switcher to Number of Workspaces: 1</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-04T13:25:55+01:00" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
         
       </p>
@@ -396,265 +716,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-24T13:51:04+01:00" pubdate data-updated="true">Aug 24<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/increase-the-stabilty-of-your-magento-cron.html">Increase the Stabilty of Your Magento Cron</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Sometimes when your cron process in Magento seems to not be working it is worth doubling up the ways it gets executed.</p>
-
-<p>One reason for this is various extensions (notably EERP from boostmyshop) set up an override to ensure that the same cron task is not run a second time if it&rsquo;s still running when the first run happens.</p>
-
-<p>Often the cli setup for php is not configured with the same timeouts etc. that the web setup is.  Therefore one thing that can make your cron more &ldquo;stable&rdquo; is to use wget or curl to fetch the cron.php file rather than (or as well as) running the cron.sh script.</p>
-
-<p>Here&rsquo;s what to add to the server&rsquo;s crontab (/etc/crontab or crontab -e) to use wget to fire off the cron :</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>* * * * * /usr/bin/wget -O- www.mycoolsite.com/cron.php &gt; /dev/null 2&gt; /dev/null
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That of course needs the url changing to match your domain.  It&rsquo;s worth noting that having output and stderror piped to /dev/null in a crontab is probably not the best practice but given that any module can create cron tasks that output stuff, your sysadmin might dislike getting that emailed to them!</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-23T11:37:58+01:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml.html">Tip: Parse XML Values in Bash e.g. Magento local.xml</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Not the most elegant way to do this, and probably could do with some extra tweaks but it works for our purposes, so presented here in case it fits yours :</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># xml_value path/to/file node_key</span>
-</span><span class='line'><span class="k">function </span>xml_value<span class="o">(){</span>
-</span><span class='line'>    grep <span class="s2">&quot;&lt;$2&gt;.*&lt;.$2&gt;&quot;</span> <span class="nv">$1</span> | sed -e <span class="s2">&quot;s/&lt;\!\[CDATA\[//&quot;</span> | sed -e <span class="s2">&quot;s/\]\]&gt;//&quot;</span> | sed -e <span class="s2">&quot;s/^.*&lt;$2/&lt;$2/&quot;</span> | cut -f2 -d<span class="s2">&quot;&gt;&quot;</span>| cut -f1 -d<span class="s2">&quot;&lt;&quot;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It also strips out the CDATA tags, which we needed to pull the database details from Magento&rsquo;s local.xml</p>
-
-<p>To use this to get, for example, the database host, you would use the following:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">DB_HOST</span><span class="o">=</span><span class="k">$(</span>xml_value app/etc/local.xml host<span class="k">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To use this</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T11:47:06+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/calling-methods-from-a-static-block.html">Calling Methods From a Magento Static Block</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I recently had to develop a bespoke CMS within magento.</p>
-
-<p>One of the requirements was that the system should be very easy to customise, and should use the existing Pages and Static blocks functionality within magento.</p>
-
-<p>I wanted the ability to call a block that I had created from with a static block. Magento allows you to do this using the code below
-<code></p>
-
-<p></code></p>
-
-<p>The issue that I came across if you need to call a method on the block before it is rendered. If I was calling the block using XML I could use the action tag, but that is not avalible here.</p>
-
-<p>However, it is possible to call certain methods using the code above. The magento parser takes each of the pair values and calls a set method on them, so for example template=&lsquo;path&hellip;&rsquo; actually calls the setTemplate method on your block.</p>
-
-<p>This means that you can create a set method and trigger it from with in the static block like so</p>
-
-<p><code></p>
-
-<p></code></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:50:09+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/chrome/chrome-aliases-for-bookmarkslinks-extension-great-timesaver.html">Chrome Aliases for Bookmarks/Links Extension - Great Timesaver</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you have a few URLS you are constantly going to and you would prefer a quick keyboard based way of going to them without having to type full URLs then this little extension could be for you.</p>
-
-<p>The concept is very simple. You can create an alias word (eg phpmyadmin) which then redirects to your full phpmyadmin URL.</p>
-
-<p>When you first install it you might set up some aliases and try to use them but get redirected to the google search results pages for that word instead. The extension author has worked around this behaviour by requiring you to put an &ldquo;a &rdquo;, the letter a followed by a space, before your alias.</p>
-
-<p>Setting up the aliases is simple and I can already see this becoming one of my must have extensions.</p>
-
-<p>Check it out for yourselves:
-<a href="https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla" title="Chrome Link Alias" target="_blank"><a href="https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla">https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla</a></a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:46:58+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/wordpress/wordpress-disqus-plugin-hiding-content-on-mobile.html">Wordpress: Disqus Plugin Hiding Content on Mobile</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you use the disqus plugin on your wordpress site, you may be surprised to learn that your content is hidden on mobile devices (specifically ipad/iphone).</p>
-
-<p>The problem that occurs is that the content is covered by a nice white box that you can&rsquo;t see through.</p>
-
-<p>Thankfully there&rsquo;s a nice quick fix.  In your site&rsquo;s css rules, simply add the following :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nf">#disqus_thread</span> <span class="p">{</span> <span class="k">clear</span><span class="o">:</span> <span class="k">both</span> <span class="cp">!important</span><span class="p">;</span> <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And mobile users can see your content again!</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -678,15 +739,15 @@
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
     
-    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
-    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
-    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
+    <a class="list-group-item " href="/phpstorm-7-dot-1-released.html">PhpStorm 7.1 Released</a>
     
   </div>
 </section>
@@ -767,7 +828,7 @@
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

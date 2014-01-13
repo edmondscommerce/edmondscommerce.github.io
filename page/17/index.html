@@ -128,6 +128,265 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-24T13:51:04+01:00" pubdate data-updated="true">Aug 24<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/increase-the-stabilty-of-your-magento-cron.html">Increase the Stabilty of Your Magento Cron</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Sometimes when your cron process in Magento seems to not be working it is worth doubling up the ways it gets executed.</p>
+
+<p>One reason for this is various extensions (notably EERP from boostmyshop) set up an override to ensure that the same cron task is not run a second time if it&rsquo;s still running when the first run happens.</p>
+
+<p>Often the cli setup for php is not configured with the same timeouts etc. that the web setup is.  Therefore one thing that can make your cron more &ldquo;stable&rdquo; is to use wget or curl to fetch the cron.php file rather than (or as well as) running the cron.sh script.</p>
+
+<p>Here&rsquo;s what to add to the server&rsquo;s crontab (/etc/crontab or crontab -e) to use wget to fire off the cron :</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>* * * * * /usr/bin/wget -O- www.mycoolsite.com/cron.php &gt; /dev/null 2&gt; /dev/null
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That of course needs the url changing to match your domain.  It&rsquo;s worth noting that having output and stderror piped to /dev/null in a crontab is probably not the best practice but given that any module can create cron tasks that output stuff, your sysadmin might dislike getting that emailed to them!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-23T11:37:58+01:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml.html">Tip: Parse XML Values in Bash e.g. Magento local.xml</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Not the most elegant way to do this, and probably could do with some extra tweaks but it works for our purposes, so presented here in case it fits yours :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># xml_value path/to/file node_key</span>
+</span><span class='line'><span class="k">function </span>xml_value<span class="o">(){</span>
+</span><span class='line'>    grep <span class="s2">&quot;&lt;$2&gt;.*&lt;.$2&gt;&quot;</span> <span class="nv">$1</span> | sed -e <span class="s2">&quot;s/&lt;\!\[CDATA\[//&quot;</span> | sed -e <span class="s2">&quot;s/\]\]&gt;//&quot;</span> | sed -e <span class="s2">&quot;s/^.*&lt;$2/&lt;$2/&quot;</span> | cut -f2 -d<span class="s2">&quot;&gt;&quot;</span>| cut -f1 -d<span class="s2">&quot;&lt;&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It also strips out the CDATA tags, which we needed to pull the database details from Magento&rsquo;s local.xml</p>
+
+<p>To use this to get, for example, the database host, you would use the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">DB_HOST</span><span class="o">=</span><span class="k">$(</span>xml_value app/etc/local.xml host<span class="k">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To use this</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T11:47:06+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/calling-methods-from-a-static-block.html">Calling Methods From a Magento Static Block</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I recently had to develop a bespoke CMS within magento.</p>
+
+<p>One of the requirements was that the system should be very easy to customise, and should use the existing Pages and Static blocks functionality within magento.</p>
+
+<p>I wanted the ability to call a block that I had created from with a static block. Magento allows you to do this using the code below
+<code></p>
+
+<p></code></p>
+
+<p>The issue that I came across if you need to call a method on the block before it is rendered. If I was calling the block using XML I could use the action tag, but that is not avalible here.</p>
+
+<p>However, it is possible to call certain methods using the code above. The magento parser takes each of the pair values and calls a set method on them, so for example template=&lsquo;path&hellip;&rsquo; actually calls the setTemplate method on your block.</p>
+
+<p>This means that you can create a set method and trigger it from with in the static block like so</p>
+
+<p><code></p>
+
+<p></code></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:50:09+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/chrome/chrome-aliases-for-bookmarkslinks-extension-great-timesaver.html">Chrome Aliases for Bookmarks/Links Extension - Great Timesaver</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have a few URLS you are constantly going to and you would prefer a quick keyboard based way of going to them without having to type full URLs then this little extension could be for you.</p>
+
+<p>The concept is very simple. You can create an alias word (eg phpmyadmin) which then redirects to your full phpmyadmin URL.</p>
+
+<p>When you first install it you might set up some aliases and try to use them but get redirected to the google search results pages for that word instead. The extension author has worked around this behaviour by requiring you to put an &ldquo;a &rdquo;, the letter a followed by a space, before your alias.</p>
+
+<p>Setting up the aliases is simple and I can already see this becoming one of my must have extensions.</p>
+
+<p>Check it out for yourselves:
+<a href="https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla" title="Chrome Link Alias" target="_blank"><a href="https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla">https://chrome.google.com/webstore/detail/hnmffkbofelpmfnimaicmkdhimnaegla</a></a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:46:58+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/wordpress/wordpress-disqus-plugin-hiding-content-on-mobile.html">Wordpress: Disqus Plugin Hiding Content on Mobile</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you use the disqus plugin on your wordpress site, you may be surprised to learn that your content is hidden on mobile devices (specifically ipad/iphone).</p>
+
+<p>The problem that occurs is that the content is covered by a nice white box that you can&rsquo;t see through.</p>
+
+<p>Thankfully there&rsquo;s a nice quick fix.  In your site&rsquo;s css rules, simply add the following :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nf">#disqus_thread</span> <span class="p">{</span> <span class="k">clear</span><span class="o">:</span> <span class="k">both</span> <span class="cp">!important</span><span class="p">;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And mobile users can see your content again!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:41:09+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
         
       </p>
@@ -415,398 +674,6 @@ around about line 44 from :</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T13:24:37+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html">Apache Access Logs Find Spiders by Counting Requests to IP Addresses</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
-</span><span class='line'><span class="nv">LOG_FILE</span><span class="o">=</span>/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
-</span><span class='line'><span class="nv">OUT_FILE</span><span class="o">=</span>/tmp/spider_analysis
-</span><span class='line'>
-</span><span class='line'><span class="c">#This generates a file with the top 20 IP addresses by number of requests</span>
-</span><span class='line'>cat <span class="nv">$LOG_FILE</span> | awk <span class="s1">&#39;{print $1}&#39;</span> | sort | uniq -c | sort -nr | head -n 20 &gt; <span class="nv">$OUT_FILE</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Top 20 IP addresses by number of request&quot;</span>
-</span><span class='line'>cat <span class="nv">$OUT_FILE</span>
-</span><span class='line'>
-</span><span class='line'><span class="c">#allow for loop to split on new line</span>
-</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span><span class="nv">$IFS</span>
-</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">for </span>i in <span class="sb">`</span>cat <span class="nv">$OUT_FILE</span><span class="sb">`</span>
-</span><span class='line'><span class="k">do</span>
-</span><span class='line'><span class="k">    </span><span class="nv">COUNT</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
-</span><span class='line'>    <span class="nv">IP_ADD</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;$IP_ADD has made $COUNT requests&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;Whois Information&quot;</span>
-</span><span class='line'>    whois <span class="nv">$IP_ADD</span>
-</span><span class='line'>    <span class="c">#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'><span class="k">done</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># set that back</span>
-</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="nv">$IFS_BAK</span>
-</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You would use this to give you some idea of which IPs are hitting the server a lot.</p>
-
-<p>Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-17T15:57:47+01:00" pubdate data-updated="true">Aug 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-security-update.html">Magento Security Update Testimonials</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you run a Magento store or are otherwise familiar with the world of Magento then you have no doubt seen the urgent security patch that live stores needed to apply quickly.</p>
-
-<p>We opted to offer the security patching service for free to our existing clients and then also to the rest of the world. The process of applying the patch is quick and painless thanks to a nice Bash script we put together so there was really no problem in offering this service. <a href="http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/">You can read all about that offer here</a>. For anyone still not patched, the offer still stands.</p>
-
-<p>Since that time we have had a few nice testimonials which we thought we would share:</p>
-
-<p><b>Chris from Mobile CAD Surveying</b></p>
-
-<blockquote>Thank-you to Edmonds Commerce for highlighting a recent Magento security breach that we were unaware of. Edmonds let us know about this problem and offered to fix it for us at no cost.  We gave them our log in details and within an hour a patch had been installed and everything was working fine.
-Thanks once again to Edmonds for their professional service and for attending to this matter very swiftly.
-</blockquote>
-
-
-<p><a href="http://www.mobilecadsurveying.co.uk/" title="Mobile CAD Surveying" target="_blank">Mobile CAD Surveying Ltd</a></p>
-
-<p><b>Mark Noble, IT Manager at Buckley Jewellery</b></p>
-
-<blockquote>Buckley Jewellery originally approached Edmonds Commerce to take our existing site and develop it onto a Magento platform.
-Since this first project we have used Joseph and his team for a further website and additional work to develop & expand our ecommerce business.
-The offer of installing the Magento patch across our websites was typical of a company who provide an honest and refreshing approach to website design.
-I would not hesitate to recommend Edmonds Commerce for any ecommerce development and advice.</blockquote>
-
-
-<p><a href="http://www.buckley-jewellery.com/" title="Buckley Jewellery" target="_blank">Buckley Jewellery</a></p>
-
-<p><b>Clare from Libertinesque</b></p>
-
-<blockquote>
-I can thoroughly recommend Joseph and his team for such a fantastic service and the security patch which was generously offered as a free service and efficiently applied with a very quick response time. Giving great personal attention every time, I have no hesitation in recommending the team for Magento upgrades and service.
-</blockquote>
-
-
-<p><a href="http://www.libertinesque.com/" target="_blank">Libertinesque</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-17T15:31:32+01:00" pubdate data-updated="true">Aug 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca.html">Magento Profiler Improved - Aoe_Profiler by Fabrizio Branca</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>The Magento profiler is useful when you are trying to discover what potential bottlenecks are in place in a specific Magento implementation that are slowing down the performance of the site. Often when doing this kind of analysis you might find that a particular block or extension is responsible for more than 70% of the total page load time. At this point you would choose to either optimise, cache or disable the block altogether to remove this performance bottleneck and improve page speed significantly.</p>
-
-<p>If you have ever tried to use Magento&rsquo;s built in profiler you will no doubt agree with Fabrizio&rsquo;s comments that, when you have it working, the output is hard to read and not really very useful in terms of seeing what is actually going on.</p>
-
-<p>To aid with this process and give us a nice colourful and friendly user interface to the Magento profiler, Fabrizio has built a Magento module that extends the default profiler and makes it a much more useful tool.</p>
-
-<p>You can download the extension from <a href="https://github.com/fbrnc/Aoe_Profiler" title="Magento Aoe Profiler on Git Hub" target="_blank">git hub here</a>.</p>
-
-<p>Read the full blog story <a href="http://www.fabrizio-branca.de/magento-profiler.html" title="Fabrizio Branch blog" target="_blank">here</a>.</p>
-
-<p>If you would like some help optimising the performance of your Magento store, feel free to get in touch with Edmonds Commerce today and we can assist in getting the very best performance from your Magento web site.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-16T15:45:56+01:00" pubdate data-updated="true">Aug 16<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/format-searched-log-files.html">Format Searched Log Files</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>When you are monitoring a log file you may want to narrow it down, and format the results. This simple one line command will break up the output from a log file to make it easier to quickly read</p>
-
-<p><code>
-tail -f /path/to/log | grep &ldquo;search term&rdquo; | sed &rsquo;s/(.*)/&mdash;&mdash;&mdash;&mdash;&mdash;\n\1\n&mdash;&mdash;&mdash;&mdash;&mdash;/&lsquo;
-</code></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-15T14:17:17+01:00" pubdate data-updated="true">Aug 15<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/get-all-product-attributes-for-a-magento-object-using-sql.html">Get All Product Attributes for a Magento Object Using SQL</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Sometimes you may want to quickly compare all of the attributes that object (category / product) has in magento. The EAV structure of the database makes this difficult to do this simply, so this is a query that will do it for you</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="p">(</span>
-</span><span class='line'>    <span class="k">SELECT</span>
-</span><span class='line'>        <span class="n">ce</span><span class="p">.</span><span class="n">sku</span><span class="p">,</span>
-</span><span class='line'>        <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span><span class="p">,</span>
-</span><span class='line'>        <span class="n">ea</span><span class="p">.</span><span class="n">attribute_code</span><span class="p">,</span>
-</span><span class='line'>        <span class="k">CASE</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span>
-</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;varchar&#39;</span> <span class="k">THEN</span> <span class="n">ce_varchar</span><span class="p">.</span><span class="n">value</span>
-</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;int&#39;</span> <span class="k">THEN</span> <span class="n">ce_int</span><span class="p">.</span><span class="n">value</span>
-</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;text&#39;</span> <span class="k">THEN</span> <span class="n">ce_text</span><span class="p">.</span><span class="n">value</span>
-</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;decimal&#39;</span> <span class="k">THEN</span> <span class="n">ce_decimal</span><span class="p">.</span><span class="n">value</span>
-</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;datetime&#39;</span> <span class="k">THEN</span> <span class="n">ce_datetime</span><span class="p">.</span><span class="n">value</span>
-</span><span class='line'>           <span class="k">ELSE</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span>
-</span><span class='line'>        <span class="k">END</span> <span class="k">AS</span> <span class="n">value</span><span class="p">,</span>
-</span><span class='line'>        <span class="n">ea</span><span class="p">.</span><span class="n">is_required</span> <span class="k">AS</span> <span class="n">required</span>
-</span><span class='line'>    <span class="k">FROM</span> <span class="n">catalog_product_entity</span> <span class="k">AS</span> <span class="n">ce</span>
-</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">eav_attribute</span> <span class="k">AS</span> <span class="n">ea</span>
-</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_type_id</span> <span class="o">=</span> <span class="n">ea</span><span class="p">.</span><span class="n">entity_type_id</span>
-</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_varchar</span> <span class="k">AS</span> <span class="n">ce_varchar</span>
-</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_varchar</span><span class="p">.</span><span class="n">entity_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_varchar</span><span class="p">.</span><span class="n">attribute_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;varchar&#39;</span>
-</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_int</span> <span class="k">AS</span> <span class="n">ce_int</span>
-</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_int</span><span class="p">.</span><span class="n">entity_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_int</span><span class="p">.</span><span class="n">attribute_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;int&#39;</span>
-</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_text</span> <span class="k">AS</span> <span class="n">ce_text</span>
-</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_text</span><span class="p">.</span><span class="n">entity_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_text</span><span class="p">.</span><span class="n">attribute_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;text&#39;</span>
-</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_decimal</span> <span class="k">AS</span> <span class="n">ce_decimal</span>
-</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_decimal</span><span class="p">.</span><span class="n">entity_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_decimal</span><span class="p">.</span><span class="n">attribute_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;decimal&#39;</span>
-</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_datetime</span> <span class="k">AS</span> <span class="n">ce_datetime</span>
-</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_datetime</span><span class="p">.</span><span class="n">entity_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_datetime</span><span class="p">.</span><span class="n">attribute_id</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;datetime&#39;</span>
-</span><span class='line'>    <span class="k">WHERE</span> <span class="n">ce</span><span class="p">.</span><span class="n">sku</span> <span class="o">=</span> <span class="n">YOUR_SKU</span>
-</span><span class='line'>  <span class="p">)</span> <span class="k">AS</span> <span class="n">tab</span>
-</span><span class='line'>  <span class="k">WHERE</span> <span class="n">tab</span><span class="p">.</span><span class="n">value</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This version of the query will only return values that are not blank, but if you only run the sub query it will give you every value.
-Replace catalog_product* for catalog_category to get the values for a category. You will also have to use a different selector than SKU.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -830,15 +697,15 @@ Replace catalog_product* for catalog_category to get the values for a category. 
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
+    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
     
-    <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
+    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
-    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
+    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
-    <a class="list-group-item " href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a>
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
-    <a class="list-group-item " href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a>
+    <a class="list-group-item " href="/phpstorm-7-dot-1-released.html">PhpStorm 7.1 Released</a>
     
   </div>
 </section>
@@ -919,7 +786,7 @@ Replace catalog_product* for catalog_category to get the values for a category. 
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2013 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
