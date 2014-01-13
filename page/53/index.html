@@ -128,6 +128,82 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-02-03T12:55:28+00:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/zend%20framework/zend-framework-error-invalid-bind-variable-name-solution.html">Zend Framework Error Invalid Bind-variable Name + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you encounter the error :</p>
+
+<p><strong>Invalid bind-variable name xxxxxx</strong></p>
+
+<p>When trying to use named bound parameters with Zend Framework, then you are probably using the Mysqli adapter. Unfortunately this doesn&rsquo;t actually support named parameters, but the Exception message isn&rsquo;t really clear on that, despite being thrown in this block of code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'> <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;:&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_adapter</span><span class="o">-&gt;</span><span class="na">supportsParameters</span><span class="p">(</span><span class="s1">&#39;named&#39;</span><span class="p">)</span> <span class="o">===</span> <span class="k">false</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="sd">/**</span>
+</span><span class='line'><span class="sd">      * @see Zend_Db_Statement_Exception</span>
+</span><span class='line'><span class="sd">      */</span>
+</span><span class='line'>      <span class="k">require_once</span> <span class="s1">&#39;Zend/Db/Statement/Exception.php&#39;</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">throw</span> <span class="k">new</span> <span class="nx">Zend_Db_Statement_Exception</span><span class="p">(</span><span class="s2">&quot;Invalid bind-variable name &#39;</span><span class="si">$val</span><span class="s2">&#39;&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The Exception should really say:</p>
+
+<p><strong>You are trying to use named parameters with an adapter that doesn&rsquo;t support them</strong></p>
+
+<p>The solution is easy, just switch your adapter from Mysqli to Pdo_Mysql</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-02-03T10:24:06+00:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2010</time>
         
       </p>
@@ -715,284 +791,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-01-27T17:26:08+00:00" pubdate data-updated="true">Jan 27<span>th</span>, 2010</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/zend%20framework/zend-paginator-actually-pretty-painless.html">Zend Paginator - Actually Pretty Painless :)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>With some trepidation I decided that I really had to implement pagination into a Zend Framework project I am working on. Zend Framework is great, but some of the sections can be a little tricky to get your head around at first attempt.</p>
-
-<p>However, less than an hour after first looking at it, I have now got my system spitting out results in a nicely paginated ten at a time. The documentation on the Zend Framework reference is a little sparse but suffice to say that if you are using Zend_Db then actually its pretty easy.</p>
-
-<p>The only bit that is a little tricky is getting the actual page controls to display, as you are left to code your own (though they do supply some code).</p>
-
-<p>One major irritation with the Zend Framework reference guide is that I seem to be unable to copy and paste the code examples, it ends up looking like this:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>      <span class="o">&lt;!--</span>
-</span><span class='line'>   <span class="mf">2.</span>
-</span><span class='line'>      <span class="nx">See</span> <span class="nx">http</span><span class="o">://</span><span class="nx">developer</span><span class="o">.</span><span class="nx">yahoo</span><span class="o">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">ypatterns</span><span class="o">/</span><span class="nx">pattern</span><span class="o">.</span><span class="nx">php</span><span class="o">?</span><span class="nx">pattern</span><span class="o">=</span><span class="nx">searchpagination</span>
-</span><span class='line'>   <span class="mf">3.</span>
-</span><span class='line'>      <span class="o">--&gt;</span>
-</span><span class='line'>   <span class="mf">4.</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="mf">5.</span>
-</span><span class='line'>      <span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">pageCount</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">   6.</span>
-</span><span class='line'><span class="x">      &lt;div class=&quot;paginationControl&quot;&gt;</span>
-</span><span class='line'><span class="x">   7.</span>
-</span><span class='line'><span class="x">      &lt;!-- Previous page link --&gt;</span>
-</span><span class='line'><span class="x">   8.</span>
-</span><span class='line'><span class="x">      </span><span class="cp">&lt;?php</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">previous</span><span class="p">))</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">   9.</span>
-</span><span class='line'><span class="x">        &lt;a href=&quot;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">url</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;page&#39;</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">previous</span><span class="p">));</span> <span class="cp">?&gt;</span><span class="x">&quot;&gt;</span>
-</span><span class='line'><span class="x">  10.</span>
-</span><span class='line'><span class="x">          &lt; Previous</span>
-</span><span class='line'><span class="x">  11.</span>
-</span><span class='line'><span class="x">        &lt;/a&gt; |</span>
-</span><span class='line'><span class="x">  12.</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>note the line numbers, great.</p>
-
-<p><a href="http://teethgrinder.co.uk/perm.php?a=Zend-Framework-MySQL-DB-Pagination-Tutorial">this tutorial was really useful though:</a></p>
-
-<p>Here is some code snippets:</p>
-
-<h3>Controller</h3>
-
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">viewAction</span><span class="p">(){</span>
-</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">input</span> <span class="o">=</span> <span class="nv">$input</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request</span><span class="o">-&gt;</span><span class="na">getPost</span><span class="p">(</span><span class="s1">&#39;search&#39;</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$paginator</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_model</span><span class="o">-&gt;</span><span class="na">tableSearchAllPaginator</span><span class="p">(</span><span class="nv">$input</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$paginator</span><span class="o">-&gt;</span><span class="na">setCurrentPageNumber</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_getParam</span><span class="p">(</span><span class="s1">&#39;page&#39;</span><span class="p">));</span>
-</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">paginator</span> <span class="o">=</span> <span class="nv">$paginator</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Model</h3>
-
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">tableSearchAllPaginator</span><span class="p">(</span><span class="nv">$input</span><span class="p">,</span> <span class="nv">$fields_to_select</span><span class="o">=</span><span class="k">null</span><span class="p">){</span>
-</span><span class='line'>        <span class="nv">$table</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getTable</span><span class="p">();</span>
-</span><span class='line'>        <span class="nv">$select</span> <span class="o">=</span> <span class="nv">$table</span><span class="o">-&gt;</span><span class="na">select</span><span class="p">();</span>
-</span><span class='line'>        <span class="nv">$fields</span> <span class="o">=</span> <span class="nv">$table</span><span class="o">-&gt;</span><span class="na">info</span><span class="p">(</span><span class="nx">Zend_Db_Table_Abstract</span><span class="o">::</span><span class="na">COLS</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$input</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">foreach</span><span class="p">(</span><span class="nv">$fields</span> <span class="k">as</span> <span class="nv">$field</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nv">$select</span><span class="o">-&gt;</span><span class="na">orWhere</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">$field</span><span class="s2"> like ?&quot;</span><span class="p">,</span> <span class="s2">&quot;%</span><span class="si">$input</span><span class="s2">%&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$fields_to_select</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$select</span><span class="o">-&gt;</span><span class="na">columns</span><span class="p">(</span><span class="nv">$fields_to_select</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nv">$paginator</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Zend_Paginator</span><span class="p">(</span><span class="k">new</span> <span class="nx">Zend_Paginator_Adapter_DbTableSelect</span><span class="p">(</span><span class="nv">$select</span><span class="p">));</span>
-</span><span class='line'>        <span class="k">return</span> <span class="nv">$paginator</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>View Script</h3>
-
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">partial</span><span class="p">(</span><span class="s1">&#39;_viewtable_page.phtml&#39;</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;paginator&#39;</span><span class="o">=&gt;</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">paginator</span><span class="p">,</span> <span class="s1">&#39;controller&#39;</span><span class="o">=&gt;</span><span class="s1">&#39;products&#39;</span><span class="p">));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>View Table Page Partial</h3>
-
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">paginator</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">echo</span> <span class="s1">&#39;&lt;h4&gt;Found &#39;</span> <span class="o">.</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">paginator</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; Results&lt;/h4&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">echo</span> <span class="s1">&#39;&lt;table class=&quot;grid&quot;&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">foreach</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">paginator</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$row</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="c1">//EC_Debug::dump($k);</span>
-</span><span class='line'>        <span class="nv">$row</span> <span class="o">=</span> <span class="nv">$row</span><span class="o">-&gt;</span><span class="na">toArray</span><span class="p">();</span>
-</span><span class='line'>        <span class="c1">//EC_Debug::diedump($row);</span>
-</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nv">$k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">echo</span> <span class="s1">&#39;&lt;tr&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">foreach</span><span class="p">(</span><span class="nv">$row</span> <span class="k">as</span> <span class="nv">$f</span><span class="o">=&gt;</span><span class="nv">$v</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">echo</span> <span class="s2">&quot;&lt;th&gt;</span><span class="si">$f</span><span class="s2">&lt;/th&gt;&quot;</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">echo</span> <span class="s1">&#39;&lt;/tr&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">echo</span> <span class="s1">&#39;&lt;tr&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">foreach</span><span class="p">(</span><span class="nv">$row</span> <span class="k">as</span> <span class="nv">$f</span><span class="o">=&gt;</span><span class="nv">$v</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$extra</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">if</span><span class="p">(</span><span class="nv">$f</span><span class="o">==</span><span class="s1">&#39;id&#39;</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nv">$extra</span> <span class="o">=</span> <span class="s1">&#39;&lt;a href=&quot;&#39;</span> <span class="o">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">url</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;controller&#39;</span><span class="o">=&gt;</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">controller</span><span class="p">,</span> <span class="s1">&#39;action&#39;</span><span class="o">=&gt;</span><span class="s1">&#39;edit&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="o">=&gt;</span><span class="nv">$v</span><span class="p">),</span> <span class="k">null</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;&quot;&gt;&lt;img src=&quot;&#39;</span> <span class="o">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">baseUrl</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;/style/icons/application_edit.png&quot; border=&quot;0&quot; alt=&quot;edit&quot;&gt;&lt;/a&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>                <span class="nv">$extra</span> <span class="o">.=</span> <span class="s1">&#39; &lt;a href=&quot;&#39;</span> <span class="o">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">url</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;controller&#39;</span><span class="o">=&gt;</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">controller</span><span class="p">,</span> <span class="s1">&#39;action&#39;</span><span class="o">=&gt;</span><span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="o">=&gt;</span><span class="nv">$v</span><span class="p">),</span> <span class="k">null</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;&quot;&gt;&lt;img src=&quot;&#39;</span> <span class="o">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">baseUrl</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;/style/icons/cancel.png&quot; border=&quot;0&quot; alt=&quot;delete&quot;&gt;&lt;/a&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">echo</span> <span class="s2">&quot;&lt;td&gt;</span><span class="si">$extra</span><span class="s2"> </span><span class="si">$v</span><span class="s2">&lt;/td&gt;&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">echo</span> <span class="s1">&#39;&lt;/tr&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">echo</span> <span class="s1">&#39;&lt;/table&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">paginationControl</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">paginator</span><span class="p">,</span> <span class="s1">&#39;Sliding&#39;</span><span class="p">,</span> <span class="s1">&#39;_paginator.php&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span><span class="k">else</span><span class="p">{</span>
-</span><span class='line'>    <span class="k">echo</span> <span class="s1">&#39;no results...&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Pagination Controls Partial</h3>
-
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">pageCount</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">&lt;div class=&quot;pagination&quot;&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">previous</span><span class="p">))</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">  &lt;a href=&quot;</span><span class="cp">&lt;?</span><span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">url</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;page&#39;</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">previous</span><span class="p">));</span> <span class="cp">?&gt;</span><span class="x">&quot;&gt;« PREV&lt;/a&gt; -</span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">endif</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">&lt;?php</span>
-</span><span class='line'>    <span class="cm">/* Page links */</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">pagesInRange</span> <span class="k">as</span> <span class="nv">$page</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">    &lt;a href=&quot;</span><span class="cp">&lt;?</span><span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">url</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;page&#39;</span> <span class="o">=&gt;</span> <span class="nv">$page</span><span class="p">));</span> <span class="cp">?&gt;</span><span class="x">&quot; </span><span class="cp">&lt;?php</span> <span class="k">if</span><span class="p">(</span><span class="nv">$page</span> <span class="o">==</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">current</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x">id=&quot;selected&quot;&gt;</span><span class="cp">&lt;?php</span> <span class="k">endif</span><span class="p">;</span> <span class="cp">?&gt;&lt;?</span><span class="o">=</span> <span class="nv">$page</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x">&lt;/a&gt;</span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">endforeach</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">next</span><span class="p">))</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x"> - &lt;a href=&quot;</span><span class="cp">&lt;?</span><span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">url</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;page&#39;</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">next</span><span class="p">));</span> <span class="cp">?&gt;</span><span class="x">&quot;&gt;Next &gt;&lt;/a&gt;</span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">endif</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'>
-</span><span class='line'><span class="x">&lt;/div&gt;</span>
-</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">endif</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1016,6 +814,8 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
+    
     <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
     <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
@@ -1023,8 +823,6 @@ You should probably look up more recent blog posts related to the subject you ar
     <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
     
     <a class="list-group-item " href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a>
-    
-    <a class="list-group-item " href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a>
     
   </div>
 </section>
