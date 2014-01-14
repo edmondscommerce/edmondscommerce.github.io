@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: script | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/script/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-13T18:37:30+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Disable JavaScript alerts for a page]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/disable-javascript-alerts-for-a-page.html"/>
+    <updated>2013-08-28T09:21:30+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/disable-javascript-alerts-for-a-page</id>
+    <content type="html"><![CDATA[<p>If you encounter a webpage that is generating a lot of alerts, the following bookmark will prevent them from stealing focus but still allow you to see what is being said.</p>
+
+<p>```js</p>
+
+<p>javascript:alert = function ( text ) { console.log( text ); return true; };</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Side by Side diff on the command line]]></title>
+    <link href="http://edmondscommerce.github.io/bash/side-by-side-diff-on-the-command-line.html"/>
+    <updated>2013-07-09T17:25:18+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/side-by-side-diff-on-the-command-line</id>
+    <content type="html"><![CDATA[<p>I have recently discovered a handy trick when comparing files on the command line.</p>
+
+<p>Adding the -y command line options to diff will display the files side by side.</p>
+
+<p>Using this with the <a href="http://www.colordiff.org/" title="Color Diff" target="_blank">Color Diff</a> tool will help you transform this</p>
+
+<p><img src="/assets/normal-diff.png"></p>
+
+<p>To this</p>
+
+<p><img src="/assets/color-diff-600x200.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Magento Database Migrations to Track Configuration Changes]]></title>
+    <link href="http://edmondscommerce.github.io/magento/using-magento-database-migrations-to-track-configuration-changes.html"/>
+    <updated>2013-05-21T09:11:44+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/using-magento-database-migrations-to-track-configuration-changes</id>
+    <content type="html"><![CDATA[<p>Often when working on a Magento site, there is a requirement to build custom functionality or implement new themes etc but to finish the job, the final step will be to perform some admin configuration.</p>
+
+<p>This manual step can introduce the possiblity of human error if a step is missed or not performed exactly correctly.</p>
+
+<p>Also if the configuration is to be applied multiple times across staging, pre production and final production then these risks increase.</p>
+
+<p>The only sure way to make sure that the correct configuration is applied and also to provide a proper audit trail for configuration changes is to use Magento&rsquo;s database migrations &ndash; install and upgrade scripts &ndash; to update the database programmatically with the required configuration changes.</p>
+
+<p>To assist with this, there is a nice simple module you can find on Git Hub:</p>
+
+<p><a href="https://github.com/danslo/MigrationHelper"><a href="https://github.com/danslo/MigrationHelper">https://github.com/danslo/MigrationHelper</a></a></p>
+
+<p>This module will automatically create the migration files for you which can be a real time saver.</p>
+
+<p>I would always suggest you create your own custom namespaced configuration migration module that is purely to track these configuration changes.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Log File Analysis Script]]></title>
+    <link href="http://edmondscommerce.github.io/bash/apache-log-file-analysis-script.html"/>
+    <updated>2013-03-14T14:17:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/apache-log-file-analysis-script</id>
+    <content type="html"><![CDATA[<p>Here is a little bash script we knocked together to track down some malicious activity on a clients server.</p>
+
+<p>Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.</p>
+
+<p>Here is the script:</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<h6>SETUP</h6>
+
+<p>LOG_FOLDER=/var/www/vhosts/domain.co.uk/statistics/logs
+ACCESS_LOG=$LOG_FOLDER/access_log</p>
+
+<p>HOW_MANY_ROWS=20000</p>
+
+<h6>### FUNCTIONS</h6>
+
+<p>function title() {</p>
+
+<pre><code>echo "
+</code></pre>
+
+<hr />
+
+<h2>$@</h2>
+
+<p>&ldquo;
+}</p>
+
+<p>function urls_by_ip() {</p>
+
+<pre><code>local IP=$1
+tail -5000 $ACCESS_LOG | awk -v ip=$IP ' $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20
+</code></pre>
+
+<p>}</p>
+
+<p>function ip_addresses_by_user_agent(){</p>
+
+<pre><code>local USERAGENT_STRING="$1"
+local TOP_20_IPS="`tail  -$HOW_MANY_ROWS $ACCESS_LOG | grep "${USERAGENT_STRING}"  | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20`"
+echo "$TOP_20_IPS"
+</code></pre>
+
+<p>}</p>
+
+<h6># RUN REPORTS</h6>
+
+<p>title &ldquo;top 20 URLs&rdquo;
+TOP_20_URLS=&ldquo;<code>tail -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS&rdquo;</p>
+
+<p>title &ldquo;top 20 URLS excluding POST data&rdquo;
+TOP_20_URLS_WITHOUT_POST=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk -F"[ ?]" '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS_WITHOUT_POST&rdquo;</p>
+
+<p>title &ldquo;top 20 IPs&rdquo;
+TOP_20_IPS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_IPS&rdquo;</p>
+
+<p>title &ldquo;top 20 user agents&rdquo;
+TOP_20_USER_AGENTS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_USER_AGENTS&rdquo;</p>
+
+<p>title &ldquo;IP Addresses for Top 3 User Agents&rdquo;</p>
+
+<p>for ((I=1; I&lt;=3; I++))
+do</p>
+
+<pre><code>UA="`echo "$TOP_20_USER_AGENTS" | head -n $I | tail -n 1 | awk '{$1=""; print $0}'`"
+echo "$UA"
+echo "~~~~~~~~~~~~~~~~~~"
+ip_addresses_by_user_agent "$UA"
+echo "
+"
+</code></pre>
+
+<p>done</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Bash Single Process Enforcement]]></title>
+    <link href="http://edmondscommerce.github.io/bash/simple-bash-single-process-enforcement.html"/>
+    <updated>2013-02-21T15:06:39+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/simple-bash-single-process-enforcement</id>
+    <content type="html"><![CDATA[<p>If you have a bash script that you want to make sure there is only ever one instance of, for example something triggered by cron that might not have finished the next time cron tries to trigger it then you might like this little snippet:</p>
+
+<p>This is built for running Magento shell scripts (if you don&rsquo;t know about these, check them out) that are run on cron.</p>
+
+<p>Also note the logging that keeps log files</p>
+
+<p>Note the use of a character class in grep means it wont match itself &ndash; nice eh :)</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<p>HOUR=<code>date +'%H:%M'</code>
+RUNNING=<code>ps waux | grep "longrunner[.]php"</code>
+if [ &ldquo;&rdquo; == &ldquo;$RUNNING&rdquo; ]
+then</p>
+
+<pre><code>echo "Its not running, we can now run it"
+php -f /home/my/public_html/shell/longrunner.php -- import &gt; /home/my/public_html/var/log/mylog.txt 2&gt;&amp;1
+cp -f  /home/my/public_html/var/log/my.txt /home/my/public_html/var/log/${HOUR}.my.txt
+echo "COMPLETED"
+</code></pre>
+
+<p>else</p>
+
+<pre><code>echo "It is running, aborting running this time"
+</code></pre>
+
+<p>fi</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: backup | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/backup/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-13T18:37:30+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Linux Backup with Backup2L]]></title>
+    <link href="http://edmondscommerce.github.io/linux/simple-linux-backup-with-backup2l.html"/>
+    <updated>2012-09-04T13:25:55+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/simple-linux-backup-with-backup2l</id>
+    <content type="html"><![CDATA[<p>If you have incremental backup requirements but would rather avoid something heavy and perhaps over featured and complex such as <a href="http://www.bacula.org/en/" target="_blank">Bacula</a> then <a href="http://backup2l.sourceforge.net/" target="_blank">Backup2L</a> could be just the thing.</p>
+
+<p>Written in BASH, it comprises only a small number of files that you can read directly to see how it works.</p>
+
+<p>There is a configuration file that is installed to /etc/backup2l which you will need to edit a little and then after that its just a case of running
+```bash</p>
+
+<p>backup2l -b</p>
+
+<p>```</p>
+
+<p>to initiate your backups.</p>
+
+<p>If you need to restore something the process is just</p>
+
+<p>```bash</p>
+
+<p>backup2l &mdash;restore [file_grep]</p>
+
+<p>```</p>
+
+<p>Where the file grep is a pattern to find the files you need.</p>
+
+<p>It is actually very simple to set up, just hit the man page.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[safe-rm - saves you from rm -rf /*]]></title>
+    <link href="http://edmondscommerce.github.io/linux/safe-rm-saves-you-from-rm-rf.html"/>
+    <updated>2012-08-09T15:59:14+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/safe-rm-saves-you-from-rm-rf</id>
+    <content type="html"><![CDATA[<p>Okay, so it&rsquo;s a sysadmin&rsquo;s nightmare that you might when tired miss out a dot from an rm -rf ./* and whilst you shouldn&rsquo;t run as root, there are times when permissions problems push you into it.</p>
+
+<p>This little gem allows you to blacklist folders from rm (such as /etc /bin and other system directories, along with any custom ones you might want to protect).</p>
+
+<p>It&rsquo;s in debian/ubuntu repositories so apt-get install safe-rm is quite useful, but it seems to be nowhere to be found for CentOS/RHEL, so we packaged it up (one of our employees used to be a package maintainer for a linux distro) for CentOS servers.</p>
+
+<p>The original url for safe-rm is <a href="https://launchpad.net/safe-rm" title="https://launchpad.net/safe-rm"><a href="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a></a> and our rpm is available <a href="http://www.edmondscommerce.co.uk/stuff/safe-rm-0.8-1.x86_64.rpm" title="here">here</a> &ndash; Feel free to mirror this elsewhere.</p>
+
+<p>Next up: <a href="http://www.edmondscommerce.co.uk/linux/creating-rpms/" title="how we created the rpm">how we created the rpm</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How To Extract Files from Plesk Backups]]></title>
+    <link href="http://edmondscommerce.github.io/plesk/how-to-extract-files-from-plesk-backups.html"/>
+    <updated>2012-01-30T17:25:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/plesk/how-to-extract-files-from-plesk-backups</id>
+    <content type="html"><![CDATA[<p>So you have a plesk backup file and you want to extract and open the files from it? No problem. This blog will show you how.</p>
+
+<p>The file is a mime file. The &ldquo;mpack&rdquo; package will let you unpack it.</p>
+
+<p>First we install the &ldquo;mpack&rdquo; package
+<code>
+sudo apt-get install mpack
+</code></p>
+
+<p>Let&rsquo;s imagine your file is called &ldquo;pleskDump.gz&rdquo;. If it doesn&rsquo;t have a &ldquo;.gz&rdquo; at the end it might not be bad to add it as some environments will complain if it&rsquo;s absent.</p>
+
+<p>Next we unzip the file
+<code>
+gunzip pleskDump.gz
+</code></p>
+
+<p>Now let&rsquo;s un-mime the file
+<code>
+mkdir pleskDumpOutput
+cd pleskDumpOutput
+cat ../pleskDump | munpack
+</code></p>
+
+<p>Now we have a bunch of regular tar files, but be careful, if we just extract them, the root folders will not be recreated. In order to keep things together, it&rsquo;s best now to look at the output you have. Let&rsquo;s take a made up example:
+<code>
+example-domain.com.httpdocs
+</code></p>
+
+<p>Note that the format is essentially domain.rootfolder or in another way, the tar files have your domain name they are archiving, then a dot, then the name of the root folder they made up. We take that root folder and create it like this:
+<code>
+mkdir rootfolder
+</code></p>
+
+<p>Now let&rsquo;s apply that idea to our previoud example; &ldquo;example-domain.com&rdquo;
+<code>
+mkdir httpdocs
+</code></p>
+
+<p>It&rsquo;s time to untar into the folder you just created, let&rsquo;s assume you just created &ldquo;httpdocs&rdquo;
+<code>
+tar -xvf example-domain.com.httpdocs -C httpdocs
+</code></p>
+
+<p>There you go! You can now output any of the folders you wanted.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento cPanel Backup Issue - Not Backing up the Core Folder + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-cpanel-backup-issue-not-backing-up-the-core-folder-solution.html"/>
+    <updated>2010-11-15T13:06:28+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-cpanel-backup-issue-not-backing-up-the-core-folder-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are hosting a Magento site on cPanel powered hosting and are relying on the cPanel backup system to manage backing up your files then you need to be aware of this issue.</p>
+
+<p>After a recent upgrade, cPanel has started to ignore any code inside a core/ directory when doing backups.</p>
+
+<p>Of course this means that your app/code/core folder will not be backed up &ndash; of course this is the most crucial folder in your Magento installation.</p>
+
+<p>Hopefully you are not editing core files anyway, so ultimately you shoudl be able to redownload your Magento version and extract the app/code/core folder from there, but even so, this is an extra step that you might need to take which will slow down your recovery in case of a disaster.</p>
+
+<p>See this Magento forum thread for more details:</p>
+
+<p><a href="http://www.magentocommerce.com/boards/viewthread/210785/">http://www.magentocommerce.com/boards/viewthread/210785/</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Backup Error Filesystem.php on line 234 + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-backup-error-filesystem-php-on-line-234-solution.html"/>
+    <updated>2009-12-02T14:33:46+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-backup-error-filesystem-php-on-line-234-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you see this error message when trying to access the backups section of Magento Admin:</p>
+
+<p><b>Warning: Invalid argument supplied for foreach() in /home/*****/public_html/lib/Varien/Data/Collection/Filesystem.php on line 234</b></p>
+
+<p>Then this simple fix is for you:</p>
+
+<p>replace (line 24):
+```php</p>
+
+<p>foreach (glob($folder . DIRECTORY_SEPARATOR . ‘*’) as $node) {</p>
+
+<p>```</p>
+
+<p>with this:
+```php</p>
+
+<p>foreach ((array)glob($folder . DIRECTORY_SEPARATOR . ‘*’) as $node) {</p>
+
+<p>```</p>
+
+<p>I saw this <a href="http://www.simplehelix.com/blog/2009/07/magento-backup-error/">here</a>, so all credit to them.</p>
+]]></content>
+  </entry>
+  
+</feed>
