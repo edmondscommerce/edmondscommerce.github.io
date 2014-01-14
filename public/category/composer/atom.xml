@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: composer | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/composer/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Merging Forks for Composer]]></title>
+    <link href="http://edmondscommerce.github.io/composer/merging-forks-for-composer.html"/>
+    <updated>2013-12-05T19:53:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/composer/merging-forks-for-composer</id>
+    <content type="html"><![CDATA[<p>I am really enjoying using Composer with a Symfony2 project that I am currently working on.</p>
+
+<p>Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
+JMS/SerializerBundle to handle the actual encoding into JSON.</p>
+
+<p>The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&rsquo;t want that. I want my property and entity names to be the same across formats.</p>
+
+<p>A bit of digging and I found <a href="https://github.com/passkey1510/JMSSerializerBundle">this fork</a> which features a fix for exactly this problem, brilliant!</p>
+
+<p>However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
+the minimum version requirements of the FOSRest bundle. Problem.</p>
+
+<p>The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:</p>
+
+<p><code>
+git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
+git merge remote/passkey1510/master
+git push
+</code></p>
+
+<p>Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.</p>
+
+<p>I can now reference my fork in my composer.json file like this:</p>
+
+<p>```
+&ldquo;repositories&rdquo;: [</p>
+
+<pre><code>    {
+        "url": "https://github.com/edmondscommerce/JMSSerializerBundle.git",
+        "type": "vcs"
+    },
+</code></pre>
+
+<p>],
+```</p>
+
+<p>Now running a <code>composer update --dev</code> and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.</p>
+
+<p>And that is it, problem solved :)</p>
+]]></content>
+  </entry>
+  
+</feed>

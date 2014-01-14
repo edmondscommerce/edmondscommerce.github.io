@@ -1,0 +1,18 @@
+<div class="highlight"><pre><span class="k">function</span> <span class="nf">isAllowedIp</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">static</span> <span class="nv">$pass</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$pass</span> <span class="o">!==</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$pass</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nv">$pass</span><span class="o">=</span><span class="k">false</span><span class="p">;</span>
+    <span class="nv">$customer_ip</span> <span class="o">=</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">];</span>    
+    <span class="nv">$htaccess</span> <span class="o">=</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="s1">&#39;admin/.htaccess&#39;</span><span class="p">);</span>
+    <span class="nb">preg_match_all</span><span class="p">(</span><span class="s1">&#39;%allow from ([0-9.]+)%&#39;</span><span class="p">,</span> <span class="nv">$htaccess</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">);</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$matches</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">as</span> <span class="nv">$ip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$ip</span> <span class="o">==</span> <span class="nv">$customer_ip</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$pass</span> <span class="o">=</span> <span class="k">true</span><span class="p">;</span> <span class="c1">//this is stored statically for perfomance reasons</span>
+            <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>

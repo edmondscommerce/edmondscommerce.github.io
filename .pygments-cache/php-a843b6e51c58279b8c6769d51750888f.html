@@ -1,0 +1,112 @@
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+<span class="sd">/** Database Synchronisation / Migration Tool</span>
+<span class="sd"> *</span>
+<span class="sd"> * For synching up an old and a new DB schema.</span>
+<span class="sd"> *</span>
+<span class="sd"> * @author EdmondsCommerce.co.uk</span>
+<span class="sd"> *</span>
+<span class="sd"> */</span>
+
+<span class="c1">//do you want the system to empty the new table before inserting data from the old table?</span>
+<span class="nv">$truncate</span><span class="o">=</span><span class="k">true</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * DB Server Credentials - Needs to have full access to both databases</span>
+<span class="sd"> */</span>
+<span class="nv">$dbHost</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+<span class="nv">$dbUser</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">;</span>
+<span class="nv">$dbPass</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">;</span>
+
+<span class="sd">/** Tables to Synch</span>
+<span class="sd"> */</span>
+<span class="nv">$tablesToSynch</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+    <span class="s1">&#39;categories&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;categories_description&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;products&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;products_description&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;products_to_categories&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;manufacturers&#39;</span><span class="p">,</span>
+<span class="p">);</span>
+
+<span class="nv">$dbOld</span> <span class="o">=</span> <span class="s1">&#39;dbold&#39;</span><span class="p">;</span>
+
+<span class="nv">$dbNew</span> <span class="o">=</span> <span class="s1">&#39;dbnew&#39;</span><span class="p">;</span>
+
+
+<span class="sd">/*********** CODE BELOW HERE - NO NEED TO EDIT UNLESS YOU WANT TO ***********/</span>
+<span class="nv">$_conn</span> <span class="o">=</span> <span class="nb">mysql_connect</span><span class="p">(</span><span class="nv">$dbHost</span><span class="p">,</span><span class="nv">$dbUser</span><span class="p">,</span><span class="nv">$dbPass</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;DB Connection Failed&#39;</span><span class="p">);</span>
+
+<span class="nv">$dbOldTables</span><span class="o">=</span> <span class="nx">fetch_tables</span><span class="p">(</span><span class="nv">$dbOld</span><span class="p">);</span>
+
+<span class="nv">$dbNewTables</span> <span class="o">=</span> <span class="nx">fetch_tables</span><span class="p">(</span><span class="nv">$dbNew</span><span class="p">);</span>
+
+
+<span class="k">foreach</span><span class="p">(</span><span class="nv">$tablesToSynch</span> <span class="k">as</span> <span class="nv">$table</span><span class="p">){</span>
+
+    <span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Doing &#39;</span><span class="o">.</span><span class="nv">$table</span><span class="o">.</span><span class="s1">&#39;&lt;/h3&gt;&#39;</span><span class="p">;</span>
+    <span class="c1">//check for common tables</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$table</span><span class="p">,</span> <span class="nv">$dbOldTables</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nb">in_array</span><span class="p">(</span><span class="nv">$table</span><span class="p">,</span> <span class="nv">$dbNewTables</span><span class="p">)){</span>
+        <span class="c1">//now get column data</span>
+        <span class="nv">$dbOldTableCols</span> <span class="o">=</span> <span class="nx">fetch_columns</span><span class="p">(</span><span class="nv">$dbOld</span><span class="p">,</span><span class="nv">$table</span><span class="p">);</span>
+
+        <span class="nv">$dbNewTableCols</span> <span class="o">=</span> <span class="nx">fetch_columns</span><span class="p">(</span><span class="nv">$dbNew</span><span class="p">,</span><span class="nv">$table</span><span class="p">);</span>
+
+        <span class="c1">//now for the column comparison</span>
+        <span class="nv">$cols</span><span class="o">=</span><span class="nb">array_intersect</span><span class="p">(</span><span class="nv">$dbOldTableCols</span><span class="p">,</span> <span class="nv">$dbNewTableCols</span><span class="p">);</span>
+
+        <span class="c1">//now emptying the new DB if set to do so</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$truncate</span><span class="p">){</span>
+            <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;TRUNCATE </span><span class="si">$dbNew</span><span class="s2">.</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">//copy old table to new DB so we can copy columns</span>
+        <span class="nv">$tempTable</span><span class="o">=</span><span class="nx">copy_table</span><span class="p">(</span><span class="nv">$dbOld</span><span class="p">,</span> <span class="nv">$dbNew</span><span class="p">,</span> <span class="nv">$table</span><span class="p">);</span>
+
+        <span class="c1">//now build SQL and run</span>
+        <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;insert into </span><span class="si">$dbNew</span><span class="s2">.</span><span class="si">$table</span><span class="s2"> (&quot;</span> <span class="o">.</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span><span class="nv">$cols</span><span class="p">)</span> <span class="o">.</span> <span class="s2">&quot;) select &quot;</span> <span class="o">.</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span><span class="nv">$cols</span><span class="p">)</span> <span class="o">.</span> <span class="s2">&quot; from </span><span class="si">$dbNew</span><span class="s2">.</span><span class="si">$tempTable</span><span class="s2">&quot;</span><span class="p">;</span>
+        <span class="nx">db_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+
+        <span class="c1">//now drop temp table</span>
+        <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;DROP TABLE </span><span class="si">$dbNew</span><span class="s2">.</span><span class="si">$tempTable</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+<span class="p">}</span>
+
+<span class="sd">/****** FUNCTIONS ********/</span>
+
+<span class="k">function</span> <span class="nf">db_query</span><span class="p">(</span><span class="nv">$query</span><span class="p">){</span>
+<span class="nv">$output</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$query</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;</span>
+<span class="s1">&lt;h1 style=&quot;color: red&quot;&gt;Uh Oh......MySQL Error:&lt;/h1&gt;</span>
+<span class="s1">&lt;h3&gt;Query:&lt;/h3&gt;</span>
+<span class="s1">&lt;pre&gt;&#39;</span> <span class="o">.</span> <span class="nb">htmlentities</span><span class="p">(</span><span class="nv">$query</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;&lt;/pre&gt;</span>
+<span class="s1">&lt;h3&gt;MySQL Error:&lt;/h3&gt;</span>
+<span class="s1">&#39;</span> <span class="o">.</span> <span class="nb">mysql_error</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;</span>
+<span class="s1">&lt;hr /&gt; &lt;hr /&gt;&#39;</span><span class="p">);</span>	<span class="k">return</span> <span class="nv">$output</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="k">function</span> <span class="nf">fetch_tables</span><span class="p">(</span><span class="nv">$dbname</span><span class="p">){</span>
+    <span class="nv">$query</span><span class="o">=</span><span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;show tables from </span><span class="si">$dbname</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="k">while</span><span class="p">(</span><span class="nv">$r</span><span class="o">=</span><span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$query</span><span class="p">)){</span>
+        <span class="nv">$return</span><span class="p">[]</span><span class="o">=</span><span class="nv">$r</span><span class="p">[</span><span class="s2">&quot;Tables_in_</span><span class="si">$dbname</span><span class="s2">&quot;</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nv">$return</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">fetch_columns</span><span class="p">(</span><span class="nv">$dbname</span><span class="p">,</span> <span class="nv">$table</span><span class="p">){</span>
+    <span class="nv">$query</span> <span class="o">=</span> <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;SHOW COLUMNS from </span><span class="si">$dbname</span><span class="s2">.</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="k">while</span><span class="p">(</span><span class="nv">$r</span><span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$query</span><span class="p">)){</span>
+        <span class="nv">$return</span><span class="p">[]</span><span class="o">=</span><span class="nv">$r</span><span class="p">[</span><span class="s1">&#39;Field&#39;</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nv">$return</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">copy_table</span><span class="p">(</span><span class="nv">$fromDb</span><span class="p">,</span> <span class="nv">$toDb</span><span class="p">,</span> <span class="nv">$table</span><span class="p">){</span>
+    <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+	<span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2"> LIKE </span><span class="si">$fromDb</span><span class="s2">.</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+	<span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;ALTER TABLE </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2"> DISABLE KEYS&quot;</span><span class="p">);</span>
+	<span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;INSERT INTO </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2"> SELECT * FROM </span><span class="si">$fromDb</span><span class="s2">.</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+	<span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;ALTER TABLE </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2"> ENABLE KEYS&quot;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="s2">&quot;temp_</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>

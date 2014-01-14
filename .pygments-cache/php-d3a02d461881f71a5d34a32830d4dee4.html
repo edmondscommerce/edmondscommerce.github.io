@@ -1,0 +1,56 @@
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+<span class="cm">/*MySQL Dump Split to Tables</span>
+<span class="cm">* script supplied by Edmonds Commerce</span>
+<span class="cm">* www.edmondscommerce.co.uk</span>
+<span class="cm">* if you like it, please link back with a do-follow</span>
+<span class="cm">* </span>
+<span class="cm">* Now updated with better regex and also the ability to strip out keys other than the primary</span>
+<span class="cm">*/</span>
+<span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;MySQL Dump Split to Tables + Remove Keys&lt;/h1&gt;&#39;</span><span class="p">;</span>
+<span class="nb">set_time_limit</span><span class="p">(</span><span class="mi">600</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">])){</span>
+	<span class="k">echo</span> <span class="s1">&#39;&lt;form&gt;&lt;b&gt;Dump File Path:&lt;/b&gt; &lt;input name=&quot;dump_file&quot;&gt; &lt;input type=&quot;submit&quot; value=&quot;go&quot;&gt;&lt;select name=&quot;operation&quot;&gt;&lt;option value=&quot;split&quot;&gt;split by tables&lt;/option&gt;&lt;option value=&quot;keys&quot;&gt;remove keys other than primary&lt;/option&gt;&lt;option value=&quot;both&quot;&gt;both&lt;/option&gt;&lt;/select&gt;&lt;/form&gt;&#39;</span><span class="p">;</span>
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+	<span class="k">if</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%keys|both%&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;operation&#39;</span><span class="p">])){</span>
+		<span class="nv">$contents</span> <span class="o">=</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">]);</span>
+		<span class="nv">$pattern</span> <span class="o">=</span> <span class="s1">&#39;%,(s+?)KEY(.*?))%si&#39;</span><span class="p">;</span>
+		<span class="nv">$nokeys</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="nv">$pattern</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$contents</span><span class="p">);</span>		
+		<span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nokeys.sql&#39;</span><span class="p">;</span>
+		<span class="nb">file_put_contents</span><span class="p">(</span><span class="s1">&#39;nokeys.sql&#39;</span><span class="p">,</span> <span class="nv">$nokeys</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">if</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%split|both%&#39;</span><span class="p">,</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;operation&#39;</span><span class="p">])){</span>
+		<span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Splitting File&lt;/h3&gt;&#39;</span><span class="p">;</span>
+		<span class="nb">flush</span><span class="p">();</span>
+		<span class="nv">$handle</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;failed openeing source file &#39;</span> <span class="o">.</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">]);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nv">$handle</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nb">feof</span><span class="p">(</span><span class="nv">$handle</span><span class="p">))</span> <span class="p">{</span>
+				<span class="nv">$line</span> <span class="o">=</span> <span class="nb">fgets</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>	
+				<span class="k">if</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%^drop table(.+?);%i&#39;</span><span class="p">,</span> <span class="nv">$line</span><span class="p">)){</span>
+					<span class="k">continue</span><span class="p">;</span>
+				<span class="p">}</span>					
+				<span class="k">if</span><span class="p">(</span><span class="nb">stristr</span><span class="p">(</span><span class="nv">$line</span><span class="p">,</span> <span class="s1">&#39;CREATE TABLE&#39;</span><span class="p">)){</span>
+					<span class="k">echo</span> <span class="s1">&#39;. &#39;</span><span class="p">;</span>
+					<span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$out</span><span class="p">)){</span>
+						<span class="nb">fclose</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+						<span class="nb">unset</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+					<span class="p">}</span>
+					<span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%CREATE TABLE (`|)(w+)(`|)(s+)($%i&#39;</span><span class="p">,</span> <span class="nv">$line</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">);</span>
+					<span class="nv">$table_name</span> <span class="o">=</span> <span class="nv">$matches</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+					<span class="nv">$out</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="s1">&#39;output/&#39;</span><span class="o">.</span><span class="nv">$table_name</span> <span class="o">.</span> <span class="s1">&#39;.sql&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;failed to create file &#39;</span> <span class="o">.</span> <span class="nv">$table_name</span> <span class="o">.</span> <span class="s1">&#39;.sql&#39;</span><span class="p">);</span>
+					<span class="nb">fwrite</span><span class="p">(</span><span class="nv">$out</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">.</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;failed writing to file &#39;</span> <span class="o">.</span> <span class="nv">$table_name</span> <span class="o">.</span> <span class="s1">&#39;.sql&#39;</span><span class="p">);</span>
+				<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+					<span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$out</span><span class="p">)){</span>
+						<span class="nb">fwrite</span><span class="p">(</span><span class="nv">$out</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">.</span> <span class="s2">&quot;n&quot;</span><span class="p">);</span>
+					<span class="p">}</span>
+				<span class="p">}</span>		
+			<span class="p">}</span>
+			<span class="nb">fclose</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+			<span class="nb">fclose</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>
+		<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+			<span class="k">echo</span> <span class="s1">&#39;no handle on file - does it exist - permissions...&#39;</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;Done&lt;/h1&gt;&#39;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>

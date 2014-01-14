@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: absolute | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/absolute/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Realpath for None Existant Paths]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-realpath-for-none-existant-paths.html"/>
+    <updated>2012-08-08T13:43:30+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-realpath-for-none-existant-paths</id>
+    <content type="html"><![CDATA[<p>If you want the functionality of realpath, to take a path containing relative elements such as /../ then this little function is exactly what you are looking for.</p>
+
+<p>PHP&rsquo;s built in realpath function will return false if the file or folder does not exist. Unfortunately when using complex paths then this can make debugging things a little complicated.</p>
+
+<p>To resolve this simply use this function:</p>
+
+<p>```php</p>
+
+<p>function normalizePath($path) {</p>
+
+<pre><code>return array_reduce(explode('/', $path), create_function('$a, $b', '
+        if($a === 0)
+            $a = &amp;quot;/&amp;quot;;
+
+        if($b === &amp;quot;&amp;quot; || $b === &amp;quot;.&amp;quot;)
+            return $a;
+
+        if($b === &amp;quot;..&amp;quot;)
+            return dirname($a);
+
+        return preg_replace(&amp;quot;/\/+/&amp;quot;, &amp;quot;/&amp;quot;, &amp;quot;$a/$b&amp;quot;);
+    '), 0);
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>For example:</p>
+
+<p>```php</p>
+
+<p>$path = dirname(<strong>FILE</strong>) . &lsquo;/../../../folder/&rsquo;;
+$path = normalizePath($path);
+echo $path; // /var/www/vhosts/domain.com/folder</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>
