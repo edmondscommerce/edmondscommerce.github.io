@@ -1,0 +1,35 @@
+<div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<span class="nv">LOG_FILE</span><span class="o">=</span>/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+<span class="nv">OUT_FILE</span><span class="o">=</span>/tmp/spider_analysis
+
+<span class="c">#This generates a file with the top 20 IP addresses by number of requests</span>
+cat <span class="nv">$LOG_FILE</span> | awk <span class="s1">&#39;{print $1}&#39;</span> | sort | uniq -c | sort -nr | head -n 20 &gt; <span class="nv">$OUT_FILE</span>
+
+<span class="nb">echo</span> <span class="s2">&quot;Top 20 IP addresses by number of request&quot;</span>
+cat <span class="nv">$OUT_FILE</span>
+
+<span class="c">#allow for loop to split on new line</span>
+<span class="nv">IFS_BAK</span><span class="o">=</span><span class="nv">$IFS</span>
+<span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;</span>
+<span class="s2">&quot;</span>
+
+<span class="k">for </span>i in <span class="sb">`</span>cat <span class="nv">$OUT_FILE</span><span class="sb">`</span>
+<span class="k">do</span>
+<span class="k">    </span><span class="nv">COUNT</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+    <span class="nv">IP_ADD</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+    <span class="nb">echo</span> <span class="s2">&quot;$IP_ADD has made $COUNT requests&quot;</span>
+    <span class="nb">echo</span> <span class="s2">&quot;Whois Information&quot;</span>
+    whois <span class="nv">$IP_ADD</span> 
+    <span class="c">#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around</span>
+    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+<span class="k">done</span>
+
+<span class="c"># set that back</span>
+<span class="nv">IFS</span><span class="o">=</span><span class="nv">$IFS_BAK</span>
+<span class="nv">IFS_BAK</span><span class="o">=</span>
+</pre></div>

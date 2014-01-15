@@ -1,0 +1,91 @@
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+<span class="sd">/**</span>
+<span class="sd"> * Class Template Soap Client Consuming Class</span>
+<span class="sd"> */</span>
+
+<span class="k">class</span> <span class="nc">EdmondsCommerceSoap</span>
+<span class="p">{</span>
+
+    <span class="k">protected</span> <span class="nv">$username</span> <span class="o">=</span> <span class="s1">&#39;edmondscommerce&#39;</span><span class="p">;</span>
+
+    <span class="k">protected</span> <span class="nv">$pass</span> <span class="o">=</span> <span class="s1">&#39;NotReallyMyPassw0rd&#39;</span><span class="p">;</span>
+
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">test</span><span class="p">(</span><span class="nv">$wsdl</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$options</span><span class="p">[</span><span class="s2">&quot;connection_timeout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">25</span><span class="p">;</span>
+        <span class="nv">$options</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$wsdl</span><span class="p">;</span> 
+        <span class="nv">$options</span><span class="p">[</span><span class="s1">&#39;trace&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">//this is important if you want to be able to use the soapDebug method</span>
+        <span class="k">try</span> <span class="p">{</span>
+            <span class="nv">$client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SoapClient</span><span class="p">(</span><span class="nv">$wsdl</span><span class="p">,</span> <span class="nv">$options</span><span class="p">);</span>
+            <span class="nv">$client</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setAuthHeader</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
+            <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">Method</span><span class="p">();</span>
+        <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">SoapFault</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;SoapFault: &#39;</span> <span class="o">.</span> <span class="nv">$e</span><span class="o">-&gt;</span><span class="na">getMessage</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h1&gt;&#39;</span><span class="p">;</span>
+            <span class="k">echo</span> <span class="s1">&#39;&lt;pre&gt;&#39;</span> <span class="o">.</span> <span class="nv">$e</span><span class="o">-&gt;</span><span class="na">getTraceAsString</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;&lt;/pre&gt;&#39;</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">echo</span> <span class="s1">&#39;&lt;h2&gt;Debug Info:&lt;/h2&gt;&#39;</span><span class="p">;</span>
+        <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">soapDebug</span><span class="p">(</span><span class="nv">$client</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="sd">/**</span>
+<span class="sd">    * This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers</span>
+<span class="sd">    **/</span>
+    <span class="k">protected</span> <span class="k">function</span> <span class="nf">setAuthHeader</span><span class="p">(</span><span class="nx">SoapClient</span> <span class="nv">$client</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$auth</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+            <span class="s1">&#39;username&#39;</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">username</span><span class="p">,</span>
+            <span class="s1">&#39;MessageId&#39;</span> <span class="o">=&gt;</span> <span class="nb">md5</span><span class="p">(</span><span class="nb">time</span><span class="p">()),</span>
+            <span class="s1">&#39;password&#39;</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">password</span>
+        <span class="p">);</span>
+        <span class="k">foreach</span><span class="p">(</span><span class="nv">$auth</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$v</span><span class="p">){</span>
+            <span class="nv">$headers</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SoapHeader</span><span class="p">(</span><span class="s1">&#39;Header&#39;</span><span class="p">,</span> <span class="nv">$k</span><span class="p">,</span> <span class="nv">$v</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">__setSoapHeaders</span><span class="p">(</span><span class="nv">$headers</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nv">$client</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     *  This method gathers all debug info into a handy array ready for var_dump, log etc etc</span>
+<span class="sd">     **/</span>
+    <span class="k">protected</span> <span class="k">function</span> <span class="nf">soapDebug</span><span class="p">(</span><span class="nx">SoapClient</span> <span class="nv">$client</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$debug</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+        <span class="nv">$debug</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">][</span><span class="s1">&#39;headers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">__getLastRequestHeaders</span><span class="p">();</span>
+        <span class="nv">$debug</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">][</span><span class="s1">&#39;body&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">__getLastRequest</span><span class="p">();</span>
+        <span class="nv">$debug</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">][</span><span class="s1">&#39;body_formatted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">formatXmlString</span><span class="p">(</span><span class="nv">$client</span><span class="o">-&gt;</span><span class="na">__getLastRequest</span><span class="p">());</span>
+        <span class="nv">$debug</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">][</span><span class="s1">&#39;headers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">__getLastResponseHeaders</span><span class="p">();</span>
+        <span class="nv">$debug</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">][</span><span class="s1">&#39;body&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">__getLastResponse</span><span class="p">();</span>
+        <span class="nv">$debug</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">][</span><span class="s1">&#39;body_formatted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">formatXmlString</span><span class="p">(</span><span class="nv">$client</span><span class="o">-&gt;</span><span class="na">__getLastResponse</span><span class="p">());</span>
+        <span class="k">return</span> <span class="nv">$debug</span><span class="p">;</span>
+    <span class="p">}</span>
+
+
+    <span class="sd">/**</span>
+<span class="sd">     * This method is purely to assist the debug method and simply makes generated XML readable</span>
+<span class="sd">     **/</span>
+    <span class="k">protected</span> <span class="k">function</span> <span class="nf">formatXmlString</span><span class="p">(</span><span class="nv">$xml</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$xml</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;/(&gt;)(&lt;)(\/*)/&#39;</span><span class="p">,</span> <span class="s2">&quot;$1</span><span class="se">\n</span><span class="s2">$2$3&quot;</span><span class="p">,</span> <span class="nv">$xml</span><span class="p">);</span>
+        <span class="nv">$token</span> <span class="o">=</span> <span class="nx">strtok</span><span class="p">(</span><span class="nv">$xml</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+        <span class="nv">$result</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="nv">$pad</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="nv">$matches</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+        <span class="k">while</span> <span class="p">(</span><span class="nv">$token</span> <span class="o">!==</span> <span class="k">false</span><span class="p">)</span> <span class="o">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/.+&lt;\/\w[^&gt;]*&gt;$/&#39;</span><span class="p">,</span> <span class="nv">$token</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">))</span> <span class="o">:</span>
+                <span class="nv">$indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="k">elseif</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/^&lt;\/\w/&#39;</span><span class="p">,</span> <span class="nv">$token</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">))</span> <span class="o">:</span>
+                <span class="nv">$pad</span><span class="o">--</span><span class="p">;</span>
+                <span class="nv">$indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="k">elseif</span> <span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;/^&lt;\w[^&gt;]*[^\/]&gt;.*$/&#39;</span><span class="p">,</span> <span class="nv">$token</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">))</span> <span class="o">:</span>
+                <span class="nv">$indent</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="k">else</span> <span class="o">:</span>
+                <span class="nv">$indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="k">endif</span><span class="p">;</span>
+            <span class="nv">$line</span> <span class="o">=</span> <span class="nb">str_pad</span><span class="p">(</span><span class="nv">$token</span><span class="p">,</span> <span class="nb">strlen</span><span class="p">(</span><span class="nv">$token</span><span class="p">)</span> <span class="o">+</span> <span class="nv">$pad</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="nx">STR_PAD_LEFT</span><span class="p">);</span>
+            <span class="nv">$result</span> <span class="o">.=</span> <span class="nv">$line</span> <span class="o">.</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+            <span class="nv">$token</span> <span class="o">=</span> <span class="nx">strtok</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+            <span class="nv">$pad</span> <span class="o">+=</span> <span class="nv">$indent</span><span class="p">;</span>
+        <span class="k">endwhile</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nv">$result</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>

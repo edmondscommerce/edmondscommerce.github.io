@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: apache | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/apache/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Mod Rewrite and Escaped Hashes (and other characters)]]></title>
+    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html"/>
+    <updated>2013-04-22T13:57:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters</id>
+    <content type="html"><![CDATA[<p>If you are having issues with mod rewrite apparently abandoning sections of variables after encoded hashes then this could be your solution.</p>
+
+<p>The use case is particularly clear when using mod_rewrite in front of a search engine (such as Solr which I am really enjoying working with at the moment).</p>
+
+<p>Imagine someone search for a partcode ABC#123</p>
+
+<p>This gets encoded to search/abc%23123</p>
+
+<p>Your rewritten search term will then be mangled by Apache and your search script will only actually see ABC. That is of course a problem and the solution is not really clear.</p>
+
+<p>After a bit of searching around I found the solution is to add a B flag to your mod_rewrite rule so that mod_rewrite will escape these characters so that they are cleanly passed through.</p>
+
+<p>For example:</p>
+
+<p>```php</p>
+
+<p>RewriteRule ^(.<em>)search/(.</em>)$ advanced_search_result.php?keywords=$2 [L,B]</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Mod Rewrite Escaped Slashes Problem + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html"/>
+    <updated>2013-04-11T11:05:20+01:00</updated>
+    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution</id>
+    <content type="html"><![CDATA[<p>As part of our Magento SEO service, the first thing we do is to make sure there are no issues with the crawlability and general health of the clients web site.</p>
+
+<p>Whilst working on the Google Webmaster Tools crawl errors for a client I noticed one specific and intruiging problem for which I couldn&rsquo;t immediately see the reason, everything looked to be set up perfectly.</p>
+
+<p>Certain URLs were getting 404 responses. The URL was being parsed by mod_rewrite but everything looked fine so why was apache giving a 404?</p>
+
+<p>The problem turns out to be that the URLs contain escaped slashes (eg search/KTA-mb667k2%2F2g),</p>
+
+<p>The problem is that Apache actually handles the escaped slash and helpfully converts it to a real slash. That then means that it is trying to look in a sub folder that does not exist and hence the 404.</p>
+
+<p>Chances are you don&rsquo;t want escaped slashes to really be thought of as real directory separating slashes, especially if you are using mod_rewrite.</p>
+
+<p>The answer is a simple one liner to be added to your vhost.conf or httpd.conf.</p>
+
+<p>```</p>
+
+<p>AllowEncodedSlashes On</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Log File Analysis Script]]></title>
+    <link href="http://edmondscommerce.github.io/bash/apache-log-file-analysis-script.html"/>
+    <updated>2013-03-14T14:17:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/apache-log-file-analysis-script</id>
+    <content type="html"><![CDATA[<p>Here is a little bash script we knocked together to track down some malicious activity on a clients server.</p>
+
+<p>Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.</p>
+
+<p>Here is the script:</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<h6>SETUP</h6>
+
+<p>LOG_FOLDER=/var/www/vhosts/domain.co.uk/statistics/logs
+ACCESS_LOG=$LOG_FOLDER/access_log</p>
+
+<p>HOW_MANY_ROWS=20000</p>
+
+<h6>### FUNCTIONS</h6>
+
+<p>function title() {</p>
+
+<pre><code>echo "
+</code></pre>
+
+<hr />
+
+<h2>$@</h2>
+
+<p>&ldquo;
+}</p>
+
+<p>function urls_by_ip() {</p>
+
+<pre><code>local IP=$1
+tail -5000 $ACCESS_LOG | awk -v ip=$IP ' $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20
+</code></pre>
+
+<p>}</p>
+
+<p>function ip_addresses_by_user_agent(){</p>
+
+<pre><code>local USERAGENT_STRING="$1"
+local TOP_20_IPS="`tail  -$HOW_MANY_ROWS $ACCESS_LOG | grep "${USERAGENT_STRING}"  | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20`"
+echo "$TOP_20_IPS"
+</code></pre>
+
+<p>}</p>
+
+<h6># RUN REPORTS</h6>
+
+<p>title &ldquo;top 20 URLs&rdquo;
+TOP_20_URLS=&ldquo;<code>tail -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS&rdquo;</p>
+
+<p>title &ldquo;top 20 URLS excluding POST data&rdquo;
+TOP_20_URLS_WITHOUT_POST=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk -F"[ ?]" '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS_WITHOUT_POST&rdquo;</p>
+
+<p>title &ldquo;top 20 IPs&rdquo;
+TOP_20_IPS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_IPS&rdquo;</p>
+
+<p>title &ldquo;top 20 user agents&rdquo;
+TOP_20_USER_AGENTS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_USER_AGENTS&rdquo;</p>
+
+<p>title &ldquo;IP Addresses for Top 3 User Agents&rdquo;</p>
+
+<p>for ((I=1; I&lt;=3; I++))
+do</p>
+
+<pre><code>UA="`echo "$TOP_20_USER_AGENTS" | head -n $I | tail -n 1 | awk '{$1=""; print $0}'`"
+echo "$UA"
+echo "~~~~~~~~~~~~~~~~~~"
+ip_addresses_by_user_agent "$UA"
+echo "
+"
+</code></pre>
+
+<p>done</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Access Logs Find Spiders by Counting Requests to IP Addresses]]></title>
+    <link href="http://edmondscommerce.github.io/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html"/>
+    <updated>2012-08-21T13:24:37+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses</id>
+    <content type="html"><![CDATA[<p>If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<p>LOG_FILE=/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+OUT_FILE=/tmp/spider_analysis</p>
+
+<h1>This generates a file with the top 20 IP addresses by number of requests</h1>
+
+<p>cat $LOG_FILE | awk &lsquo;{print $1}&rsquo; | sort | uniq -c | sort -nr | head -n 20 > $OUT_FILE</p>
+
+<p>echo &ldquo;Top 20 IP addresses by number of request&rdquo;
+cat $OUT_FILE</p>
+
+<h1>allow for loop to split on new line</h1>
+
+<p>IFS_BAK=$IFS
+IFS=&ldquo;
+&rdquo;</p>
+
+<p>for i in <code>cat $OUT_FILE</code>
+do</p>
+
+<pre><code>COUNT=`echo $i | awk '{print $1}'`
+IP_ADD=`echo $i | awk '{print $2}'`
+echo ""
+echo "---------------------------------"
+echo ""
+echo "$IP_ADD has made $COUNT requests"
+echo "Whois Information"
+whois $IP_ADD 
+#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around
+echo ""
+echo "---------------------------------"
+echo ""
+</code></pre>
+
+<p>done</p>
+
+<h1>set that back</h1>
+
+<p>IFS=$IFS_BAK
+IFS_BAK=</p>
+
+<p>```</p>
+
+<p>You would use this to give you some idea of which IPs are hitting the server a lot.</p>
+
+<p>Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Running PHP Scripts as Apache or a Shell User]]></title>
+    <link href="http://edmondscommerce.github.io/linux/running-php-scripts-as-apache-or-a-shell-user.html"/>
+    <updated>2012-08-14T14:05:32+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/running-php-scripts-as-apache-or-a-shell-user</id>
+    <content type="html"><![CDATA[<p>If you have PHP scripts that need to be able to run via the web server as Apache and also be runnable directly on the command line then you may run into permissions issues, especially if those scripts are doing anything with files.</p>
+
+<p>The scenario is that you run the script via the webserver and all of the files etc that are created are owned by Apache. Then you try to run on the command line and the script cannot run because it does not have permission to access Apache&rsquo;s files. The opposite scenario is also true.</p>
+
+<p>There are a few possible solutions to this but the most elegant and simple is to do the follwing.</p>
+
+<p>Assuming you are running Centos, you first of all need to set Apache to run with a umask of 002. This means that files it creates will have read/write permissions for the Apache group as well as the Apache user.</p>
+
+<p>To do this, simply add a line to the file /etc/sysconfig/httpd. You can do this in one command like this:</p>
+
+<p>```bash</p>
+
+<p>echo &ldquo;umask 002&rdquo; >> /etc/sysconfig/httpd</p>
+
+<p>```</p>
+
+<p>Then you need to restart Apache to apply this.</p>
+
+<p>```bash</p>
+
+<p>service httpd restart</p>
+
+<p>```</p>
+
+<p>You then need to add your shell user to the apache group. To do this you need to do the following:</p>
+
+<p>```bash</p>
+
+<p>vigr</p>
+
+<p>```</p>
+
+<p>Then find the line with your shell user and at the end add a comma and the word apache. This will add that user to the apache group along with it&rsquo;s own group.</p>
+
+<p>You will get a prompt to also edit etc/shadow. Agree to this and repeat the process.</p>
+
+<p>You will then need to log out and log back in to apply those changes and that should resolve your permissions issues for good.</p>
+]]></content>
+  </entry>
+  
+</feed>

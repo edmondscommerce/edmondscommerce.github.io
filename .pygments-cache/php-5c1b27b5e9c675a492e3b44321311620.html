@@ -1,0 +1,58 @@
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span> 
+<span class="k">function</span> <span class="nf">Readln</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nv">$handle</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="s1">&#39;php://stdin&#39;</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">);</span>
+  <span class="k">return</span> <span class="nb">rtrim</span><span class="p">(</span><span class="nb">fgets</span><span class="p">(</span><span class="nv">$handle</span><span class="p">),</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">echo</span> <span class="s1">&#39;Enter username [or hit enter for &quot;someadminuser&quot;]: &#39;</span><span class="p">;</span>
+<span class="nv">$username</span> <span class="o">=</span> <span class="nx">Readln</span><span class="p">();</span>
+<span class="k">if</span> <span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="o">==</span> <span class="nv">$username</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nv">$username</span> <span class="o">=</span> <span class="s1">&#39;someadminuser&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="k">echo</span> <span class="s1">&#39;Enter password [or hit enter for the usual one]: &#39;</span><span class="p">;</span>
+<span class="nv">$password</span> <span class="o">=</span> <span class="nx">Readln</span><span class="p">();</span>
+<span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="k">echo</span> <span class="s1">&#39;Enter table prefix [or hit enter for none]: &#39;</span><span class="p">;</span>
+<span class="nv">$prefix</span> <span class="o">=</span> <span class="nx">Readln</span><span class="p">();</span>
+<span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="nv">$salt</span> <span class="o">=</span> <span class="s1">&#39;EC&#39;</span><span class="p">;</span> 
+<span class="k">echo</span> <span class="s2">&quot;Salted is : &quot;</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$password</span><span class="p">))</span> <span class="p">{</span>
+  <span class="k">echo</span> <span class="nv">$hash</span> <span class="o">=</span> <span class="nb">md5</span><span class="p">(</span><span class="nv">$salt</span><span class="o">.</span><span class="nv">$password</span><span class="p">)</span><span class="o">.</span><span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="nv">$salt</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="k">echo</span> <span class="nv">$hash</span> <span class="o">=</span> <span class="s1">&#39;20f808df3d6e913ec43164ad2e7be85e:EC&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="k">echo</span> <span class="s2">&quot;SQL for insert : </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="k">echo</span> <span class="o">&lt;&lt;&lt;</span> <span class="nx">EOT</span>
+<span class="nx">insert</span> <span class="nx">into</span> <span class="err">$</span><span class="p">{</span><span class="nx">prefix</span><span class="p">}</span><span class="nx">admin_user</span>
+<span class="nx">select</span>
+<span class="p">(</span><span class="nx">select</span> <span class="nx">max</span><span class="p">(</span><span class="nx">user_id</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="nx">from</span> <span class="err">$</span><span class="p">{</span><span class="nx">prefix</span><span class="p">}</span><span class="nx">admin_user</span><span class="p">)</span> <span class="nx">user_id</span><span class="p">,</span>
+<span class="s1">&#39;Edmonds&#39;</span> <span class="nx">first_name</span><span class="p">,</span>
+<span class="s1">&#39;Commerce&#39;</span> <span class="nx">last_name</span><span class="p">,</span>
+<span class="s1">&#39;nojunkplease@mailinator.com&#39;</span> <span class="nx">email</span><span class="p">,</span>
+<span class="s1">&#39;$username&#39;</span> <span class="nx">username</span><span class="p">,</span>
+<span class="s1">&#39;$hash&#39;</span> <span class="nx">password</span><span class="p">,</span>
+<span class="nx">now</span><span class="p">()</span> <span class="nx">created</span><span class="p">,</span>
+<span class="k">NULL</span> <span class="nx">modified</span><span class="p">,</span>
+<span class="k">NULL</span> <span class="nx">logdate</span><span class="p">,</span>
+<span class="mi">0</span> <span class="nx">lognum</span><span class="p">,</span>
+<span class="mi">0</span> <span class="nx">reload_acl_flag</span><span class="p">,</span>
+<span class="mi">1</span> <span class="nx">is_active</span><span class="p">,</span>
+<span class="p">(</span><span class="nx">select</span> <span class="nx">max</span><span class="p">(</span><span class="nx">extra</span><span class="p">)</span> <span class="nx">from</span> <span class="err">$</span><span class="p">{</span><span class="nx">prefix</span><span class="p">}</span><span class="nx">admin_user</span> <span class="nx">where</span> <span class="nx">extra</span> <span class="nx">is</span> <span class="k">not</span> <span class="k">null</span><span class="p">)</span> <span class="nx">extra</span><span class="p">;</span>
+ 
+<span class="nx">insert</span> <span class="nx">into</span> <span class="err">$</span><span class="p">{</span><span class="nx">prefix</span><span class="p">}</span><span class="nx">admin_role</span>
+<span class="nx">select</span>
+<span class="p">(</span><span class="nx">select</span> <span class="nx">max</span><span class="p">(</span><span class="nx">role_id</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="nx">from</span> <span class="err">$</span><span class="p">{</span><span class="nx">prefix</span><span class="p">}</span><span class="nx">admin_role</span><span class="p">)</span> <span class="nx">role_id</span><span class="p">,</span>
+<span class="p">(</span><span class="nx">select</span> <span class="nx">role_id</span> <span class="nx">from</span> <span class="err">$</span><span class="p">{</span><span class="nx">prefix</span><span class="p">}</span><span class="nx">admin_role</span> <span class="nx">where</span> <span class="nx">role_name</span> <span class="o">=</span> <span class="s1">&#39;Administrators&#39;</span><span class="p">)</span> <span class="nx">parent_id</span><span class="p">,</span>
+<span class="mi">2</span> <span class="nx">tree_level</span><span class="p">,</span>
+<span class="mi">0</span> <span class="nx">sort_order</span><span class="p">,</span>
+<span class="s1">&#39;U&#39;</span> <span class="nx">role_type</span><span class="p">,</span>
+<span class="p">(</span><span class="nx">select</span> <span class="nx">user_id</span> <span class="nx">from</span> <span class="err">$</span><span class="p">{</span><span class="nx">prefix</span><span class="p">}</span><span class="nx">admin_user</span> <span class="nx">where</span> <span class="nx">username</span> <span class="o">=</span> <span class="s1">&#39;$username&#39;</span><span class="p">)</span> <span class="nx">user_id</span><span class="p">,</span>
+<span class="s1">&#39;$username&#39;</span> <span class="nx">role_name</span>
+<span class="nx">\n</span>
+<span class="nx">\n</span>
+<span class="nx">EOT</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>

@@ -1,0 +1,38 @@
+<div class="highlight"><pre><span class="k">function</span> <span class="nf">unpack_zips</span><span class="p">(</span><span class="nv">$directory</span><span class="p">,</span> <span class="nv">$destination</span> <span class="o">=</span> <span class="s1">&#39;images/&#39;</span><span class="p">){</span>
+	<span class="nv">$files</span> <span class="o">=</span> <span class="nx">dir_list</span><span class="p">(</span><span class="nv">$directory</span><span class="p">);</span>
+	<span class="c1">//print_r($files);</span>
+	<span class="nv">$zips</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+	<span class="k">foreach</span><span class="p">(</span><span class="nv">$files</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$file</span><span class="p">){</span>
+		<span class="k">if</span><span class="p">(</span><span class="nb">stristr</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span> <span class="s1">&#39;.zip&#39;</span><span class="p">)){</span>
+			<span class="nv">$zips</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$directory</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="nb">print_r</span><span class="p">(</span><span class="nv">$zips</span><span class="p">);</span>
+	<span class="nv">$zip</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ZipArchive</span><span class="p">;</span>
+	<span class="k">foreach</span><span class="p">(</span><span class="nv">$zips</span> <span class="k">as</span> <span class="nv">$z</span><span class="p">){</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nv">$zip</span><span class="o">-&gt;</span><span class="na">open</span><span class="p">(</span><span class="nv">$z</span><span class="p">)</span> <span class="o">===</span> <span class="k">TRUE</span><span class="p">)</span> <span class="p">{</span>
+			<span class="nv">$zip</span><span class="o">-&gt;</span><span class="na">extractTo</span><span class="p">(</span><span class="nv">$directory</span> <span class="o">.</span> <span class="nv">$destination</span><span class="p">);</span>
+			<span class="nv">$zip</span><span class="o">-&gt;</span><span class="na">close</span><span class="p">();</span>
+			<span class="c1">//echo &quot;&lt;h3&gt;$z OK&lt;/h3&gt;&quot;;</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="k">echo</span><span class="s2">&quot;&lt;h3 style=</span><span class="se">\&quot;</span><span class="s2">color: red;</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="si">$z</span><span class="s2"> Failed&lt;/h3&gt;&quot;</span><span class="p">;</span>
+			<span class="nx">bottom</span><span class="p">();</span>
+		<span class="p">}</span>	
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">dir_list</span><span class="p">(</span><span class="nv">$directory</span><span class="p">){</span>
+	<span class="k">echo</span> <span class="nv">$directory</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="nv">$handle</span> <span class="o">=</span> <span class="nb">opendir</span><span class="p">(</span><span class="nv">$directory</span><span class="p">))</span> <span class="p">{</span>
+		<span class="k">while</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="p">(</span><span class="nv">$file</span> <span class="o">=</span> <span class="nb">readdir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">)))</span> <span class="p">{</span>
+			<span class="k">if</span><span class="p">(</span><span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;..&#39;</span><span class="p">){</span>
+				<span class="nv">$return</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$file</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="nb">closedir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>
+		<span class="k">return</span> <span class="nv">$return</span><span class="p">;</span>
+	<span class="p">}</span><span class="k">else</span><span class="p">{</span>		
+		<span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</pre></div>

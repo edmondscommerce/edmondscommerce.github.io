@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: attribute | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/attribute/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Extending Magento Objects with Custom Attributes]]></title>
+    <link href="http://edmondscommerce.github.io/magento/extending-magento-objects-with-custom-attributes.html"/>
+    <updated>2011-02-07T18:27:50+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/extending-magento-objects-with-custom-attributes</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>It&rsquo;s fairly common that you need to add in some custom data to a Magento object.</p>
+
+<p>The most common scenario is products and its totally handled via the admin side. However if you need to extend something like the order object to store custom order information then things get a little bit more tricky, but it&rsquo;s fairly easy still.</p>
+
+<p>If you are extending an order, you also need to make sure that you extend in the &ldquo;flat table&rdquo; way as opposed to the standard EAV way otherwise things won&rsquo;t work as you expect.</p>
+
+<p>If you just want to add in a simple text attribute then you can do the following:</p>
+
+<ol>
+<li>Edit your config.xml and set up the installer section, the following needs to be within the</li>
+</ol>
+
+
+<p><code>xml
+&lt;global&gt;&lt;/global&gt;
+</code>
+ tags</p>
+
+<p>```xml</p>
+
+<!-- RESOURCES - Install etc //-->
+
+
+<pre><code>    &lt;resources&gt;
+        &lt;custommodule_setup&gt;
+            &lt;setup&gt;
+                &lt;module&gt;EdmondsCommerce_CustomModule&lt;/module&gt;
+                &lt;!--
+                    Points to
+                    app/code/local/EdmondsCommerce_CustomModule/sql/custommodule_setup/mysql4-install-0.0.1.php
+
+                    Sets mysql4-install-0.1.0.php to be a class of type Mage_Sales_Model_Mysql4_Setup
+                    Passes 'core_setup' as a connection 'type' :)
+                --&gt;
+                &lt;class&gt;Mage_Sales_Model_Mysql4_Setup&lt;/class&gt;
+            &lt;/setup&gt;
+            &lt;connection&gt;
+                &lt;use&gt;core_setup&lt;/use&gt;
+            &lt;/connection&gt;
+        &lt;/custommodule_setup&gt;
+    &lt;/resources&gt;
+</code></pre>
+
+<p>```</p>
+
+<p>Note this bit:
+<class>Mage_Sales_Model_Mysql4_Setup</class></p>
+
+<p>Its important you specify the correct setup model for the object you are extending. Just take a look at the core module config.xml file to find out. In the above example we are setting up to extend the order object which uses the flat table storage system.</p>
+
+<ol>
+<li>Your installer file
+app/code/local/EdmondsCommerce/CustomModule/sql/custommodule_setup/mysql4-install-0.1.0.php</li>
+</ol>
+
+
+<p>```php</p>
+
+<p>&lt;?php
+/<em> @var $installer Mage_Sales_Model_Mysql4_Setup </em>/
+$installer = $this;</p>
+
+<p>$installer->startSetup();</p>
+
+<p>/<strong>
+* Adds an attribute of the code custommodule_info to the order object
+* As this is a flat table, it adds the column to the table for you
+</strong>/
+$installer->addAttribute(&lsquo;order&rsquo;, &lsquo;custommodule_info&rsquo;, array(&lsquo;type&rsquo;=>&lsquo;text&rsquo;));</p>
+
+<p>$installer->endSetup();</p>
+
+<p>```</p>
+
+<p>Then access any Magento page and your installer should run and update the schema for you.</p>
+]]></content>
+  </entry>
+  
+</feed>

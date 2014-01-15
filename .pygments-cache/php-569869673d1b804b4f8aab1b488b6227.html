@@ -1,0 +1,11 @@
+<div class="highlight"><pre><span class="nv">$stmt</span> <span class="o">=</span> <span class="nv">$db</span><span class="o">-&gt;</span><span class="na">query</span><span class="p">(</span><span class="s2">&quot;select c.parent_id, cd.categories_name from categories c join categories_description cd using(categories_id) </span>
+<span class="s2">where categories_id = ?&quot;</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span><span class="nv">$categories_id</span><span class="p">));</span>
+<span class="k">while</span><span class="p">(</span><span class="k">false</span><span class="o">!==</span><span class="p">(</span><span class="nv">$r</span><span class="o">=</span><span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">fetch</span><span class="p">())){</span>
+	<span class="nv">$categoryString</span><span class="p">[]</span><span class="o">=</span><span class="nv">$r</span><span class="p">[</span><span class="s1">&#39;categories_name&#39;</span><span class="p">];</span>
+	<span class="k">if</span><span class="p">(</span><span class="nv">$r</span><span class="p">[</span><span class="s1">&#39;parent_id&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+		<span class="k">break</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="c1">//Note this bit - we are just re executing the statement with some new parameters.</span>
+	<span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">execute</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="nv">$r</span><span class="p">[</span><span class="s1">&#39;parent_id&#39;</span><span class="p">]));</span>
+<span class="p">}</span>
+</pre></div>

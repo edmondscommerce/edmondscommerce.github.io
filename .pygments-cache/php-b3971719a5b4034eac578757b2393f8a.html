@@ -1,0 +1,308 @@
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+<span class="cm">/* This is a simple script designed to be run in a folder that contains a TEMPLATE folder</span>
+<span class="cm"> * </span>
+<span class="cm"> * the template folder shoudl contain  your folder structure for your zend framework app.</span>
+<span class="cm"> * </span>
+<span class="cm"> * Normally this will be something like the format:</span>
+<span class="cm"> * </span>
+<span class="cm"> * controllers/item.php</span>
+<span class="cm"> * models/item.php</span>
+<span class="cm"> * models/db_table/item.php</span>
+<span class="cm"> * views/scripts/</span>
+<span class="cm"> * 	blah.php</span>
+<span class="cm"> * 	yada.php</span>
+<span class="cm"> * 	etc.php</span>
+<span class="cm"> * </span>
+<span class="cm"> * The script will take this template of folders and files and will find and will create a new folder structure in which all the filenames have been changed and within the files, a batch of finds and replaces have been done.</span>
+<span class="cm"> * </span>
+<span class="cm"> * The idea is that this then gives you a starting point for your ZF app. This works especially well if each controller, model etc inherits from a custom base_controller or base_model.</span>
+<span class="cm"> * </span>
+<span class="cm"> * hope it helps someone out :-)</span>
+<span class="cm"> * </span>
+<span class="cm"> * Joseph</span>
+<span class="cm"> * </span>
+<span class="cm"> * edmondscommerce.co.uk</span>
+<span class="cm"> * </span>
+<span class="cm"> * */</span>
+
+
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;replaceme&#39;</span><span class="p">])){</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+<span class="x">	&lt;form&gt;</span>
+<span class="x">&lt;h3&gt;Set Find and Replace - Please Input Upper Cased - lower cased will be automatically replaced as well&lt;/h3&gt;</span>
+<span class="x">&lt;b&gt;Find:&lt;/b&gt; &lt;input name=&quot;findme&quot;&gt; &lt;b&gt;Replace:&lt;/b&gt; &lt;input name=&quot;replaceme&quot;&gt; &lt;input type=&quot;submit&quot; value=&quot;go&quot;&gt;&lt;/form&gt;</span>
+<span class="x">&lt;h3&gt;To Do A List of Replacemes - use a # separated list&lt;/h3&gt;</span>
+<span class="cp">&lt;?php</span>
+	<span class="k">exit</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nv">$fm</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;findme&#39;</span><span class="p">];</span>
+<span class="nv">$rms</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;replaceme&#39;</span><span class="p">]);</span>
+
+<span class="nb">error_reporting</span><span class="p">(</span><span class="k">E_ALL</span> <span class="o">^</span> <span class="nx">E_NOTICE</span><span class="p">);</span>
+
+<span class="nv">$debug</span> <span class="o">=</span> <span class="k">true</span><span class="p">;</span>
+
+<span class="cm">/*</span>
+<span class="cm">$fm = &#39;findMe&#39;;</span>
+<span class="cm">$rm = &#39;replaceMe&#39;;</span>
+<span class="cm">*/</span>
+
+
+
+<span class="cm">/*get root current working directory*/</span>
+<span class="nv">$cwd</span> <span class="o">=</span> <span class="nb">getcwd</span><span class="p">();</span>
+
+<span class="cm">/*output folder */</span>
+<span class="nv">$of</span> <span class="o">=</span> <span class="s1">&#39;OUTPUT&#39;</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$of</span><span class="p">)){</span>
+	<span class="nx">delete</span><span class="p">(</span><span class="nv">$of</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nb">mkdir</span><span class="p">(</span><span class="nv">$of</span><span class="p">);</span>
+
+
+<span class="k">foreach</span><span class="p">(</span><span class="nv">$rms</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$rm</span><span class="p">){</span>
+	<span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;&#39;</span> <span class="o">.</span> <span class="nv">$rm</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h1&gt;&#39;</span><span class="p">;</span>
+	<span class="cm">/* First create a sub folder to put our new structure in */</span>
+
+
+	<span class="cm">/*template path */</span>
+	<span class="nv">$template</span> <span class="o">=</span> <span class="nv">$cwd</span> <span class="o">.</span> <span class="s1">&#39;/TEMPLATE/&#39;</span><span class="p">;</span>
+
+	<span class="cm">/*copy template to output */</span>
+	<span class="c1">//if($k === 0){</span>
+		<span class="nx">dir_copy</span><span class="p">(</span><span class="s1">&#39;TEMPLATE&#39;</span><span class="p">,</span> <span class="nv">$of</span><span class="p">);</span>
+	<span class="c1">//}</span>
+	
+	<span class="cm">/* Now get output structure */</span>
+	<span class="nv">$dirlist</span> <span class="o">=</span> <span class="nx">dir_list</span><span class="p">(</span><span class="nv">$of</span><span class="p">);</span>
+	<span class="nx">dbug</span><span class="p">(</span><span class="nv">$dirlist</span><span class="p">);</span>
+
+	<span class="cm">/*now jump into the output folder */</span>
+	<span class="nb">chdir</span><span class="p">(</span><span class="nv">$of</span><span class="p">);</span>
+
+	<span class="cm">/*Now loop through, rename the file and then find and replace the contents */</span>
+	<span class="nx">replace_rename</span><span class="p">(</span><span class="nv">$dirlist</span><span class="p">,</span> <span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">);</span>
+
+	<span class="cm">/* Jump back to the main cwd */</span>
+	<span class="nb">chdir</span><span class="p">(</span><span class="nv">$cwd</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="c1">######## FUNCTIONS #########</span>
+
+<span class="k">function</span> <span class="nf">replace_rename</span><span class="p">(</span><span class="nv">$array</span><span class="p">,</span> <span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">){</span>
+	<span class="nv">$chdir</span> <span class="o">=</span> <span class="nb">getcwd</span><span class="p">();</span>
+	<span class="k">foreach</span><span class="p">(</span><span class="nv">$array</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$v</span><span class="p">){</span>
+		<span class="k">if</span><span class="p">(</span><span class="nb">is_int</span><span class="p">(</span><span class="nv">$k</span><span class="p">)){</span>
+			<span class="c1">//its a file</span>
+			<span class="nv">$newfile</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nx">strtolower</span><span class="p">(</span><span class="nv">$fm</span><span class="p">),</span> <span class="nx">strtolower</span><span class="p">(</span><span class="nv">$rm</span><span class="p">),</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">,</span> <span class="nv">$v</span><span class="p">));</span>
+			<span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Renaming </span><span class="si">$v</span><span class="s2"> to </span><span class="si">$newfile</span><span class="s2">&quot;</span><span class="p">);</span>
+			<span class="nb">rename</span><span class="p">(</span><span class="nv">$v</span><span class="p">,</span> <span class="nv">$newfile</span><span class="p">);</span>
+			<span class="nx">done</span><span class="p">();</span>
+			<span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Replacing Contents of </span><span class="si">$newfile</span><span class="s2">&quot;</span><span class="p">);</span>
+			<span class="nv">$fc</span> <span class="o">=</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$newfile</span><span class="p">);</span>
+			<span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$fc</span><span class="p">)){</span>
+				<span class="nx">err</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">$newfile</span><span class="s2"> empty&quot;</span><span class="p">);</span>
+				<span class="k">exit</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">stristr</span><span class="p">(</span><span class="nv">$fc</span><span class="p">,</span> <span class="nv">$fm</span><span class="p">)){</span>
+				<span class="nx">err</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">$fm</span><span class="s2"> not found in this file... should it have been?&quot;</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="nv">$newcontents</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nx">strtolower</span><span class="p">(</span><span class="nv">$fm</span><span class="p">),</span> <span class="nx">strtolower</span><span class="p">(</span><span class="nv">$rm</span><span class="p">),</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">,</span> <span class="nv">$fc</span><span class="p">));</span>
+			<span class="nb">file_put_contents</span><span class="p">(</span><span class="nv">$newfile</span><span class="p">,</span> <span class="nv">$newcontents</span><span class="p">);</span>		
+			<span class="nx">done</span><span class="p">();</span>	
+		<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+			<span class="nv">$newfolder</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nx">strtolower</span><span class="p">(</span><span class="nv">$fm</span><span class="p">),</span> <span class="nx">strtolower</span><span class="p">(</span><span class="nv">$rm</span><span class="p">),</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">,</span> <span class="nv">$k</span><span class="p">));</span>
+			<span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Renaming </span><span class="si">$k</span><span class="s2"> to </span><span class="si">$newfile</span><span class="s2">&quot;</span><span class="p">);</span>
+			<span class="nb">rename</span><span class="p">(</span><span class="nv">$k</span><span class="p">,</span> <span class="nv">$newfolder</span><span class="p">);</span>
+			<span class="nx">done</span><span class="p">();</span>
+			<span class="nv">$jumpin</span> <span class="o">=</span> <span class="nv">$chdir</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$newfolder</span><span class="p">;</span>
+			<span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Jumping to </span><span class="si">$jumpin</span><span class="s2">&quot;</span><span class="p">);</span>
+			<span class="nb">chdir</span><span class="p">(</span><span class="nv">$jumpin</span><span class="p">);</span>
+			<span class="nx">done</span><span class="p">();</span>
+			<span class="c1">//its a folder</span>
+			<span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Now Recursing into </span><span class="si">$k</span><span class="s2">&quot;</span><span class="p">);</span>
+			<span class="k">echo</span> <span class="s1">&#39;&lt;blockquote&gt;&#39;</span><span class="p">;</span>
+			<span class="nx">replace_rename</span><span class="p">(</span><span class="nv">$v</span><span class="p">,</span> <span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">);</span>
+			<span class="k">echo</span> <span class="s1">&#39;&lt;/blockquote&gt;&#39;</span><span class="p">;</span>
+			<span class="nx">done</span><span class="p">();</span>
+			<span class="nb">chdir</span><span class="p">(</span><span class="nv">$chdir</span><span class="p">);</span>
+		<span class="p">}</span>	
+	<span class="p">}</span>
+	<span class="nb">chdir</span><span class="p">(</span><span class="nv">$chdir</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="c1">// http://uk3.php.net/copy</span>
+<span class="k">function</span> <span class="nf">dir_copy</span><span class="p">(</span><span class="nv">$srcdir</span><span class="p">,</span> <span class="nv">$dstdir</span><span class="p">,</span> <span class="nv">$offset</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$verbose</span> <span class="o">=</span> <span class="k">true</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// A function to copy files from one directory to another one, including subdirectories and</span>
+    <span class="c1">// nonexisting or newer files. Function returns number of files copied.</span>
+    <span class="c1">// This function is PHP implementation of Windows xcopy  A:\dir1\* B:\dir2 /D /E /F /H /R /Y</span>
+    <span class="c1">// Syntaxis: [$returnstring =] dircopy($sourcedirectory, $destinationdirectory [, $offset] [, $verbose]);</span>
+    <span class="c1">// Example: $num = dircopy(&#39;A:\dir1&#39;, &#39;B:\dir2&#39;, 1);</span>
+
+    <span class="c1">// Original by SkyEye.  Remake by AngelKiha.</span>
+    <span class="c1">// Linux compatibility by marajax.</span>
+    <span class="c1">// ([danbrown AT php DOT net): *NIX-compatibility noted by Belandi.]</span>
+    <span class="c1">// Offset count added for the possibilty that it somehow miscounts your files.  This is NOT required.</span>
+    <span class="c1">// Remake returns an explodable string with comma differentiables, in the order of:</span>
+    <span class="c1">// Number copied files, Number of files which failed to copy, Total size (in bytes) of the copied files,</span>
+    <span class="c1">// and the files which fail to copy.  Example: 5,2,150000,\SOMEPATH\SOMEFILE.EXT|\SOMEPATH\SOMEOTHERFILE.EXT</span>
+    <span class="c1">// If you feel adventurous, or have an error reporting system that can log the failed copy files, they can be</span>
+    <span class="c1">// exploded using the | differentiable, after exploding the result string.</span>
+    <span class="c1">//</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$offset</span><span class="p">))</span> <span class="nv">$offset</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="nv">$num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="nv">$fail</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="nv">$sizetotal</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="nv">$fifail</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$dstdir</span><span class="p">))</span> <span class="nb">mkdir</span><span class="p">(</span><span class="nv">$dstdir</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="nv">$curdir</span> <span class="o">=</span> <span class="nb">opendir</span><span class="p">(</span><span class="nv">$srcdir</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">while</span><span class="p">(</span><span class="nv">$file</span> <span class="o">=</span> <span class="nb">readdir</span><span class="p">(</span><span class="nv">$curdir</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;..&#39;</span><span class="p">)</span> <span class="p">{</span>
+<span class="c1">//                $srcfile = $srcdir . &#39;\\&#39; . $file;    # deleted by marajax</span>
+<span class="c1">//                $dstfile = $dstdir . &#39;\\&#39; . $file;    # deleted by marajax</span>
+                <span class="nv">$srcfile</span> <span class="o">=</span> <span class="nv">$srcdir</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">;</span>    <span class="c1"># added by marajax</span>
+                <span class="nv">$dstfile</span> <span class="o">=</span> <span class="nv">$dstdir</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">;</span>    <span class="c1"># added by marajax</span>
+                <span class="k">if</span><span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">))</span> <span class="p">{</span>
+                    <span class="k">if</span><span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">))</span> <span class="nv">$ow</span> <span class="o">=</span> <span class="nb">filemtime</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">)</span> <span class="o">-</span> <span class="nb">filemtime</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">);</span> <span class="k">else</span> <span class="nv">$ow</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+                    <span class="k">if</span><span class="p">(</span><span class="nv">$ow</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">if</span><span class="p">(</span><span class="nv">$verbose</span><span class="p">)</span> <span class="k">echo</span> <span class="s2">&quot;Copying &#39;</span><span class="si">$srcfile</span><span class="s2">&#39; to &#39;</span><span class="si">$dstfile</span><span class="s2">&#39;...&lt;br /&gt;&quot;</span><span class="p">;</span>
+                        <span class="k">if</span><span class="p">(</span><span class="nb">copy</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">,</span> <span class="nv">$dstfile</span><span class="p">))</span> <span class="p">{</span>
+                            <span class="nb">touch</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">,</span> <span class="nb">filemtime</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">));</span> <span class="nv">$num</span><span class="o">++</span><span class="p">;</span>
+                            <span class="nb">chmod</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">,</span> <span class="mo">0777</span><span class="p">);</span>    <span class="c1"># added by marajax</span>
+                            <span class="nv">$sizetotal</span> <span class="o">=</span> <span class="p">(</span><span class="nv">$sizetotal</span> <span class="o">+</span> <span class="nb">filesize</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">));</span>
+                            <span class="k">if</span><span class="p">(</span><span class="nv">$verbose</span><span class="p">)</span> <span class="k">echo</span> <span class="s2">&quot;OK</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+                        <span class="p">}</span>
+                        <span class="k">else</span> <span class="p">{</span>
+                            <span class="k">echo</span> <span class="s2">&quot;Error: File &#39;</span><span class="si">$srcfile</span><span class="s2">&#39; could not be copied!&lt;br /&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+                            <span class="nv">$fail</span><span class="o">++</span><span class="p">;</span>
+                            <span class="nv">$fifail</span> <span class="o">=</span> <span class="nv">$fifail</span><span class="o">.</span><span class="nv">$srcfile</span><span class="o">.</span><span class="s1">&#39;|&#39;</span><span class="p">;</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+                <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">))</span> <span class="p">{</span>
+                    <span class="nv">$res</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="nv">$ret</span><span class="p">);</span>
+<span class="c1">//                    $ret = dircopy($srcfile, $dstfile, $verbose); # deleted by patrick</span>
+                    <span class="nv">$ret</span> <span class="o">=</span> <span class="nx">dir_copy</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">,</span> <span class="nv">$dstfile</span><span class="p">,</span> <span class="nv">$verbose</span><span class="p">);</span> <span class="c1"># added by patrick</span>
+                    <span class="nv">$mod</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="nv">$ret</span><span class="p">);</span>
+                    <span class="nv">$imp</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="nv">$res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nv">$mod</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nv">$mod</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nv">$res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nv">$mod</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="nv">$res</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="nv">$mod</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="nv">$res</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+                    <span class="nv">$ret</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="nv">$imp</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nb">closedir</span><span class="p">(</span><span class="nv">$curdir</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="nv">$red</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="nv">$ret</span><span class="p">);</span>
+    <span class="nv">$ret</span> <span class="o">=</span> <span class="p">(</span><span class="nv">$num</span> <span class="o">+</span> <span class="nv">$red</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="p">((</span><span class="nv">$fail</span><span class="o">-</span><span class="nv">$offset</span><span class="p">)</span> <span class="o">+</span> <span class="nv">$red</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="p">(</span><span class="nv">$sizetotal</span> <span class="o">+</span> <span class="nv">$red</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="nv">$fifail</span><span class="o">.</span><span class="nv">$red</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+    <span class="k">return</span> <span class="nv">$ret</span><span class="p">;</span>
+<span class="p">}</span> 
+
+
+
+
+<span class="k">function</span> <span class="nf">dir_list</span><span class="p">(</span><span class="nv">$directory</span><span class="p">){</span>
+	<span class="c1">//echo $directory;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="nv">$handle</span> <span class="o">=</span> <span class="nb">opendir</span><span class="p">(</span><span class="nv">$directory</span><span class="p">))</span> <span class="p">{</span>
+		<span class="k">while</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="p">(</span><span class="nv">$file</span> <span class="o">=</span> <span class="nb">readdir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">)))</span> <span class="p">{</span>
+			<span class="k">if</span><span class="p">(</span><span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;..&#39;</span><span class="p">){</span>
+				<span class="k">if</span><span class="p">(</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$directory</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">)){</span>
+					<span class="nv">$return</span><span class="p">[</span><span class="nv">$file</span><span class="p">]</span><span class="o">=</span><span class="nx">dir_list</span><span class="p">(</span><span class="nv">$directory</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$file</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span><span class="p">);</span>
+				<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+					<span class="nv">$return</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$file</span><span class="p">;</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="nb">closedir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>
+		<span class="k">return</span> <span class="nv">$return</span><span class="p">;</span>
+	<span class="p">}</span><span class="k">else</span><span class="p">{</span>		
+		<span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">//recursive delete file/folder</span>
+<span class="k">function</span> <span class="nf">delete</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">,</span> <span class="nv">$folder_empty</span> <span class="o">=</span> <span class="s1">&#39;delete&#39;</span><span class="p">){</span>
+	<span class="c1">// Sanity check</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">))</span> <span class="p">{</span>
+		<span class="k">echo</span> <span class="s1">&#39;&lt;h3 style=&quot;color: red;&quot;&gt;File &#39;</span> <span class="o">.</span> <span class="nv">$dirname</span> <span class="o">.</span> <span class="s1">&#39; does not exist&lt;/h3&gt;&#39;</span><span class="p">;</span>
+		<span class="c1">//bottom();</span>
+		<span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Simple delete for a file</span>
+	<span class="k">if</span> <span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">))</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">unlink</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">);</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Loop through the folder</span>
+	<span class="nv">$dir</span> <span class="o">=</span> <span class="nx">dir</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">);</span>
+	<span class="k">while</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="nv">$entry</span> <span class="o">=</span> <span class="nv">$dir</span><span class="o">-&gt;</span><span class="na">read</span><span class="p">())</span> <span class="p">{</span>
+		<span class="c1">// Skip pointers</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nv">$entry</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span> <span class="o">||</span> <span class="nv">$entry</span> <span class="o">==</span> <span class="s1">&#39;..&#39;</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">continue</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="c1">// Recurse</span>
+		<span class="nx">delete</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">$dirname</span><span class="s2">/</span><span class="si">$entry</span><span class="s2">&quot;</span><span class="p">);</span>
+	<span class="p">}</span><span class="c1">// end while looping</span>
+
+	<span class="c1">// Clean up</span>
+	<span class="nv">$dir</span><span class="o">-&gt;</span><span class="na">close</span><span class="p">();</span>
+	<span class="k">if</span><span class="p">(</span><span class="nv">$folder_empty</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">){</span>
+		<span class="k">return</span> <span class="nb">rmdir</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">);</span>
+	<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+		<span class="c1">//just empty the folder, don&#39;t actually delete it</span>
+		<span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">//DEbug Functions</span>
+
+<span class="c1">//convert tabs to spaces</span>
+<span class="k">function</span> <span class="nf">tab2space</span><span class="p">(</span><span class="nv">$text</span><span class="p">,</span> <span class="nv">$spaces</span> <span class="o">=</span> <span class="mi">4</span><span class="p">){</span>
+	<span class="nv">$text</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="s1">&#39;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&#39;</span><span class="p">,</span> <span class="nv">$text</span><span class="p">);</span>
+	<span class="nv">$text</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s1">&#39;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&#39;</span><span class="p">,</span> <span class="nv">$text</span><span class="p">);</span>
+	<span class="k">return</span> <span class="nv">$text</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//return name of variable passed by reference</span>
+<span class="k">function</span> <span class="nf">vname</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$var</span><span class="p">,</span> <span class="nv">$scope</span><span class="o">=</span><span class="k">false</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="nv">$scope</span><span class="p">)</span> <span class="nv">$vals</span> <span class="o">=</span> <span class="nv">$scope</span><span class="p">;</span>
+    <span class="k">else</span>      <span class="nv">$vals</span> <span class="o">=</span> <span class="nv">$GLOBALS</span><span class="p">;</span>
+    <span class="nv">$old</span> <span class="o">=</span> <span class="nv">$var</span><span class="p">;</span>
+	<span class="nv">$new</span> <span class="o">=</span> <span class="s1">&#39;THISONE&#39;</span><span class="p">;</span>
+	<span class="nv">$var</span> <span class="o">=</span> <span class="nv">$new</span><span class="p">;</span>
+	<span class="nv">$vname</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
+    <span class="k">foreach</span><span class="p">(</span><span class="nv">$vals</span> <span class="k">as</span> <span class="nv">$key</span> <span class="o">=&gt;</span> <span class="nv">$val</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span><span class="p">(</span><span class="nv">$val</span> <span class="o">!==</span><span class="s1">&#39;var&#39;</span><span class="p">){</span>
+			<span class="k">if</span><span class="p">(</span><span class="nv">$val</span> <span class="o">===</span> <span class="nv">$new</span><span class="p">)</span> <span class="nv">$vname</span> <span class="o">=</span> <span class="nv">$key</span><span class="p">;</span>
+		<span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nv">$var</span> <span class="o">=</span> <span class="nv">$old</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nv">$vname</span><span class="p">;</span>
+  <span class="p">}</span>
+
+
+<span class="k">function</span> <span class="nf">dbug</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$item</span><span class="p">,</span> <span class="nv">$scope</span><span class="o">=</span><span class="k">false</span><span class="p">){</span>
+	<span class="k">global</span> <span class="nv">$debug</span><span class="p">;</span>
+	<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nv">$debug</span><span class="p">){</span>
+		<span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="nv">$vname</span> <span class="o">=</span> <span class="nx">vname</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$item</span><span class="p">,</span><span class="nv">$scope</span><span class="p">);</span>
+	<span class="k">echo</span> <span class="s1">&#39;&lt;hr&gt;&lt;h3&gt;Debug Info: $&#39;</span> <span class="o">.</span> <span class="nv">$vname</span>  <span class="o">.</span> <span class="s1">&#39;&lt;/h3&gt;&#39;</span> <span class="o">.</span> <span class="nx">tab2space</span><span class="p">(</span><span class="nb">nl2br</span><span class="p">(</span><span class="nb">htmlentities</span><span class="p">(</span><span class="nb">var_export</span><span class="p">(</span><span class="nv">$item</span><span class="p">,</span> <span class="k">true</span><span class="p">))))</span> <span class="o">.</span> <span class="s1">&#39;&lt;hr&gt;&#39;</span><span class="p">;</span>	
+	<span class="nb">flush</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">done</span><span class="p">(){</span>
+	<span class="k">echo</span> <span class="s1">&#39;&lt;h3 style=&quot;color: green;&quot;&gt;Done..&lt;/h3&gt;&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">h3</span><span class="p">(</span><span class="nv">$text</span><span class="p">){</span>
+	<span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;&#39;</span> <span class="o">.</span> <span class="nv">$text</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h3&gt;&#39;</span><span class="p">;</span>
+	<span class="nb">flush</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">err</span><span class="p">(</span><span class="nv">$text</span><span class="p">){</span>
+	<span class="k">echo</span> <span class="s1">&#39;&lt;h3 style=&quot;color: red;&quot;&gt;&#39;</span> <span class="o">.</span> <span class="nv">$text</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h3&gt;&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>

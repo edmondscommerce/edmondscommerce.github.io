@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: white blank page | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/white-blank-page/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[White Blank Page when Printing Packing Slips from Magento Admin]]></title>
+    <link href="http://edmondscommerce.github.io/magento/white-blank-page-when-printing-packing-slips-from-magento-admin.html"/>
+    <updated>2013-07-01T14:21:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/white-blank-page-when-printing-packing-slips-from-magento-admin</id>
+    <content type="html"><![CDATA[<p>If you&rsquo;re having trouble printing packing slips, receiving a white blank page when selecting Print Packingslips from the Actions menu in Magento&rsquo;s Sales Orders page, then it&rsquo;s likely you&rsquo;re having the same issue I&rsquo;ve had.</p>
+
+<p>I found that having error_reporting enabled wasn&rsquo;t enough</p>
+
+<p>```php</p>
+
+<p>error_reporting(E_ALL | E_STRICT);</p>
+
+<p>```</p>
+
+<p>You&rsquo;ll also need to add this to your index.php:</p>
+
+<p>```</p>
+
+<p>ini_set(&lsquo;display_errors&rsquo;, 1);</p>
+
+<p>```</p>
+
+<p>You&rsquo;ll then be shown the following fatal error:</p>
+
+<p>```</p>
+
+<p>Fatal error: Declaration of Zend_Pdf_FileParserDataSource_File::<strong>construct() must be compatible with Zend_Pdf_FileParserDataSource::</strong>construct() in /home8/stonecr2/public_html/newsite/lib/Zend/Pdf/FileParserDataSource/File.php on line 41</p>
+
+<p>```</p>
+
+<p>The issue here is that the contructor of Zend_Pdf_FileParserDataSource_File requires a single paramter, $filePath, whereas its abstract class&rsquo;s constructor does not. To resolve this, we need to make sure the abstract class matches its implementation, so make the following change</p>
+
+<p>```php</p>
+
+<p>//from
+abstract public function __construct();</p>
+
+<p>//to
+abstract public function __construct($filePath);</p>
+
+<p>```</p>
+
+<p>Test your printing, and you should be provided with a PDF file.</p>
+]]></content>
+  </entry>
+  
+</feed>

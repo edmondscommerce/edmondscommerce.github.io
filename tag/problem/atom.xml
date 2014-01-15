@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: problem | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/problem/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-13T18:37:30+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Disable JavaScript alerts for a page]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/disable-javascript-alerts-for-a-page.html"/>
+    <updated>2013-08-28T09:21:30+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/disable-javascript-alerts-for-a-page</id>
+    <content type="html"><![CDATA[<p>If you encounter a webpage that is generating a lot of alerts, the following bookmark will prevent them from stealing focus but still allow you to see what is being said.</p>
+
+<p>```js</p>
+
+<p>javascript:alert = function ( text ) { console.log( text ); return true; };</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[MySQL Substring not Returning Anything + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/mysql-substring-not-returning-anything-solution.html"/>
+    <updated>2013-08-20T10:54:20+01:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/mysql-substring-not-returning-anything-solution</id>
+    <content type="html"><![CDATA[<p>If you are puzzled why your simple usage of the MySQL SUBSTRING() function is not returning anything this could be your solution.</p>
+
+<p>The substring function allows you to specify a string (eg a column), the start character and the length. If you are used to languages like PHP then you are probably used to this kind of function regarding 0 as the starting character. In fact this function regards 1 as the starting character. If you specify 0 then you simply won&rsquo;t get any results.</p>
+
+<p>This does not work:
+```</p>
+
+<p>SELECT SUBSTRING(column, 0, 10) as tenchars</p>
+
+<p>```</p>
+
+<p>This does work:
+```</p>
+
+<p>SELECT SUBSTRING(column, 1, 10) as tenchars</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Payment has failed... Magento and SagePay CE Error + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/payment-has-failed-magento-and-sagepay-ce-error-solution.html"/>
+    <updated>2013-05-22T14:58:25+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/payment-has-failed-magento-and-sagepay-ce-error-solution</id>
+    <content type="html"><![CDATA[<p>I recently upgraded a magento store and installed the Sage Pay Suite CE module from EbizMarks.</p>
+
+<p>The following error came up twice during the testing of the module, once in the frontend and once in the admin.</p>
+
+<p><strong>Payment has failed, please reload checkout page and try again. Your card has not been charged</strong></p>
+
+<p>The error itself is triggered from the saveAfter method in the Ebizmarts_SagePaySuite_Model_Observer_Sales class and is called every time an order is saved.</p>
+
+<p>The error on the frontend was caused by a javascript error. Adding the following to the top of the sagePaySuite_Checkout.js file corrected it</p>
+
+<p>```javascript</p>
+
+<p>if(typeof sagePayIsMobile == &lsquo;undefined&rsquo;) {</p>
+
+<pre><code>var sagePayIsMobile = function() {
+    return (navigator.userAgent.match(/BlackBerry/i) ||
+        navigator.userAgent.match(/webOS/i) ||
+        navigator.userAgent.match(/Android/i) ||
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPod/i) ||
+        navigator.userAgent.match(/iPad/i));
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>The error in the admin was caused by a different extension being called when the order was saved. Normally the extension ensures that the method is not called when it is not needed and this is done by checking the route and the registry. If an extension saves the order these checks are not triggered so you will need to add in your own. To do that you will need add the following code to the action that is saving the error</p>
+
+<p>```php</p>
+
+<p>Mage::register(&lsquo;skipSagePay&rsquo;, TRUE);</p>
+
+<p>```</p>
+
+<p>and then change the following line in the Ebizmarts/SagePaySuite/Model/Observer/Sales.php file</p>
+
+<p>```php</p>
+
+<p>if( (Mage::app()&ndash;>getRequest()&ndash;>getControllerModule() == &lsquo;Mage_Api&rsquo;) || Mage::registry(&lsquo;current_shipment&rsquo;) || Mage::registry(&lsquo;sales_order&rsquo;) || Mage::registry(&lsquo;current_creditmemo&rsquo;) || Mage::registry(&lsquo;current_invoice&rsquo;) || ($order->getPayment()&ndash;>getMethod() == &lsquo;sagepayrepeat&rsquo;) ){</p>
+
+<p>```</p>
+
+<p>to
+```php</p>
+
+<p>if( (Mage::app()&ndash;>getRequest()&ndash;>getControllerModule() == &lsquo;Mage_Api&rsquo;) || Mage::registry(&lsquo;current_shipment&rsquo;) || Mage::registry(&lsquo;sales_order&rsquo;) || Mage::registry(&lsquo;current_creditmemo&rsquo;) || Mage::registry(&lsquo;current_invoice&rsquo;) || ($order->getPayment()&ndash;>getMethod() == &lsquo;sagepayrepeat&rsquo;) || Mage::registry(&lsquo;skipSagePay&rsquo;)){</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Category Move Error Exception General error: 1205 + solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-category-move-error-exception-general-error-1205-solution.html"/>
+    <updated>2013-04-05T15:44:14+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-category-move-error-exception-general-error-1205-solution</id>
+    <content type="html"><![CDATA[<p>There is a problem in Magento that when you try to move a category by dragging it in the admin, it can cause the above error, whilst causing the rest of the site to slow down.</p>
+
+<p>This is caused by the system trying to re-index every product within the space of a transaction.</p>
+
+<p>An easy way to get round this is to switch the indexing mode from auto to manual and then move the categories.</p>
+
+<p>You will still need to re-index the site, but this can be run on a cron when the site is quite.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Correct recursive backups in bash]]></title>
+    <link href="http://edmondscommerce.github.io/bash/correct-recursive-backups-in-bash.html"/>
+    <updated>2013-02-20T20:54:57+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/correct-recursive-backups-in-bash</id>
+    <content type="html"><![CDATA[<p>Sometime a backup script can go wrong, and rather the overwrite the old files you place a copy of the new ones into the same folder.</p>
+
+<p>This can then escalate and before you know it you have multiple levels of the same files.</p>
+
+<p>If you just want to flatten these files then this script can do that you</p>
+
+<p>```bash</p>
+
+<p>// The duplicated directory
+DUPLICATED_DIR_NAME=&lsquo;uploads&rsquo;
+// A new directory for the files to go into
+NEW_DIR_NAME=&lsquo;realuploads&rsquo;
+for f in <code>find ./ | grep $DUPLICATED_DIR_NAME/$DUPLICATED_DIR_NAME</code>;
+do
+NEWFILE=<code>echo $f | sed 's/$DUPLICATED_DIR_NAME\//\//g'</code>;
+NEWDIR=../$NEW_DIR_NAME/<code>dirname $NEWFILE</code>;
+if [[ ! -d $NEWDIR ]]
+then
+mkdir $NEWDIR;
+fi
+cp -f &quot;$f&quot; ../$NEW_DIR_NAME/$NEWFILE;
+done</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: magento cache | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/magento-cache/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Bulk Cache / Index Update Script]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-bulk-cache-index-update-script.html"/>
+    <updated>2009-05-11T15:00:46+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-bulk-cache-index-update-script</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are doing any kind of bulk updating etc then you also need to make sure that you rebuild all of the caches and indexes after your bulk updates otherwise things can go wrong.</p>
+
+<p>I have just managed to get the following script to work including when flat catalog is enabled (thanks to <a href="http://www.nicksays.co.uk/2009/02/testing-magento-modules/" target="_blank">Nick of Meanbee</a> for the Mage::app() tip).</p>
+
+<p>This script can be called from the browser (I would highly recommend some form of IP restriction or other security) or called from a cron job.
+```php</p>
+
+<p>&lt;?php
+$magePath = &lsquo;/path/to/Mage.php&rsquo;;
+require_once $magePath;
+//Varien_Profiler::enable();
+//Mage::setIsDeveloperMode(true);
+//ini_set(&lsquo;display_errors&rsquo;, 1);
+umask(0);</p>
+
+<p>Mage::app()&ndash;>setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);</p>
+
+<p>echo &lsquo;<h3>Cleaning overall Cache</h3>&rsquo;;</p>
+
+<p>flush();
+// clean overall cache
+Mage::app()&ndash;>cleanCache();
+echo &lsquo;done&rsquo;;</p>
+
+<p>flush();
+echo &lsquo;<h3>Cleaning Catalog Rewrites</h3>&rsquo;;</p>
+
+<p>flush();
+// clear &lsquo;refresh_catalog_rewrites&rsquo;:
+//Mage::getSingleton(&lsquo;catalog/url&rsquo;)&ndash;>refreshRewrites();
+Mage::getModel(&lsquo;catalog/url&rsquo;)&ndash;>refreshRewrites();
+echo &lsquo;Catalog Rewrites was refreshed succesfuly<br>&rsquo;;</p>
+
+<p>flush();
+echo &lsquo;<h3>Cleaning Image Cache</h3>&rsquo;;</p>
+
+<p>flush();
+//  clear &lsquo;clear_images_cache&rsquo;:
+Mage::getModel(&lsquo;catalog/product_image&rsquo;)&ndash;>clearCache();
+echo &lsquo;Image cache was cleared succesfuly<br>&rsquo;;</p>
+
+<p>flush();
+echo &lsquo;<h3>Cleaning Layered Navigation</h3>&rsquo;;</p>
+
+<p>flush();
+//  clear &lsquo;refresh_layered_navigation&rsquo;:
+Mage::getSingleton(&lsquo;catalogindex/indexer&rsquo;)&ndash;>plainReindex();
+echo &lsquo;Layered Navigation Indices was refreshed succesfuly<br>&rsquo;;</p>
+
+<p>flush();
+echo &lsquo;<h3>Clearing out Search Index</h3>&rsquo;;</p>
+
+<p>flush();
+Mage::getModel(&lsquo;catalogsearch/fulltext&rsquo;)&ndash;>rebuildIndex();
+echo &lsquo;Search index was rebuilt succesfully<br>&rsquo;;</p>
+
+<p>flush();
+echo &lsquo;<h3>Rebuilding Flat Category</h3>&rsquo;;
+Mage::getResourceSingleton(&lsquo;catalog/category_flat&rsquo;)&ndash;>rebuild();
+echo &lsquo;flat category was rebuilt successfully<br>&rsquo;;</p>
+
+<p>flush();
+echo &lsquo;<h3>Rebuilding Flat Products</h3>&rsquo;;
+Mage::getResourceSingleton(&lsquo;catalog/product_flat_indexer&rsquo;)&ndash;>rebuild();
+echo &lsquo;flat product was rebuilt successfully<br>&rsquo;;</p>
+
+<p>flush();</p>
+
+<p>```<h4>More&hellip;</h4></p>
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://ecommerce.aheadworks.com/blog/2009/05/magento-world-newsletter-may-5-2009/" rel="nofollow"&gt;Magento World Newsletter (May 5, 2009)&lt;/a&gt;&lt;br&gt;&lt;a href="http://kernelhack.com/?p=37" rel="nofollow"&gt;How to add custom fields to &lt;b&gt;Magento&lt;/b&gt; checkout | KERNELHACK.com&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.magento.cn/111/ecommerce-seo/magento-stores-ecommerce-search-engine-optimization/" rel="nofollow"&gt;&lt;b&gt;Magento&lt;/b&gt; Stores Ecommerce Search Engine Optimization, &lt;b&gt;Magento&lt;/b&gt; store &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

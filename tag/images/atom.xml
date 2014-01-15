@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: images | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/images/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-13T18:37:30+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using Live Images on Staging Without Absolute URLs (but a bit of JS)]]></title>
+    <link href="http://edmondscommerce.github.io/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html"/>
+    <updated>2012-03-27T11:05:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js</id>
+    <content type="html"><![CDATA[<p>If you have a staging copy of your site anywhere then you might not bother copying over your entire catalogue of product images etc.</p>
+
+<p>You might decide to drop in absolute URLs for those images so that they are pulled from live. However you really don&rsquo;t want absolute URLs in your code and you certainly don&rsquo;t want that to go live because it just adds unnecessary bloat.</p>
+
+<p>A nice trick you can do here is make a change to your staging site as follows. Of course ensure this change doesn&rsquo;t go live, but it should be just one file so that&rsquo;s easy to handle.</p>
+
+<p>(Note this assumes you already have jQuery available on your page)</p>
+
+<p>```javascript</p>
+
+<script type="text/javascript">
+$().ready(function(){
+    $('img').each(function(){
+        var src = $(this).attr('src')+'';        
+        if(-1 == src.indexOf('http')){
+            var new_src = 'http://www.LIVEDOMAIN.co.uk/'+src;
+            $(this).attr('src', new_src);
+        }
+    });
+});    
+</script>
+
+
+<p>```</p>
+
+<p>Don&rsquo;t forget to change LIVEDOMAIN to be your real live domain</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Dataflow Images Not Working + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-dataflow-images-not-working-solution.html"/>
+    <updated>2011-02-17T16:03:49+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-dataflow-images-not-working-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are struggling to understand why Magento is not finding images that are definitely there, the problem may well be that you are not prefixing your image with a slash, i.e for a new image we would put:</p>
+
+<p>/image.jpg</p>
+
+<p>and the image would be in</p>
+
+<p>media/import/image.jpg</p>
+
+<p>Unfortunately whoever wrote the Dataflow product importer though it would be a good idea to silently capture all exceptions on image imports which removes any useful error messages that might occur (such as no image at media/importimage.jpg)</p>
+
+<p>If you would prefer to fix this, you can override Mage_Catalog_Model_Convert_Adapter_Product</p>
+
+<p>Copy the saveRow() method into your overriding class and then change this bit</p>
+
+<p>```php</p>
+
+<p>foreach ($imageData as $file => $fields) {</p>
+
+<pre><code>        try {
+            $filepath = Mage::getBaseDir('media') . DS . 'import' . trim($file);
+            $product-&gt;addImageToMediaGallery($filepath, $fields);
+        } catch (Exception $e) {}
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>To something like this</p>
+
+<p>```php</p>
+
+<p>foreach ($imageData as $file => $fields) {</p>
+
+<pre><code>        //try {
+            $filepath = Mage::getBaseDir('media') . DS . 'import' . trim($file);
+            $product-&gt;addImageToMediaGallery($filepath, $fields);
+       //} catch (Exception $e) {}
+    }
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Custom Options Multiple File Upload Problem + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-custom-options-multiple-file-upload-problem-solution.html"/>
+    <updated>2009-11-03T15:34:22+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-custom-options-multiple-file-upload-problem-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If your Magento custom options with multiple file uploads isn&rsquo;t working properly, its because of a bug in the core Magento code.</p>
+
+<p>You can either edit the core file
+Open magento\app\code\core\Mage\Catalog\Model\Product\Option\Type\File.php and change:
+at line 145
+```php</p>
+
+<p>if (!$upload->receive()) {</p>
+
+<p><code>
+To:
+</code>php</p>
+
+<p>if (!$upload->receive($file)) {</p>
+
+<p>```</p>
+
+<p>Or alternatively I have put together a small module to override this bit of code. If you want it drop me a comment and I will package it up.</p>
+]]></content>
+  </entry>
+  
+</feed>

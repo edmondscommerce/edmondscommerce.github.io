@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: encryptor | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/encryptor/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Extending Mage Core Encryption Model to handle Legacy Passwords]]></title>
+    <link href="http://edmondscommerce.github.io/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html"/>
+    <updated>2012-04-26T12:35:29+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords</id>
+    <content type="html"><![CDATA[<p>If you are migrating from an old ecommerce package into Magento, you may well want to extend Magento&rsquo;s password hashing system so that it can understand the passwords that are hashed by the previous system and customers can log in using their old passwords without any hassle.</p>
+
+<p>You would start off by overriding the Mage_Core_Model_Encryption class like so:</p>
+
+<p>```php</p>
+
+<p>class EdmondsCommerce_LegacyPassword_Model_Encryption extends Mage_Core_Model_Encryption {</p>
+
+<pre><code>/**
+ * Validate hash against hashing method (with or without salt)
+ * 
+ * Extended to support the legacy password hashing of the previous system
+ *
+ * @param string $password
+ * @param string $hash
+ * @return bool
+ * @throws Exception
+ */
+public function validateHash($password, $hash) {
+    if (/*password matches legacy pattern (as stored hash in DB)*/) {            
+        // create a hash of the plain text password and compare to the stored hash
+        return $hashed_pass == $hashval;
+    }
+    //default magento hashing from here
+    return parent::validateHash($password, $hash);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>However, you will find that the standard model override does not work and you may start vigorous hair pulling at this point.</p>
+
+<p>The answer though is that your override XML is actually fine, but it isn&rsquo;t being used. This is because of the getEncryptor model in Mage_Core_Helper_Data creates the model using &lsquo;new&rsquo; rather than getModel.</p>
+
+<p>```php</p>
+
+<p>/**</p>
+
+<pre><code> * @return Mage_Core_Model_Encryption
+ */
+public function getEncryptor()
+{
+    if ($this-&gt;_encryptor === null) {
+        $encryptionModel = (string)Mage::getConfig()-&gt;getNode(self::XML_PATH_ENCRYPTION_MODEL);
+        if ($encryptionModel) {
+            $this-&gt;_encryptor = new $encryptionModel;
+        } else {
+            $this-&gt;_encryptor = Mage::getModel('core/encryption');
+        }
+
+        $this-&gt;_encryptor-&gt;setHelper($this);
+    }
+    return $this-&gt;_encryptor;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>The class name to use for the encryptor is stored in the config.xml for Mage_Core.</p>
+
+<p>The solution here is to replicate this XML in your config.xml and also make your legacy module depend on Mage_Core so that it get loaded afterwards and can override the XML.</p>
+
+<p>```xml</p>
+
+<p>&lt;?xml version=&ldquo;1.0&rdquo;?>
+<config></p>
+
+<pre><code>&lt;modules&gt;
+    &lt;EdmondsCommerce_LegacyPassword&gt;
+        &lt;version&gt;0.1.1&lt;/version&gt;
+        &lt;depends&gt;Mage_Core&lt;/depends&gt;
+    &lt;/EdmondsCommerce_LegacyPassword&gt;
+&lt;/modules&gt;
+&lt;global&gt;
+    &lt;models&gt;
+        &lt;core&gt;
+            &lt;rewrite&gt;
+                &lt;encryption&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;/encryption&gt;
+            &lt;/rewrite&gt;
+        &lt;/core&gt;
+    &lt;/models&gt;
+    &lt;helpers&gt;
+        &lt;core&gt;
+            &lt;encryption_model&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;/encryption_model&gt;
+        &lt;/core&gt;
+    &lt;/helpers&gt;
+&lt;/global&gt;    
+</code></pre>
+
+<p></config></p>
+
+<p>```</p>
+
+<p>Easy once you understand. Another gotcha you have to look out for though!</p>
+]]></content>
+  </entry>
+  
+</feed>
