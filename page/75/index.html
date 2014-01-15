@@ -128,6 +128,94 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-08-04T14:52:51+01:00" pubdate data-updated="true">Aug 4<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-cached-download-function.html">PHP Cached Download Function</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you are coding a PHP script to deal with big files, it makes sense to build in some kind of caching logic so that your script won&rsquo;t download the same file every single time it is run, but will check to see how long ago it last downloaded that file and only download it again if it is more than a certain timeframe old.</p>
+
+<p>This function allows you to do exactly that &ndash; check it out:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$cache_days</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$cache_days</span> <span class="o">=</span> <span class="nv">$cache_days</span> <span class="o">*</span> <span class="p">(</span><span class="mi">24</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nf">cached_download</span><span class="p">(</span><span class="nv">$remote</span><span class="p">,</span> <span class="nv">$local</span><span class="p">){</span>
+</span><span class='line'><span class="nv">$cache_days</span> <span class="o">=</span> <span class="nv">$GLOBALS</span><span class="p">[</span><span class="s1">&#39;cache_days&#39;</span><span class="p">];</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$local</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nb">filemtime</span><span class="p">(</span><span class="nv">$local</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="nb">time</span><span class="p">()</span> <span class="o">-</span> <span class="nv">$cache_days</span><span class="p">))){</span>
+</span><span class='line'><span class="c1">// we have a local copy that is less than $cache_days old</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;</span>
+</span><span class='line'><span class="s1">&lt;h3&gt;Using Cached - Last Downloaded &#39;</span> <span class="o">.</span> <span class="nb">date</span><span class="p">(</span><span class="s1">&#39;H:m:s d/m/Y&#39;</span><span class="p">,</span> <span class="nb">filemtime</span><span class="p">(</span><span class="nv">$local</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h3&gt;</span>
+</span><span class='line'><span class="s1">&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;</span>
+</span><span class='line'><span class="s1">&lt;h3&gt;Downloading Now...&lt;/h3&gt;</span>
+</span><span class='line'><span class="s1">&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'><span class="nb">copy</span><span class="p">(</span><span class="nv">$remote</span><span class="p">,</span> <span class="nv">$local</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-07-31T15:11:08+01:00" pubdate data-updated="true">Jul 31<span>st</span>, 2008</time>
         
       </p>
@@ -1099,111 +1187,6 @@ You should probably look up more recent blog posts related to the subject you ar
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-05-22T15:46:48+01:00" pubdate data-updated="true">May 22<span>nd</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/search%20engine%20optimisation/php/php-301-redirect-function-with-headers-check-and-javascript-fallback.html">PHP 301 Redirect Function With Headers Check and Javascript Fallback</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
-
-
-<p>If you are changing your URL structure, for example when moving to a search engine friendly URLs system, you need to be able to let Google and all the other search engines that the page has moved to the new URL. You really don&rsquo;t want to display the same content on two URLs</p>
-
-<p>So to achieve this we can do what is called a 301 redirect. This is a special redirect message which basically says &ldquo;has permanently moved to&rdquo;. By doing this, all of the search engine power, rank or whatever you want to call it will be directly transferred to the new URL.</p>
-
-<p><strong>However</strong></p>
-
-<p>Sometimes your script might spit out the headers earlier than you expect. If this happens then your site will fail completely to load with a fatal error along the lines of</p>
-
-<p><strong>warning: Cannot modify header information &ndash; headers already sent by (output started at .</strong>&hellip;</p>
-
-<p>We really don&rsquo;t want this to happen, so what we can do is wrap the redirection in a headers_sent check and then fall back to a javascript redirect if headers have been sent for some reason. This is belt and braces logic.</p>
-
-<p><i><b>Note script tags need spaces removing</b></i></p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">requrl_check</span><span class="p">(</span><span class="nv">$correct_url</span><span class="p">,</span> <span class="nv">$delay</span><span class="o">=</span><span class="mi">3</span><span class="p">){</span>
-</span><span class='line'>  <span class="nv">$request_url</span> <span class="o">=</span> <span class="s1">&#39;http://&#39;</span> <span class="o">.</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;HTTP_HOST&#39;</span><span class="p">]</span> <span class="o">.</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REQUEST_URI&#39;</span><span class="p">];</span>
-</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="nv">$request_url</span> <span class="o">!=</span> <span class="nv">$correct_url</span><span class="p">){</span>
-</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">headers_sent</span><span class="p">()){</span> <span class="c1">//going to assume that headers are not sent</span>
-</span><span class='line'>      <span class="nx">header</span><span class="p">(</span><span class="s2">&quot;HTTP/1.1 301 Moved Permanently&quot;</span><span class="p">);</span>
-</span><span class='line'>          <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;location: &#39;</span> <span class="o">.</span> <span class="nv">$correct_url</span> <span class="o">.</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
-</span><span class='line'>          <span class="k">exit</span><span class="p">();</span>
-</span><span class='line'>      <span class="p">}</span><span class="k">else</span><span class="p">{</span>
-</span><span class='line'>          <span class="k">echo</span> <span class="s2">&quot;&lt;h3&gt;The Page </span><span class="si">$request_url</span><span class="s2"> has Moved&lt;/h3&gt;</span>
-</span><span class='line'><span class="s2">             &lt;a href=</span><span class="si">$correct_url</span><span class="s2">&gt;</span><span class="si">$correct_url</span><span class="s2">&lt;/a&gt;&quot;</span><span class="p">;</span>
-</span><span class='line'>          <span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Now Refreshing in &#39;</span> <span class="o">.</span> <span class="nv">$delay</span> <span class="o">.</span> <span class="s1">&#39; Seconds&lt;/h3&gt;Refreshing to:&lt;br&gt;&#39;</span> <span class="o">.</span> <span class="nv">$correct_url</span> <span class="o">.</span> <span class="s1">&#39;&lt;s c r i p t type=&quot;text/JavaScript&quot;&gt;&lt;!--</span>
-</span><span class='line'><span class="s1">     setTimeout(&quot;location.href = \&#39;&#39;</span> <span class="o">.</span> <span class="nv">$correct_url</span> <span class="o">.</span> <span class="s1">&#39;\&#39;;&quot;,&#39;</span> <span class="o">.</span> <span class="p">(</span><span class="nv">$delay</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;);</span>
-</span><span class='line'><span class="s1">     --&gt; &lt;/s c r i p t&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>          <span class="k">exit</span><span class="p">();</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>tidy :&ndash;)</p>
-
-<p><b>Further Reading:</b>
-<a rel="nofollow" href="http://www.stuntdubl.com/2005/09/06/301-redirects/">www.stuntdubl.com</a>
-<a rel="nofollow" href="http://www.intertwingly.net/blog/911.html">www.intertwingly.ne</a>
-<a rel="nofollow" href="http://webgasm.actiononline.biz/seo/?p=87">webgasm.actiononline.biz</a>
-<a rel="nofollow" href="http://www.techcounter.com/seo/permalink-migration-for-a-wordpress-blog-using-a-301-redirect/">www.techcounter.com</a>
-<a rel="nofollow" href="http://www.chiropractichomepage.com/2007/03/16/chiropractor-web-page-gets-301-redirect/">www.chiropractichomepage.com</a>
-<a rel="nofollow" href="http://123howtoguide.com/seo/how-to-redirect-a-web-page-using-301-redirect">123howtoguide.com</a>
-<a rel="nofollow" href="http://searchblog.tamar.com/2007/07/understanding-t.html">searchblog.tamar.com</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1227,6 +1210,8 @@ You should probably look up more recent blog posts related to the subject you ar
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/explain-shell-understand-complex-shell-commands-before-you-run-them.html">Explain Shell: Understand Complex Shell Commands Before You Run Them</a>
+    
     <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
     
     <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
@@ -1234,8 +1219,6 @@ You should probably look up more recent blog posts related to the subject you ar
     <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
     <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
-    
-    <a class="list-group-item " href="/phpstorm-7-dot-1-released.html">PhpStorm 7.1 Released</a>
     
   </div>
 </section>
