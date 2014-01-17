@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: skype | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/skype/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-01-15T12:47:15+00:00</updated>
+  <updated>2014-01-17T15:03:36+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,64 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Getting Skype Working on Fedora 20]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20.html"/>
+    <updated>2014-01-17T14:45:29+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20</id>
+    <content type="html"><![CDATA[<p>I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&rsquo;t completely smooth, there were a few hoops I had to jump through.</p>
+
+<p>I am making a note of these here for my own future reference and to help out any one else hitting problems like these.</p>
+
+<p>To install Skype on Fedora 20 64bit, the first thing you need to do is download the <a href="http://www.skype.com/en/download-skype/skype-for-linux/">Fedora 32bit RPM from Skype</a>.</p>
+
+<p>To install this you should use Yum so that dependancies are handled properly:</p>
+
+<p><code>
+sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
+</code></p>
+
+<p>However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
+After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
+One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.</p>
+
+<p>Here is the process in commands:</p>
+
+<p>Firstly remove the package and install the i686 version
+<code>
+yum remove libvpx.x86_64
+yum install libvpx.i686
+</code></p>
+
+<p>Then install Skype
+<code>
+ yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
+</code></p>
+
+<p>Then reinstall the 64 bit version of libvpx
+<code>
+ yum install libvpx.x86_64
+</code></p>
+
+<p>Then reinstall the programs that were removed when I removed libvpx
+<code>
+ yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64
+</code></p>
+
+<p>That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:</p>
+
+<p><code>
+sudo gnome-open /usr/share/applications/skype.desktop
+</code></p>
+
+<p>Change the line that reads <strong>Exec=skype %U</strong> to the following:</p>
+
+<p><strong>Exec=env PULSE_LATENCY_MSEC=30 skype %U</strong></p>
+
+<p>Restart Skype and the audio issues should be resolved.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Serious Skype Vulnerability Nov 2012]]></title>

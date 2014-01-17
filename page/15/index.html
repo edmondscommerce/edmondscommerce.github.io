@@ -128,395 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-22T16:40:10+01:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/reduce-catalog-url-rewrites-time-in-magento.html">Reduce Catalog URL Rewrites Time in Magento</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I recently had a client that wanted to remove the category structure from their product urls.</p>
-
-<p>There is a option to do this in the admin, but they wanted to redirect all of the existing urls to the shorter one.</p>
-
-<p>The way that I wanted to do this was to truncate the current core_url_rewrite table and regenerate the urls with the &ldquo;Use Categories Path for Product URLs&rdquo; set to no, and then override the 404 controller to redirect to the correct url.</p>
-
-<p>However, after the urls were generated, I found that all of the urls including the category path were still included, which meant that the override would not work.</p>
-
-<p>After spending quite a bit of time looking for a way to get round this, I put together a simple override to prevent the category path urls from getting generated.</p>
-
-<p>This had the added benefit of reducing the number of entries in the core_url_rewite table from ~2k entries to under 500, which cut the amount of time that was needed to generate it.</p>
-
-<p>The code is below for anyone else that needs to use this in the future. There are three files in total, set up like this</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">EdmondsCommerce</span><span class="o">/</span>
-</span><span class='line'><span class="sb">`-- Redirects</span>
-</span><span class='line'><span class="sb">    |-- controllers</span>
-</span><span class='line'><span class="sb">    |   `</span><span class="o">--</span> <span class="nx">Cms</span>
-</span><span class='line'>    <span class="o">|</span>       <span class="sb">`-- IndexController.php</span>
-</span><span class='line'><span class="sb">    |-- etc</span>
-</span><span class='line'><span class="sb">    |   `</span><span class="o">--</span> <span class="nx">config</span><span class="o">.</span><span class="nx">xml</span>
-</span><span class='line'>    <span class="sb">`-- Model</span>
-</span><span class='line'><span class="sb">        `</span><span class="o">--</span> <span class="nx">Catalog</span>
-</span><span class='line'>            <span class="err">`</span><span class="o">--</span> <span class="nx">Url</span><span class="o">.</span><span class="nx">php</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is the code for the Model</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_Redirects_Model_Catalog_Url</span>
-</span><span class='line'>  <span class="k">extends</span> <span class="nx">Mage_Catalog_Model_Url</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="sd">/**</span>
-</span><span class='line'><span class="sd">     * This method is called each time that a url </span>
-</span><span class='line'><span class="sd">     * is generated for a product. It is called for the </span>
-</span><span class='line'><span class="sd">     * root category and each category that the product is in.</span>
-</span><span class='line'><span class="sd">     * </span>
-</span><span class='line'><span class="sd">     * This code checks to see if the category passed to it is</span>
-</span><span class='line'><span class="sd">     * the root category. If it is it will </span>
-</span><span class='line'><span class="sd">     * add the url rewrite as normal. If not it does nothing</span>
-</span><span class='line'><span class="sd">     * </span>
-</span><span class='line'><span class="sd">     * @param Varien_Object $product</span>
-</span><span class='line'><span class="sd">     * @param Varien_Object $category</span>
-</span><span class='line'><span class="sd">     */</span>
-</span><span class='line'>    <span class="k">protected</span> <span class="k">function</span> <span class="nf">_refreshProductRewrite</span><span class="p">(</span><span class="nx">Varien_Object</span> <span class="nv">$product</span><span class="p">,</span> <span class="nx">Varien_Object</span> <span class="nv">$category</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$rootCategory</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getStoreRootCategory</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getStoreId</span><span class="p">());</span>
-</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">==</span> <span class="nv">$rootCategory</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">parent</span><span class="o">::</span><span class="na">_refreshProductRewrite</span><span class="p">(</span><span class="nv">$product</span><span class="p">,</span> <span class="nv">$category</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you want to redirect from the existing urls to the new ones, you will need to use the following controller</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">include_once</span><span class="p">(</span><span class="s1">&#39;Mage/Cms/controllers/IndexController.php&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_Redirects_Cms_IndexController</span>
-</span><span class='line'><span class="k">extends</span> <span class="nx">Mage_Cms_IndexController</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="sd">/**</span>
-</span><span class='line'><span class="sd">     * This checks to see if the site can redirect</span>
-</span><span class='line'><span class="sd">     * before displaying a 404</span>
-</span><span class='line'><span class="sd">     * @param type $coreRoute</span>
-</span><span class='line'><span class="sd">     */</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">noRouteAction</span><span class="p">(</span><span class="nv">$coreRoute</span> <span class="o">=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Get the request</span>
-</span><span class='line'>        <span class="nv">$request</span> <span class="o">=</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REQUEST_URI&#39;</span><span class="p">];</span>
-</span><span class='line'>        <span class="c1">// Strip off get params if there are any</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">)</span> <span class="o">!==</span> <span class="k">FALSE</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$request</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">strpos</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">));</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="sd">/**</span>
-</span><span class='line'><span class="sd">         *  This makes sure that no part of the request is included</span>
-</span><span class='line'><span class="sd">         *  in the base url. This should help</span>
-</span><span class='line'><span class="sd">         *  the system work if it is running from a sub folder</span>
-</span><span class='line'><span class="sd">         */</span>
-</span><span class='line'>        <span class="nv">$parts</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">());</span>
-</span><span class='line'>        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$parts</span> <span class="k">AS</span> <span class="nv">$part</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$request</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="nv">$part</span><span class="p">,</span> <span class="s1">&#39;//&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$request</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="cm">/*</span>
-</span><span class='line'><span class="cm">         * Combine the request with the base path to get the full url</span>
-</span><span class='line'><span class="cm">         * and remove any trailing slashes</span>
-</span><span class='line'><span class="cm">         */</span>
-</span><span class='line'>        <span class="nv">$path</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;http:/&#39;</span><span class="p">,</span> <span class="s1">&#39;http://&#39;</span><span class="p">,</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">()</span> <span class="o">.</span> <span class="nv">$request</span><span class="p">)),</span> <span class="s1">&#39;/&#39;</span><span class="p">);</span>
-</span><span class='line'>        <span class="c1">//Get the last section which should be the product title</span>
-</span><span class='line'>        <span class="nv">$cleanedPath</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$path</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$key</span> <span class="o">=</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$cleanedPath</span><span class="p">);</span>
-</span><span class='line'>        <span class="c1">//Here we find url keys like the title</span>
-</span><span class='line'>        <span class="nv">$collection</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getCollection</span><span class="p">();</span>
-</span><span class='line'>        <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">addAttributeToSelect</span><span class="p">(</span><span class="s1">&#39;url_key&#39;</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">addFieldToFilter</span><span class="p">(</span><span class="k">array</span><span class="p">(</span>
-</span><span class='line'>            <span class="k">array</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;url_key&#39;</span><span class="p">,</span> <span class="s1">&#39;like&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="si">$key</span><span class="s2">&quot;</span><span class="p">)));</span>
-</span><span class='line'>        <span class="nv">$products</span> <span class="o">=</span> <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">();</span>
-</span><span class='line'>        <span class="cm">/*</span>
-</span><span class='line'><span class="cm">         * Proceed if there is only 1 result, if there are more we</span>
-</span><span class='line'><span class="cm">         * don&#39;t know which one is correct</span>
-</span><span class='line'><span class="cm">         */</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nv">$products</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">foreach</span> <span class="p">(</span><span class="nv">$products</span> <span class="k">AS</span> <span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nv">$url</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">(</span><span class="nx">Mage_Core_Model_Store</span><span class="o">::</span><span class="na">URL_TYPE_WEB</span><span class="p">)</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getUrlKey</span><span class="p">();</span>
-</span><span class='line'>                <span class="c1">//Check to make sure the url is not the same as the path, should prevent infinite redirects</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="nv">$path</span> <span class="o">!=</span> <span class="nv">$url</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;HTTP/1.1 301 Moved Permanently&#39;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;Location: &#39;</span> <span class="o">.</span> <span class="nv">$url</span><span class="p">);</span>
-</span><span class='line'>                    <span class="k">die</span><span class="p">();</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="c1">// Could not find a suitable url carry out the 404</span>
-</span><span class='line'>        <span class="k">parent</span><span class="o">::</span><span class="na">noRouteAction</span><span class="p">(</span><span class="nv">$coreRoute</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then use the following xml file</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
-</span><span class='line'><span class="nt">&lt;config&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;modules&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;EdmondsCommerce_Redirects&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;depends&gt;&lt;/depends&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/EdmondsCommerce_Redirects&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/modules&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;global&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;models&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;redirects&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;class&gt;</span>EdmondsCommerce_Redirects_Model<span class="nt">&lt;/class&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/redirects&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;catalog&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;rewrite&gt;</span>
-</span><span class='line'>                    <span class="nt">&lt;url&gt;</span>EdmondsCommerce_Redirects_Model_Catalog_Url<span class="nt">&lt;/url&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;/rewrite&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/catalog&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/models&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/global&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;frontend&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;routers&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;cms&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;args&gt;</span>
-</span><span class='line'>                    <span class="nt">&lt;modules&gt;</span>
-</span><span class='line'>                        <span class="nt">&lt;EdmondsCommerce_Redirects</span> <span class="na">before=</span><span class="s">&quot;Mage_Cms&quot;</span><span class="nt">&gt;</span>EdmondsCommerce_Redirects_Cms<span class="nt">&lt;/EdmondsCommerce_Redirects&gt;</span>
-</span><span class='line'>                    <span class="nt">&lt;/modules&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;/args&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/cms&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/routers&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/frontend&gt;</span>
-</span><span class='line'><span class="nt">&lt;/config&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-16T13:56:19+01:00" pubdate data-updated="true">Oct 16<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-multi-store-websites-and-storeviews-explained.html">Magento Multi Store, Websites and Storeviews Explained</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>One of the most exciting features of Magento for many merchants is the ability to run multiple front end websites with a single administration area. For those of you who have managed multiple separate installations of a cart system to power many websites, perhaps selling the same products, then this on its own can make a huge difference in terms of ease of management.</p>
-
-<p>Magento has had multi store functionality designed in from the ground up. This results in a multistore implementation that feels solid and intuitive and also very powerful. This is in contrast to other carts&#8217; multi store systems which can often feel like a bit of a bolt on after thought that isn&rsquo;t as clearly embedded into the system.</p>
-
-<h2>Magento Scopes</h2>
-
-
-<p>Magento has a hierarchical system of stores with 4 levels.</p>
-
-<h3>Global Scope</h3>
-
-
-<p>The top of the hierarchy is the global scope. This scope defines the default values for the various attributes that products and categories contain. You can not see the global scope as a store front but in the admin side the global scope is the one you work in by default and is likely to be where you spend most of your admin time.</p>
-
-<h3>Website Scope</h3>
-
-
-<p>Magento has the concept of websites. You can think of a website as a domain name (though this is perhaps an over simplification). A website can contain one or more stores.</p>
-
-<h3>Store Scope</h3>
-
-
-<p>A store is the item that contains products and categories. A category structure is built from a &ldquo;root&rdquo; category. The root category is not displayed on the front end, its children categories become the top level categories for the store when viewed in the front end. A store can have it&rsquo;s own root category and structure or can share the same one used by other stores.</p>
-
-<h3>Store View</h3>
-
-
-<p>Every store contains at least one store view. You can generally think of store views as translations of a store (though this is not the only use case). The category structure will be the same for the various store views and this scope is generally used to store alternative values for textual content such as product names, descriptions etc.</p>
-
-<h2>Editing Values on a Per Scope Basis</h2>
-
-
-<p>When you are editing products, categories or configuration in your Magento admin you will have a drop down in the top left of the screen that determines which scope you are currently working in. As a best practice always try to be as close to the global scope as possible when making your edits, only descending into the lower scopes as required.</p>
-
-<h2>Possibilites</h2>
-
-
-<p>The possibilities of these various scopes are almost limitless, you can manage a large and diverse range of store fronts that may or may not be clearly related to each other from the customers point of view from a single Magento administration. Like many things in Magento, this powerful system can become complex and we really strongly advise that you plan out your store structure before you start actually adding things so that you ensure you are building a nice logical system that is going to scale up as you grow.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-15T14:44:29+01:00" pubdate data-updated="true">Oct 15<span>th</span>, 2012</time>
         
       </p>
@@ -939,6 +550,128 @@
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-10T14:41:36+01:00" pubdate data-updated="true">Sep 10<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/phpstorm/replicate-netbeans-select-in-project-in-phpstorm.html">Replicate Netbeans &#8220;Select in Project&#8221; in Phpstorm</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Netbeans has a handy feature when you right-click a file in the editor window to take you to the file in the project (file manager tab) view.</p>
+
+<p>To get phpstorm to do this is not as simple but is handily mappable to a shortcut key.</p>
+
+<p>To enable this, go to Settings->Keymap->Main menu->Navigate->Select in&hellip; and choose a key.  I set it to Alt+P, so now I press Alt+P then press enter to go to the current file in the project view.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-07T14:35:37+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-stack-traces-you-can-click-on-in-phpstorm.html">PHP Stack Traces You Can Click on! (in PhpStorm)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Having a stack trace is very handy at times but wouldn&rsquo;t it be nice if you could click on the filename in the stack trace in your browser and your IDE take you to the file and line that it&rsquo;s talking about?</p>
+
+<p>Well, with PhpStorm and kint, you can!  Using a plugin called Remote Call, the PhpStorm IDE can listen on a port and go to files and line numbers via an ajax call.</p>
+
+<p>To configure this, grab the latest version of kint, and copy it&rsquo;s sample config to an actual config file, and edit the section about pathDisplayCallback to look like this :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_kintSettings</span><span class="p">[</span><span class="s1">&#39;pathDisplayCallback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;_kintLine&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">_kintLine</span><span class="p">(</span> <span class="nv">$file</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">=</span> <span class="k">NULL</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nv">$line</span> <span class="p">)</span> <span class="p">{</span> <span class="c1">// means this is called from resource type dump</span>
+</span><span class='line'>                <span class="k">return</span> <span class="nv">$file</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s2">&quot;&lt;u&gt;&lt;a class=</span><span class="se">\&quot;</span><span class="s2">kint-ide-link</span><span class="se">\&quot;</span><span class="s2"> href=</span><span class="se">\&quot;</span><span class="s2">http://localhost:8091/?message=</span><span class="si">{</span><span class="nv">$file</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">.</span> <span class="nv">$file</span> <span class="o">.</span> <span class="s2">&quot;&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can even be clever with regex to make the filenames be relative &ndash; for instance, we run our projects from a directory below one called, oddly enough &ldquo;projects&rdquo; and our function looks like this :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">_kintLine</span><span class="p">(</span> <span class="nv">$file</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">=</span> <span class="k">NULL</span> <span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>        <span class="nv">$shortname</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;#.*/[Pp]rojects/[^/]*/#&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nv">$line</span> <span class="p">)</span> <span class="p">{</span> <span class="c1">// means this is called from resource type dump</span>
+</span><span class='line'>                <span class="k">return</span> <span class="nv">$shortname</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s2">&quot;&lt;u&gt;&lt;a class=</span><span class="se">\&quot;</span><span class="s2">kint-ide-link</span><span class="se">\&quot;</span><span class="s2"> href=</span><span class="se">\&quot;</span><span class="s2">http://localhost:8091/?message=</span><span class="si">{</span><span class="nv">$file</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">.</span> <span class="nv">$shortname</span> <span class="o">.</span> <span class="s2">&quot;&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, if you call Kint::trace(); from your file that you&rsquo;ve included Kint.class.php from, you get a clickable stacktrace!</p>
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -962,15 +695,15 @@
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/explain-shell-understand-complex-shell-commands-before-you-run-them.html">Explain Shell: Understand Complex Shell Commands Before You Run Them</a>
-    
-    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
+    <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
     
     <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
     <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
     <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
+    
+    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
     
   </div>
 </section>

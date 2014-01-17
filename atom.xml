@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-01-15T12:47:15+00:00</updated>
+  <updated>2014-01-17T15:03:36+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,34 +14,65 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Explain Shell: Understand Complex Shell Commands Before You Run Them]]></title>
-    <link href="http://edmondscommerce.github.io/bash/explain-shell-understand-complex-shell-commands-before-you-run-them.html"/>
-    <updated>2014-01-14T15:37:26+00:00</updated>
-    <id>http://edmondscommerce.github.io/bash/explain-shell-understand-complex-shell-commands-before-you-run-them</id>
-    <content type="html"><![CDATA[<p>Often you&rsquo;ll want to acheive a certain task on Linux and a great way to start is to find commands on Stack Overflow and forums. But running commands without knowing what they do can be dangerous.</p>
+    <title type="html"><![CDATA[Getting Skype Working on Fedora 20]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20.html"/>
+    <updated>2014-01-17T14:45:29+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20</id>
+    <content type="html"><![CDATA[<p>I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&rsquo;t completely smooth, there were a few hoops I had to jump through.</p>
 
-<p><a href="http://explainshell.com/">Explain Shell</a> parses your command, as well as man pages and breaks your command into explainable chunks. Each utility and flag is documented in-line, helping you understand what&rsquo;s going on and hopefully avoiding any messy mistakes</p>
+<p>I am making a note of these here for my own future reference and to help out any one else hitting problems like these.</p>
 
-<p><img class="center" src="http://edmondscommerce.github.io/images/explain-shell-screenshot.png"></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Database Diagrams in PhpStorm]]></title>
-    <link href="http://edmondscommerce.github.io/php/database-diagrams-in-phpstorm.html"/>
-    <updated>2014-01-13T18:16:29+00:00</updated>
-    <id>http://edmondscommerce.github.io/php/database-diagrams-in-phpstorm</id>
-    <content type="html"><![CDATA[<p>I&rsquo;ve recently been handed a new project and wanted to get a better understanding of how everything was supposed to fit together.</p>
+<p>To install Skype on Fedora 20 64bit, the first thing you need to do is download the <a href="http://www.skype.com/en/download-skype/skype-for-linux/">Fedora 32bit RPM from Skype</a>.</p>
 
-<p>As I&rsquo;m using PhpStorm, I decided to try the built in tools to see how they work and what they can generate.</p>
+<p>To install this you should use Yum so that dependancies are handled properly:</p>
 
-<p>To get these working you need to do a bit of set-up first, so the process is documented here:</p>
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm</span></code></pre></td></tr></table></div></figure>
 
-<p>There should be a Database option in the toolbar, click on this and then click the green cross &ndash;> Data Source and the Database engine you are using.</p>
 
-<p>After this a new window will appear asking you to set-up the options needed to connect. Fill in the credentials that are required and then test the connection to ensure that everything is working correctly.</p>
+<p>However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
+After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
+One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.</p>
 
-<p>Once this has been done, the Database window should fill up with the different tables in you database. From here you can quickly see how each table is structured, browse the data that is there, bring up a console (Ctrl + Shift + F10) or generate a database diagram (Ctrl + Shift + Alt + U)</p>
+<p>Here is the process in commands:</p>
+
+<p>Firstly remove the package and install the i686 version</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>yum remove libvpx.x86_64
+</span><span class='line'>yum install libvpx.i686</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then install Skype</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then reinstall the 64 bit version of libvpx</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install libvpx.x86_64 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then reinstall the programs that were removed when I removed libvpx</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo gnome-open /usr/share/applications/skype.desktop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Change the line that reads <strong>Exec=skype %U</strong> to the following:</p>
+
+<p><strong>Exec=env PULSE_LATENCY_MSEC=30 skype %U</strong></p>
+
+<p>Restart Skype and the audio issues should be resolved.</p>
 ]]></content>
   </entry>
   
@@ -212,15 +243,6 @@ When that&rsquo;s done, refresh the page and you should see all your upgraded ex
 
 
 <p>I did this and then ran the yum update command again and everything is fixed.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PhpStorm 7.1 Released]]></title>
-    <link href="http://edmondscommerce.github.io/phpstorm-7-dot-1-released.html"/>
-    <updated>2013-12-20T12:08:35+00:00</updated>
-    <id>http://edmondscommerce.github.io/phpstorm-7-dot-1-released</id>
-    <content type="html"><![CDATA[
 ]]></content>
   </entry>
   
@@ -789,6 +811,61 @@ and can simply run</p>
 
 
 <p>And that&rsquo;s it, next up is getting Java and PhpStorm installed and also phpMyAdmin</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Automatically convert old PHP file to camelCase ]]></title>
+    <link href="http://edmondscommerce.github.io/bash/automatically-convert-old-php-file-to-camelcase.html"/>
+    <updated>2013-10-17T10:53:15+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/automatically-convert-old-php-file-to-camelcase</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently been working with an old project that uses a combination of different coding styles.</p>
+
+<p>One of the more trivial annoyances with this is that the variables used through the project are a combination of $camelCase and $snake_case which throws of the coding standards tools that I use.</p>
+
+<p>To get round this I have put a little script together that will convert $snake_case to $camelCase automatically.</p>
+
+<p>Obviously, you will need to check the results of this to make sure that there are not variables that should not be changed, but it has saved me a lot of time doing this manually.</p>
+
+<p>I&rsquo;ve added this to my .bash_allias file, though it could easily be turned into a standalone script if required</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#Fix legacy code</span>
+</span><span class='line'> cammelCase<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>   vim -E -s <span class="nv">$@</span> <span class="s">&lt;&lt;-EOF</span>
+</span><span class='line'><span class="s">   :%s#\%($\%(\k\+\)\)\@&lt;=_\(\k\)#\u\1#g</span>
+</span><span class='line'><span class="s">   :update</span>
+</span><span class='line'><span class="s">   :quit</span>
+</span><span class='line'><span class="s">EOF</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vim Locking Up, Always When you are Ready to Save? Solution]]></title>
+    <link href="http://edmondscommerce.github.io/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html"/>
+    <updated>2013-10-04T10:33:41+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/vim-locking-up-always-when-you-are-ready-to-save-solution</id>
+    <content type="html"><![CDATA[<p>If you are constantly frustated by Vim freezing up on you are editing a file on a server then this is quite possibly your problem, and your solution.</p>
+
+<p>The issue is that most text editors and IDEs have [ctrl]+[s] mapped to save. If you do a lot of file editing then you probably bash the [ctrl]+[s] combo all the time, without even thinking about it&hellip;</p>
+
+<p>Now back to Vim. As it is running in the terminal then it can be frozen by using the [ctrl]+[s] combination. You probably weren&rsquo;t aware of that feature.</p>
+
+<p>To bring things back to life, just hit the [ctrl]+[q] combo. There are ways to permanently disable this which you can try.</p>
+
+<p>For full information on this, check out this great <a href="http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal" target="_blank">stack exchange page</a>.</p>
 ]]></content>
   </entry>
   

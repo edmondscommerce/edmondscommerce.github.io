@@ -128,105 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-28T16:23:49+01:00" pubdate data-updated="true">Aug 28<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/paypoint-magento-modules-vanished-into-thin-air.html">Paypoint Magento Modules Vanished Into Thin Air!</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>It appears that all the paypoint (formally secpay) modules have vanished from the magento connect site.</p>
-
-<p>This is a pain for a lot of people who have chosen the gateway to service their payments, and leaves two options for most people :&ndash;</p>
-
-<ul>
-    <li>* Choose a different provider</li>
-    <li>* Get a custom module written</li>
-</ul>
-
-
-<p>As Magento developers we&rsquo;re happy to quote for the latter option, but we expect a lot of people will go for the former.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-24T13:51:04+01:00" pubdate data-updated="true">Aug 24<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/increase-the-stabilty-of-your-magento-cron.html">Increase the Stabilty of Your Magento Cron</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Sometimes when your cron process in Magento seems to not be working it is worth doubling up the ways it gets executed.</p>
-
-<p>One reason for this is various extensions (notably EERP from boostmyshop) set up an override to ensure that the same cron task is not run a second time if it&rsquo;s still running when the first run happens.</p>
-
-<p>Often the cli setup for php is not configured with the same timeouts etc. that the web setup is.  Therefore one thing that can make your cron more &ldquo;stable&rdquo; is to use wget or curl to fetch the cron.php file rather than (or as well as) running the cron.sh script.</p>
-
-<p>Here&rsquo;s what to add to the server&rsquo;s crontab (/etc/crontab or crontab -e) to use wget to fire off the cron :</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>* * * * * /usr/bin/wget -O- www.mycoolsite.com/cron.php &gt; /dev/null 2&gt; /dev/null
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That of course needs the url changing to match your domain.  It&rsquo;s worth noting that having output and stderror piped to /dev/null in a crontab is probably not the best practice but given that any module can create cron tasks that output stuff, your sysadmin might dislike getting that emailed to them!</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-23T11:37:58+01:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2012</time>
         
       </p>
@@ -659,6 +560,180 @@ around about line 44 from :</p>
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T16:31:15+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/xdebug-php-and-command-line-scripts.html">Xdebug PHP and Command Line Scripts</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I had a requirement to use Xdebug to step through a PHP script that is being run on the command line.</p>
+
+<p>Oh no I thought, this is bound to be really complicated to figure out because I normally use the web browser and I have never done this before.</p>
+
+<p>Pleasant surprise, its actually really easy to do this, all you need to do on the command line is run the following command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">XDEBUG_CONFIG</span><span class="o">=</span>&amp;quot;idekey<span class="o">=</span>netbeans-xdebug&amp;quot;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then get your IDE (PHPStorm for me) listening for Xdebug and then run your PHP file on the command line.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>php ./myfile.php
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it, it just works.</p>
+
+<p>One caveat (which I actually quite like) is that it will now ALWAYS get picked up by xdebug which could get in your way. To stop this, simply unset the variable like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">unset </span>XDEBUG_CONFIG
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T13:24:37+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html">Apache Access Logs Find Spiders by Counting Requests to IP Addresses</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nv">LOG_FILE</span><span class="o">=</span>/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+</span><span class='line'><span class="nv">OUT_FILE</span><span class="o">=</span>/tmp/spider_analysis
+</span><span class='line'>
+</span><span class='line'><span class="c">#This generates a file with the top 20 IP addresses by number of requests</span>
+</span><span class='line'>cat <span class="nv">$LOG_FILE</span> | awk <span class="s1">&#39;{print $1}&#39;</span> | sort | uniq -c | sort -nr | head -n 20 &gt; <span class="nv">$OUT_FILE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Top 20 IP addresses by number of request&quot;</span>
+</span><span class='line'>cat <span class="nv">$OUT_FILE</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#allow for loop to split on new line</span>
+</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span><span class="nv">$IFS</span>
+</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for </span>i in <span class="sb">`</span>cat <span class="nv">$OUT_FILE</span><span class="sb">`</span>
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'><span class="k">    </span><span class="nv">COUNT</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nv">IP_ADD</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;$IP_ADD has made $COUNT requests&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;Whois Information&quot;</span>
+</span><span class='line'>    whois <span class="nv">$IP_ADD</span>
+</span><span class='line'>    <span class="c">#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># set that back</span>
+</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="nv">$IFS_BAK</span>
+</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would use this to give you some idea of which IPs are hitting the server a lot.</p>
+
+<p>Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.</p>
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -682,15 +757,15 @@ around about line 44 from :</p>
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/explain-shell-understand-complex-shell-commands-before-you-run-them.html">Explain Shell: Understand Complex Shell Commands Before You Run Them</a>
-    
-    <a class="list-group-item " href="/php/database-diagrams-in-phpstorm.html">Database Diagrams in PhpStorm</a>
+    <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
     
     <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
     
     <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
     <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
+    
+    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
     
   </div>
 </section>
