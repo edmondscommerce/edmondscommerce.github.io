@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: synchronisation | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/synchronisation/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento and eBay integration now Free]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-and-ebay-integration-now-free.html"/>
+    <updated>2012-01-11T12:46:35+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-and-ebay-integration-now-free</id>
+    <content type="html"><![CDATA[<p>Thanks to the acquisition of Magento by eBay, one of the major extension developers, Ess, now has an agreement with eBay/Magento to provide their integration extension free.</p>
+
+<p><a href="http://m2epro.ess-ua.com/">Here&rsquo;s their site</a> and <a href="http://www.magentocommerce.com/magento-connect/ebay-magento-integration-order-importing-and-stock-level-synchronization.html">here&rsquo;s the extension on Magento Connect</a></p>
+
+<p>It&rsquo;s also worth knowing that the extension is avaiable on Magento Go, so if you&rsquo;re looking for hosted-only, management-free eCommerce with integration with eBay, that might be an option.  Remember that Magento Go is not extendable by third parties though as it is a locked-down solution.</p>
+
+<p>Anyway, some of the features of the extension are :&ndash;</p>
+
+<ul>
+<li>Stock Level Synchronisation between eBay and Magento Stores</li>
+<li>Create eBay listing templates which can create eBay listings direct from your Magento products</li>
+<li>Multiple eBay accounts per store</li>
+<li>Automatically leave feedback</li>
+<li>eBay transaction and order import</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mysql Database Migration / Synchronisation Script]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/mysql-database-migration-synchronisation-script.html"/>
+    <updated>2009-06-24T15:45:15+01:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/mysql-database-migration-synchronisation-script</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>This is a nice little script I just knocked together that helps to synchronise databases when the table structures might not be exactly the same (for example different versions of the same system).</p>
+
+<p>You would need to edit the top section to put the correct DB credentials etc.</p>
+
+<p>This is definitely <b>not to be used on a live DB</b>, purely for aiding development and migration.</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+/<em>* Database Synchronisation / Migration Tool
+ *
+ * For synching up an old and a new DB schema.
+ *
+ * @author EdmondsCommerce.co.uk
+ *
+ </em>/</p>
+
+<p>//do you want the system to empty the new table before inserting data from the old table?
+$truncate=true;</p>
+
+<p>/<em>*
+ * DB Server Credentials &ndash; Needs to have full access to both databases
+ </em>/
+$dbHost=&lsquo;localhost&rsquo;;
+$dbUser=&lsquo;root&rsquo;;
+$dbPass=&lsquo;password&rsquo;;</p>
+
+<p>/<em>* Tables to Synch
+ </em>/
+$tablesToSynch = array(</p>
+
+<pre><code>'categories',
+'categories_description',
+'products',
+'products_description',
+'products_to_categories',
+'manufacturers',
+</code></pre>
+
+<p>);</p>
+
+<p>$dbOld = &lsquo;dbold&rsquo;;</p>
+
+<p>$dbNew = &lsquo;dbnew&rsquo;;</p>
+
+<p>/<strong><strong><strong><strong><strong><em> CODE BELOW HERE &ndash; NO NEED TO EDIT UNLESS YOU WANT TO </em></strong></strong></strong></strong></strong>/
+$_conn = mysql_connect($dbHost,$dbUser,$dbPass) or die(&lsquo;DB Connection Failed&rsquo;);</p>
+
+<p>$dbOldTables= fetch_tables($dbOld);</p>
+
+<p>$dbNewTables = fetch_tables($dbNew);</p>
+
+<p>foreach($tablesToSynch as $table){</p>
+
+<pre><code>echo '&lt;h3&gt;Doing '.$table.'&lt;/h3&gt;';
+//check for common tables
+if(in_array($table, $dbOldTables) &amp;&amp; in_array($table, $dbNewTables)){
+    //now get column data
+    $dbOldTableCols = fetch_columns($dbOld,$table);
+
+    $dbNewTableCols = fetch_columns($dbNew,$table);
+
+    //now for the column comparison
+    $cols=array_intersect($dbOldTableCols, $dbNewTableCols);
+
+    //now emptying the new DB if set to do so
+    if($truncate){
+        db_query("TRUNCATE $dbNew.$table");
+    }
+
+    //copy old table to new DB so we can copy columns
+    $tempTable=copy_table($dbOld, $dbNew, $table);
+
+    //now build SQL and run
+    $sql = "insert into $dbNew.$table (" . implode(', ',$cols) . ") select " . implode(', ',$cols) . " from $dbNew.$tempTable";
+    db_query($sql);
+
+    //now drop temp table
+    db_query("DROP TABLE $dbNew.$tempTable");
+}
+</code></pre>
+
+<p>}</p>
+
+<p>/<strong><strong><strong> FUNCTIONS </strong></strong></strong>**/</p>
+
+<p>function db_query($query){
+$output = mysql_query($query) or die('</p>
+
+<h1 style="color: red">Uh Oh......MySQL Error:</h1>
+
+
+<h3>Query:</h3>
+
+
+<pre>' . htmlentities($query) . '</pre>
+
+
+<h3>MySQL Error:</h3>
+
+
+<p>&lsquo; . mysql_error() . &rsquo;</p>
+
+<hr /> <hr />');    return $output;
+
+
+<p>}</p>
+
+<p>function fetch_tables($dbname){</p>
+
+<pre><code>$query=db_query("show tables from $dbname");
+while($r=mysql_fetch_assoc($query)){
+    $return[]=$r["Tables_in_$dbname"];
+}
+return $return;
+</code></pre>
+
+<p>}</p>
+
+<p>function fetch_columns($dbname, $table){</p>
+
+<pre><code>$query = db_query("SHOW COLUMNS from $dbname.$table");
+while($r= mysql_fetch_assoc($query)){
+    $return[]=$r['Field'];
+}
+return $return;
+</code></pre>
+
+<p>}</p>
+
+<p>function copy_table($fromDb, $toDb, $table){</p>
+
+<pre><code>db_query("DROP TABLE IF EXISTS $toDb.temp_$table");
+db_query("CREATE TABLE $toDb.temp_$table LIKE $fromDb.$table");
+db_query("ALTER TABLE $toDb.temp_$table DISABLE KEYS");
+db_query("INSERT INTO $toDb.temp_$table SELECT * FROM $fromDb.$table");
+db_query("ALTER TABLE $toDb.temp_$table ENABLE KEYS");
+return "temp_$table";
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>
