@@ -1,0 +1,62 @@
+<div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+<span class="k">if</span> <span class="o">[</span> ! -f app/Mage.php <span class="o">]</span>; <span class="k">then</span>
+<span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Not in the magento basedir. please run from public_html, httpdocs, www or wherever index.php is.&quot;</span>
+  <span class="nb">exit </span>99
+<span class="k">fi</span>
+
+<span class="nv">WGET_BINARY</span><span class="o">=</span><span class="k">$(</span>which wget<span class="k">)</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;&quot;</span> <span class="o">=</span> <span class="s2">&quot;$WGET_BINARY&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Can&#39;t find wget in path... can&#39;t continue&quot;</span>
+  <span class="nb">exit </span>98
+<span class="k">fi</span>
+
+<span class="nv">MAGENTO_VERSION</span><span class="o">=</span><span class="k">$(</span>grep <span class="s1">&#39;function getVersionInfo\(\)&#39;</span> -A6 app/Mage.php | sed s/<span class="o">[</span>^0-9<span class="o">]</span>//g | tr <span class="s1">&#39;\n&#39;</span> <span class="s1">&#39;.&#39;</span> | sed s/<span class="s1">&#39;\.\.*&#39;</span>// | sed s/<span class="s1">&#39;\.$&#39;</span>//<span class="k">)</span>
+<span class="nb">echo</span> <span class="s2">&quot;Your Magento version is $MAGENTO_VERSION&quot;</span>
+
+<span class="nb">export</span> <span class="k">$(</span>grep <span class="s1">&#39;function getVersionInfo()&#39;</span> -A6 app/Mage.php | <span class="nv">grep</span> <span class="o">=</span> | sed s/,// | sed s/<span class="se">\&gt;</span>// | sed s/<span class="s1">&#39;[\t ]&#39;</span>//g | tr <span class="s2">&quot;a-z&quot;</span> <span class="s2">&quot;A-Z&quot;</span> | sed s/^/MAGENTO_/ | sed s/<span class="s2">&quot;&#39;&quot;</span>//g<span class="k">)</span>
+
+<span class="nb">set</span> | grep MAGENTO
+
+<span class="c">#</span>
+<span class="c">#Community Edition 1.4.0.0 through 1.4.1.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch</span>
+<span class="c">#Community Edition 1.4.2.0 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch</span>
+<span class="c">#Community Edition 1.5.0.0 through 1.7.0.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch</span>
+<span class="c">#</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$MAGENTO_MAJOR&quot;</span> -eq <span class="s2">&quot;1&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">  if</span> <span class="o">[</span> <span class="s2">&quot;$MAGENTO_MINOR&quot;</span> -eq <span class="s2">&quot;4&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">    if</span> <span class="o">[</span> <span class="nv">$MAGENTO_PATCH</span> -lt <span class="s2">&quot;2&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">    	</span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch&#39;</span>
+      <span class="nb">echo</span> <span class="s2">&quot;Running Magento &lt; 1.4.2.0 - patch is $CORRECT_PATCH&quot;</span>;
+    <span class="k">else</span>
+<span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch&#39;</span>
+      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.4.2.0 - patch is $CORRECT_PATCH&quot;</span>;
+    <span class="k">fi</span>
+<span class="k">  elif</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -gt <span class="s2">&quot;4&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">    if</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -lt <span class="s2">&quot;7&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&#39;</span>
+      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH&quot;</span>;
+    <span class="k">elif</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -eq <span class="s2">&quot;7&quot;</span> -a <span class="nv">$MAGENTO_PATCH</span> -eq <span class="s2">&quot;0&quot;</span> -a <span class="nv">$MAGENTO_REVISION</span> -lt <span class="s2">&quot;2&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&#39;</span>
+      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH&quot;</span>;
+    <span class="k">else</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.7.0.2 - already patched.&quot;</span>
+      <span class="nb">exit </span>1
+    <span class="k">fi</span>
+<span class="k">  fi</span>
+<span class="k">else </span>
+<span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;You&#39;re not running version 1.x.x.x of Magento, I have no idea what to do!&quot;</span>
+  <span class="nb">exit </span>97
+<span class="k">fi </span>
+
+wget -O - <span class="nv">$CORRECT_PATCH</span> 2&gt; /dev/null | patch -p0
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq 0 <span class="o">]</span>; <span class="k">then</span>
+<span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Patch succeeded.&quot;</span>
+<span class="k">else</span>
+<span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;For some reason the patch failed.  See the output above.&quot;</span>
+  <span class="nb">echo</span> <span class="s2">&quot;You could attempt to download the patch manually and apply it - the url is :- &quot;</span>
+  <span class="nb">echo</span> <span class="nv">$CORRECT_PATCH</span>
+<span class="k">fi</span>
+</pre></div>

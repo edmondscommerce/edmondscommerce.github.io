@@ -1,0 +1,16 @@
+<div class="highlight"><pre><span class="c1">//Alternative Image Saving Using cURL seeing as allow_url_fopen is disabled - bummer</span>
+<span class="k">function</span> <span class="nf">save_image</span><span class="p">(</span><span class="nv">$img</span><span class="p">,</span><span class="nv">$fullpath</span><span class="p">){</span>
+	<span class="nv">$ch</span> <span class="o">=</span> <span class="nb">curl_init</span> <span class="p">(</span><span class="nv">$img</span><span class="p">);</span>
+	<span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_HEADER</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+	<span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_BINARYTRANSFER</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+	<span class="nv">$rawdata</span><span class="o">=</span><span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
+	<span class="nb">curl_close</span> <span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
+	<span class="k">if</span><span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$fullpath</span><span class="p">)){</span>
+		<span class="nb">unlink</span><span class="p">(</span><span class="nv">$fullpath</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="nv">$fp</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="nv">$fullpath</span><span class="p">,</span><span class="s1">&#39;x&#39;</span><span class="p">);</span>
+	<span class="nb">fwrite</span><span class="p">(</span><span class="nv">$fp</span><span class="p">,</span> <span class="nv">$rawdata</span><span class="p">);</span>
+	<span class="nb">fclose</span><span class="p">(</span><span class="nv">$fp</span><span class="p">);</span> 
+<span class="p">}</span>
+</pre></div>

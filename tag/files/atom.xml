@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: files | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/files/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-13T18:37:30+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Restore lessc -w functionality, extendable to anything that needs to watch a file.]]></title>
+    <link href="http://edmondscommerce.github.io/linux/restore-lessc-w-functionality-extendable-to-anything-that-needs-to-watch-a-file.html"/>
+    <updated>2012-03-02T12:25:46+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/restore-lessc-w-functionality-extendable-to-anything-that-needs-to-watch-a-file</id>
+    <content type="html"><![CDATA[<p>The latest version of the less compiler in ruby has reduced the functionality of watching a file, so we wrote this little script (which we put in ~/bin/lessc-w) to restore the old functionality :</p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>LESSFILE=$1
+CSSFILE=<code>basename $1 .less</code>.css</p>
+
+<p>if [ &ldquo;$2&rdquo; != &ldquo;-f&rdquo; ]; then</p>
+
+<pre><code>if [ "`file -b $LESSFILE`" != "ASCII text" ]; then
+    echo "file $1 doesn't look like a less file...., looks like a `file -b $LESSFILE`";
+    echo "usage: lessc-w lessfile.less [-f]";
+    exit
+fi
+</code></pre>
+
+<p>fi</p>
+
+<p>while true; do</p>
+
+<pre><code>inotifywait -e modify $LESSFILE &amp;&amp; \
+echo "Rebuilding styles" &amp;&amp; \
+lessc $LESSFILE &gt; $CSSFILE
+</code></pre>
+
+<p>done</p>
+
+<p>```</p>
+
+<p>As you can see it&rsquo;s very simple to tweak this to any program that needs to be run when a file is changed.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How To Extract Files from Plesk Backups]]></title>
+    <link href="http://edmondscommerce.github.io/plesk/how-to-extract-files-from-plesk-backups.html"/>
+    <updated>2012-01-30T17:25:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/plesk/how-to-extract-files-from-plesk-backups</id>
+    <content type="html"><![CDATA[<p>So you have a plesk backup file and you want to extract and open the files from it? No problem. This blog will show you how.</p>
+
+<p>The file is a mime file. The &ldquo;mpack&rdquo; package will let you unpack it.</p>
+
+<p>First we install the &ldquo;mpack&rdquo; package
+<code>
+sudo apt-get install mpack
+</code></p>
+
+<p>Let&rsquo;s imagine your file is called &ldquo;pleskDump.gz&rdquo;. If it doesn&rsquo;t have a &ldquo;.gz&rdquo; at the end it might not be bad to add it as some environments will complain if it&rsquo;s absent.</p>
+
+<p>Next we unzip the file
+<code>
+gunzip pleskDump.gz
+</code></p>
+
+<p>Now let&rsquo;s un-mime the file
+<code>
+mkdir pleskDumpOutput
+cd pleskDumpOutput
+cat ../pleskDump | munpack
+</code></p>
+
+<p>Now we have a bunch of regular tar files, but be careful, if we just extract them, the root folders will not be recreated. In order to keep things together, it&rsquo;s best now to look at the output you have. Let&rsquo;s take a made up example:
+<code>
+example-domain.com.httpdocs
+</code></p>
+
+<p>Note that the format is essentially domain.rootfolder or in another way, the tar files have your domain name they are archiving, then a dot, then the name of the root folder they made up. We take that root folder and create it like this:
+<code>
+mkdir rootfolder
+</code></p>
+
+<p>Now let&rsquo;s apply that idea to our previoud example; &ldquo;example-domain.com&rdquo;
+<code>
+mkdir httpdocs
+</code></p>
+
+<p>It&rsquo;s time to untar into the folder you just created, let&rsquo;s assume you just created &ldquo;httpdocs&rdquo;
+<code>
+tar -xvf example-domain.com.httpdocs -C httpdocs
+</code></p>
+
+<p>There you go! You can now output any of the folders you wanted.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Quickly Get a List of Files in PHP with glob()]]></title>
+    <link href="http://edmondscommerce.github.io/php/quickly-get-a-list-of-files-in-php-with-glob.html"/>
+    <updated>2011-10-25T11:24:37+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/quickly-get-a-list-of-files-in-php-with-glob</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Perhaps not as well known as it should be, PHP&rsquo;s glob() function is really quite powerful and exceptionally handy.</p>
+
+<p>Need to get a list of files in a directory &ndash; try this:</p>
+
+<p>```php</p>
+
+<p>$tools = glob(&lsquo;includes/tools/*&rsquo;);
+var_dump($tools);</p>
+
+<p>```</p>
+
+<p>Want to delete all files matching a specific pattern, try this:</p>
+
+<p>```php</p>
+
+<p>array_map(&lsquo;unlink&rsquo;, glob(&lsquo;export_feeds/my_feed_*&rsquo;));</p>
+
+<p>```</p>
+
+<p>Theres lots more tricks you can do.</p>
+
+<p>One word of warning though &ndash; with great power comes great responsibility!</p>
+
+<p>I would advise against using any kind of user input with this function.</p>
+
+<p><a href="http://php.net/manual/en/function.glob.php">Read more</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Find Files Modified in the last X Days]]></title>
+    <link href="http://edmondscommerce.github.io/linux/find-files-modified-in-the-last-x-days.html"/>
+    <updated>2010-01-04T14:29:01+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/find-files-modified-in-the-last-x-days</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you need to check which files (eg PHP files for example) have been modified within the last few days, you can run this quick command.</p>
+
+<p>```</p>
+
+<p>find . -mtime -36 -iname &ldquo;*.php&rdquo; -fprint modded.txt</p>
+
+<p>```</p>
+
+<p>This will generate a list and save it to a file called modded.txt.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Cron Creating Lots of Files in Home Directory]]></title>
+    <link href="http://edmondscommerce.github.io/linux/cron-creating-lots-of-files-in-home-directory.html"/>
+    <updated>2009-09-22T15:55:14+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/cron-creating-lots-of-files-in-home-directory</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>If you have some cron jobs set up and you are finding large amounts of files saved in your home directory (or root) then perhaps you have the same issue I had.</p>
+
+<p>I was using wget to call on some PHP scripts to run periodically. wget will do what it says on the tin and save the files. If you don&rsquo;t want it to do that, you need to add the following in front of your wget command:
+```</p>
+
+<p>-O /dev/null</p>
+
+<p>```</p>
+
+<p>eg
+```</p>
+
+<p>wget -O /dev/null <a href="http://script.com/script.php">http://script.com/script.php</a></p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

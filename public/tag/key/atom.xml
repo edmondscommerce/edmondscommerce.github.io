@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: key | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/key/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-01-14T15:56:13+00:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html"/>
+    <updated>2012-12-04T12:21:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys</id>
+    <content type="html"><![CDATA[<p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php
+```php</p>
+
+<p>/**</p>
+
+<pre><code> * Generate a nice unique block cache key
+ *
+ * @param Mage_Core_Block_Abstract $block
+ * @return string
+ */
+public function ecCacheKey(Mage_Core_Block_Abstract $block){
+    $class = get_class($block);
+    $template = $block-&gt;getTemplateFile();
+    $md5 = md5(var_export($block-&gt;getData(), true));
+    $params = trim(implode(",", $block-&gt;getRequest()-&gt;getParams()), ',');
+    $category=($block-&gt;getCurrentCategory())?$block-&gt;getCurrentCategory()-&gt;getName():'no-category';
+    $store_id = Mage::app()-&gt;getStore()-&gt;getId();
+    return 'edmondscommerce-'. $params . '-'. $category . '-' . $store_id . '-' . $class.'-'.$template.'-'.$md5;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:
+```php</p>
+
+<pre><code>public function _construct(){
+    parent::_construct();
+    $this-&gt;addData(array(
+        'cache_lifetime' =&gt; 999999999,
+        'cache_tags' =&gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),
+        'cache_key' =&gt; Mage::helper('blockcaching')-&gt;ecCacheKey($this)
+    ));
+
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP List Function Silently Failing? Solution]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-list-function-silently-failing-solution.html"/>
+    <updated>2012-03-28T12:01:50+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-list-function-silently-failing-solution</id>
+    <content type="html"><![CDATA[<p>If you use PHP&rsquo;s <a href="http://php.net/manual/en/function.list.php">list</a> function to quickly extract array values out into dollar variables then you might have an issue where it just doesn&rsquo;t work for some reason.</p>
+
+<p>The problem is that list only works with numeric arrays. If you are using an associative array (with strings for keys instead of numbers) then list will not work.</p>
+
+<p>There is any easy solution though, simply change:</p>
+
+<p>```php</p>
+
+<p>$array = array(&lsquo;a&rsquo;=>1, &lsquo;b&rsquo;=>2, &lsquo;c&rsquo;=>3);
+list($a, $b, $c) = $array;</p>
+
+<p>```</p>
+
+<p>To:</p>
+
+<p>```php</p>
+
+<p>$array = array(&lsquo;a&rsquo;=>1, &lsquo;b&rsquo;=>2, &lsquo;c&rsquo;=>3);
+list($a, $b, $c) = array_values($array);</p>
+
+<p>```</p>
+
+<p>And it will work as you expect.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Question: How to Create Bootable Linux USB Key/Drives Easily from Linux]]></title>
+    <link href="http://edmondscommerce.github.io/linux/question-how-to-create-bootable-linux-usb-keydrives-easily-from-linux.html"/>
+    <updated>2011-12-13T21:49:35+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/question-how-to-create-bootable-linux-usb-keydrives-easily-from-linux</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Answer to this quite clear and simple question is:</p>
+
+<p>unetbootin</p>
+
+<p>Not the easiest to find but definitely one of the easiest solutions.</p>
+
+<p>If you search for USB bootable drive generators mostly you will find windows apps.</p>
+
+<p>Not too useful if you are already on Linux and simply want to try the latest version or perhaps an alternative distro on something that is going to give more useful performance than the traditional live CD.</p>
+
+<p><a href="http://unetbootin.sourceforge.net/">uNetbootin</a> is a nice solid cross platform USB bootable Linux generator that will even handle the download of ISOs for you if required.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SSH Public Key Authentication Easy Instructions]]></title>
+    <link href="http://edmondscommerce.github.io/hosting/ssh-public-key-authentication-easy-instructions.html"/>
+    <updated>2009-08-28T15:32:40+01:00</updated>
+    <id>http://edmondscommerce.github.io/hosting/ssh-public-key-authentication-easy-instructions</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<p>
+This is a post that was written a long time ago and is only being kept here for posterity.
+You should probably look up more recent blog posts related to the subject you are researching
+</p>
+</div>
+
+
+<p>Just thought I would drop a quick blog and link to this nice succinct guide for setting up SSH to be able to log in via public key.</p>
+
+<p><a href="http://www.petefreitag.com/item/532.cfm">SSH public key tutorial</a></p>
+
+<p>Using public keys offers you a more secure way of logging into an SSH server and also opens up the possiblity of being able to log into an SSH server without entering your password. This is less secure of course but allows easier remote scripted SSH.</p>
+
+<p>For example you can set up a user account on your server with limited permissions and then on a remote machine set up public key login capabilites and cron an rsync script to maintain a mirror image of your server without the need for any user intervention.</p>
+]]></content>
+  </entry>
+  
+</feed>

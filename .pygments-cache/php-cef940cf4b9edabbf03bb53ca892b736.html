@@ -1,0 +1,34 @@
+<div class="highlight"><pre><span class="k">function</span> <span class="nf">build_table_from_file</span><span class="p">(</span><span class="nv">$tablename</span><span class="p">,</span> <span class="nv">$filepath</span><span class="p">,</span> <span class="nv">$delim</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS </span><span class="si">$tablename</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="nv">$fp</span><span class="o">=</span><span class="nb">fopen</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">);</span>
+    <span class="nv">$headers</span><span class="o">=</span><span class="k">false</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="nv">$r</span><span class="o">=</span><span class="p">((</span><span class="nv">$delim</span><span class="o">==</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span><span class="o">?</span><span class="nb">fgetcsv</span><span class="p">(</span><span class="nv">$fp</span><span class="p">)</span><span class="o">:</span><span class="nb">fgets</span><span class="p">(</span><span class="nv">$fp</span><span class="p">)))</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$delim</span><span class="o">!=</span><span class="s1">&#39;csv&#39;</span><span class="p">){</span>
+            <span class="nv">$r</span><span class="o">=</span><span class="nb">explode</span><span class="p">(</span><span class="nv">$delim</span><span class="p">,</span> <span class="nv">$r</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nv">$headers</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">foreach</span><span class="p">(</span><span class="nv">$r</span> <span class="k">as</span> <span class="nv">$h</span><span class="p">){</span>
+                <span class="nv">$headers</span><span class="p">[]</span><span class="o">=</span><span class="nx">trim</span><span class="p">(</span><span class="nv">$h</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;CREATE TABLE </span><span class="si">$tablename</span><span class="s2"></span>
+<span class="s2">                         (</span>
+<span class="s2">                            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,&quot;</span><span class="p">;</span>
+            <span class="k">foreach</span><span class="p">(</span><span class="nv">$headers</span> <span class="k">as</span> <span class="nv">$h</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nv">$sqls</span><span class="p">[]</span><span class="o">=</span><span class="s2">&quot; `&quot;</span> <span class="o">.</span> <span class="nx">db_in</span><span class="p">(</span><span class="nv">$h</span><span class="p">)</span> <span class="o">.</span> <span class="s2">&quot;` TEXT NOT NULL &quot;</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nv">$sql</span> <span class="o">.=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="nv">$sqls</span><span class="p">)</span> <span class="o">.</span> <span class="s2">&quot;</span>
+<span class="s2">                        ) ENGINE = MYISAM &quot;</span><span class="p">;</span>
+            <span class="nx">db_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;insert into </span><span class="si">$tablename</span><span class="s2"> set &quot;</span><span class="p">;</span>
+        <span class="nv">$sqls</span><span class="o">=</span><span class="k">array</span><span class="p">();</span>
+        <span class="k">foreach</span><span class="p">(</span><span class="nv">$headers</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$h</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$sqls</span><span class="p">[]</span> <span class="o">=</span> <span class="s2">&quot;`</span><span class="si">$h</span><span class="s2">` = &#39;&quot;</span> <span class="o">.</span> <span class="nx">db_in</span><span class="p">(</span><span class="nv">$r</span><span class="p">[</span><span class="nv">$k</span><span class="p">])</span> <span class="o">.</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nv">$sql</span> <span class="o">.=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="nv">$sqls</span><span class="p">);</span>
+        <span class="nx">db_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+        <span class="nx">pbar</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
