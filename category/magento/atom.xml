@@ -4,7 +4,7 @@
   <title><![CDATA[Category: magento | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/category/magento/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-01-17T15:03:36+00:00</updated>
+  <updated>2014-01-23T17:43:58+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,127 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Preorders in Magento Using Attribute Value]]></title>
+    <link href="http://edmondscommerce.github.io/magento/preorders-in-magento-using-attribute-value.html"/>
+    <updated>2014-01-23T15:52:41+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/preorders-in-magento-using-attribute-value</id>
+    <content type="html"><![CDATA[<p>Magento doesn&rsquo;t come built with the ability to place preorders: the closest match is in the form of back orders, but there&rsquo;s a crucial difference between the two. Backorders are orders placed when stock isn&rsquo;t present and are shipped as soon as stock becomes available. Preorders however usually have a predefined point at which they will be shipped.</p>
+
+<p>The excellent <a href="http://www.aitoc.com/en/magentomods_pre_order.html">Aitoc Prorders</a> extension provides a drop-in ability to accept preorders including button text changes, checkout customisation and different order statuses for preorders.</p>
+
+<p>One aspect I had to work around is that the way to define a preorder is by using the extra &ldquo;Pre-Orders&rdquo; value of the Magento &ldquo;Backorders&rdquo; Inventory field. In my case I wanted to define a preorder to be a product with a Release Date set in the future. Fortunately the Aitc Preorders module has a very discrete function where it holds the definition of a Preorder. Changing this is a simple case of overriding that method</p>
+
+<h3>Creating a new extension</h3>
+
+<p>You need to create a new standard Magento extension, creating the usual boilerplate files:</p>
+
+<ul>
+<li>/app/etc/modules/Namespace_Module.xml</li>
+<li>/app/code/local/Namespace/Module/etc/config.xml</li>
+</ul>
+
+
+<h3>Rewrite the Aitoc module&rsquo;s Product model</h3>
+
+<p>In /app/code/local/Namespace/Module/etc/config.xml, set up your XML:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="ni">&amp;lt;</span>?xml version=<span class="ni">&amp;ldquo;</span>1.0<span class="ni">&amp;rdquo;</span>?&gt;
+</span><span class='line'><span class="nt">&lt;config&gt;&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>modules<span class="ni">&amp;gt;</span>
+</span><span class='line'>    <span class="ni">&amp;lt;</span>Namespace_Module<span class="ni">&amp;gt;</span>
+</span><span class='line'>        <span class="ni">&amp;lt;</span>version<span class="ni">&amp;gt;</span>0.1.0<span class="ni">&amp;lt;</span>/version<span class="ni">&amp;gt;</span>
+</span><span class='line'>    <span class="ni">&amp;lt;</span>/Namespace_Module<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="ni">&amp;lt;</span>/modules<span class="ni">&amp;gt;</span>
+</span><span class='line'>
+</span><span class='line'>Home /
+</span><span class='line'>Shipping /
+</span><span class='line'>Premium MatrixRate
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="ni">&amp;lt;</span>global<span class="ni">&amp;gt;</span>
+</span><span class='line'>    <span class="ni">&amp;lt;</span>models<span class="ni">&amp;gt;</span>
+</span><span class='line'>        <span class="ni">&amp;lt;</span>catalog<span class="ni">&amp;gt;</span>
+</span><span class='line'>            <span class="ni">&amp;lt;</span>rewrite<span class="ni">&amp;gt;</span>
+</span><span class='line'>                <span class="ni">&amp;lt;</span>product<span class="ni">&amp;gt;</span>Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct<span class="ni">&amp;lt;</span>/product<span class="ni">&amp;gt;</span>
+</span><span class='line'>            <span class="ni">&amp;lt;</span>/rewrite<span class="ni">&amp;gt;</span>
+</span><span class='line'>        <span class="ni">&amp;lt;</span>/catalog<span class="ni">&amp;gt;</span>
+</span><span class='line'>    <span class="ni">&amp;lt;</span>/models<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="ni">&amp;lt;</span>/global<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;&lt;/config&gt;</span> <span class="nt">&lt;br/&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>Create the class and override the function</h3>
+
+<p>Create the file /app/code/local/Namespace/Module/Model/Aitpreorder/Rewrite/CatalogProduct.php</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;&amp;</span><span class="nx">lt</span><span class="p">;</span><span class="o">?</span><span class="nx">php</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="k">class</span> <span class="nc">Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct</span> <span class="k">extends</span> <span class="nx">Aitoc_Aitpreorder_Model_Rewrite_CatalogProduct</span> <span class="p">{</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="k">public</span> <span class="k">function</span> <span class="nf">getPreorder</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Add whatever logic you like here and return it as a boolean</span>
+</span><span class='line'>    <span class="nv">$releaseDate</span> <span class="o">=</span> <span class="nx">DateTime</span><span class="o">::</span><span class="na">createFromFormat</span><span class="p">(</span><span class="s1">&#39;Y-m-d H:i:s&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&amp;</span><span class="nx">gt</span><span class="p">;</span><span class="nx">getReleaseDate</span><span class="p">());</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$releaseDate</span> <span class="o">&amp;</span><span class="nx">gt</span><span class="p">;</span> <span class="k">new</span> <span class="nx">DateTime</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="nx">code</span><span class="o">&gt;&lt;/</span><span class="nx">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Magento 1.8 released]]></title>
@@ -119,53 +240,6 @@ User ross
 <p>It does look very much like Sylius is still quite a new offering and it can not boast the level of maturity and establishment that Magento has achieved. That said, things move quickly in this industry and who knows what will be top dog in the next five years.</p>
 
 <p>If you are considering Sylius for your e-commerce website and would like to find a UK Sylius developer to work with then do get in touch with Edmonds Commerce today.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[White Blank Page when Printing Packing Slips from Magento Admin]]></title>
-    <link href="http://edmondscommerce.github.io/magento/white-blank-page-when-printing-packing-slips-from-magento-admin.html"/>
-    <updated>2013-07-01T14:21:49+01:00</updated>
-    <id>http://edmondscommerce.github.io/magento/white-blank-page-when-printing-packing-slips-from-magento-admin</id>
-    <content type="html"><![CDATA[<p>If you&rsquo;re having trouble printing packing slips, receiving a white blank page when selecting Print Packingslips from the Actions menu in Magento&rsquo;s Sales Orders page, then it&rsquo;s likely you&rsquo;re having the same issue I&rsquo;ve had.</p>
-
-<p>I found that having error_reporting enabled wasn&rsquo;t enough</p>
-
-<p>```php</p>
-
-<p>error_reporting(E_ALL | E_STRICT);</p>
-
-<p>```</p>
-
-<p>You&rsquo;ll also need to add this to your index.php:</p>
-
-<p>```</p>
-
-<p>ini_set(&lsquo;display_errors&rsquo;, 1);</p>
-
-<p>```</p>
-
-<p>You&rsquo;ll then be shown the following fatal error:</p>
-
-<p>```</p>
-
-<p>Fatal error: Declaration of Zend_Pdf_FileParserDataSource_File::<strong>construct() must be compatible with Zend_Pdf_FileParserDataSource::</strong>construct() in /home8/stonecr2/public_html/newsite/lib/Zend/Pdf/FileParserDataSource/File.php on line 41</p>
-
-<p>```</p>
-
-<p>The issue here is that the contructor of Zend_Pdf_FileParserDataSource_File requires a single paramter, $filePath, whereas its abstract class&rsquo;s constructor does not. To resolve this, we need to make sure the abstract class matches its implementation, so make the following change</p>
-
-<p>```php</p>
-
-<p>//from
-abstract public function __construct();</p>
-
-<p>//to
-abstract public function __construct($filePath);</p>
-
-<p>```</p>
-
-<p>Test your printing, and you should be provided with a PDF file.</p>
 ]]></content>
   </entry>
   
