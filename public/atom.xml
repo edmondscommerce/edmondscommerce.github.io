@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-01-23T17:19:53+00:00</updated>
+  <updated>2014-01-23T17:25:50+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,30 +14,858 @@
 
   
   <entry>
-    <title type="html"><![CDATA[MySQL Copy Table from One Database to Another]]></title>
-    <link href="http://edmondscommerce.github.io/mysql/web%20development/programming/mysql-copy-table-from-one-database-to-another.html"/>
-    <updated>2008-03-03T13:51:37+00:00</updated>
-    <id>http://edmondscommerce.github.io/mysql/web%20development/programming/mysql-copy-table-from-one-database-to-another</id>
-    <content type="html"><![CDATA[<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
+    <title type="html"><![CDATA[Getting Skype Working on Fedora 20]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20.html"/>
+    <updated>2014-01-17T14:45:29+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20</id>
+    <content type="html"><![CDATA[<p>I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&rsquo;t completely smooth, there were a few hoops I had to jump through.</p>
+
+<p>I am making a note of these here for my own future reference and to help out any one else hitting problems like these.</p>
+
+<p>To install Skype on Fedora 20 64bit, the first thing you need to do is download the <a href="http://www.skype.com/en/download-skype/skype-for-linux/">Fedora 32bit RPM from Skype</a>.</p>
+
+<p>To install this you should use Yum so that dependancies are handled properly:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Sometime in MySQL you want to copy an entire table from one database to a separate database. One example of when you would want to do this is if you are making a backup of a table before you apply some kind of processing to that table. There is nothing worse than ruining a database table and losing valuable information. To make an instant backup is so easy that there really is no excuse not to make backups at important or risky stages.</p>
+<p>However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
+After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
+One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.</p>
 
-<p>Here is how to do it:</p>
+<p>Here is the process in commands:</p>
 
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>Firstly remove the package and install the i686 version</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">DROP</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">EXISTS</span> <span class="ss">`backup_db.backup_table`</span><span class="p">;</span>
-</span><span class='line'><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="ss">`backup_db.backup_table`</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="ss">`live_db.live_table`</span><span class="p">;</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>yum remove libvpx.x86_64
+</span><span class='line'>yum install libvpx.i686</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then install Skype</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then reinstall the 64 bit version of libvpx</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install libvpx.x86_64 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then reinstall the programs that were removed when I removed libvpx</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo gnome-open /usr/share/applications/skype.desktop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Change the line that reads <strong>Exec=skype %U</strong> to the following:</p>
+
+<p><strong>Exec=env PULSE_LATENCY_MSEC=30 skype %U</strong></p>
+
+<p>Restart Skype and the audio issues should be resolved.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bash Find Files and Echo Filename and Contents]]></title>
+    <link href="http://edmondscommerce.github.io/bash/bash-find-files-and-echo-filename-and-contents.html"/>
+    <updated>2014-01-13T17:18:55+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/bash-find-files-and-echo-filename-and-contents</id>
+    <content type="html"><![CDATA[<p>I thought this one would be easy but actually its taken a bit of messing about.</p>
+
+<p>The goal was to find files matching a pattern, in this case a file name, and then echo out the full path to the file and also the file contents.</p>
+
+<p>If you are interested, the reason I was doing this was to understand the <em>interesting</em> approach that the ORO Platform has taken to setting up the AppKernel bundles in Symfony2.</p>
+
+<p>The command is here:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> find . -type f -iwholename '*bundles.yml' | xargs -I % bash -c "echo ''; echo '----------------------'; echo %; cat %; echo '';"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I have added in some extra echos to make it format nicely but the main thing is that I am using xargs to handle the results from find.</p>
+
+<p>The individual result is assigned to the % character. Then a sub shell is instantiated to manage a specific command that both echos % itself and then uses cat to echo the contents of %.</p>
+
+<p>This gave me an output like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>----------------------
+</span><span class='line'>./vendor/oro/platform/src/Oro/Bundle/ImportExportBundle/Resources/config/oro/bundles.yml
+</span><span class='line'>bundles:
+</span><span class='line'>    - Oro\Bundle\ImportExportBundle\OroImportExportBundle
+</span><span class='line'>
+</span><span class='line'>----------------------
+</span><span class='line'>./vendor/oro/platform/src/Oro/Bundle/PlatformBundle/Resources/config/oro/bundles.yml
+</span><span class='line'>bundles:
+</span><span class='line'>    - { name: Symfony\Bundle\FrameworkBundle\FrameworkBundle, priority: -255 }
+</span><span class='line'>    - { name: Symfony\Bundle\SecurityBundle\SecurityBundle, priority: -250 }
+</span><span class='line'>    - { name: Symfony\Bundle\TwigBundle\TwigBundle, priority: -245 }
+</span><span class='line'>    - { name: Symfony\Bundle\MonologBundle\MonologBundle, priority: -240 }
+</span><span class='line'>    - { name: Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle, priority: -235 }
+</span><span class='line'>    - { name: Symfony\Bundle\AsseticBundle\AsseticBundle, priority: -230 }
+</span><span class='line'>    - { name: Doctrine\Bundle\DoctrineBundle\DoctrineBundle, priority: -225 }
+</span><span class='line'>    - { name: Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle, priority: -220 }
+</span><span class='line'>    - { name: Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle, priority: -215 }
+</span><span class='line'>    - { name: JMS\SerializerBundle\JMSSerializerBundle, kernel: true, priority: -210 }
+</span><span class='line'>    - { name: Knp\Bundle\PaginatorBundle\KnpPaginatorBundle, priority: -205 }
+</span><span class='line'>    - { name: Knp\Bundle\MenuBundle\KnpMenuBundle, priority: -200 }
+</span><span class='line'>    - { name: FOS\RestBundle\FOSRestBundle, priority: -195 }
+</span><span class='line'>    - { name: FOS\JsRoutingBundle\FOSJsRoutingBundle, priority: -190 }
+</span><span class='line'>    - { name: Nelmio\ApiDocBundle\NelmioApiDocBundle, priority: -185 }
+</span><span class='line'>    - { name: BeSimple\SoapBundle\BeSimpleSoapBundle, priority: -180 }
+</span><span class='line'>    - { name: Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle, priority: -175 }
+</span><span class='line'>    - { name: Escape\WSSEAuthenticationBundle\EscapeWSSEAuthenticationBundle, priority: -170 }
+</span><span class='line'>    - { name: Liip\ImagineBundle\LiipImagineBundle, priority: -165 }
+</span><span class='line'>    - { name: Genemu\Bundle\FormBundle\GenemuFormBundle, priority: -155 }
+</span><span class='line'>    - { name: A2lix\TranslationFormBundle\A2lixTranslationFormBundle, priority: -150 }
+</span><span class='line'>    - { name: Lexik\Bundle\MaintenanceBundle\LexikMaintenanceBundle, priority: -145 }
+</span><span class='line'>    - Oro\Bundle\PlatformBundle\OroPlatformBundle</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And you can see that the bundle file I was looking for is in the Platform Bundle.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Upgrading from Fedora 19 to 20 using FedUp]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html"/>
+    <updated>2014-01-03T19:32:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup</id>
+    <content type="html"><![CDATA[<p>I decided to upgrade to the latest version because why not, its the first Friday of the year.</p>
+
+<p>The first thing to do is head over to <a href="https://fedoraproject.org/wiki/FedUp">this page</a> which explains how to use the tool.</p>
+
+<p>I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y --enablerepo=updates-testing install fedup</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once that is all done then you need to run the fedup command itself:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update fedup fedora-release
+</span><span class='line'>sudo fedup --network 20</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:</em></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
+</span><span class='line'>sudo fedup --network 20</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
+It takes a while, make a brew or something.</p>
+
+<p>Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
+<a href="https://extensions.gnome.org/local/">https://extensions.gnome.org/local/</a> and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
+When that&rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.</p>
+
+<p>For me the only one I&rsquo;m really going to miss is the <a href="https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/">Quick Close in Overview</a> which is really handy, hopefully will be updated soon.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fedora Yum Update Failing - RPMFusion + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html"/>
+    <updated>2014-01-02T10:42:59+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution</id>
+    <content type="html"><![CDATA[<p>I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.</p>
+
+<p>To see what was really going on I ran yum update from the command line</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This died with the following error message:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Couldn't open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.</p>
+
+<p>To do that you can run this simple command (again in the command line):</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I did this and then ran the yum update command again and everything is fixed.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Code Blocks with Liquid or Twig Tags using Octopress]]></title>
+    <link href="http://edmondscommerce.github.io/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html"/>
+    <updated>2013-12-09T18:57:42+00:00</updated>
+    <id>http://edmondscommerce.github.io/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress</id>
+    <content type="html"><![CDATA[<p>Here is a quicky I figured out when posting my previous story that included a snippet of Twig code.</p>
+
+<p>If you put Twig code into codeblocks, it doesn&rsquo;t work, instead of regarding anything inside the code block as escaped code, it tries to parse it.</p>
+
+<p>The solution is simply to wrap your code in a raw tag like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{% codeblock %}
+</span><span class='line'>{% raw %}
+</span><span class='line'>   // your code here
+</span><span class='line'>{% end[REMOVE_THIS_BIT]raw %}
+</span><span class='line'>{% endcodeblock %}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In fact I had to do that to get this post to work as well</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony2 Twig  'DateTime could not be converted to string']]></title>
+    <link href="http://edmondscommerce.github.io/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html"/>
+    <updated>2013-12-09T18:43:03+00:00</updated>
+    <id>http://edmondscommerce.github.io/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string</id>
+    <content type="html"><![CDATA[<p>I just hit an interesting issue with a nice and easy solution once you understand what is going on.
+On a current project I making heavy use of the <a href="https://github.com/sensiolabs/SensioGeneratorBundle">SensioGeneratorBundle</a> to generate CRUD etc. So far its working really nicely.</p>
+
+<p>However I started to see an issue with one of my entities that Twig was not handling a DateTime column properly but others were being handled fine.</p>
+
+<p>Looking through the Twig template I noticed this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html+jinja'><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp">{%</span>- <span class="k">for</span> <span class="nv">field</span><span class="o">,</span> <span class="nv">metadata</span> <span class="k">in</span> <span class="nv">fields</span> <span class="cp">%}</span>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">if</span> <span class="nb">loop</span><span class="nv">.first</span> <span class="k">and</span> <span class="o">(</span><span class="s1">&#39;show&#39;</span> <span class="k">in</span> <span class="nv">actions</span><span class="o">)</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="s2">&quot;{{ path(&#39;&quot;</span> <span class="o">~</span> <span class="nv">route_name_prefix</span> <span class="o">~</span> <span class="s2">&quot;_show&#39;, { &#39;id&#39;: entity.id }) }}&quot;</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; }}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">elseif</span> <span class="nv">metadata.type</span> <span class="k">in</span> <span class="o">[</span><span class="s1">&#39;date&#39;</span><span class="o">,</span> <span class="s1">&#39;datetime&#39;</span><span class="o">]</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{% if entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; %}{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39;|date(\&#39;Y-m-d H:i:s\&#39;) }}{% endif %}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/td&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This will delete your existing backup table completely, then will remake it copying all structural information and content from the live_table in the live_db.</p>
+<p>What this means is that the first entity will never have the DateTime handling. Of course you probably don&rsquo;t want a DateTime to be the first entity so I think this is reasonable.</p>
+
+<p>To fix this, all you need to do is make sure that your Doctrine class does not declare the first property as a DateTime.</p>
+
+<p>If you have a primary key or unique reference property then try to get this as the first declared property in your Doctrine entity class and then rebuild the CRUD and the problem goes away.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Browsers Currently Supported By Google]]></title>
+    <link href="http://edmondscommerce.github.io/browsers/browsers-currently-supported-by-google.html"/>
+    <updated>2013-12-06T18:49:19+00:00</updated>
+    <id>http://edmondscommerce.github.io/browsers/browsers-currently-supported-by-google</id>
+    <content type="html"><![CDATA[<p>Google Apps, such as Gmail, Calendar, Docs etc lean heavily on Javascript to create fluid web applications. Naturally this requires up to date browsers to take advantage of functionality and technologies.</p>
+
+<p>Google&rsquo;s policy on browser support is quite strict, especially where Internet Explorer is concerned. <strong>For Chrome only the latest version is supported because of its auto-update policy. Internet Explorer, Firefox and Safari are supported in the most recent, and previous version.</strong> The third most recent browser is no longer supported as soon as a new one is released. No official support is offered for Opera.</p>
+
+<p>This is particularly strict for Internet Explorer, since its versioning is vastly different from that of Chrome and Firefox, with the latter incrementing the version for much smaller changes, and being more frequent. Another effect is that ruling out what is currently IE9 rules out both Windows XP and Windows Vista &ndash; both OSs currently supported by Microsoft.</p>
+
+<p>Naturally this doesn&rsquo;t mean that the products won&rsquo;t work, anjd in many cases they were developed before support was dropped for specific versions. In some cases however it does enforce a more simplistic UI, such as redirecting very old browsers to a Basic HTML view for Gmail</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Wrapping a List in Quotes in PHPStorm]]></title>
+    <link href="http://edmondscommerce.github.io/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html"/>
+    <updated>2013-12-06T11:35:58+00:00</updated>
+    <id>http://edmondscommerce.github.io/phpstorm/wrapping-a-list-in-quotes-in-phpstorm</id>
+    <content type="html"><![CDATA[<p>Some times you might find your self with a list of values you want to copy and paste from somewhere into your PHP code as an array of strings.</p>
+
+<p>For example, take this list of carrier names that I need to use:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Blue Package, USPS, UPS, UPSMI, FedEx, DHL, DHL Global Mail, Fastway, UPS Mail Innovations, Lasership, Royal Mail, FedEx SmartPost, OSM, OnTrac, Streamlite, Newgistics, Canada Post, City Link, GLS, GO!, Hermes Logistik Gruppe, Parcelforce, TNT, Target, SagawaExpress, NipponExpress, YamatoTransport, Other</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I really don&rsquo;t fancy wrapping each element of this list with quotes one by one, there must be a better way!</p>
+
+<p>There is, you can use the regex replace functionality of PHPStorm to do this for you quickly and easily.</p>
+
+<p>First of all paste the string into your PHPStorm editor and highlight it. Then hit <code>[ctrl]+[r]</code> to start your find and replace.</p>
+
+<p>The &ldquo;In Selection&rdquo; tick box should be ticked already, you also need to tick the regex box.</p>
+
+<p>Then in the find section, use this regex:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>( |)([^,]+),</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And in your replace box, put this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>\n'$2',</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This gets you nearly all the way there, you might just need to tidy up a bit you should now have something looking like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>'Blue Package',
+</span><span class='line'>'USPS',
+</span><span class='line'>'UPS',
+</span><span class='line'>'UPSMI',
+</span><span class='line'>'FedEx',
+</span><span class='line'>'DHL',
+</span><span class='line'>'DHL Global Mail',
+</span><span class='line'>'Fastway',
+</span><span class='line'>'UPS Mail Innovations',
+</span><span class='line'>'Lasership',
+</span><span class='line'>'Royal Mail',
+</span><span class='line'>'FedEx SmartPost',
+</span><span class='line'>'OSM',
+</span><span class='line'>'OnTrac',
+</span><span class='line'>'Streamlite',
+</span><span class='line'>'Newgistics',
+</span><span class='line'>'Canada Post',
+</span><span class='line'>'City Link',
+</span><span class='line'>'GLS',
+</span><span class='line'>'GO!',
+</span><span class='line'>'Hermes Logistik Gruppe',
+</span><span class='line'>'Parcelforce',
+</span><span class='line'>'TNT',
+</span><span class='line'>'Target',
+</span><span class='line'>'SagawaExpress',
+</span><span class='line'>'NipponExpress',
+</span><span class='line'>'YamatoTransport', Other</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>Other</code> on the end has not been converted has it doesn&rsquo;t have a trailing comma. You could mess about with yoru regex trying to get this to also be converted, or you could say good enough and move on.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Merging Forks for Composer]]></title>
+    <link href="http://edmondscommerce.github.io/composer/merging-forks-for-composer.html"/>
+    <updated>2013-12-05T19:53:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/composer/merging-forks-for-composer</id>
+    <content type="html"><![CDATA[<p>I am really enjoying using Composer with a Symfony2 project that I am currently working on.</p>
+
+<p>Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
+JMS/SerializerBundle to handle the actual encoding into JSON.</p>
+
+<p>The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&rsquo;t want that. I want my property and entity names to be the same across formats.</p>
+
+<p>A bit of digging and I found <a href="https://github.com/passkey1510/JMSSerializerBundle">this fork</a> which features a fix for exactly this problem, brilliant!</p>
+
+<p>However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
+the minimum version requirements of the FOSRest bundle. Problem.</p>
+
+<p>The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
+</span><span class='line'>git merge remote/passkey1510/master
+</span><span class='line'>git push</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.</p>
+
+<p>I can now reference my fork in my composer.json file like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"repositories": [
+</span><span class='line'>        {
+</span><span class='line'>            "url": "https://github.com/edmondscommerce/JMSSerializerBundle.git",
+</span><span class='line'>            "type": "vcs"
+</span><span class='line'>        },
+</span><span class='line'>],</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now running a <code>composer update --dev</code> and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.</p>
+
+<p>And that is it, problem solved :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[The First Thing You Should Read on SEO]]></title>
+    <link href="http://edmondscommerce.github.io/SEO/the-first-thing-you-should-read-on-seo.html"/>
+    <updated>2013-12-05T12:16:17+00:00</updated>
+    <id>http://edmondscommerce.github.io/SEO/the-first-thing-you-should-read-on-seo</id>
+    <content type="html"><![CDATA[<p>There is so much information about SEO out there and so many things that used
+to be true but are no longer that it really has become a bit of a minefield.</p>
+
+<p>For the average web master who simply wants to rank reasonably well and make sure that they are doign all of the basic things required to do so then this is the document you should read.</p>
+
+<p>It is written by the company that are almost synonymous with the word search engine. In fact their company name has now become a verb meaning &lsquo;to use a search engine&rsquo;. It is of course Google.</p>
+
+<p>You can read the official google SEO guidelines <a href="http://static.googleusercontent.com/media/www.google.co.uk/en/uk/webmasters/docs/search-engine-optimization-starter-guide.pdf">here</a></p>
+
+<p>It is not a huge document and should be well within the technical understanding of the average webmaster.</p>
+
+<p>I suggest you read it today!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Octopress auto building the site locally for one blog post]]></title>
+    <link href="http://edmondscommerce.github.io/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html"/>
+    <updated>2013-12-03T17:47:30+00:00</updated>
+    <id>http://edmondscommerce.github.io/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post</id>
+    <content type="html"><![CDATA[<p>Setting up a blog post using Octopress involves writing up your Markdown content, building the site, and previewing it.</p>
+
+<p>This can be time-consuming when writing posts, having to run several commands repeatedly. Here&rsquo;s a few lines you can put into a bash script and run once each time:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">PATHTOLATEST</span><span class="o">=</span><span class="sb">`</span>ls -t <span class="nb">source</span>/_posts | head -1<span class="sb">`</span>;
+</span><span class='line'><span class="nb">echo</span> <span class="nv">$PATHTOLATEST</span>
+</span><span class='line'>bundle <span class="nb">exec </span>rake isolate<span class="o">[</span><span class="nv">$PATHTOLATEST</span><span class="o">]</span>;
+</span><span class='line'>bundle <span class="nb">exec </span>rake generate;
+</span><span class='line'>bundle <span class="nb">exec </span>rake preview;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>The PATHTOLATEST variable finds the latest post</li>
+<li>echo the variable for debugging purposes</li>
+<li>rake isolate instructs octopress to build the site with only the latest blog post</li>
+<li>rake generate builds the site</li>
+<li>rake preview initialises the web server</li>
+</ol>
+
+
+<p>From then you can make changes to your post, and the site will be automatically regenerated. This uses a file watcher so it&rsquo;s helpful to keep the terminal open to watch for it building, or having errors</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sorting Results Arbitrarily in MySQL]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/sorting-results-arbitrarily-in-mysql.html"/>
+    <updated>2013-12-03T12:40:04+00:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/sorting-results-arbitrarily-in-mysql</id>
+    <content type="html"><![CDATA[<p>When you have a result set in MySQL that you need to order in a specific way you might think that it is not possible and instead you are going to have to read all
+of your results into your application domain (eg PHP) and manage the sorting from there. On a large results set that could be seriously inefficient.</p>
+
+<p>The truth is that you don&rsquo;t have to do that. You can specify any kind of sort order including sorting by string values as you see fit.</p>
+
+<p>The way to do this is to use the magic of <a href="http://dev.mysql.com/doc/refman/5.0/en/string-functions.html#function_find-in-set">FIND_IN_SET</a> combined with ORDER BY.</p>
+
+<p>For a full example see this query that is pulling out product images from a data repository in descending image size as described in one of the columns as a string.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span>
+</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">prodID</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dc</span><span class="p">.</span><span class="n">url</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span> <span class="k">AS</span> <span class="n">resolution</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">cds_DigContent</span> <span class="n">dc</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Links</span> <span class="n">dcl</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta</span> <span class="n">dcm</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcm</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaAtrId</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta_ValVoc</span> <span class="n">dcmv</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueId</span> <span class="o">=</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaValueId</span><span class="p">)</span>
+</span><span class='line'><span class="k">WHERE</span> <span class="n">dc</span><span class="p">.</span><span class="n">mediaTypeId</span> <span class="o">=</span> <span class="mi">15</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">dcl</span><span class="p">.</span><span class="n">prodId</span> <span class="o">=</span> <span class="s1">&#39;{$this-&gt;getCnetProdID()}&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">ORDER</span> <span class="k">BY</span>
+</span><span class='line'>  <span class="nf">FIND_IN_SET</span><span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span><span class="p">,</span> <span class="s1">&#39;2400 x 1800,1200 x 900,1024 x 768,800 x 600,640 x 480,400 x 300,200 x 150,75 x 75&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">LIMIT</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Faker Symfony2 Integration]]></title>
+    <link href="http://edmondscommerce.github.io/symfony2/faker-symfony2-integration.html"/>
+    <updated>2013-12-02T20:43:49+00:00</updated>
+    <id>http://edmondscommerce.github.io/symfony2/faker-symfony2-integration</id>
+    <content type="html"><![CDATA[<p>Generating test data is a crucial part of properly testing your code. If you have to hard code your test data or fixtures then you might be tempted to use only a small number of test entities.</p>
+
+<p>To help with this you can use the brilliant <a href="https://github.com/fzaninotto/Faker">Faker</a> library to generate your test data. The Faker library is designed purely to generate test data and has a range of providers for all kinds of data.</p>
+
+<p>As if that wasn&rsquo;t good enough, you can leverage all the power of this library in your Symfony2 development by simply installing this Symfony2 bundle, <a href="https://github.com/willdurand/BazingaFakerBundle/blob/master/Resources/doc/index.md">BazingaFakerBundle</a>.</p>
+
+<p>Installation is a breeze with Composer and then simply reference your entities in the configuration and run the command</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>app/console faker:populate</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To generate your entities programmatically rather than as a command line action (perhaps as part of a unit or functional test) you can use this code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">//Faker load test data</span>
+</span><span class='line'><span class="nv">$populator</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getContainer</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">&#39;faker.populator&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$insertedPks</span> <span class="o">=</span> <span class="nv">$populator</span><span class="o">-&gt;</span><span class="na">execute</span><span class="p">();</span>
+</span><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$insertedPks</span> <span class="k">as</span> <span class="nv">$class</span> <span class="o">=&gt;</span> <span class="nv">$pks</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$reflClass</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">\ReflectionClass</span><span class="p">(</span><span class="nv">$class</span><span class="p">);</span>
+</span><span class='line'>    <span class="nv">$shortClassName</span> <span class="o">=</span> <span class="nv">$reflClass</span><span class="o">-&gt;</span><span class="na">getShortName</span><span class="p">();</span>
+</span><span class='line'>    <span class="nb">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Faker: Inserted %s new %s objects</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$pks</span><span class="p">),</span> <span class="nv">$shortClassName</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Trigger Basic Auth Popup in Chrome]]></title>
+    <link href="http://edmondscommerce.github.io/chrome/trigger-basic-auth-popup-in-chrome.html"/>
+    <updated>2013-12-02T19:32:58+00:00</updated>
+    <id>http://edmondscommerce.github.io/chrome/trigger-basic-auth-popup-in-chrome</id>
+    <content type="html"><![CDATA[<p>In Chrome, if you have already authenticated with a site using Basic Authentiation (a Web Server level authentication) then you will have probably realised that once you are authenticated, Chrome does not continuously prompt you for the details, and that is a good thing.
+However, in a scenario where perhaps you want to authenticate as a different user or otherwise re enter the details then it can be tricky to figure out how to do this.</p>
+
+<p>The answer is simple enough, you can retrigger this prompt by putting your username@ the url and the pop up will be shown again.</p>
+
+<p>To be clear:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://www.somedomain.com</span></code></pre></td></tr></table></div></figure>
+
+
+<p>becomes:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://username@www.somedomain.com</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symonfy2 PHPStorm Project Setup]]></title>
+    <link href="http://edmondscommerce.github.io/Symonfy2/symonfy2-phpstorm-project-setup.html"/>
+    <updated>2013-12-02T19:01:51+00:00</updated>
+    <id>http://edmondscommerce.github.io/Symonfy2/symonfy2-phpstorm-project-setup</id>
+    <content type="html"><![CDATA[<p>I was going to write a nice summary of how to set up PHPStorm with a Symfony2 project.
+There are a few things to be aware of such as getting the right code style set up so that your code follows the Symonfy2 coding standards.</p>
+
+<p>As it happens though a quick google found that there is already an excellent summary <a href="http://www.kevwebdev.com/blog/setting-up-a-symfony2-project-in-phpstorm.html">here</a> which I suggest you have a read of.</p>
+
+<p>The only thing I would add to this are that you should probably install these PHPStorm plugins to get the best out of it:</p>
+
+<p><a href="http://plugins.jetbrains.com/plugin?pr=&amp;pluginId=7219">Symfony2</a></p>
+
+<p>and <a href="http://plugins.jetbrains.com/plugin/7320">PHP Annotations</a></p>
+
+<p>If you do all of this then you should have a really nice PHPStorm set up for working on your Symfony2 projects, enjoy!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Octopress Syntax Highlighting for Vim]]></title>
+    <link href="http://edmondscommerce.github.io/vim/octopress-syntax-highlighting-for-vim.html"/>
+    <updated>2013-11-29T13:53:12+00:00</updated>
+    <id>http://edmondscommerce.github.io/vim/octopress-syntax-highlighting-for-vim</id>
+    <content type="html"><![CDATA[<p>Still learning some of the various things that can be done with Octopress and
+came across this Octopress syntax highlighting package that makes it even nicer
+to write blog posts (such as this one) using Vim.</p>
+
+<p>You can see the package <a href="https://github.com/tangledhelix/vim-octopress">here</a>.</p>
+
+<p>If you have already installed the SPF13 Vim then you are already running the required bundles
+and can simply run</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> ~/.vim/bundle
+</span><span class='line'>git clone https://github.com/tangledhelix/vim-octopress.git octopress
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It isn&rsquo;t a groundbreaking improvement but it is worth throwing in there.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ruby Syntax Highlighting with PHPStorm]]></title>
+    <link href="http://edmondscommerce.github.io/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html"/>
+    <updated>2013-11-28T10:30:12+00:00</updated>
+    <id>http://edmondscommerce.github.io/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm</id>
+    <content type="html"><![CDATA[<p>PHPStorm is my IDE of choice for PHP development of course and also as many other languages as I can get it to support. One of my favourite plugins for PHPStorm is BASH Support which makes it into a fully featured BASH IDE with function support and syntax highlighting and some code inspections.</p>
+
+<p>As we are now moving to Octopress for blogging functionality I wanted a way to get Ruby syntax highlighting. There is a full blown IntelliJ based Ruby IDE but that is overkill for my needs. I had a look at Netbeans however it has now stopped supporting Ruby though there is a community supported plugin apparently.</p>
+
+<p>My best IDE solution so far is simply Vim, perhaps the <a href="http://vim.spf13.com/">spf13 flavour</a>.</p>
+
+<p>After a bit of Googling good old Stack Overflow came through for me with <a href="http://stackoverflow.com/questions/16451359/is-it-possible-to-get-ruby-syntax-highlighting-in-phpstorm">this post</a> that explains how to leverage PHPStorm&rsquo;s TextMate bundle support to get Ruby syntax highlighting. This works a treat though on my colour scheme (a slightly modified Darcula) it was unreadable. The final thing to do is to change the settings under Settings > TextMate Bundles and in the grid at the bottom next to my theme I switched the TextMate colour scheme from Mac Classic to RailsCasts and now it looks good.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Setting up a Fedora 19 based PHP Development Installation]]></title>
+    <link href="http://edmondscommerce.github.io/fedora/setting-up-a-fedora-19-based-php-development-installation.html"/>
+    <updated>2013-10-31T10:25:52+00:00</updated>
+    <id>http://edmondscommerce.github.io/fedora/setting-up-a-fedora-19-based-php-development-installation</id>
+    <content type="html"><![CDATA[<p>I have decided to switch from Debian/Ubuntu/Mint which has served me very well over the last few years and move towards more of a RedHat based distribution as it seems that servers these days are more commonly CentOS or RedHat based and I always like to keep my development environment as close as I can to the server environment for all kinds of reason.</p>
+
+<p>Also, I have decided that I really quite like Gnome Shell and it makes sense to pick a distribution that is properly bundled with Gnome Shell rather than bolting it into a distro after installation.</p>
+
+<h3>1. Install Apache and PHP 5.5</h3>
+
+
+<p>You need to become root first, stay as root for the rest of the steps.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>su
+</span><span class='line'>rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm
+</span><span class='line'>rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm
+</span><span class='line'>rpm -Uvh http://rpms.famillecollet.com/remi-release-19.rpm
+</span><span class='line'>yum --enablerepo<span class="o">=</span>remi install httpd php php-common
+</span><span class='line'>yum --enablerepo<span class="o">=</span>remi install php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h3>2. Set that to start up automatically (you are going to be developing none stop right?)</h3>
+
+
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>service httpd start
+</span><span class='line'>systemctl <span class="nb">enable </span>httpd.service
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h3>3. Create a test PHP file to confirm thats all working</h3>
+
+
+<p>Extra bit here, install <a href="http://vim.spf13.com/" target="_blank">this version of Vim</a>, its quite tasty:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl http://j.mp/spf13-vim3 -L -o - | sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now create your PHP file:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>vim /var/www/html/test.php
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>May as well just throw a phpinfo() in there</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nb">phpinfo</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now check it: <a href="http://localhost/test.php"><a href="http://localhost/test.php">http://localhost/test.php</a></a></p>
+
+<h3>4. Finally lets get a MySQL version installed. Lets choose MariaDB</h3>
+
+
+<p>I tried Percona but it does not have a proper Fedora version. Then I discovered that Fedora have adopted MariaDB which is fine by me, lets go with the flow:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install mariadb mariadb-server
+</span><span class='line'>systemctl start mysqld.service
+</span><span class='line'>systemctl <span class="nb">enable </span>mysqld.service
+</span><span class='line'>/usr/bin/mysql_secure_installation
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it, next up is getting Java and PhpStorm installed and also phpMyAdmin</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Automatically convert old PHP file to camelCase ]]></title>
+    <link href="http://edmondscommerce.github.io/bash/automatically-convert-old-php-file-to-camelcase.html"/>
+    <updated>2013-10-17T10:53:15+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/automatically-convert-old-php-file-to-camelcase</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently been working with an old project that uses a combination of different coding styles.</p>
+
+<p>One of the more trivial annoyances with this is that the variables used through the project are a combination of $camelCase and $snake_case which throws of the coding standards tools that I use.</p>
+
+<p>To get round this I have put a little script together that will convert $snake_case to $camelCase automatically.</p>
+
+<p>Obviously, you will need to check the results of this to make sure that there are not variables that should not be changed, but it has saved me a lot of time doing this manually.</p>
+
+<p>I&rsquo;ve added this to my .bash_allias file, though it could easily be turned into a standalone script if required</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#Fix legacy code</span>
+</span><span class='line'> cammelCase<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>   vim -E -s <span class="nv">$@</span> <span class="s">&lt;&lt;-EOF</span>
+</span><span class='line'><span class="s">   :%s#\%($\%(\k\+\)\)\@&lt;=_\(\k\)#\u\1#g</span>
+</span><span class='line'><span class="s">   :update</span>
+</span><span class='line'><span class="s">   :quit</span>
+</span><span class='line'><span class="s">EOF</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vim Locking Up, Always When you are Ready to Save? Solution]]></title>
+    <link href="http://edmondscommerce.github.io/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html"/>
+    <updated>2013-10-04T10:33:41+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/vim-locking-up-always-when-you-are-ready-to-save-solution</id>
+    <content type="html"><![CDATA[<p>If you are constantly frustated by Vim freezing up on you are editing a file on a server then this is quite possibly your problem, and your solution.</p>
+
+<p>The issue is that most text editors and IDEs have [ctrl]+[s] mapped to save. If you do a lot of file editing then you probably bash the [ctrl]+[s] combo all the time, without even thinking about it&hellip;</p>
+
+<p>Now back to Vim. As it is running in the terminal then it can be frozen by using the [ctrl]+[s] combination. You probably weren&rsquo;t aware of that feature.</p>
+
+<p>To bring things back to life, just hit the [ctrl]+[q] combo. There are ways to permanently disable this which you can try.</p>
+
+<p>For full information on this, check out this great <a href="http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal" target="_blank">stack exchange page</a>.</p>
 ]]></content>
   </entry>
   
