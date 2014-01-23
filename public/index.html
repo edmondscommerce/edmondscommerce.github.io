@@ -128,6 +128,141 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-23T15:52:41+00:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Magento doesn&rsquo;t come built with the ability to place preorders: the closest match is in the form of back orders, but there&rsquo;s a crucial difference between the two. Backorders are orders placed when stock isn&rsquo;t present and are shipped as soon as stock becomes available. Preorders however usually have a predefined point at which they will be shipped.</p>
+
+<p>The excellent <a href="http://www.aitoc.com/en/magentomods_pre_order.html">Aitoc Prorders</a> extension provides a drop-in ability to accept preorders including button text changes, checkout customisation and different order statuses for preorders.</p>
+
+<p>One aspect I had to work around is that the way to define a preorder is by using the extra &ldquo;Pre-Orders&rdquo; value of the Magento &ldquo;Backorders&rdquo; Inventory field. In my case I wanted to define a preorder to be a product with a Release Date set in the future. Fortunately the Aitc Preorders module has a very discrete function where it holds the definition of a Preorder. Changing this is a simple case of overriding that method</p>
+
+<h3>Creating a new extension</h3>
+
+<p>You need to create a new standard Magento extension, creating the usual boilerplate files:</p>
+
+<ul>
+<li>/app/etc/modules/Namespace_Module.xml</li>
+<li>/app/code/local/Namespace/Module/etc/config.xml</li>
+</ul>
+
+
+<h3>Rewrite the Aitoc module&rsquo;s Product model</h3>
+
+<p>In /app/code/local/Namespace/Module/etc/config.xml, set up your XML:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;config&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;modules&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;Namespace_Module&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/Namespace_Module&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/modules&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    Home /
+</span><span class='line'>    Shipping /
+</span><span class='line'>    Premium MatrixRate
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;global&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;models&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;catalog&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;rewrite&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;product&gt;</span>Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct<span class="nt">&lt;/product&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/rewrite&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/catalog&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/models&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/global&gt;</span>
+</span><span class='line'><span class="nt">&lt;/config&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create the class and override the function</h3>
+
+<p>Create the file /app/code/local/Namespace/Module/Model/Aitpreorder/Rewrite/CatalogProduct.php</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct</span> <span class="k">extends</span> <span class="nx">Aitoc_Aitpreorder_Model_Rewrite_CatalogProduct</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">getPreorder</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Add whatever logic you like here and return it as a boolean</span>
+</span><span class='line'>        <span class="nv">$releaseDate</span> <span class="o">=</span> <span class="nx">DateTime</span><span class="o">::</span><span class="na">createFromFormat</span><span class="p">(</span><span class="s1">&#39;Y-m-d H:i:s&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getReleaseDate</span><span class="p">());</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nv">$releaseDate</span> <span class="o">&gt;</span> <span class="k">new</span> <span class="nx">DateTime</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-17T14:45:29+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2014</time>
         
       </p>
@@ -825,54 +960,6 @@ the minimum version requirements of the FOSRest bundle. Problem.</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-05T12:16:17+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/SEO/the-first-thing-you-should-read-on-seo.html">The First Thing You Should Read on SEO</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>There is so much information about SEO out there and so many things that used
-to be true but are no longer that it really has become a bit of a minefield.</p>
-
-<p>For the average web master who simply wants to rank reasonably well and make sure that they are doign all of the basic things required to do so then this is the document you should read.</p>
-
-<p>It is written by the company that are almost synonymous with the word search engine. In fact their company name has now become a verb meaning &lsquo;to use a search engine&rsquo;. It is of course Google.</p>
-
-<p>You can read the official google SEO guidelines <a href="http://static.googleusercontent.com/media/www.google.co.uk/en/uk/webmasters/docs/search-engine-optimization-starter-guide.pdf">here</a></p>
-
-<p>It is not a huge document and should be well within the technical understanding of the average webmaster.</p>
-
-<p>I suggest you read it today!</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -896,6 +983,8 @@ to be true but are no longer that it really has become a bit of a minefield.</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
+    
     <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
     
     <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
@@ -903,8 +992,6 @@ to be true but are no longer that it really has become a bit of a minefield.</p>
     <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
     <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
-    
-    <a class="list-group-item " href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a>
     
   </div>
 </section>

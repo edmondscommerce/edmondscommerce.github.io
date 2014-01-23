@@ -34,12 +34,6 @@ In /app/code/local/Namespace/Module/etc/config.xml, set up your XML:
             <version>0.1.0</version>
         </Namespace_Module>
     </modules>
-
-    Home /
-    Shipping /
-    Premium MatrixRate
-
-
     <global>
         <models>
             <catalog>
