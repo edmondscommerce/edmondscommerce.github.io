@@ -1,6 +1,6 @@
 #!/bin/bash
 cd /opt/Projects/edmondscommerce.github.io/
-rake integrate
+bundle exec rake integrate
 git add -A
 git commit -am 'commiting the source'
 git pull origin source
@@ -10,5 +10,5 @@ git pull origin master
 git checkout origin/master .
 git commit -am "Pulled remote master"
 cd ../
-rake gen_deploy
-rake notify
+bundle exec rake gen_deploy
+bundle exec rake notify
