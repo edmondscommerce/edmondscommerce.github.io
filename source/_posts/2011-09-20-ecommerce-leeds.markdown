@@ -37,4 +37,4 @@ That said, if you are looking for e-commerce specialists who are in Leeds then g
 
 We do a lot of work with Magento these days but being PHP development specialists we are happy to help with oscommerce, prestashop, open cart or any other PHP based system you would like us to look at.
 
-Just get in touch today. If you are based in Leeds feel free to swing by!
+Just get in touch today. If you are based in Leeds feel free to swing by! 
