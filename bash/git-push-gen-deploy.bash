@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e;
+#set -e;
 set -x;
 cd /opt/Projects/edmondscommerce.github.io/
 if [ ! -d _deploy ]; then
