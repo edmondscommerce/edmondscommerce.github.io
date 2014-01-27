@@ -17,12 +17,6 @@ tags:
 - magento 500 error
 - magento error
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 On a recent clean installation on a 1and1 Linux server for a client, the site was getting 500 errors on every page other than the home page. The fix for this was to add the following line to the .htaccess file in the document root:
 
 <b>RewriteBase /</b>

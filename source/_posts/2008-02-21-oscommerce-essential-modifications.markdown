@@ -22,10 +22,10 @@ tags:
 - php
 - modifications
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 osCommerce is an awesome ecommerce package. It has many critics and this is mainly due to the fact that unlike many modern open source packages it is not really ready to run "out of the box". That is a drawback, however it is not really so much of a drawback when you take into account that anyone that would want to establish an ecommerce presence is going to be very keen to modify the package to make the site look and feel unique.

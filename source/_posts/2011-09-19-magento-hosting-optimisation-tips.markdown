@@ -29,12 +29,6 @@ tags:
 - hits
 - uniques
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you are looking to gain the most out of your Magento hosting and to optimise your Magento hosting stack, here are a few top tips that you can try.
 
 <b>1. Ensure Caching is Enabled</b>

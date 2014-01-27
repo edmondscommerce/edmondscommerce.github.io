@@ -15,12 +15,6 @@ categories:
 tags:
 - edmondscommerce
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 The ICECat database is an invaluable resource for webmasters who have to deal with very large catalogues. They offer a single source with a normalised structure for getting high quality images, descriptions and even PDF files about the products you sell.
 
 They have developed relationships with a large number of manufacturers and brands which allow them to offer these details free of charge. If however you want better coverage they also offer a very reasonably priced service which is comparable to the CNET system but at a much reduced price.

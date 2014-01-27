@@ -18,12 +18,6 @@ tags:
 - override
 - case
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Had another tearing hair out moment when trying to figure out why my helper override was working fine,  but my block override wasn't working. Here is the result:
 
 <b>helper working, block not working:</b>

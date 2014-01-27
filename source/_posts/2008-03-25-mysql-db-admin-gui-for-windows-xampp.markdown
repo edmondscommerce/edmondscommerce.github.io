@@ -17,10 +17,10 @@ categories:
 tags:
 - edmondscommerce
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 If you are using windows (with XAMPP) to develop your MySQL applications, you might currently be using phpMyAdmin for your DBA tasks. The phpMyAdmin package is an awesome tool and is a must have, however due to the fact that it runs under Apache and PHP - it can be tricky to use when dealing with big database dumps or other heavy processing.

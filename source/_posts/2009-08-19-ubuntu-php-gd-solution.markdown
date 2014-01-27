@@ -18,10 +18,10 @@ tags:
 - gd
 - imagerotate
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 If you are using PHP5 on Ubuntu and are having strange issues with missing functions including <strong>imagerotate()</strong> then you have come up against the problems created by the Ubuntu/Debian packagers decision not to include the GD library included with PHP5 but instead include a more purist version of the GD library which unfortunatley has some missing components.

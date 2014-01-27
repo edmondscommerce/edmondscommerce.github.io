@@ -24,12 +24,6 @@ tags:
 - cases
 - overboard
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 <h2>Over Board – Migration to Magento from OSCommerce</h2>
 
 Over Board wished to move away from OSCommerce due to limitations encountered while using OSCommerce. Using Magento allows the company the flexibility they desired. This project involved implementing a new site design as well as importing data from the old OSCommerce site.

@@ -16,12 +16,6 @@ tags:
 - magento
 - checkout
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 A client recently experienced an issue where certain customers were having issues with the checkout redirecting people to the homepage instead of letting them checkout as normal.
 
 After doing some research the client found that the issue is related to a security setting in Magento. Magento uses the IP address of a user as part of its session validation. This is perfectly reasonable approach and helps protect against XSS among other things. However it seems certain ISP's (AOL as usual) actually rotate the IP's that customers connections come from, which makes Magento think that the session is being hijacked.

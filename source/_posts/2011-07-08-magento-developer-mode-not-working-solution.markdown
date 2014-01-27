@@ -19,12 +19,6 @@ tags:
 - debugging
 - developer mode
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 I in the middle of carrying out an upgrade for a client, which is causing the usual compatibility problems...
 
 Normally I rely on Developer mode to point me in the right direction with these, but in this case no matter what I did, I could not get magento to display errors.

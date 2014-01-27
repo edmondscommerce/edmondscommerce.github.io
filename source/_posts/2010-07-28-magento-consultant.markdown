@@ -17,12 +17,6 @@ tags:
 - consultant
 - consultancy
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you are looking for a consultant that can provide you with highly knowledgeable <strong>Magento consultancy</strong> services in the UK then you have come to the right place.
 
 Edmonds Commerce can provide Magento consultancy services for your business and are happy to either come to your offices or to work with you remotely using the internet to facilitate complete communication and understanding no matter where you are.

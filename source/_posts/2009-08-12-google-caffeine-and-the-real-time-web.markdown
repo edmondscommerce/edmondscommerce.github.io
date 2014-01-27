@@ -18,10 +18,10 @@ tags:
 - caffeine
 - content
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 Google's latest incarnation, dubbed caffeine is set to improve further the quality of Google search results. The focus seems to be on more real time search, fresher content being boosted to the top of the rankings. So just when Microsoft thought they were giving Google a run for their money with Bing, Google take the game another leap forward. It does look like Google will continue to enjoy their near monopoly on search for the forseeable future.

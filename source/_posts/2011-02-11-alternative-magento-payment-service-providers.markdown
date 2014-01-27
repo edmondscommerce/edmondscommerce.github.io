@@ -21,12 +21,6 @@ tags:
 - iridium
 - alternative
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Traditionally Edmonds Commerce have always recommended Sage Pay as a payment service provider however recently the service has been a bit patchy and they have made some mistakes in their general strategy.
 
 Its definitely a good time to evaluate the other available options and here are some that we recommend looking at:

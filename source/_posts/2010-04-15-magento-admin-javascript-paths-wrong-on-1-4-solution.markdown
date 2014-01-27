@@ -19,12 +19,6 @@ tags:
 - admin
 - merge_js
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you upgrade to Magento version 1.4 and find that your admin totally stops working then this might be for you.
 
 If you view source and notice that your javascript paths are totally wrong then it could be that Merge JavaScript Files is causing it.

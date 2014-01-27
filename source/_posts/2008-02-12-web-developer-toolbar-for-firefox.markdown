@@ -21,10 +21,10 @@ tags:
 - development
 - Cascading Style Sheets
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 The web developer toolbar is an excellent addition to the great firefox web browser. It allows you ultimate control over the behaviour of your web browser and helps you to fine tune layouts. The toolbar has a real time html and css editor built in which is great for tweaking things. For those of you who have a nice big 22" monitor to develop on, the resize functionality is awesome for replicating the viewport of whichever resolutions you want, so that you can ensure your layout still works on an 800 x 600 display for example.

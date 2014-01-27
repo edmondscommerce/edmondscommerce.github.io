@@ -16,10 +16,10 @@ categories:
 tags:
 - edmondscommerce
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 A large part of an effective SEO campaign involves researching the current top ranking sites for your chosen key words or phrases and then trying to figure out what they are doing to get there. This can be a painstaking and laborious task. However there is one great tool which is highly recommended to give you a quick insight into the SEO factors contributing to a particular web sites ranking.

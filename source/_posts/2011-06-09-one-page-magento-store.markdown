@@ -22,12 +22,6 @@ tags:
 - one page
 - affiliates
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 <h2>Single Page Magento Store With Affiliate Program and PayPal Link</h2>
 
 The aim of this project was to condense a Magento store into a single page, offering both product information and payment options. The system is to integrate with PayPal and a custom affiliate system.

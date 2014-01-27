@@ -22,12 +22,6 @@ tags:
 - local.xml
 - core
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you want to disable Magento's logging functioality (which can cause a lot of issues due to very large tables being generated and the overhead associated with that) then this is a possible solution.
 
 You can disable events by putting some special XML in your app/etc/local.xml file. 

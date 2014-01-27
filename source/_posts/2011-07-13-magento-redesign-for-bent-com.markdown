@@ -19,12 +19,6 @@ tags:
 - jquery
 - redesign
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 <h2>Magento redesign with added functionality</h2>
 
 This project asked for new functionality to be added to an existing magento site, whilst modifying the design. The changes included modifying the layered navigation, the home page slide show and the layout of the category page. An SEO report was also produced for the site

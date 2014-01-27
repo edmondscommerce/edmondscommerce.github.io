@@ -18,12 +18,6 @@ tags:
 - designer
 - template path hints
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 I often need to refer to instructions on how to turn on the template path hints in Magento. This is an indispensable feature for anyone working with any element of Magento design customisation. 
 
 Once you start to see the logic of the Magento design folder structure, it becomes less of a requirement but even then there will be times where it can be a life saver for tracking down the particular phtml file that you need to edit.

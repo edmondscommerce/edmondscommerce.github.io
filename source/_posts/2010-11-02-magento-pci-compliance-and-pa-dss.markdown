@@ -18,12 +18,6 @@ tags:
 - pa-dss
 - compliance
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 I recently came across a forum post which I would like to quote here as I think it sums things up nicely. You can see the original post <a href="http://www.nublue.co.uk/forums/post/622/#p622">here</a>.
 
 The Community edition has not been verified as PA-DSS compliant, which is not the same as PCI-DSS compliancy.

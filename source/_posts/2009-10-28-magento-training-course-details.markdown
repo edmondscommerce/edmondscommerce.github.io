@@ -20,12 +20,6 @@ tags:
 - learn
 - yorkshire
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 As previously announced, we have started to run a Magento training course. The course is targeted at Magento site owners who are new to the system and are keen to get the most out of their Magento store.
 
 One of the key advantages of Magento is it's wealth of professional ecommerce features that all come bundled as standard. These really make it stand proud of the competition. However, if you don't know how to use those features then they are wasted. This course aims to rectify that.

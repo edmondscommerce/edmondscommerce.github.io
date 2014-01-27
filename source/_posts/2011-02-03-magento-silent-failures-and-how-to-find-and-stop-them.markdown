@@ -18,12 +18,6 @@ tags:
 - failure
 - is_readable
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you are finding that Magento seems to be silently failing to include your files without triggering any kind of error (this tends to happen mostly with layouts or installer scripts) then you might find this useful.
 
 For me, my installer script wasn't working and it turned out to be a tiny typo in my config.xml file that meant that Magento was looking in the wrong place for the file and failing silently when it didn't find it:

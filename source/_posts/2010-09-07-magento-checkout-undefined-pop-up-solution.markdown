@@ -20,12 +20,6 @@ tags:
 - undefined
 - pop up
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you are struggling to understand why you are getting a popup on the Magento checkout with the simple message "undefined" then here is what you need to do.
 
 1. Use Fire Fox and install the extension Firebug

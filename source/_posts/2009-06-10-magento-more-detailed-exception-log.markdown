@@ -17,12 +17,6 @@ tags:
 - exception
 - logging
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Magento has a nice feature which logs exceptions to file and then generally displays a non scary message to the site user. Its not always true, some exceptions do get through and then generate reports.
 
 For exceptions that are caught and logged though, (if you have logging enabled) you will find the exception log in the var/logs folder. However the exception log only contains the getTraceAsString info, which is heavily truncated and often pretty much useless. To get around this you can modify the logException method in Mage.php.

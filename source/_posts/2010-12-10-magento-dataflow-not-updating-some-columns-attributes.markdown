@@ -23,12 +23,6 @@ tags:
 - qty_increments
 - enable_qty_increments
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you are scratching your head trying to figure out why Magento Dataflow seems to be totally ignoring the values you are putting in some columns (for me it was qty_increments and enable_qty_increments) then this is your solution.
 
 In a nutshell, Dataflow totally ignores some columns despite including them in the output file - quite a few actually.

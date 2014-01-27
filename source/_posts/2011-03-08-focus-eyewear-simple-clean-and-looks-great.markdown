@@ -17,10 +17,10 @@ tags:
 - focus-eyewear
 - optik-focus
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 Another simple and clean Magento based store we have done that was really nice to work on. Focus-eyewear is just one of the three stores built on this multi-store Magento project. The other stores includes the Germany version of the store at (optik-focus.de) and the US version at (focus-online.com). Please see few images below and the full site at <a href='http://www.focus-eyewear.co.uk'>www.focus-eyewear.co.uk</a>

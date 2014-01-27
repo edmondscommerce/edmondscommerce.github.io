@@ -18,12 +18,6 @@ tags:
 - enterprise
 - '1.8'
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Very interesting to read about the latest Magento Enterprise version release. Among other things, they have implemented <a href="http://lucene.apache.org/solr/">Solr</a> for searching. Solr is what can only be called a "proper search engine" and is the alternative to searching a database which is the usual way the Magento search works.
 
 By using a proper search engine, the site will be able to display better, more relevant results a lot faster than is possible with the database driven method. The main downside is that its complex to set up.

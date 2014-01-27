@@ -20,12 +20,6 @@ tags:
 - developer
 - freelance
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Edmonds Commerce specialise in <strong>Magento Ecommerce</strong> and are available for <strong>Freelance Magento</strong> projects and installations. If you are looking to set up a new ecommerce venture and are considering using Magento - get in touch today.
 
 Magento is certainly making waves. For those of you who haven't heard of it, Magento is looking likely to become the successor to osCommerce as the most popular open source ecommerce platform.

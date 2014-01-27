@@ -21,12 +21,6 @@ tags:
 - zen cart
 - migrate
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Migrate your <strong>osCommerce, CRE Loaded or Zen Cart</strong> store to <strong>Magento</strong> for as little as <strong>£1280</strong>. Get in touch today and we can discuss your particular requirements and help you at every step of the way in your migration to <strong>Magento</strong>, without a doubt the best open source ecommerce platform available today.
 
 If you are thinking of upgrading or migrating from your osCommerce, CRE Loaded or Zen Cart based store to Magento then you should definitely get in touch with us.

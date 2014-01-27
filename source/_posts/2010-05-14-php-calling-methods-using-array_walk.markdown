@@ -18,10 +18,10 @@ tags:
 - methods
 - objects
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 The array_walk function is one of those unassuming little PHP functions that a lot of people may well ignore, but it is often very useful and can save writing out lines of code, compressing a pretty common coding structure into a single function call. Of course that also means that it is fast!

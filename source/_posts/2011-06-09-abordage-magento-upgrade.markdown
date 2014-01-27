@@ -20,12 +20,6 @@ tags:
 - craft
 - multilanguage
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 <h2>Abordage – Magento Upgrade and multi language implementation</h2>
 
 Abordage required a Magento Upgrade from 1.3 to the latest version. This was to ensure future compatibility with extensions and add new functionality.

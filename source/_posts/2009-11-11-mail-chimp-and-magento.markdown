@@ -20,12 +20,6 @@ tags:
 - list segmentation
 - emails
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Currently working on a project that requires some fairly complex integration between Magento and Mail Chimp.
 
 I'm really impressed with Mail Chimp so far - the API is really well documented and a pleasure to work on. A breath of fresh air compared to most API's that I have worked on before. It's amazing what a difference decent documentation does.
