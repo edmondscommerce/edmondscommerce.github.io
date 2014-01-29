@@ -21,12 +21,6 @@ tags:
 - logs
 - enable
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Magento has some great exception logging functionality which is invaluable when trying to figure out why things aren't working.
 
 However, like a lot of settings in Magento, its tucked away in the configuration and its not always easy to remember how to enable it.

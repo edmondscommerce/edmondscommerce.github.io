@@ -18,10 +18,10 @@ tags:
 - javascript framework
 - browser support
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 I read on <a href="http://ajaxian.com/archives/ouh-shiny-bbcs-glow-is-finally-out" rel="nofollow">Ajaxian</a> today that the BBC have released their own javascript library, Glow,  as open source. This is a nice move on the part of the BBC and great news for anyone looking to develop a site with some nice AJAX features but with a priority on accessibility and broad browser support.

@@ -21,12 +21,6 @@ tags:
 - developer
 - password
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Often we will be asked to work on a site and have to test backend features but without asking for admin passwords, so we need a way to create admin users without admin access.  Of course we already have file and database access.
 
 For this, we use phpmyadmin or adminer to give us database access and run the following php script at the commandline :-

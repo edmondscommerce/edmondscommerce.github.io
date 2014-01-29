@@ -16,10 +16,10 @@ categories:
 tags:
 - edmondscommerce
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 Don't get me wrong, I love phpMyAdmin and use it every day. However sometimes on client servers the only access to the database is via phpMyAdmin and it hasn't been set up properly. One really irritating example is when trying to dump a database so that it can be installed on my local development server. Do the export etc etc and then phpMyAdmin gives you the download, but no - its an empty file...

@@ -18,12 +18,6 @@ tags:
 - flash
 - image
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you have any issues with the default Flash based image uploader for the Magento admin, check out this extension which replaces it with a much slicker, faster and less - well <i>flash</i> - image uploader.
 
 <a href="http://www.magentocommerce.com/extension/1756/no-flash-uploader">http://www.magentocommerce.com/extension/1756/no-flash-uploader</a>

@@ -16,12 +16,6 @@ tags:
 - magento
 - upgrade
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Upgrading Magento can be a little tricky. I would definitely advise testing out any upgrades on a development copy of your site, not applying updates directly to the live site without testing for problems first. 
 
 Being such a young platform, Magento is in a phase of rapid development. Inevitably this development will introduce bugs and issues. Hopefully these will generally be minor but even so, you would want to get them resolved before applying them to your live site.

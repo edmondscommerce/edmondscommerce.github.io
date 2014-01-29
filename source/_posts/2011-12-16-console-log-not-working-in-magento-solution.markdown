@@ -19,12 +19,6 @@ tags:
 - solution
 - console
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you are writing any javascript in magento and try to debug using console.log, you may find that nothing happens in Chrome, but everything works as expected in Firefox.
 
 The reason for this is that varien have included a blank console object to prevent any calls to the console throwing an error if a console isn't defined. However they explicitly check for firebug, which means if your running chrome the built in console is replaced.

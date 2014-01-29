@@ -17,12 +17,6 @@ tags:
 - front end flat catalogue
 - magento performance
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 With the release of version 1.3 of Magento, a new feature has been added called Front End Flat Catalogue.
 
 In a nutshell this feature creates a single database table with all of the products and their various attributes so that front end queries for information can pulll all product information from every product from a single table rather than having to query lots of EAV tables.

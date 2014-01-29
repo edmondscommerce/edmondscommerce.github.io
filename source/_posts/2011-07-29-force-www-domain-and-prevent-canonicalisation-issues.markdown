@@ -20,12 +20,6 @@ tags:
 - htacess
 - canonical
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 A really easy problem to fix that we still see on some live sites is having the site accessible with and without the www (or whatever sub domain).
 
 On Magento sites this can cause issues with session IDs being appended to URLs that then get indexed by google and cause problems.

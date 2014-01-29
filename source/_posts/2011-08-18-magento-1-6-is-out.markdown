@@ -15,11 +15,5 @@ categories:
 tags:
 - magento
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 <p>Happy to announce that Magento 1.6 is out</p>
 <p><a href="http://www.magentocommerce.com/download/release_notes#Release%20Notes%20-%20Magento%201.6.0.0%20%28Aug%2018,%202011%29">Details here</a></p>

@@ -18,12 +18,6 @@ tags:
 - '1.4'
 - stack frame
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If your shiny new Magento 1.4 is displaying this error message at the bottom of the page then you might want to apply this fix.
 
 <strong>Fatal error: Exception thrown without a stack frame in Unknown on line 0</strong>

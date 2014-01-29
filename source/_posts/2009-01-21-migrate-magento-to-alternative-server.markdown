@@ -15,12 +15,6 @@ categories:
 tags:
 - edmondscommerce
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 There are a few simple steps you need to take to move your Magento based store from one place to another.
 
 First of all, create a full SQL dump of your store's database and import this to a database on the new server. To do this, simply use the backup functionality within the Magento Admin. If you use phpMyAdmin things can become a bit weird.

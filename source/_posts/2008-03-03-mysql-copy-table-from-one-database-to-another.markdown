@@ -17,10 +17,10 @@ categories:
 tags:
 - edmondscommerce
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
+<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
 <p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
 </p>
 </div>
 Sometime in MySQL you want to copy an entire table from one database to a separate database. One example of when you would want to do this is if you are making a backup of a table before you apply some kind of processing to that table. There is nothing worse than ruining a database table and losing valuable information. To make an instant backup is so easy that there really is no excuse not to make backups at important or risky stages.

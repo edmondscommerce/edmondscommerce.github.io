@@ -16,12 +16,6 @@ tags:
 - magento
 - multistore
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 One of the really cool features of Magento is the ability to easily setup a multistore on one installation of Magento. If you have never done it before though it can be a little tricky.
 
 Here is very brief guide:

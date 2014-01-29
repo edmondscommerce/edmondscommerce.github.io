@@ -17,12 +17,6 @@ tags:
 - upgrade
 - theme
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 A common mistake made with Magento installations is that the the standard theme (eg default) is customised to suit the look of the site but is still kept in a folder called default. If you do this then whenever you want to upgrade your Magento store, the theme folder will be overwritten causing you all kinds of problems. I hope you had a backup!
 
 All you need to do is make sure that if you are running a custom theme - even if it is simply a modified version of the default theme, make sure that it is set up a separate theme with it's own name. This way you will be able to upgrade Magento without too much theme problems.

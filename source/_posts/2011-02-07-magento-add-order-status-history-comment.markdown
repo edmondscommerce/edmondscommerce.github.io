@@ -19,12 +19,6 @@ tags:
 - history
 - comment
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Adding an order status history comment to a Magento order object is easy, when you know how!
 
 There is a very helpful Mage_Sales_Model_Order::addStatusHistoryComment() method which will take a comment and optional order status and either just save the comment or save the comment and update the order status.

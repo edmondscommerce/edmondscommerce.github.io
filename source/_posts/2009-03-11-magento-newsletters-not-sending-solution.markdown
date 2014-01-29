@@ -17,12 +17,6 @@ tags:
 - magento cron
 - magento emails
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you are scratching your head trying to figure out why your Magento is not sending out newsletter emails then this post is what you need.
 
 Magento has a script called cron.php which handles all of the timed jobs that your Magento store has to do. In this list is the task of sending out newsletters. You have to set up your server crontab to run this cron.php script at regular intervals (eg 5 minutes). 

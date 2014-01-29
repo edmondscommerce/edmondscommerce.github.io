@@ -18,12 +18,6 @@ tags:
 - redirect loop
 - cookies
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If your Magento store is occasionally throwing up redirect loop errors in your web browser this might be your problem, and your solution.
 
 It seems that Magento doesn't properly support British Summer Time as standard, so if you are using GMT then your times might be an hour out. That's not ideal but its not the end of the world. The problem arises in that the cookie lifespan is set to 1 hour by default. That means that as soon as a session cookie is set, it is expired and this can then send your browser into a redirect loop as cookies are set and expired successively.

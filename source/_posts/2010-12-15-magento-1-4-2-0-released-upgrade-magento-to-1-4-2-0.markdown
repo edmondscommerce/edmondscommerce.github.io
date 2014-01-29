@@ -18,12 +18,6 @@ tags:
 - 1.4.2.0
 - release
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 Magento have <a href="http://www.magentocommerce.com/blog/comments/magento-ce-version-1420-stable-now-available/">just released</a> the latest version of Magento Community Edition: 1.4.2.0
 
 This continues the 1.4 branch of Magento. If you are still running Magento 1.3 or earlier you definitely need to be upgrading onto the 1.4 branch, there are so many improvements. Now that this version has come out there has never been a better time to upgrade your store to the 1.4 branch. 

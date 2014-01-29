@@ -22,12 +22,6 @@ tags:
 - attribute
 - installer
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 It's fairly common that you need to add in some custom data to a Magento object. 
 
 The most common scenario is products and its totally handled via the admin side. However if you need to extend something like the order object to store custom order information then things get a little bit more tricky, but it's fairly easy still.

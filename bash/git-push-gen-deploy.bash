@@ -1,5 +1,13 @@
 #!/bin/bash
+#set -e;
+set -x;
 cd /opt/Projects/edmondscommerce.github.io/
+if [ ! -d _deploy ]; then
+  rake setup_github_pages;
+fi
+if [ ! -d _deploy/.git ]; then
+  rake setup_github_pages
+fi
 bundle exec rake integrate
 git add -A
 git commit -am 'commiting the source'

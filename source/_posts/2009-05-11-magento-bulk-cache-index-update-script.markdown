@@ -15,12 +15,6 @@ categories:
 tags:
 - magento cache
 ---
-<div class="oldpost"><h4>This is an old post. The information it contains is probably out of date or innacurate</h4>
-<p>
-This is a post that was written a long time ago and is only being kept here for posterity.
-You should probably look up more recent blog posts related to the subject you are researching
-</p>
-</div>
 If you are doing any kind of bulk updating etc then you also need to make sure that you rebuild all of the caches and indexes after your bulk updates otherwise things can go wrong. 
 
 I have just managed to get the following script to work including when flat catalog is enabled (thanks to <a href="http://www.nicksays.co.uk/2009/02/testing-magento-modules/" target="_blank">Nick of Meanbee</a> for the Mage::app() tip).
