@@ -128,6 +128,145 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-21T16:44:43+00:00" pubdate data-updated="true">Jan 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/adding-confirm-e-mail-address-field-to-magento-frontend-forms.html">Adding Confirm E-mail Address Field to Magento Frontend Forms</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are thinking of adding a confirmation of e-mail address to the front-end registration pages of your store e.g the Checkout billing page or the customer account registration, the little snippets below could be of use to you</p>
+
+<p><strong>For the Checkout billing page</strong>
+1. Locate the magento checkout billing page (billing.phtml) which can be found in  app/design/frontend/default/&lt;package_name>/template/checkout/onepage
+2. Add code 1 below where situable;
+<strong>Code 1</strong></p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;field&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;billing:confirm_email&quot;</span> <span class="na">class=</span><span class="s">&quot;required&quot;</span><span class="nt">&gt;&lt;em&gt;</span>*<span class="nt">&lt;/em&gt;</span><span class="cp">&lt;?php echo $this-&gt;__(&#39;Confirm Email Address&#39;) ?&gt;</span><span class="nt">&lt;/label&gt;</span>
+</span><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;input-box&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">name=</span><span class="s">&quot;billing[confirm_email]&quot;</span> <span class="na">title=</span><span class="s">&quot;&lt;?php echo $this-&gt;__(&#39;Confirm Email&#39;) ?&gt;&quot;</span> <span class="na">id=</span><span class="s">&quot;billing:confirm_email&quot;</span> <span class="na">class=</span><span class="s">&quot;input-text required-entry validate-cemail&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For the validation of this email confirmation field with the actual email field
+3. Locate the Javascript file which Magento uses for validation (validation.js) in /js/prototype
+4. Add code 3 where suitable e.g immediately after this line(code 2) in validation.js
+<strong>Code 2</strong></p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="nx">pass</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}],</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Code 3</strong></p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">[</span><span class="s1">&#39;validate-cemail&#39;</span><span class="p">,</span> <span class="s1">&#39;Please make sure your emails match.&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">conf</span> <span class="o">=</span> <span class="nx">$$</span><span class="p">(</span><span class="s1">&#39;.validate-cemail&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">pass</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;email&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'><span class="nx">pass</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;email&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">emailElements</span> <span class="o">=</span> <span class="nx">$$</span><span class="p">(</span><span class="s1">&#39;.validate-email&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">emailElements</span><span class="p">.</span><span class="nx">size</span><span class="p">();</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">emailElement</span> <span class="o">=</span> <span class="nx">emailElements</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nx">emailElement</span><span class="p">.</span><span class="nx">up</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">).</span><span class="nx">id</span> <span class="o">==</span> <span class="nx">conf</span><span class="p">.</span><span class="nx">up</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">).</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="nx">pass</span> <span class="o">=</span> <span class="nx">emailElement</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nx">$$</span><span class="p">(</span><span class="s1">&#39;.validate-admin-email&#39;</span><span class="p">).</span><span class="nx">size</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'><span class="nx">pass</span> <span class="o">=</span> <span class="nx">$$</span><span class="p">(</span><span class="s1">&#39;.validate-admin-email&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">return</span> <span class="p">(</span><span class="nx">pass</span><span class="p">.</span><span class="nx">value</span> <span class="o">==</span> <span class="nx">conf</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+</span><span class='line'><span class="p">}],</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then that should just do exactly what you want.</p>
+
+<p><strong>For the Customer Account Registration page</strong></p>
+
+<ol>
+<li>Locate the magento account register page ,register.phtml in
+app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/</li>
+<li>Include code 4 where suitable
+<strong>Code 4</strong></li>
+</ol>
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;field&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;confirm_email&quot;</span> <span class="na">class=</span><span class="s">&quot;required&quot;</span><span class="nt">&gt;&lt;em&gt;</span>*<span class="nt">&lt;/em&gt;</span><span class="cp">&lt;?php echo $this-&gt;__(&#39;Confirm Email Address&#39;) ?&gt;</span><span class="nt">&lt;/label&gt;</span>
+</span><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;input-box&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">name=</span><span class="s">&quot;confirm_email&quot;</span> <span class="na">title=</span><span class="s">&quot;&lt;?php echo $this-&gt;__(&#39;Confirm Email&#39;) ?&gt;&quot;</span> <span class="na">id=</span><span class="s">&quot;confirm_email&quot;</span> <span class="na">class=</span><span class="s">&quot;input-text required-entry validate-cemail&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After this, you should have another field on your registration page which can be subjected to any styling you need to do, most importantly when styling do not change the tag id&rsquo;s and class names, in a situation where you need to change them, you must also change the javascript selectors accordingly.</p>
+
+<p>I hope this works for you.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-20T15:36:02+00:00" pubdate data-updated="true">Jan 20<span>th</span>, 2012</time>
         
       </p>
@@ -708,47 +847,6 @@ PeterZ presentations:
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-15T19:28:02+00:00" pubdate data-updated="true">Jan 15<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/writing-robust-bash-shell-scripts.html">Writing Robust Bash Shell Scripts</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Found this great article on writing bash scripts defensively. Glad to say most of the advice we are already following with our bash scripts however there are a couple of new things I intend to roll in on Monday.</p>
-
-<p>Recommended reading for anyone scripting in Bash.</p>
-
-<p><a href="http://www.davidpashley.com/articles/writing-robust-shell-scripts.html"><a href="http://www.davidpashley.com/articles/writing-robust-shell-scripts.html">http://www.davidpashley.com/articles/writing-robust-shell-scripts.html</a></a></p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -772,6 +870,8 @@ PeterZ presentations:
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
+    
     <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
     
     <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
@@ -779,8 +879,6 @@ PeterZ presentations:
     <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
     
     <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
-    
-    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
     
   </div>
 </section>
