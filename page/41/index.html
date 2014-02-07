@@ -128,6 +128,181 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-17T16:03:49+00:00" pubdate data-updated="true">Feb 17<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-dataflow-images-not-working-solution.html">Magento Dataflow Images Not Working + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are struggling to understand why Magento is not finding images that are definitely there, the problem may well be that you are not prefixing your image with a slash, i.e for a new image we would put:</p>
+
+<p>/image.jpg</p>
+
+<p>and the image would be in</p>
+
+<p>media/import/image.jpg</p>
+
+<p>Unfortunately whoever wrote the Dataflow product importer though it would be a good idea to silently capture all exceptions on image imports which removes any useful error messages that might occur (such as no image at media/importimage.jpg)</p>
+
+<p>If you would prefer to fix this, you can override Mage_Catalog_Model_Convert_Adapter_Product</p>
+
+<p>Copy the saveRow() method into your overriding class and then change this bit</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$imageData</span> <span class="k">as</span> <span class="nv">$file</span> <span class="o">=&gt;</span> <span class="nv">$fields</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">try</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$filepath</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseDir</span><span class="p">(</span><span class="s1">&#39;media&#39;</span><span class="p">)</span> <span class="o">.</span> <span class="nx">DS</span> <span class="o">.</span> <span class="s1">&#39;import&#39;</span> <span class="o">.</span> <span class="nx">trim</span><span class="p">(</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>                <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">addImageToMediaGallery</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">,</span> <span class="nv">$fields</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">Exception</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To something like this</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$imageData</span> <span class="k">as</span> <span class="nv">$file</span> <span class="o">=&gt;</span> <span class="nv">$fields</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">//try {</span>
+</span><span class='line'>                <span class="nv">$filepath</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseDir</span><span class="p">(</span><span class="s1">&#39;media&#39;</span><span class="p">)</span> <span class="o">.</span> <span class="nx">DS</span> <span class="o">.</span> <span class="s1">&#39;import&#39;</span> <span class="o">.</span> <span class="nx">trim</span><span class="p">(</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>                <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">addImageToMediaGallery</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">,</span> <span class="nv">$fields</span><span class="p">);</span>
+</span><span class='line'>           <span class="c1">//} catch (Exception $e) {}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-17T15:28:57+00:00" pubdate data-updated="true">Feb 17<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-media-save-path-dispretion-method.html">Magento Media Save Path Dispretion Method</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you want to calculate the actual save path that Magento will use for an image file for example then you might find yourself scouring the source code for the specific method that does this.</p>
+
+<p>It&rsquo;s not the easiest to find, in fact its tucked away in the lib folder inside the Varien_File_Uploader class.</p>
+
+<p>The method in question is a usefully static method Varien_File_Uploader::getDispretionPath();</p>
+
+<p>Sorted!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-16T11:37:30+00:00" pubdate data-updated="true">Feb 16<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/netbeans/netbeans-clear-cache-to-correct-broken-code-completion.html">Netbeans Clear Cache to Correct Broken Code Completion</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If your Netbeans project is behaving a bit weirdly with regards to code auto completion then this little fix might be for you.</p>
+
+<p>Netbeans maintains a cache folder and it looks like this can get corrupted sometimes and need clearing out.</p>
+
+<p>Close Netbeans down, empty your $HOME/.netbeans/6.9/var/cache/ folder and then restart Netbeans and hopefully that should fix it</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-16T09:52:27+00:00" pubdate data-updated="true">Feb 16<span>th</span>, 2011</time>
         
       </p>
@@ -681,266 +856,6 @@ app/code/local/EdmondsCommerce/CustomModule/sql/custommodule_setup/mysql4-instal
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-20T14:43:37+00:00" pubdate data-updated="true">Jan 20<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-jobs-leeds.html">PHP Jobs Leeds</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Looking for PHP Jobs in the Leeds area?</p>
-
-<p>You have come to the right place. Edmonds Commerce are actively recruiting PHP developers in the Leeds area. We have more work on than we can handle and that&rsquo;s only likely to grow even more.</p>
-
-<p>If you would like to work as a PHP Developer with Edmonds Commerce in Leeds then <strong><a href="/contact-us/?about=php-jobs-leeds">get in touch</a></strong> as we have a great job to offer you.</p>
-
-<p>You can read more about our <a href="http://www.edmondscommerce.co.uk/about/job-recruitment-php-developer-leeds/">PHP Jobs</a> in <a href="http://www.edmondscommerce.co.uk/about/job-recruitment-php-developer-leeds/">Leeds</a> by visiting this page:</p>
-
-<p><a href="http://is.gd/phpjobleeds"><a href="http://is.gd/phpjobleeds">http://is.gd/phpjobleeds</a></a></p>
-
-<p>If you are from anywhere in or around Leeds, Bradford, Hunslet, Beeston Hill, Knowsthorpe, Kirkstall, Belle Isle, Farnley, Beeston, Killingbeck, Meanwood, Bramley, Adel, Stanningley, Moortown, Gildersome  and looking for PHP work then get in touch.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-15T12:26:09+00:00" pubdate data-updated="true">Jan 15<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/mysql-triggers-a-quick-guide.html">MySQL Triggers - a Quick Guide</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>MySQL has a nice feature that you may well not have used called Triggers.</p>
-
-<p>These are little SQL statements that are tied to events on table and then perform some extra work.</p>
-
-<p>The idea being that you will check the values for a row and if they meet some conditions you will take some further action. You might usually do this kind of thing in code but if you really must be certain that in a certain circumstance a certain action will be taken, then triggers are a good option because regardless which bit of code makes the change you can be sure your rules will be enforced.</p>
-
-<p>Of course this ties you to a specific DB platform so its not something you should over use. There can also be performance issues so you need to bear that in mind.</p>
-
-<p>Anyway, assuming you know what you are letting yourself in for and have read the <a href="http://www.google.com/search?hl=en&q=site%3Adev.mysql.com+triggers+5.0&aq=f&aqi=&aql=&oq=">documentation</a> here is my little summary.</p>
-
-<p>First you need to give your trigger a name. Choose something descriptive.</p>
-
-<p>Then you need to associate it to an even (UPDATE, INSERT etc) and also decide whether to do it BEFORE or AFTER. If you are not sure, use BEFORE &ndash; it&rsquo;s generally the one you want to use.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">do_something</span> <span class="k">BEFORE</span> <span class="k">UPDATE</span> <span class="k">ON</span> <span class="k">table</span>
-</span><span class='line'><span class="p">...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The next bit is boiler plate as far as I can gather, just whack it in. It delimits your actual statement and tells it to be run for each updated row.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'>  <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span> <span class="k">BEGIN</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then do your test</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="n">IF</span> <span class="p">((</span><span class="k">NEW</span><span class="p">.</span><span class="k">column</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">AND</span> <span class="p">(</span><span class="k">OLD</span><span class="p">.</span><span class="k">column</span> <span class="o">&gt;=</span><span class="mi">1</span><span class="p">))</span> <span class="k">THEN</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Note the NEW and OLD keywords there.</p>
-
-<p>You have a choice of using the NEW and OLD keyword to access existing (OLD) and about to be set (NEW) data for each column.</p>
-
-<p>Note also, this is only possible if you use the BEFORE event as opposed to AFTER, hence generally just sticking to using BEFORE</p>
-
-<p>Now, enforce your requirements</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">another_column</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">and_another_column</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">and_another</span> <span class="o">=</span> <span class="s1">&#39;cheese&#39;</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then wrap it up</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'> <span class="k">END</span> <span class="n">IF</span><span class="p">;</span>
-</span><span class='line'><span class="k">END</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s it&hellip;</p>
-
-<p>BUT WAIT</p>
-
-<p>There&rsquo;s another bit that I totally missed which caused me issues &ndash; you need to wrap the whole thing in a delimiter statement:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">delimiter</span> <span class="o">//</span>
-</span><span class='line'><span class="p">...</span> <span class="n">the</span> <span class="k">statement</span>
-</span><span class='line'><span class="k">END</span><span class="p">;</span><span class="o">//</span>
-</span><span class='line'><span class="k">delimiter</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So the full final thing should look like this:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">delimiter</span> <span class="o">//</span>
-</span><span class='line'><span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">do_something</span> <span class="k">BEFORE</span> <span class="k">UPDATE</span> <span class="k">ON</span> <span class="k">table</span>
-</span><span class='line'>  <span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span> <span class="k">BEGIN</span>
-</span><span class='line'>    <span class="n">IF</span> <span class="p">((</span><span class="k">NEW</span><span class="p">.</span><span class="k">column</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="k">AND</span> <span class="p">(</span><span class="k">OLD</span><span class="p">.</span><span class="k">column</span> <span class="o">&gt;=</span><span class="mi">1</span><span class="p">))</span> <span class="k">THEN</span>
-</span><span class='line'>        <span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">another_column</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">and_another_column</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">SET</span> <span class="k">NEW</span><span class="p">.</span><span class="n">and_another</span> <span class="o">=</span> <span class="s1">&#39;cheese&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">END</span> <span class="n">IF</span><span class="p">;</span>
-</span><span class='line'><span class="k">END</span><span class="p">;</span> <span class="o">//</span>
-</span><span class='line'><span class="k">delimiter</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Another point to mention is &ndash; just use the CLI for handling these, don&rsquo;t try to use phpMyAdmin etc &ndash; it doesn&rsquo;t really work.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-12T08:42:48+00:00" pubdate data-updated="true">Jan 12<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ubuntu/world-clock-on-ubuntu-its-as-standard.html">World Clock on Ubuntu - Its as Standard</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>We are starting to get more and more international clients primarily from America and Australasia. It&rsquo;s great to be getting a more global market, though keeping track of client&rsquo;s local time is sometimes confusing.</p>
-
-<p>Then the thought occurs: &ldquo;I&rsquo;m using Linux, there&rsquo;s bound to be an excellent app to help me deal with this&rdquo;.</p>
-
-<p>Turns out there is and its included with Ubuntu as standard.</p>
-
-<p>The desktop clock, normally displayed in the top right actually has functionality to allow you to add as many extra locations as you want, so with a single click you can check the current time in whatever locations you want.</p>
-
-<p>To set these up, simply click the clock which then drops down a calendar view. At the bottom of that view there is a Locations option. Click that to display a map and also an [Edit] button.</p>
-
-<p>Hit the [Edit] button and you can add whatever locations you wish. Once they are set up you can check the local time for any of your locations by simply clicking the clock in the top right again.</p>
-
-<p>Awesome. Got to love Ubuntu and Linux :)</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -964,15 +879,15 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Magento/magerun-command-line-tools-for-magento-developers.html">Magerun - Command Line Tools for Magento Developers</a>
+    
+    <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
+    
+    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
+    
     <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
     <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
-    
-    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
-    
-    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
-    
-    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
   </div>
 </section>

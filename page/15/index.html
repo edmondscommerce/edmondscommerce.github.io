@@ -128,6 +128,423 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-01T12:30:21+00:00" pubdate data-updated="true">Nov 1<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/phpunit-and-pdoexception-solution.html">PHPUnit and PDOException + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I recently needed to run a test suite against a couple of classes that were making use of PDO.</p>
+
+<p>When I tried to run the I got the following errors in the output for every test</p>
+
+<p>PDOException: You cannot serialize or unserialize PDO instances</p>
+
+<p>There is a quick way around this you just need to add the following lines to the class level doc block</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd"> *</span>
+</span><span class='line'><span class="sd"> * @backupGlobals disabled</span>
+</span><span class='line'><span class="sd"> * @backupStaticAttributes disabled</span>
+</span><span class='line'><span class="sd"> */</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A full explanation of these, and other annotations can be found <a title="PHP Unit Appendix B. Annotations" href="http://www.phpunit.de/manual/current/en/appendixes.annotations.html">here</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-30T14:08:10+00:00" pubdate data-updated="true">Oct 30<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-warning-header-may-not-contain-more-than-a-single-header-new-line-detected-solution.html">Magento Warning: Header May Not Contain More Than a Single Header, New Line Detected + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are puzzled by the error message:</p>
+
+<p><code>
+Warning: Header may not contain more than a single header, new line detected
+</code>
+When dealing with a Magento migration, you might want to double check you have not accidentally added a new line character to the end of your base_url field when you were updating the core_config_data table.</p>
+
+<p>I just did this using phpMyadmin&rsquo;s nifty ajax editing feature however I must have hit return by accident. Simply editing them again and making sure there is absolutely no white space at the end of the URL and the problem is solved.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-22T16:40:10+01:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/reduce-catalog-url-rewrites-time-in-magento.html">Reduce Catalog URL Rewrites Time in Magento</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I recently had a client that wanted to remove the category structure from their product urls.</p>
+
+<p>There is a option to do this in the admin, but they wanted to redirect all of the existing urls to the shorter one.</p>
+
+<p>The way that I wanted to do this was to truncate the current core_url_rewrite table and regenerate the urls with the &ldquo;Use Categories Path for Product URLs&rdquo; set to no, and then override the 404 controller to redirect to the correct url.</p>
+
+<p>However, after the urls were generated, I found that all of the urls including the category path were still included, which meant that the override would not work.</p>
+
+<p>After spending quite a bit of time looking for a way to get round this, I put together a simple override to prevent the category path urls from getting generated.</p>
+
+<p>This had the added benefit of reducing the number of entries in the core_url_rewite table from ~2k entries to under 500, which cut the amount of time that was needed to generate it.</p>
+
+<p>The code is below for anyone else that needs to use this in the future. There are three files in total, set up like this</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">EdmondsCommerce</span><span class="o">/</span>
+</span><span class='line'><span class="sb">`-- Redirects</span>
+</span><span class='line'><span class="sb">    |-- controllers</span>
+</span><span class='line'><span class="sb">    |   `</span><span class="o">--</span> <span class="nx">Cms</span>
+</span><span class='line'>    <span class="o">|</span>       <span class="sb">`-- IndexController.php</span>
+</span><span class='line'><span class="sb">    |-- etc</span>
+</span><span class='line'><span class="sb">    |   `</span><span class="o">--</span> <span class="nx">config</span><span class="o">.</span><span class="nx">xml</span>
+</span><span class='line'>    <span class="sb">`-- Model</span>
+</span><span class='line'><span class="sb">        `</span><span class="o">--</span> <span class="nx">Catalog</span>
+</span><span class='line'>            <span class="err">`</span><span class="o">--</span> <span class="nx">Url</span><span class="o">.</span><span class="nx">php</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is the code for the Model</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_Redirects_Model_Catalog_Url</span>
+</span><span class='line'>  <span class="k">extends</span> <span class="nx">Mage_Catalog_Model_Url</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * This method is called each time that a url </span>
+</span><span class='line'><span class="sd">     * is generated for a product. It is called for the </span>
+</span><span class='line'><span class="sd">     * root category and each category that the product is in.</span>
+</span><span class='line'><span class="sd">     * </span>
+</span><span class='line'><span class="sd">     * This code checks to see if the category passed to it is</span>
+</span><span class='line'><span class="sd">     * the root category. If it is it will </span>
+</span><span class='line'><span class="sd">     * add the url rewrite as normal. If not it does nothing</span>
+</span><span class='line'><span class="sd">     * </span>
+</span><span class='line'><span class="sd">     * @param Varien_Object $product</span>
+</span><span class='line'><span class="sd">     * @param Varien_Object $category</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">protected</span> <span class="k">function</span> <span class="nf">_refreshProductRewrite</span><span class="p">(</span><span class="nx">Varien_Object</span> <span class="nv">$product</span><span class="p">,</span> <span class="nx">Varien_Object</span> <span class="nv">$category</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$rootCategory</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getStoreRootCategory</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getStoreId</span><span class="p">());</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">==</span> <span class="nv">$rootCategory</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">parent</span><span class="o">::</span><span class="na">_refreshProductRewrite</span><span class="p">(</span><span class="nv">$product</span><span class="p">,</span> <span class="nv">$category</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want to redirect from the existing urls to the new ones, you will need to use the following controller</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">include_once</span><span class="p">(</span><span class="s1">&#39;Mage/Cms/controllers/IndexController.php&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_Redirects_Cms_IndexController</span>
+</span><span class='line'><span class="k">extends</span> <span class="nx">Mage_Cms_IndexController</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * This checks to see if the site can redirect</span>
+</span><span class='line'><span class="sd">     * before displaying a 404</span>
+</span><span class='line'><span class="sd">     * @param type $coreRoute</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">noRouteAction</span><span class="p">(</span><span class="nv">$coreRoute</span> <span class="o">=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Get the request</span>
+</span><span class='line'>        <span class="nv">$request</span> <span class="o">=</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REQUEST_URI&#39;</span><span class="p">];</span>
+</span><span class='line'>        <span class="c1">// Strip off get params if there are any</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">)</span> <span class="o">!==</span> <span class="k">FALSE</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$request</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">strpos</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">));</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="sd">/**</span>
+</span><span class='line'><span class="sd">         *  This makes sure that no part of the request is included</span>
+</span><span class='line'><span class="sd">         *  in the base url. This should help</span>
+</span><span class='line'><span class="sd">         *  the system work if it is running from a sub folder</span>
+</span><span class='line'><span class="sd">         */</span>
+</span><span class='line'>        <span class="nv">$parts</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">());</span>
+</span><span class='line'>        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$parts</span> <span class="k">AS</span> <span class="nv">$part</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$request</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="nv">$part</span><span class="p">,</span> <span class="s1">&#39;//&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$request</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="cm">/*</span>
+</span><span class='line'><span class="cm">         * Combine the request with the base path to get the full url</span>
+</span><span class='line'><span class="cm">         * and remove any trailing slashes</span>
+</span><span class='line'><span class="cm">         */</span>
+</span><span class='line'>        <span class="nv">$path</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;http:/&#39;</span><span class="p">,</span> <span class="s1">&#39;http://&#39;</span><span class="p">,</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">()</span> <span class="o">.</span> <span class="nv">$request</span><span class="p">)),</span> <span class="s1">&#39;/&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="c1">//Get the last section which should be the product title</span>
+</span><span class='line'>        <span class="nv">$cleanedPath</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$path</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$key</span> <span class="o">=</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$cleanedPath</span><span class="p">);</span>
+</span><span class='line'>        <span class="c1">//Here we find url keys like the title</span>
+</span><span class='line'>        <span class="nv">$collection</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getCollection</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">addAttributeToSelect</span><span class="p">(</span><span class="s1">&#39;url_key&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">addFieldToFilter</span><span class="p">(</span><span class="k">array</span><span class="p">(</span>
+</span><span class='line'>            <span class="k">array</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;url_key&#39;</span><span class="p">,</span> <span class="s1">&#39;like&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="si">$key</span><span class="s2">&quot;</span><span class="p">)));</span>
+</span><span class='line'>        <span class="nv">$products</span> <span class="o">=</span> <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">();</span>
+</span><span class='line'>        <span class="cm">/*</span>
+</span><span class='line'><span class="cm">         * Proceed if there is only 1 result, if there are more we</span>
+</span><span class='line'><span class="cm">         * don&#39;t know which one is correct</span>
+</span><span class='line'><span class="cm">         */</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nv">$products</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">foreach</span> <span class="p">(</span><span class="nv">$products</span> <span class="k">AS</span> <span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$url</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">(</span><span class="nx">Mage_Core_Model_Store</span><span class="o">::</span><span class="na">URL_TYPE_WEB</span><span class="p">)</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getUrlKey</span><span class="p">();</span>
+</span><span class='line'>                <span class="c1">//Check to make sure the url is not the same as the path, should prevent infinite redirects</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="nv">$path</span> <span class="o">!=</span> <span class="nv">$url</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;HTTP/1.1 301 Moved Permanently&#39;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;Location: &#39;</span> <span class="o">.</span> <span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>                    <span class="k">die</span><span class="p">();</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">// Could not find a suitable url carry out the 404</span>
+</span><span class='line'>        <span class="k">parent</span><span class="o">::</span><span class="na">noRouteAction</span><span class="p">(</span><span class="nv">$coreRoute</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then use the following xml file</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;config&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;modules&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;EdmondsCommerce_Redirects&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;depends&gt;&lt;/depends&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/EdmondsCommerce_Redirects&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/modules&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;global&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;models&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;redirects&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;class&gt;</span>EdmondsCommerce_Redirects_Model<span class="nt">&lt;/class&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/redirects&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;catalog&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;rewrite&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;url&gt;</span>EdmondsCommerce_Redirects_Model_Catalog_Url<span class="nt">&lt;/url&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/rewrite&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/catalog&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/models&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/global&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;frontend&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;routers&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;cms&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;args&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;modules&gt;</span>
+</span><span class='line'>                        <span class="nt">&lt;EdmondsCommerce_Redirects</span> <span class="na">before=</span><span class="s">&quot;Mage_Cms&quot;</span><span class="nt">&gt;</span>EdmondsCommerce_Redirects_Cms<span class="nt">&lt;/EdmondsCommerce_Redirects&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;/modules&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/args&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/cms&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/routers&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/frontend&gt;</span>
+</span><span class='line'><span class="nt">&lt;/config&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-16T13:56:19+01:00" pubdate data-updated="true">Oct 16<span>th</span>, 2012</time>
         
       </p>
@@ -499,172 +916,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T10:40:28+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/getting-a-billing-address-from-the-magento-orders-table.html">Getting a Billing Address From the Magento Orders Table</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I recently had to generate a report listing the details of all orders from a magento store that matched certain parameters.</p>
-
-<p>There was a requirement that the billing address should be included in this, and I wanted to do this all in SQL if possible.</p>
-
-<p>The biggest problem was formatting the address as there is a value in the address table called suffix, which contains the County information, but is not a required value.</p>
-
-<p>As I was adding in line breaks to the select, this meant for all of the orders that did not have the value, then there would be a blank line using a standard CONCAT statement.</p>
-
-<p>What I found was that it is possible to add an IF statement to the CONCAT query, which gives the required result.</p>
-
-<p>This is done like this</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span>
-</span><span class='line'>    <span class="c1">-- Other Values that are needed --</span>
-</span><span class='line'>    <span class="n">CONCAT</span><span class="p">(</span>
-</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">firstname</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span> <span class="n">billing</span><span class="p">.</span><span class="n">lastname</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
-</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">street</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
-</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">city</span><span class="p">,</span>
-</span><span class='line'>            <span class="n">if</span><span class="p">(</span><span class="n">billing</span><span class="p">.</span><span class="n">suffix</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
-</span><span class='line'>                <span class="n">CONCAT</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span> <span class="n">billing</span><span class="p">.</span><span class="n">suffix</span><span class="p">),</span>
-</span><span class='line'>                <span class="s1">&#39;&#39;</span>
-</span><span class='line'>              <span class="p">),</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
-</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">postcode</span><span class="p">)</span> <span class="k">AS</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="n">Billing</span> <span class="n">Address</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span>
-</span><span class='line'><span class="k">FROM</span> <span class="n">sales_flat_order</span> <span class="k">AS</span> <span class="n">sfo</span>
-</span><span class='line'><span class="k">JOIN</span> <span class="n">sales_flat_order_address</span> <span class="k">AS</span> <span class="n">billing</span>
-</span><span class='line'>    <span class="k">ON</span> <span class="n">billing</span><span class="p">.</span><span class="n">parent_id</span> <span class="o">=</span> <span class="n">sfo</span><span class="p">.</span><span class="n">entity_id</span>
-</span><span class='line'>    <span class="k">AND</span> <span class="n">billing</span><span class="p">.</span><span class="n">address_type</span> <span class="o">=</span> <span class="s1">&#39;billing&#39;</span>
-</span><span class='line'><span class="c1">-- add your WHERE conditions --</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T09:07:03+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/phpstorm/phpstorm-5-released.html">PHPStorm 5 Released</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>At Edmonds Commerce we were staunch Netbeans users for years but we always struggled with large scale projects (<a href="/platforms/magento/" title="Magento Platform Overview">Magento</a> I&rsquo;m looking at you) meaning that Netbeans would sometimes really crawl as it tried to reindex thousands of PHP files.</p>
-
-<p>After a recent upgrade of our Linux desktop environment to the Mate edition of Linux Mint 13, Netbeans seemed to perform even worse and had a few bugs as well. At the same time we had been evaluating other IDE options including Eclipse and Zend Studio (which we all have free licences for thanks to being Zend Certified Developers).</p>
-
-<p>In the end though, the one we tried that really impressed was PHPStorm. It isn&rsquo;t free open source but it isn&rsquo;t too expensive, especially considering it is perhaps the single most important and highly used tool of a professional PHP developer.</p>
-
-<p>Now a new version has come out. Downloading and upgrading took all of 5 minutes and we are now going to enjoy better performance and some nice new features. I have yet to really test out the new version so I can&rsquo;t really report on them but they look good. You can read about all the new features in version 5 <a href="http://www.jetbrains.com/phpstorm/whatsnew/" title="PHPStorm 5 Features" target="_blank">here</a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-10T14:41:36+01:00" pubdate data-updated="true">Sep 10<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/phpstorm/replicate-netbeans-select-in-project-in-phpstorm.html">Replicate Netbeans &#8220;Select in Project&#8221; in Phpstorm</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Netbeans has a handy feature when you right-click a file in the editor window to take you to the file in the project (file manager tab) view.</p>
-
-<p>To get phpstorm to do this is not as simple but is handily mappable to a shortcut key.</p>
-
-<p>To enable this, go to Settings->Keymap->Main menu->Navigate->Select in&hellip; and choose a key.  I set it to Alt+P, so now I press Alt+P then press enter to go to the current file in the project view.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -688,15 +939,15 @@
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Magento/magerun-command-line-tools-for-magento-developers.html">Magerun - Command Line Tools for Magento Developers</a>
+    
+    <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
+    
+    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
+    
     <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
     <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
-    
-    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
-    
-    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
-    
-    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
   </div>
 </section>

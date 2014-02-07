@@ -128,6 +128,269 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T17:33:31+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/amazon/centos-sun-java-amazon-amtu-2.html">CentOS + Sun Java + Amazon AMTU 2</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>In a follow up to our popular blog post describing the process of getting AMTU 1 set up on a Centos server, this post describes how to get the latest version 2 of AMTU running.</p>
+
+<p>Things have moved on and thankfully it is a lot easier than it was.</p>
+
+<p>Firstly get Sun Java installed. You will need to get the URL for downloading the RPM from here:
+<a href="http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html">http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html</a></p>
+
+<p>Accept the agreement, download the correct RPM version and then pause it. Copy the download URL and paste it into this command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /tmp
+</span><span class='line'>wget <span class="o">[</span>paste-url<span class="o">]</span>-here<span class="o">]</span>
+</span><span class='line'>rpm - jre <span class="o">[</span>hit tab to <span class="nb">complete</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now check the correct java version is being used:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>java -version
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should get something looking like:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">[</span>root@94 tmp<span class="o">]</span><span class="c"># java -version</span>
+</span><span class='line'>java version &amp;quot;1.7.0_05&amp;quot;
+</span><span class='line'>Java<span class="o">(</span>TM<span class="o">)</span> SE Runtime Environment <span class="o">(</span>build 1.7.0_05-b06<span class="o">)</span>
+</span><span class='line'>Java HotSpot<span class="o">(</span>TM<span class="o">)</span> 64-Bit Server VM <span class="o">(</span>build 23.1-b03, mixed mode<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can install AMTU</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>wget https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh
+</span><span class='line'>chmod +x AMTU_unix.sh
+</span><span class='line'>./AMTU_unix.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Keep hitting enter to get to the bottom of the terms and then agree, agree to all the other options. That is AMTU installed.</p>
+
+<p>The final step is to configure this using the CLI configure utitlity.</p>
+
+<p>You need to create an xml file for the AMTU configuration. You can see a sample file in /opt/amtu/xml/sample.xml.</p>
+
+<p>Lets copy that file and then edit it accordingly.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /opt/amtu/xml
+</span><span class='line'>cp sample.xml configuration.xml
+</span><span class='line'>vim configuration.xml
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You do need to be signed up for MWS to get some of the keys etc that are required. If not already, go to this page and hit the sign up button.
+<a href="https://developer.amazonservices.co.uk/index.html">https://developer.amazonservices.co.uk/index.html</a></p>
+
+<p>Once you have updated the XML configuration you run this command to apply it:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>/opt/amtu/Utilities/configure SETUP /opt/amtu/xml/configuration.xml
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you get some error messages at this point, edit the configuration and try again. Once you have the configuration set you can start the daemon.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>/opt/AMTU/Utilities/amtu_daemon start
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T16:03:11+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/wondering-what-youre-waiting-for-mytop-tells-all.html">Wondering What You&#8217;re Waiting for? Mytop Tells All</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Mytop is a handy utility which shows what queries are currently being executed on your MySQL server &ndash; useful for those times when you&rsquo;re not quite sure if it&rsquo;s still on the job</p>
+
+<p>Running mytop is easy, just run it from the command line and it&rsquo;ll give you a top-like list of any queries currently being executed on the server
+You need to tell my top how it should connect to your database. You <em>can</em> specify everything as parameters on the command, such as</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>mytop -u<span class="o">=</span>myuser -p<span class="o">=</span>mypassword --db<span class="o">=</span>mydatabase -P<span class="o">=</span>3306
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But chances are you&rsquo;re not changing your database server <em>that</em> often.</p>
+
+<h3>Setting the default parameters for mytop</h3>
+
+
+<p>If you want to save yourself the effort of repeatedly typing the same details over and over, just tell mytop what you want it to choose if you don&rsquo;t tell it any parameters</p>
+
+<p>All you need to do is let mytop know how to connect to your MySQL database in the form of a config file called .mytop in your home folder, with the following contents (replace as necessary):</p>
+
+<blockquote>
+<code>
+     user=myuser
+         pass=
+         host=my.host.name
+         db=
+         delay=5
+         port=3306
+         socket=
+         batchmode=0
+         header=1
+         color=1
+         idle=1
+</code>
+</blockquote>
+
+
+<p>You can add as many or as few of these as you like for easy configuration, like specifying the db flag if you&rsquo;re primarily accessing only one database. I like to leave the password field blank, and use the &mdash;prompt flag to avoid any awkward leaks!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T14:05:32+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/running-php-scripts-as-apache-or-a-shell-user.html">Running PHP Scripts as Apache or a Shell User</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have PHP scripts that need to be able to run via the web server as Apache and also be runnable directly on the command line then you may run into permissions issues, especially if those scripts are doing anything with files.</p>
+
+<p>The scenario is that you run the script via the webserver and all of the files etc that are created are owned by Apache. Then you try to run on the command line and the script cannot run because it does not have permission to access Apache&rsquo;s files. The opposite scenario is also true.</p>
+
+<p>There are a few possible solutions to this but the most elegant and simple is to do the follwing.</p>
+
+<p>Assuming you are running Centos, you first of all need to set Apache to run with a umask of 002. This means that files it creates will have read/write permissions for the Apache group as well as the Apache user.</p>
+
+<p>To do this, simply add a line to the file /etc/sysconfig/httpd. You can do this in one command like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">echo</span> <span class="s2">&quot;umask 002&quot;</span> &gt;&gt; /etc/sysconfig/httpd
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you need to restart Apache to apply this.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>service httpd restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You then need to add your shell user to the apache group. To do this you need to do the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>vigr
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then find the line with your shell user and at the end add a comma and the word apache. This will add that user to the apache group along with it&rsquo;s own group.</p>
+
+<p>You will get a prompt to also edit etc/shadow. Agree to this and repeat the process.</p>
+
+<p>You will then need to log out and log back in to apply those changes and that should resolve your permissions issues for good.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T13:54:17+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
         
       </p>
@@ -210,7 +473,7 @@ Group: Applications/Utilities
 Source: <a href="https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz">https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz</a>
 URL: <a href="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a>
 Distribution: CentOS
-Packager: Martyn Ranyard <a href="&#109;&#x61;&#x69;&#108;&#x74;&#111;&#x3a;&#105;&#110;&#x66;&#111;&#x40;&#101;&#x64;&#109;&#111;&#x6e;&#100;&#115;&#99;&#111;&#x6d;&#x6d;&#x65;&#114;&#x63;&#101;&#46;&#x63;&#111;&#46;&#x75;&#107;">&#x69;&#x6e;&#x66;&#x6f;&#64;&#x65;&#x64;&#x6d;&#111;&#x6e;&#x64;&#x73;&#x63;&#111;&#109;&#x6d;&#101;&#114;&#x63;&#101;&#46;&#x63;&#111;&#x2e;&#x75;&#107;</a>
+Packager: Martyn Ranyard <a href="&#x6d;&#x61;&#x69;&#108;&#116;&#111;&#58;&#x69;&#x6e;&#102;&#x6f;&#64;&#x65;&#x64;&#x6d;&#x6f;&#x6e;&#x64;&#x73;&#x63;&#111;&#109;&#109;&#101;&#114;&#99;&#101;&#x2e;&#99;&#111;&#x2e;&#x75;&#x6b;">&#105;&#x6e;&#x66;&#111;&#x40;&#x65;&#x64;&#x6d;&#111;&#110;&#100;&#x73;&#x63;&#x6f;&#x6d;&#109;&#101;&#114;&#99;&#101;&#46;&#x63;&#x6f;&#46;&#x75;&#107;</a>
 Patch1000: safe-rm-0.8-example-conf.patch
 Requires: perl</p>
 
@@ -218,7 +481,7 @@ Requires: perl</p>
 Stop people accidentally removing directories with rm -rf</p>
 
 <p>%changelog
-* Thu Aug 09 2012 Martyn Ranyard <a href="&#109;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#x69;&#110;&#102;&#111;&#x40;&#x65;&#100;&#109;&#x6f;&#x6e;&#100;&#x73;&#99;&#x6f;&#x6d;&#109;&#x65;&#x72;&#99;&#101;&#x2e;&#x63;&#x6f;&#46;&#x75;&#x6b;">&#x69;&#110;&#x66;&#x6f;&#64;&#101;&#x64;&#109;&#x6f;&#x6e;&#100;&#x73;&#x63;&#x6f;&#x6d;&#x6d;&#101;&#x72;&#x63;&#x65;&#x2e;&#99;&#x6f;&#46;&#117;&#107;</a>
+* Thu Aug 09 2012 Martyn Ranyard <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#58;&#105;&#110;&#x66;&#x6f;&#64;&#101;&#x64;&#109;&#111;&#110;&#x64;&#115;&#x63;&#x6f;&#109;&#x6d;&#101;&#x72;&#x63;&#x65;&#46;&#x63;&#111;&#46;&#x75;&#107;">&#105;&#110;&#102;&#111;&#64;&#101;&#100;&#x6d;&#x6f;&#110;&#x64;&#115;&#99;&#111;&#x6d;&#x6d;&#101;&#114;&#x63;&#101;&#46;&#x63;&#x6f;&#x2e;&#117;&#x6b;</a>
 &ndash; Used the debian example config for the default config</p>
 
 <p>%prep
@@ -610,134 +873,6 @@ cd &ndash;</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-26T16:47:24+01:00" pubdate data-updated="true">Jul 26<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/web-design-brief.html">Web Design Brief</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix">
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-26T16:47:24+01:00" pubdate data-updated="true">Jul 26<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/current-search.html">Current Search</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix">
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-26T15:42:00+01:00" pubdate data-updated="true">Jul 26<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/wordpress/wordpress-installupdate-plugins-etc-locally-via-admin.html">Wordpress Install/Update Plugins Etc Locally via Admin</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you like the admin functionality to manage plugins, themes and other updates that wordpress features and would like to have this working when you are developing locally then you might find that you need to set up an FTP server locally just for this purpose.</p>
-
-<p>Perhaps a better solution, especially if you use a *nix based desktop such as Linux is to try this extension:</p>
-
-<p><a href="http://wordpress.org/extend/plugins/ssh-sftp-updater-support/"><a href="http://wordpress.org/extend/plugins/ssh-sftp-updater-support/">http://wordpress.org/extend/plugins/ssh-sftp-updater-support/</a></a></p>
-
-<p>This will extend the FTP functionality to also use SFTP or SSH for the updates. If you are already running an SSH server on your desktop then there is very little left to do. If you are not then a quick</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo apt-get install openssh-server
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And you are ready to go.</p>
-
-<p>From this point you can then use the admin functionality to manage plugins etc which is a nice slick way of doing things.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -761,15 +896,15 @@ cd &ndash;</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Magento/magerun-command-line-tools-for-magento-developers.html">Magerun - Command Line Tools for Magento Developers</a>
+    
+    <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
+    
+    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
+    
     <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
     <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
-    
-    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
-    
-    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
-    
-    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
   </div>
 </section>

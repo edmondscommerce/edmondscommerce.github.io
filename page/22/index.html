@@ -128,6 +128,298 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-04-26T12:35:29+01:00" pubdate data-updated="true">Apr 26<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html">Extending Mage Core Encryption Model to Handle Legacy Passwords</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are migrating from an old ecommerce package into Magento, you may well want to extend Magento&rsquo;s password hashing system so that it can understand the passwords that are hashed by the previous system and customers can log in using their old passwords without any hassle.</p>
+
+<p>You would start off by overriding the Mage_Core_Model_Encryption class like so:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_LegacyPassword_Model_Encryption</span> <span class="k">extends</span> <span class="nx">Mage_Core_Model_Encryption</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Validate hash against hashing method (with or without salt)</span>
+</span><span class='line'><span class="sd">     * </span>
+</span><span class='line'><span class="sd">     * Extended to support the legacy password hashing of the previous system</span>
+</span><span class='line'><span class="sd">     *</span>
+</span><span class='line'><span class="sd">     * @param string $password</span>
+</span><span class='line'><span class="sd">     * @param string $hash</span>
+</span><span class='line'><span class="sd">     * @return bool</span>
+</span><span class='line'><span class="sd">     * @throws Exception</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">validateHash</span><span class="p">(</span><span class="nv">$password</span><span class="p">,</span> <span class="nv">$hash</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="cm">/*password matches legacy pattern (as stored hash in DB)*/</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// create a hash of the plain text password and compare to the stored hash</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nv">$hashed_pass</span> <span class="o">==</span> <span class="nv">$hashval</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">//default magento hashing from here</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">parent</span><span class="o">::</span><span class="na">validateHash</span><span class="p">(</span><span class="nv">$password</span><span class="p">,</span> <span class="nv">$hash</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However, you will find that the standard model override does not work and you may start vigorous hair pulling at this point.</p>
+
+<p>The answer though is that your override XML is actually fine, but it isn&rsquo;t being used. This is because of the getEncryptor model in Mage_Core_Helper_Data creates the model using &lsquo;new&rsquo; rather than getModel.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * @return Mage_Core_Model_Encryption</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">getEncryptor</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_encryptor</span> <span class="o">===</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$encryptionModel</span> <span class="o">=</span> <span class="p">(</span><span class="nx">string</span><span class="p">)</span><span class="nx">Mage</span><span class="o">::</span><span class="na">getConfig</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getNode</span><span class="p">(</span><span class="nx">self</span><span class="o">::</span><span class="na">XML_PATH_ENCRYPTION_MODEL</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$encryptionModel</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_encryptor</span> <span class="o">=</span> <span class="k">new</span> <span class="nv">$encryptionModel</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_encryptor</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;core/encryption&#39;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_encryptor</span><span class="o">-&gt;</span><span class="na">setHelper</span><span class="p">(</span><span class="nv">$this</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_encryptor</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The class name to use for the encryptor is stored in the config.xml for Mage_Core.</p>
+
+<p>The solution here is to replicate this XML in your config.xml and also make your legacy module depend on Mage_Core so that it get loaded afterwards and can override the XML.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;config&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;modules&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;EdmondsCommerce_LegacyPassword&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;version&gt;</span>0.1.1<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;depends&gt;</span>Mage_Core<span class="nt">&lt;/depends&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/EdmondsCommerce_LegacyPassword&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/modules&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;global&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;models&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;core&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;rewrite&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;encryption&gt;</span>EdmondsCommerce_LegacyPassword_Model_Encryption<span class="nt">&lt;/encryption&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/rewrite&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/core&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/models&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;helpers&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;core&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;encryption_model&gt;</span>EdmondsCommerce_LegacyPassword_Model_Encryption<span class="nt">&lt;/encryption_model&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/core&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/helpers&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/global&gt;</span>
+</span><span class='line'><span class="nt">&lt;/config&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Easy once you understand. Another gotcha you have to look out for though!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-04-18T17:48:13+01:00" pubdate data-updated="true">Apr 18<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/update-magento-category-attribute-sort-order-from-the-database.html">Update Magento Category Attribute Sort Order From the Database</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have written your own modules, and need to rearrange the order that your attributes or displayed in, or change anything else, you can use the following SQL statements to fix their order.</p>
+
+<p>First you need to get the attribute group that the attributes are under. This can be done by running the following</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span> <span class="n">attribute_group_id</span><span class="p">,</span>  <span class="n">attribute_group_name</span> <span class="k">FROM</span> <span class="n">eav_attribute_group</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will give all of the different tabs for categories as well as the products. Find the group ID that you need and then run the following command to see all of the attributes associated with it</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span> <span class="n">eea</span><span class="p">.</span><span class="o">*</span><span class="p">,</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_code</span> <span class="k">FROM</span> <span class="n">eav_entity_attribute</span> <span class="k">AS</span> <span class="n">eea</span> <span class="k">JOIN</span> <span class="n">eav_attribute</span> <span class="k">AS</span> <span class="n">ea</span> <span class="k">ON</span> <span class="n">eea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="k">WHERE</span> <span class="n">eea</span><span class="p">.</span><span class="n">attribute_group_id</span> <span class="o">=</span> <span class="mi">4</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we are using the group_id of 4 which gives the following result
+<img src="/assets/screenshot2-600x234.png"></p>
+
+<p>The sort_order is the attribute that you need to change to move the attributes around the page. If the sort order is sequential then a simple trick to add some padding is to run the following command</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">UPDATE</span> <span class="n">eav_entity_attribute</span> <span class="kt">SET</span> <span class="n">sort_order</span> <span class="o">=</span> <span class="p">(</span><span class="n">sort_order</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">attribute_group_id</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which will multiple each sort order by 10 allowing you to move the attributes around easier.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-04-16T08:56:48+01:00" pubdate data-updated="true">Apr 16<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-performance-problems.html">Magento Performance Problems</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are having performance issues with your Magento store and you are running on a dedicated or VPS server that you think should be up to the task of running your store properly but you continue to have performance problems then this post is for you.</p>
+
+<p>Having decent server specification is only the first step on the road to having a high performance Magento store. Without proper configuration your server is not going to make the best use of its resources and that could make the difference of literally seconds or even tens of seconds of page load time.</p>
+
+<p>The first and most important thing to check is that you are running a PHP opcode cacher such as APC. Opcode caching takes your PHP source code and compiles it to opcodes and then stores this in a cache. This opcode is actually what is run when people visit your store and the process of creating it, especially if you have a very large application with lots of file (like Magento), can be a real performance bottleneck. This problem is easily resolved by having APC installed and configured. If you are not sure, ring your hosting company and find out and if you don&rsquo;t have it running, ask them to set it up for you.</p>
+
+<p>The next thing to check is MySQL configuration. The standard MySQL configuration defaults were set when server hardware and memory was a tiny fraction of what it is today and that means that the configuration is generally way too sparse with allocation of memory for caching and other optimisations. Tweaking MySQL can be a little tricky, its definitely not something you should do if you are not sure, but it is well worth getting someone to optimise your MySQL configuration.</p>
+
+<p>After that, the next major performance gain with Magento is to make proper use of block caching. Magento has a brilliant built in feature where every block (page section) can be cached so that next time someone visits the page, the logic used to generate that section of page (for example a best sellers list) does not have to be run, we simply redisplay the cached copy of that block&rsquo;s HTML.</p>
+
+<p>Beyond these three steps there are still many more things that can be done to improve the performance of your Magento store. If you would like professional help getting the best out of your server and Magento with a view to getting the lowest possible page load speeds then get in touch with Edmonds Commerce today.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-04-11T11:28:46+01:00" pubdate data-updated="true">Apr 11<span>th</span>, 2012</time>
         
       </p>
@@ -534,161 +826,6 @@ As everyone is aware, Ubuntu and Gnome have both moved towards a new desktop env
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-28T11:39:09+01:00" pubdate data-updated="true">Mar 28<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/tip-ssh-add-a-tunnel-to-a-running-session.html">TIP: SSH Add a Tunnel to a Running Session</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Useful tip &ndash; if you&rsquo;ve ever been ssh&rsquo;d into a remote machine and don&rsquo;t want to break the connection or open a new session just to add a new tunnel, there is a way</p>
-
-<p>Press [return] then ~ then C to get to an ssh> prompt, then you can add tunnels as you would at the command line e.g.
-<code>-L 80:localhost:8080</code></p>
-
-<p>Then press [return] to return to the session you were running.  Cool trick.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-27T11:05:49+01:00" pubdate data-updated="true">Mar 27<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html">Using Live Images on Staging Without Absolute URLs (but a Bit of JS)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you have a staging copy of your site anywhere then you might not bother copying over your entire catalogue of product images etc.</p>
-
-<p>You might decide to drop in absolute URLs for those images so that they are pulled from live. However you really don&rsquo;t want absolute URLs in your code and you certainly don&rsquo;t want that to go live because it just adds unnecessary bloat.</p>
-
-<p>A nice trick you can do here is make a change to your staging site as follows. Of course ensure this change doesn&rsquo;t go live, but it should be just one file so that&rsquo;s easy to handle.</p>
-
-<p>(Note this assumes you already have jQuery available on your page)</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text/javascript&quot;</span><span class="o">&gt;</span>
-</span><span class='line'><span class="nx">$</span><span class="p">().</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;img&#39;</span><span class="p">).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>        <span class="kd">var</span> <span class="nx">src</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;&#39;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="nx">src</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">)){</span>
-</span><span class='line'>            <span class="kd">var</span> <span class="nx">new_src</span> <span class="o">=</span> <span class="s1">&#39;http://www.LIVEDOMAIN.co.uk/&#39;</span><span class="o">+</span><span class="nx">src</span><span class="p">;</span>
-</span><span class='line'>            <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="nx">new_src</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'><span class="o">&lt;</span><span class="err">/script&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Don&rsquo;t forget to change LIVEDOMAIN to be your real live domain</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-21T07:44:15+00:00" pubdate data-updated="true">Mar 21<span>st</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/hosting/amazon-web-services-blog-aws-elastic-beanstalk-build-php-apps-using-git-based-deployment.html">Amazon Web Services Blog: AWS Elastic Beanstalk - Build PHP Apps Using Git-Based Deployment</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Easily deploy PHP applications to the Amazon Web Services infrastructure allowing you to take advantage of an easily scaled flexible cloud based system.</p>
-
-<p>Furthermore there is Git based deployment so your version control workflow can hook directly into deployment for speed and convenience.</p>
-
-<p>This does really look attractive. The Angry birds store recently launched on Magento using Varnish and Amazon Web Services and it runs very fast indeed. Perhaps the days of expensive dedicated hardware are really numbered. If its this easy to set something up that can perform as well as a complex server cluster at a fraction of the cost.</p>
-
-<p><a href="http://aws.typepad.com/aws/2012/03/aws-elastic-beanstalk-build-php-apps-using-git-based-deployment.html"><a href="http://aws.typepad.com/aws/2012/03/aws-elastic-beanstalk-build-php-apps-using-git-based-deployment.html">http://aws.typepad.com/aws/2012/03/aws-elastic-beanstalk-build-php-apps-using-git-based-deployment.html</a></a></p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -712,15 +849,15 @@ As everyone is aware, Ubuntu and Gnome have both moved towards a new desktop env
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Magento/magerun-command-line-tools-for-magento-developers.html">Magerun - Command Line Tools for Magento Developers</a>
+    
+    <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
+    
+    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
+    
     <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
     <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
-    
-    <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
-    
-    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
-    
-    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
   </div>
 </section>
