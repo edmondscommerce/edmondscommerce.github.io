@@ -128,136 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-05T17:27:51+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/solution-magento-catalog-url-rewrites-never-finishes-processing.html">Solution: Magento Catalog URL Rewrites Never Finishes (Processing)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In <a title="Magento" href="http://www.edmondscommerce.co.uk/platforms/Magento">Magento</a> 1.4.2 and possibly other versions, you can often find that the Catalog URL Rewrite process will sit at Processing forever.</p>
-
-<p>One of the problems that can cause this is if you have products in multiple categories and the solution is not pretty, but it works.</p>
-
-<p>Copy the file /app/code/core/Mage/Catalog/Model/Url.php to /app/code/local/Mage/Catalog/Model/Url.php (You never edit core files right?!) and around line 770 there is the following code block :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>        <span class="c1">// generate id_path</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span> <span class="o">===</span> <span class="nv">$type</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;category/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$category</span> <span class="o">&amp;&amp;</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getLevel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>        <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Changing this to the following seems to fix the problem :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>        <span class="c1">// generate id_path</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span> <span class="o">===</span> <span class="nv">$type</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;category/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$category</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getPath</span><span class="p">()))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>        <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-04T14:35:36+00:00" pubdate data-updated="true">Dec 4<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/solution-cant-log-in-to-magento-no-error.html">Solution - Can&#8217;t Log in to Magento Admin - No Error</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you pull down a <a title="Magento" href="http://www.edmondscommerce.co.uk/platforms/Magento">Magento</a> site to a local machine, and change the database core_config table to point to the local machine, and it appears to work fine until you try to login to the site admin, there can be many issues.</p>
-
-<p>One of the most common ones though is not having a period (dot) in the host name &ndash; e.g. localhost/admin or martyn-desktop/admin &ndash; if you don&rsquo;t have the period, the cookies don&rsquo;t work properly and you end up in a login loop.</p>
-
-<p>To fix it, make sure your machine is accessible via a domain with a period &ndash; e.g. martyn-desktop.local &ndash; by either editing your hosts file (/etc/hosts) or check your router &ndash; it possibly already adds a domain name like .config and set your path in core_config to the same.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-04T12:21:44+00:00" pubdate data-updated="true">Dec 4<span>th</span>, 2012</time>
         
       </p>
@@ -706,6 +576,156 @@ Warning: include(): Failed opening &lsquo;Model/Base.php&rsquo; for inclusion (i
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-19T12:41:07+00:00" pubdate data-updated="true">Nov 19<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/edmonds-commerce-successfully-leads-firesale-on-buckley-jewellery.html">Edmonds Commerce Successfully Implements Marketing Firesale on Buckley Jewellery</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h2>The idea</h2>
+
+
+<p><a href="http://www.buckleylondon.com/">Buckley Jewellery</a> approached us with an idea they had for setting up a promotion to go viral. Their idea was to pick one of their products which they were already selling and literally give it away.</p>
+
+<h2>The problems</h2>
+
+
+<p>The initial requirement was fairly straightforward &ndash; we&rsquo;d set up a Shopping Cart Price Rule with a coupon code to give a 100% discount on the product price if the specific SKU was in the basket. But it then became apparent that there were various problems here.</p>
+
+<p><strong>Free Shipping Calculations:<strong> Although we&rsquo;d set it up so that only one of the items were discounted, all items were still factored in when Magento attempted to calculate the shipping costs, so their Free UK Delivery Over &pound;30 policy took effect when two of the item were present</p>
+
+<p><strong>Different shipping for the free product:<strong> Buckley have shipping rates tailored to a more bulky package, but obviously these free earrings were quite small, and charging upwards of &pound;10 for EU shipping wasn&rsquo;t going to work. We had to find a way to keep their &pound;3.50, &pound;12.50 and &pound;19 shipping for their products, but for the free earrings have an exception &ndash; &pound;2.99, &pound;3.99 and &pound;4.99.</p>
+
+<h2>The solutions</h2>
+
+
+<p>We spent much time with Buckley discussing how to get their requirements to work and went down a few threads of thought</p>
+
+<p>The core discount is a Shopping Cart Price Rule setting a 100% price discount applied only to one of the specific SKU, one per customer, with a coupon code.</p>
+
+<p>To solve the different shipping for different products we decided to leverage products&#8217; weights to vary the shipping. Having to work around their MatrixRates extension&rsquo;s limitation to only vary by weight OR basket total vs destination we implemented a standard weight across the board, and changed only the free earrings to be less &lsquo;heavy&rsquo;. We then implemented shipping rules such that if the basket came to a weight less than 1kg (which could only mean it was just the free earrings) the lower shipping rates are applied, otherwise the greater costs</p>
+
+<p>We then reimplemented the free shipping over &pound;30 (at the last minute!) as another Shopping Cart Price Rule so that we could still maintain the free shipping, without having to pay to upgrade their MatrixRates extension</p>
+
+<h2>On the day</h2>
+
+
+<p>The promotion did go viral &ndash; it ended up on various social media, as well as being featured on MoneySavingExpert, with them promising to send it out on their monthly newsletter</p>
+
+<p>The earrings sold out in less than two hours, with people flocking to the site to get their hands on them. Of course, many customers also purchased other items while on the site and they&rsquo;ve increased their customer base, while also getting their name out there.</p>
+
+<p>They&rsquo;re now looking to switch over their hosting so that they can stand up to bigger and better promotions in the future</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-19T08:02:25+00:00" pubdate data-updated="true">Nov 19<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/wget-for-beginners.html">Wget for Beginners</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h3>What is Wget in general ?</h3>
+
+
+<p>Wget is a free utility for non-interactive download of file from the web. The user doesn’t need to login system every time <a href="http://www.gnu.org/software/wget/" rel="nofollow">Wget</a> can download the entire web page or mirroring the entire web page. If download crashed or stop for various reason Wget will start download again from where it stopped. It is highly recommended for downloading file from web with slow network connections.</p>
+
+<h2>How to Use Wget ? </h2>
+
+
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">wget</span> <span class="o">-</span><span class="nx">t</span> <span class="mi">10</span> <span class="nx">www</span><span class="o">.</span><span class="nx">google</span><span class="o">.</span><span class="nx">com</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If network connection fails Wget will to try to reconnect 20 times in default.With -t command we can specify how many times it need to  reconnect.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">wget</span> <span class="o">-</span><span class="nx">p</span> <span class="o">--</span><span class="nx">convert</span><span class="o">-</span><span class="nx">links</span> <span class="o">-</span><span class="nx">r</span> <span class="nx">www</span><span class="o">.</span><span class="nx">google</span><span class="o">.</span><span class="nx">com</span> <span class="o">-</span><span class="nx">o</span> <span class="nx">logfile</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This command will download the site -p and &mdash;convert will make sure all linked files are linked to downloaded document such as images and external links it enables complete offline viewing. Log file can be enabled with -O command to view the output message.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">wget</span> <span class="o">--</span><span class="nx">spider</span> <span class="o">--</span><span class="nx">force</span><span class="o">-</span><span class="nx">html</span> <span class="nx">www</span><span class="o">.</span><span class="nx">google</span><span class="o">.</span><span class="nx">com</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&mdash;spider Will check the webpage is existent or not.
+&mdash;force  It will enforce the file type that have to be downloaded.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">wget</span> <span class="o">-</span><span class="nx">u</span> <span class="nx">mozilla</span> <span class="nx">www</span><span class="o">.</span><span class="nx">google</span><span class="o">.</span><span class="nx">com</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>some site access allowed to certain user <a href="http://www.user-agents.org/" rel="nofollow">agents</a>. So to access with certain user agent you can use this command.</p>
+
+<p>Ftp connection download is achieved by</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">wget</span> <span class="o">-</span><span class="nx">r</span> <span class="nx">ftp</span><span class="o">://</span><span class="nx">username</span><span class="o">:</span><span class="nx">password</span><span class="o">@</span><span class="nx">ftp</span><span class="o">.</span><span class="nx">example</span><span class="o">.</span><span class="nx">com</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -729,15 +749,15 @@ Warning: include(): Failed opening &lsquo;Model/Base.php&rsquo; for inclusion (i
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
-    
-    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
-    
     <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
     <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
     
     <a class="list-group-item " href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a>
+    
+    <a class="list-group-item " href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a>
+    
+    <a class="list-group-item " href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a>
     
   </div>
 </section>
