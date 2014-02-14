@@ -21,13 +21,15 @@ The problem is that you have used the standard PHP super globals and you would r
 Here is a nice quick solution:
 
 ``` php
-for ($i = 1; $i < $argc; $i++) {
-    $things = explode("=", $argv[$i]);
-    if (false !== stripos($things[0], 'POST:')) {
-        $post = str_replace('POST:', '', $things[0]);
-        $_POST[$post] = $things[1];
-    } else {
-        $_GET[$things[0]] = $things[1];
+if(isset($argc)){
+    for ($i = 1; $i < $argc; $i++) {
+    	$things = explode("=", $argv[$i]);
+        if (false !== stripos($things[0], 'POST:')) {
+             $post = str_replace('POST:', '', $things[0]);
+             $_POST[$post] = $things[1];
+        } else {
+             $_GET[$things[0]] = $things[1];
+        }
     }
 }
 
@@ -37,7 +39,7 @@ echo "\nPOST:\n";
 var_dump($_POST);
 
 ```
-This will loop over the argc variable that is defined when running in CLI mode and will fake the $_GET and $_POST variables as required.
+This will loop over the argc variable that is defined when running in CLI mode and will fake the `$_GET` and `$_POST` variables as required.
 
 To run this with get and post variables you would do this:
 
