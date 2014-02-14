@@ -128,6 +128,189 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-05-27T10:04:15+01:00" pubdate data-updated="true">May 27<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/programming/linux/ubuntu/building-bash-function-libraries.html">Building Bash Function Libraries</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Bash provides many powerful functions but how can you use these easily?</p>
+
+<p>If you spend any time using the command line, either to manage a server or on the desktop, you have to quickly become proficient with bash. You will also find the you carry out many of the same tasks time after time.</p>
+
+<p>This can quickly become tiresome and error prone, particularly if you are piping several commands together. However, bash provides several ways to make your life easier.</p>
+
+<h3>Aliases</h3>
+
+
+<p>If you are always going to be using the same flags with a command, you can ensure that they are called by default by using an alias.</p>
+
+<p>An alias is a shorthand that bash uses in order to fire commands. Several are included as standard with Ubuntu (and other distros) and are stored in your .bashrc file. You can edit these and add your own as the need occurs.</p>
+
+<p>An example of this is that I prefer the human readable file sizes when using ls. You can turn these on using the -h flag, but you have to include this every time you run the command. To make things easier I changed the alias for ll (long list) to read as follows</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>alias ll="ls -ahlF"
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This way I don&rsquo;t need to remember to put the flag in.</p>
+
+<p>As you build up more of these commands, it makes sense to store them in a separate file so you can easily find and edit them. You can place all of you aliases in a file called .bash_aliases and they will be available for use.</p>
+
+<h3>Scripts</h3>
+
+
+<p>Aliases are fine for quickly calling simple commands, but many times you will need to carry out more complex tasks. In order to do this, you can make a script, and then call that.</p>
+
+<p>By placing everything into a script, you benefit from being able to carry out more complicated functions, and the easy of calling it from a single command.</p>
+
+<p>An example of this would be if you wanted to compare two branches in git, and see all of the files that had been created or modified, but not the files that had been deleted. You create a file called git_get_changed_files and put the following in</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>#!/bin/bash
+</span><span class='line'>local ORIGINAL CHANGED FILES 
+</span><span class='line'>ORIGINAL="$1"
+</span><span class='line'>CHANGED="$2"
+</span><span class='line'>
+</span><span class='line'>    FILES=$(git diff --name-status $ORIGINAL..$CHANGED public/ | awk '{print $1"@@@@@"$2}')
+</span><span class='line'>    for FILE in $FILES
+</span><span class='line'>    do
+</span><span class='line'>            echo "$FILE" | awk -F "@@@@@" '{ i=""; if ($1 != "D") print $2}'
+</span><span class='line'>    done
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you place this in your home/bin folder you will then be able to run  git_get_changed_files like a normal command.</p>
+
+<h3>A Global Function Library</h3>
+
+
+<p>You can expand on this by creating a global library of functions. This works by putting all of the functions into a folder, where each file is a namespace for different functions.</p>
+
+<p>This can be achieved by creating a script that will source of all of the files in a folder, like so:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>#!/bin/bash
+</span><span class='line'>for f in $(ls /path/to/folder/); 
+</span><span class='line'>    do source /path/to/folder/$f; 
+</span><span class='line'>done
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Call this script func and place it in your home/bin folder. Then you put a script in the folder referenced in the file and use the following structure.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>function parse.(){ # auto complete helper, second argument is a grep against the function list     
+</span><span class='line'>    if [[ '' == "$@" ]]
+</span><span class='line'>    then
+</span><span class='line'>        echo "Parse Namespaced Functions List"
+</span><span class='line'>        cat $BASH_SOURCE | grep "^function[^(]" | awk '{j=" USAGE:"; for (i=5; i&lt;=NF; i++) j=j" "$i; print $2" "j}'
+</span><span class='line'>    else
+</span><span class='line'>        echo "Parse Functions Matching: $@"
+</span><span class='line'>        cat $BASH_SOURCE | grep "^function[^(]" | awk '{j=" USAGE:"; for (i=5; i&lt;=NF; i++) j=j" "$i; print $2" "j}' | grep $@
+</span><span class='line'>    fi
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>function parse.access_log_top_ten_code() { # Show the top ten code from access_log: useage ...code $FILE $CODE
+</span><span class='line'>  FILE=$1
+</span><span class='line'>  CODE=$2
+</span><span class='line'>  echo "Count the top ten $CODE'd pages"
+</span><span class='line'>
+</span><span class='line'>  cat $FILE | awk '{ i=($9=="$CODE" ) ? $7 : ""; print i; }' | sort | uniq -c | sort -n | tail -n 11 | head -n 10
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this folder a namespace of parse is created. Running</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>func parse. 
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Will list all of the function in the file. Running func parse. log will list all of the function that contain log in the function name or description. When the files are listed, the function name will be displayed with the comment along side it.</p>
+
+<p>As the func command sources all of the different files, you are able to makes use of the functions across different namespaces. This means that you can create a file that will format output and then use that in with your git functions.</p>
+
+<p>I hope that you are able to make use of this idea, and build your own library of functions. Anything that you thing would be useful to add to the library, please mention below.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-05-22T21:19:48+01:00" pubdate data-updated="true">May 22<span>nd</span>, 2011</time>
         
       </p>
@@ -799,70 +982,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-03-23T07:12:54+00:00" pubdate data-updated="true">Mar 23<span>rd</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/tkman-linux-man-pages-gui-tool.html">TkMan Linux Man Pages GUI Tool</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Want to browse your man pages but not in the console?</p>
-
-<p>You can of course hit the search engines but its got to be better to be looking at your own man pages so you know the instructions are for your machine, version etc.</p>
-
-<p>For this just</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo apt-get install tkman
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And you have a simple but useful man page reader.</p>
-
-<p>It doesn&rsquo;t seem to get dropped into the applications menu so you can add it manually by right clicking the Applications menu, selecting Edit Menus then go to System Tools and then hit the Add Item button.</p>
-
-<p>Set the title to Man Page Reader and the command as tkman. You can choose whatever icon you prefer by clicking the springboard icon.</p>
-
-<p>Once you launch it, I found it a lot nicer to switch the fonts to arial and normal weight across the board. Its worth messing around with the other options as well.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -886,6 +1005,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/php/running-php-scripts-on-cli-and-faking-a-web-request.html">Running PHP Scripts on CLI and Faking a Web Request</a>
+    
     <a class="list-group-item " href="/cpanel/cpanel-download-site-files-and-database.html">cPanel Download Site Files and Database</a>
     
     <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
@@ -893,8 +1014,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
     
     <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
-    
-    <a class="list-group-item " href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a>
     
   </div>
 </section>

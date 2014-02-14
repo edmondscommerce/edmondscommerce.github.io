@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: web | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/web/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-02-11T10:08:38+00:00</updated>
+  <updated>2014-02-14T17:37:05+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,48 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Running PHP Scripts on CLI and Faking a Web Request]]></title>
+    <link href="http://edmondscommerce.github.io/php/running-php-scripts-on-cli-and-faking-a-web-request.html"/>
+    <updated>2014-02-14T17:31:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/running-php-scripts-on-cli-and-faking-a-web-request</id>
+    <content type="html"><![CDATA[<p>Some times you build a PHP script that is designed to run from a web request and you want to run it on the command line.
+The problem is that you have used the standard PHP super globals and you would rather not refactor the script loads.</p>
+
+<p>Here is a nice quick solution:</p>
+
+<p>``` php
+for ($i = 1; $i &lt; $argc; $i++) {</p>
+
+<pre><code>$things = explode("=", $argv[$i]);
+if (false !== stripos($things[0], 'POST:')) {
+    $post = str_replace('POST:', '', $things[0]);
+    $_POST[$post] = $things[1];
+} else {
+    $_GET[$things[0]] = $things[1];
+}
+</code></pre>
+
+<p>}</p>
+
+<p>echo &ldquo;\nGET:\n&rdquo;;
+var_dump($<em>GET);
+echo &ldquo;\nPOST:\n&rdquo;;
+var_dump($</em>POST);</p>
+
+<p>```
+This will loop over the argc variable that is defined when running in CLI mode and will fake the $<em>GET and $</em>POST variables as required.</p>
+
+<p>To run this with get and post variables you would do this:</p>
+
+<p><code>
+php -f script.php getvar1=test getvar2=foo POST:postvar1=bar
+</code></p>
+
+<p>And that&rsquo;s it. It is not particularly pretty but it can be pretty handy.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Prevent zooming in a mobile browser]]></title>
@@ -251,35 +293,6 @@ retailers need mobile capability to engage with shoppers as well as sell to them
 <p>You can read all about the <a href="http://www.zend.com/services/certification/php-5-certification/" title="ZCE information" target="_blank">ZCE exam here</a>.</p>
 
 <p>In a nutshell the exam is designed to test knowledge and skill that a professional PHP developer would need to tackle the kind of day to day issues they are likely to face. The exam covers a broad range of topics and really tests the in depth and broad knowledge of PHP that is required to really get the most out of the language and deliver the highest quality PHP development.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sticky page scrolling in JavaScript with JQuery]]></title>
-    <link href="http://edmondscommerce.github.io/jquery/sticky-page-scrolling-in-javascript-with-jquery.html"/>
-    <updated>2013-02-20T17:35:30+00:00</updated>
-    <id>http://edmondscommerce.github.io/jquery/sticky-page-scrolling-in-javascript-with-jquery</id>
-    <content type="html"><![CDATA[<p>If you have a page that keeps getting longer because new items appear on it at the bottom and what&rsquo;s at the bottom of the page is most important it can be a paint to have to keep scrolling done to see it.</p>
-
-<p>You can make it auto scroll continuously with JQuery but that&rsquo;s potentially really awkward if at any point you need to scroll up (it basically means you can&rsquo;t).</p>
-
-<p>The best solution is to make the page auto scroll in a sticky fashion. So when the page is already scrolled all the way to the bottom it auto scrolls, when it&rsquo;s not at the bottom it does not scroll.</p>
-
-<p>This can be achieved quite easily with the following code:
-```javascript</p>
-
-<p>var num = (lastDocumentHeight &ndash; $(window).height()) &ndash; $(document).scrollTop();
-if(num == 0) {</p>
-
-<pre><code>$(&amp;quot;html, body&amp;quot;).animate({ scrollTop: $(document).height() }, &amp;quot;slow&amp;quot;);
-</code></pre>
-
-<p>}
-lastDocumentHeight = $(document).height();</p>
-
-<p>```</p>
-
-<p>In this example lastDocumentHeight is a global. It works by determining if the current position is the same as it was previously and this position equates to being at the bottom of the page then scroll. This needs to run after your page length has increased.</p>
 ]]></content>
   </entry>
   
