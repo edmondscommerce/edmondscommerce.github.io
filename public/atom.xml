@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-02-03T11:17:16+00:00</updated>
+  <updated>2014-02-11T10:08:38+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,62 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[cPanel Download Site Files and Database]]></title>
+    <link href="http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database.html"/>
+    <updated>2014-02-10T18:03:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database</id>
+    <content type="html"><![CDATA[<p>Often a client won&rsquo;t have access to SSH, or won&rsquo;t be able to provide you with some of the more specifics such as FTP, PHPMyAdmin etc. All they know to give you is access to their cPanel. Through this there&rsquo;s various tools at your disposal.</p>
+
+<h2>Try SSH</h2>
+
+<p>Your cPanel login is actually a Linux user login, which cPanel&rsquo;s FTP hooks into. The first step is to navigate in your cPanel to FTP Accounts and click Configure FTP client on a user. These are SFTP details and can very often provide you with SSH shell access, unless the host has disabled this.</p>
+
+<p>Simply try <code>ssh user@host -p 1234</code>, where the user, host and password are your cPanel login, and the port displayed on the FTP Accounts page.</p>
+
+<p>From here you&rsquo;re free to use <code>tar</code>, <code>gzip</code>, <code>mysqldump</code> etc to acquire the files and database.</p>
+
+<h2>If SSH isn&rsquo;t enabled</h2>
+
+<p>Sometimes the host disables SSH access, only allowing its use for SFTP. There are still many ways to acquire the site&rsquo;s files and database:</p>
+
+<h3>Getting hold of the files</h3>
+
+<ul>
+<li><strong>Plain old FTP</strong> &ndash; You can just use an FTP client such as Filezilla to access and download the site&rsquo;s files using FTP or SFTP. This is the simplest way, but can take a long time because of the amount of files involved</li>
+<li><strong>File Manager Web UI</strong> &ndash; compressing the site&rsquo;s files obviously shrinks the download size, but also vastly reduces the amount of connections you need to make, leading to a faster download speed.
+
+<ol>
+<li> Navigate to the File Manager section (remember to tick &ldquo;Show hidden files&rdquo; to pick up .htaccess files)</li>
+<li>Browse to the web root folder, select all the files and folders you want using Ctrl+Click. Remember to exclude unnecessary large files such as sql dumps, media folders and the var folder</li>
+<li>Click Compress from the toolbar</li>
+</ol>
+</li>
+</ul>
+
+
+<h3>Getting hold of the database</h3>
+
+<ul>
+<li><strong>PHPMyAdmin</strong> &ndash; PHPMyAdmin offers an array of options for dumping your database. You should start by checking the database&rsquo;s size and considering excluding the dump of tables such as <code>log_url</code>, <code>log_url_info</code>, <code>log_visitor</code>, <code>log_visitor_info</code>, <code>report_viewed_product_index</code>
+
+<ol>
+<li> Navigate to the PHPMyAdmin area of cPanel and locate the database in use (check your <code>app/etc/local.xml</code> if you&rsquo;re not sure which</li>
+<li>Click the Export tab</li>
+<li>Select Custom: here&rsquo;s where you can selectively export information</li>
+<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; to &lsquo;structure&rsquo;. This will have PHPMyAdmin set up only the tables&#8217; columns but no data (we&rsquo;ll get to that)</li>
+<li>Click Go</li>
+<li>Once this is complete, navigate back to the Export page and click Custom again.</li>
+<li>Deselect (ctrl+click) any tables which are unnecessary</li>
+<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; this time to &lsquo;data&rsquo;</li>
+<li>This will provide you with two files representing the database. Import first the Structure one, and then the Data one (or concatenate the two together)</li>
+</ol>
+</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[NHS Website Hosting Malware]]></title>
@@ -53,6 +109,8 @@
 
 
 <p>The domain name googleaspis.com is registered by regtons.com and though the <a href="http://www.whois.com/whois/googleaspis.com">Whois information</a> has the actual domain ownership details obfuscated by a Czech company that protect the actual real ownership details, it does seem that the server and other <a href="http://www.tcpiputils.com/browse/ip-address/31.170.179.179">internet services</a> are all based in the Czech Republic.</p>
+
+<p>Checking the Google Safe Browsing information, you can see that Google have found <a href="http://www.google.co.uk/safebrowsing/diagnostic?site=hmr.nhs.uk/">numerous issues</a> on the NHS domains seemingly starting on the 31st of January this year.</p>
 
 <p>It seems that the NHS have now confirmed that they are aware of this issue and are currently taking action to resolve the problem.</p>
 
@@ -867,21 +925,6 @@ and can simply run</p>
 
 
 <p>It isn&rsquo;t a groundbreaking improvement but it is worth throwing in there.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Ruby Syntax Highlighting with PHPStorm]]></title>
-    <link href="http://edmondscommerce.github.io/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html"/>
-    <updated>2013-11-28T10:30:12+00:00</updated>
-    <id>http://edmondscommerce.github.io/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm</id>
-    <content type="html"><![CDATA[<p>PHPStorm is my IDE of choice for PHP development of course and also as many other languages as I can get it to support. One of my favourite plugins for PHPStorm is BASH Support which makes it into a fully featured BASH IDE with function support and syntax highlighting and some code inspections.</p>
-
-<p>As we are now moving to Octopress for blogging functionality I wanted a way to get Ruby syntax highlighting. There is a full blown IntelliJ based Ruby IDE but that is overkill for my needs. I had a look at Netbeans however it has now stopped supporting Ruby though there is a community supported plugin apparently.</p>
-
-<p>My best IDE solution so far is simply Vim, perhaps the <a href="http://vim.spf13.com/">spf13 flavour</a>.</p>
-
-<p>After a bit of Googling good old Stack Overflow came through for me with <a href="http://stackoverflow.com/questions/16451359/is-it-possible-to-get-ruby-syntax-highlighting-in-phpstorm">this post</a> that explains how to leverage PHPStorm&rsquo;s TextMate bundle support to get Ruby syntax highlighting. This works a treat though on my colour scheme (a slightly modified Darcula) it was unreadable. The final thing to do is to change the settings under Settings > TextMate Bundles and in the grid at the bottom next to my theme I switched the TextMate colour scheme from Mac Classic to RailsCasts and now it looks good.</p>
 ]]></content>
   </entry>
   
