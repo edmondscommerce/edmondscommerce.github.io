@@ -128,6 +128,129 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-03-04T16:10:19+00:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Often pulling down a Magento or other site you&rsquo;ll find a load of files that have been dumped in the web root. Downloading these is often pointless and takes extra time, so you&rsquo;ll want to exclude them from an rsync (using the <code>--exclude 'path'</code> paramter).</p>
+
+<p>A simple bash command for this is:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>du -m --max-depth<span class="o">=</span>1 --exclude media | sort -n
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This invokes <code>du</code> to show each direct subfolder&rsquo;s contents&#8217; size, and pipes it through to <code>sort</code> to rank them in increasing size. The sizes are in MB. See <a href="http://explainshell.com/explain?cmd=du+-m+--max-depth%3D1+--exclude+media+|+sort+-n">a more broken down explanation here</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-02-25T15:58:02+00:00" pubdate data-updated="true">Feb 25<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/redirect-to-previous-page-in-magento-after-logout.html">Redirect to Previous Page in Magento After Logout</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>By default Magento sends a user to a logoutSuccess page after they choose to log out. This is &lsquo;hard-baked&rsquo; into the Customer controller&rsquo;s logout action in the line <code>$this-&gt;_redirect('*/*/logoutSuccess');</code>. You can choose to set the Javascript redirect in the template <code>customer/logout.phtml</code>, but a better idea is to bypass the logout success page entirely.</p>
+
+<p>The way to do this is to override the <code>logoutAction()</code> method in the <code>customerController</code>:</p>
+
+<ol>
+<li><a href="http://www.magentocommerce.com/wiki/5_-_modules_and_development/0_-_module_development_in_magento/how_to_overload_a_controller">Rewrite the customer controller as documented here</a></li>
+<li>Override the <code>logoutAction()</code> method</li>
+<li>Set the redirect as below</li>
+</ol>
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="k">require_once</span> <span class="s1">&#39;Mage/Customer/controllers/AccountController.php&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_LogoutRedirect_AccountController</span> <span class="k">extends</span> <span class="nx">Mage_Customer_AccountController</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">logoutAction</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$url</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;core/session&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getLastUrl</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_getSession</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">logout</span><span class="p">()</span>
+</span><span class='line'>            <span class="o">-&gt;</span><span class="na">setBeforeAuthUrl</span><span class="p">(</span><span class="nx">Mage</span><span class="o">::</span><span class="na">getUrl</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_redirectUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-02-14T17:31:14+00:00" pubdate data-updated="true">Feb 14<span>th</span>, 2014</time>
         
       </p>
@@ -157,13 +280,17 @@ The problem is that you have used the standard PHP super globals and you would r
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;</span> <span class="nv">$argc</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nv">$things</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="nv">$argv</span><span class="p">[</span><span class="nv">$i</span><span class="p">]);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="nb">stripos</span><span class="p">(</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;POST:&#39;</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$post</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;POST:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</span><span class='line'>        <span class="nv">$_POST</span><span class="p">[</span><span class="nv">$post</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$_GET</span><span class="p">[</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$argc</span><span class="p">)){</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;</span> <span class="nv">$argc</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nv">$things</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="nv">$argv</span><span class="p">[</span><span class="nv">$i</span><span class="p">]);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="nb">stripos</span><span class="p">(</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;POST:&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>             <span class="nv">$post</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;POST:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'>             <span class="nv">$_POST</span><span class="p">[</span><span class="nv">$post</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>             <span class="nv">$_GET</span><span class="p">[</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>    <span class="p">}</span>
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'>
@@ -174,7 +301,7 @@ The problem is that you have used the standard PHP super globals and you would r
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This will loop over the argc variable that is defined when running in CLI mode and will fake the $<em>GET and $</em>POST variables as required.</p>
+<p>This will loop over the argc variable that is defined when running in CLI mode and will fake the <code>$_GET</code> and <code>$_POST</code> variables as required.</p>
 
 <p>To run this with get and post variables you would do this:</p>
 
@@ -811,120 +938,6 @@ When that&rsquo;s done, refresh the page and you should see all your upgraded ex
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-02T10:42:59+00:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.</p>
-
-<p>To see what was really going on I ran yum update from the command line</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This died with the following error message:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Couldn't open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.</p>
-
-<p>To do that you can run this simple command (again in the command line):</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I did this and then ran the yum update command again and everything is fixed.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-09T18:57:42+00:00" pubdate data-updated="true">Dec 9<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Here is a quicky I figured out when posting my previous story that included a snippet of Twig code.</p>
-
-<p>If you put Twig code into codeblocks, it doesn&rsquo;t work, instead of regarding anything inside the code block as escaped code, it tries to parse it.</p>
-
-<p>The solution is simply to wrap your code in a raw tag like this:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>{% codeblock %}
-</span><span class='line'>{% raw %}
-</span><span class='line'>   // your code here
-</span><span class='line'>{% end[REMOVE_THIS_BIT]raw %}
-</span><span class='line'>{% endcodeblock %}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In fact I had to do that to get this post to work as well</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -948,15 +961,15 @@ When that&rsquo;s done, refresh the page and you should see all your upgraded ex
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
+    
+    <a class="list-group-item " href="/magento/redirect-to-previous-page-in-magento-after-logout.html">Redirect to Previous Page in Magento After Logout</a>
+    
     <a class="list-group-item " href="/php/running-php-scripts-on-cli-and-faking-a-web-request.html">Running PHP Scripts on CLI and Faking a Web Request</a>
     
     <a class="list-group-item " href="/cpanel/cpanel-download-site-files-and-database.html">cPanel Download Site Files and Database</a>
     
     <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
-    
-    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
-    
-    <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
   </div>
 </section>

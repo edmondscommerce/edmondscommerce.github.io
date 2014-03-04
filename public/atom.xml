@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-02-14T17:37:05+00:00</updated>
+  <updated>2014-03-04T16:26:20+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,73 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Finding out the biggest folders in a Magento or other website root]]></title>
+    <link href="http://edmondscommerce.github.io/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html"/>
+    <updated>2014-03-04T16:10:19+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root</id>
+    <content type="html"><![CDATA[<p>Often pulling down a Magento or other site you&rsquo;ll find a load of files that have been dumped in the web root. Downloading these is often pointless and takes extra time, so you&rsquo;ll want to exclude them from an rsync (using the <code>--exclude 'path'</code> paramter).</p>
+
+<p>A simple bash command for this is:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>du -m --max-depth<span class="o">=</span>1 --exclude media | sort -n
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This invokes <code>du</code> to show each direct subfolder&rsquo;s contents&#8217; size, and pipes it through to <code>sort</code> to rank them in increasing size. The sizes are in MB. See <a href="http://explainshell.com/explain?cmd=du+-m+--max-depth%3D1+--exclude+media+|+sort+-n">a more broken down explanation here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Redirect to previous page in Magento after logout]]></title>
+    <link href="http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout.html"/>
+    <updated>2014-02-25T15:58:02+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout</id>
+    <content type="html"><![CDATA[<p>By default Magento sends a user to a logoutSuccess page after they choose to log out. This is &lsquo;hard-baked&rsquo; into the Customer controller&rsquo;s logout action in the line <code>$this-&gt;_redirect('*/*/logoutSuccess');</code>. You can choose to set the Javascript redirect in the template <code>customer/logout.phtml</code>, but a better idea is to bypass the logout success page entirely.</p>
+
+<p>The way to do this is to override the <code>logoutAction()</code> method in the <code>customerController</code>:</p>
+
+<ol>
+<li><a href="http://www.magentocommerce.com/wiki/5_-_modules_and_development/0_-_module_development_in_magento/how_to_overload_a_controller">Rewrite the customer controller as documented here</a></li>
+<li>Override the <code>logoutAction()</code> method</li>
+<li>Set the redirect as below</li>
+</ol>
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="k">require_once</span> <span class="s1">&#39;Mage/Customer/controllers/AccountController.php&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_LogoutRedirect_AccountController</span> <span class="k">extends</span> <span class="nx">Mage_Customer_AccountController</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">logoutAction</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$url</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;core/session&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getLastUrl</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_getSession</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">logout</span><span class="p">()</span>
+</span><span class='line'>            <span class="o">-&gt;</span><span class="na">setBeforeAuthUrl</span><span class="p">(</span><span class="nx">Mage</span><span class="o">::</span><span class="na">getUrl</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_redirectUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Running PHP Scripts on CLI and Faking a Web Request]]></title>
@@ -37,13 +104,17 @@ The problem is that you have used the standard PHP super globals and you would r
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;</span> <span class="nv">$argc</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nv">$things</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="nv">$argv</span><span class="p">[</span><span class="nv">$i</span><span class="p">]);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="nb">stripos</span><span class="p">(</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;POST:&#39;</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$post</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;POST:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</span><span class='line'>        <span class="nv">$_POST</span><span class="p">[</span><span class="nv">$post</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$_GET</span><span class="p">[</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$argc</span><span class="p">)){</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;</span> <span class="nv">$argc</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nv">$things</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="nv">$argv</span><span class="p">[</span><span class="nv">$i</span><span class="p">]);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="nb">stripos</span><span class="p">(</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;POST:&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>             <span class="nv">$post</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;POST:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'>             <span class="nv">$_POST</span><span class="p">[</span><span class="nv">$post</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>             <span class="nv">$_GET</span><span class="p">[</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>    <span class="p">}</span>
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'>
@@ -54,7 +125,7 @@ The problem is that you have used the standard PHP super globals and you would r
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This will loop over the argc variable that is defined when running in CLI mode and will fake the $<em>GET and $</em>POST variables as required.</p>
+<p>This will loop over the argc variable that is defined when running in CLI mode and will fake the <code>$_GET</code> and <code>$_POST</code> variables as required.</p>
 
 <p>To run this with get and post variables you would do this:</p>
 
@@ -910,50 +981,6 @@ of your results into your application domain (eg PHP) and manage the sorting fro
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Trigger Basic Auth Popup in Chrome]]></title>
-    <link href="http://edmondscommerce.github.io/chrome/trigger-basic-auth-popup-in-chrome.html"/>
-    <updated>2013-12-02T19:32:58+00:00</updated>
-    <id>http://edmondscommerce.github.io/chrome/trigger-basic-auth-popup-in-chrome</id>
-    <content type="html"><![CDATA[<p>In Chrome, if you have already authenticated with a site using Basic Authentiation (a Web Server level authentication) then you will have probably realised that once you are authenticated, Chrome does not continuously prompt you for the details, and that is a good thing.
-However, in a scenario where perhaps you want to authenticate as a different user or otherwise re enter the details then it can be tricky to figure out how to do this.</p>
-
-<p>The answer is simple enough, you can retrigger this prompt by putting your username@ the url and the pop up will be shown again.</p>
-
-<p>To be clear:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>http://www.somedomain.com</span></code></pre></td></tr></table></div></figure>
-
-
-<p>becomes:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>http://username@www.somedomain.com</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Symonfy2 PHPStorm Project Setup]]></title>
-    <link href="http://edmondscommerce.github.io/Symonfy2/symonfy2-phpstorm-project-setup.html"/>
-    <updated>2013-12-02T19:01:51+00:00</updated>
-    <id>http://edmondscommerce.github.io/Symonfy2/symonfy2-phpstorm-project-setup</id>
-    <content type="html"><![CDATA[<p>I was going to write a nice summary of how to set up PHPStorm with a Symfony2 project.
-There are a few things to be aware of such as getting the right code style set up so that your code follows the Symonfy2 coding standards.</p>
-
-<p>As it happens though a quick google found that there is already an excellent summary <a href="http://www.kevwebdev.com/blog/setting-up-a-symfony2-project-in-phpstorm.html">here</a> which I suggest you have a read of.</p>
-
-<p>The only thing I would add to this are that you should probably install these PHPStorm plugins to get the best out of it:</p>
-
-<p><a href="http://plugins.jetbrains.com/plugin?pr=&amp;pluginId=7219">Symfony2</a></p>
-
-<p>and <a href="http://plugins.jetbrains.com/plugin/7320">PHP Annotations</a></p>
-
-<p>If you do all of this then you should have a really nice PHPStorm set up for working on your Symfony2 projects, enjoy!</p>
 ]]></content>
   </entry>
   
