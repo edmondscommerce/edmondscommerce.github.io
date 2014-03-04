@@ -4,7 +4,7 @@
   <title><![CDATA[Category: magento | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/category/magento/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-02-14T17:47:11+00:00</updated>
+  <updated>2014-03-04T16:57:08+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,44 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Redirect to previous page in Magento after logout]]></title>
+    <link href="http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout.html"/>
+    <updated>2014-02-25T15:58:02+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout</id>
+    <content type="html"><![CDATA[<p>By default Magento sends a user to a logoutSuccess page after they choose to log out. This is &lsquo;hard-baked&rsquo; into the Customer controller&rsquo;s logout action in the line <code>$this-&gt;_redirect('*/*/logoutSuccess');</code>. You can choose to set the Javascript redirect in the template <code>customer/logout.phtml</code>, but a better idea is to bypass the logout success page entirely.</p>
+
+<p>The way to do this is to override the <code>logoutAction()</code> method in the <code>customerController</code>:</p>
+
+<ol>
+<li><a href="http://www.magentocommerce.com/wiki/5_-_modules_and_development/0_-_module_development_in_magento/how_to_overload_a_controller">Rewrite the customer controller as documented here</a></li>
+<li>Override the <code>logoutAction()</code> method</li>
+<li>Set the redirect as below</li>
+</ol>
+
+
+<p>```php</p>
+
+<pre><code>&lt;?php
+require_once 'Mage/Customer/controllers/AccountController.php';
+
+
+class EdmondsCommerce_LogoutRedirect_AccountController extends Mage_Customer_AccountController {
+    public function logoutAction()
+    {
+        $url = Mage::getSingleton('core/session')-&gt;getLastUrl();
+        $this-&gt;_getSession()-&gt;logout()
+            -&gt;setBeforeAuthUrl(Mage::getUrl());
+
+        $this-&gt;_redirectUrl($url);
+    }
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Preorders in Magento Using Attribute Value]]></title>
@@ -209,25 +247,6 @@ User ross
 <p>```</p>
 
 <p>You will then can tab completion on ssh and scp commands. You can see more of the options that can be set in the file <a href="http://linux.die.net/man/5/ssh_config" title="ssh config man page">here</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sylius E-Commerce based on Symfony]]></title>
-    <link href="http://edmondscommerce.github.io/magento/sylius-e-commerce-based-on-symfony.html"/>
-    <updated>2013-07-23T13:48:47+01:00</updated>
-    <id>http://edmondscommerce.github.io/magento/sylius-e-commerce-based-on-symfony</id>
-    <content type="html"><![CDATA[<p>As if there weren&rsquo;t enough!</p>
-
-<p>There is a new contender for the open source e-commerce crown, a platform called <b><a href="http://sylius.com/features" target="_blank">Sylius</a></b>. The thing that makes this one especially interesting is that rather than being built from scratch it is based upon a very well established PHP framework called Symfony. Some would argue that Symfony is the &ldquo;other&rdquo; PHP framework alongside Zend Framework. In fact there are many frameworks however it would be fair to say that Symfony and Zend Framework are the most well established and up to date.</p>
-
-<p>Basing an e-commerce platform upon an existing PHP framework has many advantages including transferrable skills, established best practice structure and also easier access to a wide range of functionality via library components and extensions.</p>
-
-<p>There is another e-commerce platform based upon a PHP framework. It is based upon Zend Framework &ndash; you might have heard of it &ndash; Magento.</p>
-
-<p>It does look very much like Sylius is still quite a new offering and it can not boast the level of maturity and establishment that Magento has achieved. That said, things move quickly in this industry and who knows what will be top dog in the next five years.</p>
-
-<p>If you are considering Sylius for your e-commerce website and would like to find a UK Sylius developer to work with then do get in touch with Edmonds Commerce today.</p>
 ]]></content>
   </entry>
   

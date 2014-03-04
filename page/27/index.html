@@ -128,6 +128,149 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-30T17:25:16+00:00" pubdate data-updated="true">Jan 30<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/plesk/how-to-extract-files-from-plesk-backups.html">How to Extract Files From Plesk Backups</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>So you have a plesk backup file and you want to extract and open the files from it? No problem. This blog will show you how.</p>
+
+<p>The file is a mime file. The &ldquo;mpack&rdquo; package will let you unpack it.</p>
+
+<p>First we install the &ldquo;mpack&rdquo; package</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install mpack</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s imagine your file is called &ldquo;pleskDump.gz&rdquo;. If it doesn&rsquo;t have a &ldquo;.gz&rdquo; at the end it might not be bad to add it as some environments will complain if it&rsquo;s absent.</p>
+
+<p>Next we unzip the file</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gunzip pleskDump.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s un-mime the file</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir pleskDumpOutput
+</span><span class='line'>cd pleskDumpOutput
+</span><span class='line'>cat ../pleskDump | munpack</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have a bunch of regular tar files, but be careful, if we just extract them, the root folders will not be recreated. In order to keep things together, it&rsquo;s best now to look at the output you have. Let&rsquo;s take a made up example:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>example-domain.com.httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that the format is essentially domain.rootfolder or in another way, the tar files have your domain name they are archiving, then a dot, then the name of the root folder they made up. We take that root folder and create it like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir rootfolder</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s apply that idea to our previoud example; &ldquo;example-domain.com&rdquo;</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s time to untar into the folder you just created, let&rsquo;s assume you just created &ldquo;httpdocs&rdquo;</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>tar -xvf example-domain.com.httpdocs -C httpdocs</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There you go! You can now output any of the folders you wanted.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-23T15:22:03+00:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-force-download-with-custom-filename.html">PHP Force Download With Custom Filename</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you want to serve up text files for download (perhaps product feeds etc) then you might like this little snippet.</p>
+
+<p>Not only will it force the file to be downloaded but it allows you to specify a custom filename that it should be saved as.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;download_file&#39;</span><span class="p">])){</span>
+</span><span class='line'>    <span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Content-type: application/octet-stream&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">header</span><span class="p">(</span><span class="s2">&quot;Content-Disposition: attachment; filename=Export.txt&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">readfile</span><span class="p">(</span><span class="s1">&#39;Export.txt&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">die</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-23T14:41:44+00:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2012</time>
         
       </p>
@@ -657,124 +800,6 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-17T19:43:24+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/unable-to-do-string-comparisions-on-magento-urls-solution.html">Unable to Do String Comparisions on Magento Urls [Solution]</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I have been making a mwnu system for magento that would allow a client to add extra links to CMS page to top menu through a static block. One of the requirements was when you clicked the link the menu should display as active.</p>
-
-<p>To do this I extended the Category_Navigation Block so it would get the content of the static block and then check each href against the current url. If they matched then it would add the active class to the menu structure. This worked perfectly when running locally, so I pushed it to our staging site where it broke.</p>
-
-<p>Assuming that there was a difference with the url structure on the stagin site that I hadn&rsquo;t anticipated, I echoed out the link variables and compared them, but they looked identical. Thinking there may be spacing that had snuck past trim, I var_dumped them and again they looked identical, apart for the fact that the character count was different.</p>
-
-<p>After much messing around I came to two conclusions. Firstly Magento will append a session id to urls if you&rsquo;re using multi-store, and far more importantly, this extra information is not displayed if you var_dump the variable. I finally found this by turning the string into an array and echoing each character onto a new line, like so</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$link</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getUrl</span><span class="p">();</span>
-</span><span class='line'><span class="c1">// outputs http://www.example.com/index.php</span>
-</span><span class='line'><span class="nb">var_dump</span><span class="p">(</span><span class="nv">$link</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$array</span> <span class="o">=</span> <span class="nb">preg_split</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">,</span> <span class="nv">$link</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$array</span> <span class="k">as</span> <span class="nv">$char</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="c1">// simplified replace with print($char.&quot;\n&quot;) to get each character on a new line</span>
-</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="nv">$char</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="c1">// outputs http://www.example.com/index.php?___SID=U</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To solve this replace your link with the following</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$link</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;%\?.*%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getLink</span><span class="p">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and it will work the way that you expect.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-17T16:13:03+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-url-request-routing.html">Magento URL Request Routing</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Magento is a typical PHP Model View Architecture (MVC) system which routes its URLs in ways not particularly different from other PHP MVC Frameworks like codeigniter, symphony etc. But the difference it has with other MVC architecture is that most of its routing directives or configurations are XML based i.e. found in one XML file or the other.</p>
-
-<p>For example, www.yourstore.co.uk/index.php/checkout/cart/index, tells Magento to use the checkout module found in app/code/Mage/,  use the cart controller (i.e. CartController.php) in app/code/Mage/Checkout/controller/ and run the index action method in the CartController.php, when the last &ldquo;index&rdquo; is omitted Magento still defaults to run the index action method, and every other value in the url after the first three url steps, Magento treats them as PHP GET parameters i.e. www.yourstore.co.uk/index.php/checkout/cart/index/store/1 would make $_GET[&lsquo;store&rsquo;]=1</p>
-
-<p>It is this action method that searches through the magneto xml configuration file using x-path to obtain information regarding this request e.g. the indexAction method found in app/code/Mage/Checkout/controller/CartController.php uses  Mage::getStoreConfig(&lsquo;sales/minimum_order/description&rsquo;) to get the value of the description node  in sales module, the minimum_order node and description child node, which can be found in system.xml in the Sales/etc/ folder.</p>
-
-<p>Its is worthwhile also knowing that Magento uses Apache&rsquo;s URL rewrite engine (mod_rewrite) to make its URLs SEO friendly i.e. www.yourstore.co.uk/index.php/catalog/product/view/id/1 could be routed to www.yourstore.co.uk/index.php/product1.html which can be regarded as an alias for  www.yourstore.co.uk/index.php/catalog/product/view/id/1 to make Google happy and improve the sites SEO.</p>
-
-<p>This basically describes how Magento decides what to do when accessed by a particular URL.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -798,15 +823,15 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
+    
+    <a class="list-group-item " href="/magento/redirect-to-previous-page-in-magento-after-logout.html">Redirect to Previous Page in Magento After Logout</a>
+    
     <a class="list-group-item " href="/php/running-php-scripts-on-cli-and-faking-a-web-request.html">Running PHP Scripts on CLI and Faking a Web Request</a>
     
     <a class="list-group-item " href="/cpanel/cpanel-download-site-files-and-database.html">cPanel Download Site Files and Database</a>
     
     <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
-    
-    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
-    
-    <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
   </div>
 </section>

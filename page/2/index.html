@@ -128,6 +128,120 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-02T10:42:59+00:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html">Fedora Yum Update Failing - RPMFusion + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.</p>
+
+<p>To see what was really going on I ran yum update from the command line</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This died with the following error message:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Couldn't open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.</p>
+
+<p>To do that you can run this simple command (again in the command line):</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I did this and then ran the yum update command again and everything is fixed.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-09T18:57:42+00:00" pubdate data-updated="true">Dec 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Here is a quicky I figured out when posting my previous story that included a snippet of Twig code.</p>
+
+<p>If you put Twig code into codeblocks, it doesn&rsquo;t work, instead of regarding anything inside the code block as escaped code, it tries to parse it.</p>
+
+<p>The solution is simply to wrap your code in a raw tag like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{% codeblock %}
+</span><span class='line'>{% raw %}
+</span><span class='line'>   // your code here
+</span><span class='line'>{% end[REMOVE_THIS_BIT]raw %}
+</span><span class='line'>{% endcodeblock %}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In fact I had to do that to get this post to work as well</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-09T18:43:03+00:00" pubdate data-updated="true">Dec 9<span>th</span>, 2013</time>
         
       </p>
@@ -697,106 +811,6 @@ of your results into your application domain (eg PHP) and manage the sorting fro
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-02T19:32:58+00:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/chrome/trigger-basic-auth-popup-in-chrome.html">Trigger Basic Auth Popup in Chrome</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In Chrome, if you have already authenticated with a site using Basic Authentiation (a Web Server level authentication) then you will have probably realised that once you are authenticated, Chrome does not continuously prompt you for the details, and that is a good thing.
-However, in a scenario where perhaps you want to authenticate as a different user or otherwise re enter the details then it can be tricky to figure out how to do this.</p>
-
-<p>The answer is simple enough, you can retrigger this prompt by putting your username@ the url and the pop up will be shown again.</p>
-
-<p>To be clear:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>http://www.somedomain.com</span></code></pre></td></tr></table></div></figure>
-
-
-<p>becomes:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>http://username@www.somedomain.com</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-02T19:01:51+00:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I was going to write a nice summary of how to set up PHPStorm with a Symfony2 project.
-There are a few things to be aware of such as getting the right code style set up so that your code follows the Symonfy2 coding standards.</p>
-
-<p>As it happens though a quick google found that there is already an excellent summary <a href="http://www.kevwebdev.com/blog/setting-up-a-symfony2-project-in-phpstorm.html">here</a> which I suggest you have a read of.</p>
-
-<p>The only thing I would add to this are that you should probably install these PHPStorm plugins to get the best out of it:</p>
-
-<p><a href="http://plugins.jetbrains.com/plugin?pr=&amp;pluginId=7219">Symfony2</a></p>
-
-<p>and <a href="http://plugins.jetbrains.com/plugin/7320">PHP Annotations</a></p>
-
-<p>If you do all of this then you should have a really nice PHPStorm set up for working on your Symfony2 projects, enjoy!</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -820,15 +834,15 @@ There are a few things to be aware of such as getting the right code style set u
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
+    
+    <a class="list-group-item " href="/magento/redirect-to-previous-page-in-magento-after-logout.html">Redirect to Previous Page in Magento After Logout</a>
+    
     <a class="list-group-item " href="/php/running-php-scripts-on-cli-and-faking-a-web-request.html">Running PHP Scripts on CLI and Faking a Web Request</a>
     
     <a class="list-group-item " href="/cpanel/cpanel-download-site-files-and-database.html">cPanel Download Site Files and Database</a>
     
     <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
-    
-    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
-    
-    <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
   </div>
 </section>

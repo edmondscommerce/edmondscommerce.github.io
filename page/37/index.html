@@ -128,6 +128,141 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-07-08T11:36:51+01:00" pubdate data-updated="true">Jul 8<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-api-fix-get-product-by-sku.html">Magento API Fix - Get Product by SKU</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I have just finished working on a nice little project for Magento API for our client CNG Florist Sundries.</p>
+
+<p>The Aim of the project was to make Magento API use SKU&rsquo;s when pulling out the product information. By default Magento API accept a variable productId which can either be a product id or sku. The problem, especially with this task, was the fact that the client is using numeric values for product SKU values.</p>
+
+<p>Now when he used third party system to update his catalog by passing SKU values, Magento was assuming the values are productId and consequently updating the wrong products. Our fix will simply force Magento to look for SKU&rsquo;s first and return the correct product ID for the required product.</p>
+
+<p>The client site is <a href='http://www.cngfloristsundries.co.uk/'>www.cngfloristsundries.co.uk</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-24T15:29:39+01:00" pubdate data-updated="true">Jun 24<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-dompdf-bug-page_cache-cls-php-on-line-66-dompdf-solution.html">PHP DomPDF Bug - page_cache.cls.php on Line 66 Dompdf + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you are struggling with a weird bug with DomPDF, something about it trying to connect to a postgres database..</p>
+
+<p>well here is the solution that will get you up and running:</p>
+
+<p>open the file and make the init method just return false</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">class</span> <span class="nc">Page_Cache</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_USER</span> <span class="o">=</span> <span class="s2">&quot;dompdf_page_cache&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_PASS</span> <span class="o">=</span> <span class="s2">&quot;some meaningful password&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_NAME</span> <span class="o">=</span> <span class="s2">&quot;dompdf_page_cache&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">static</span> <span class="k">private</span> <span class="nv">$__connection</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">function</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">is_null</span><span class="p">(</span><span class="nx">self</span><span class="o">::</span><span class="nv">$__connection</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$con_str</span> <span class="o">=</span> <span class="s2">&quot;host=&quot;</span> <span class="o">.</span> <span class="nx">DB_HOST</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; dbname=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_NAME</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; user=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_USER</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; password=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_PASS</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">self</span><span class="o">::</span><span class="nv">$__connection</span> <span class="o">=</span> <span class="nb">pg_connect</span><span class="p">(</span><span class="nv">$con_str</span><span class="p">))</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s2">&quot;Database connection failed.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Not sure really why this is trying to do this, obviously some kind of hard coded postgres caching system but anyway this fixed it.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-17T15:10:02+01:00" pubdate data-updated="true">Jun 17<span>th</span>, 2011</time>
         
       </p>
@@ -533,112 +668,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T16:37:33+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/portfolio/over-board-magento-migration.html">Over Board - Magento Migration</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><h2>Over Board – Migration to Magento from OSCommerce</h2>
-
-
-<p>Over Board wished to move away from OSCommerce due to limitations encountered while using OSCommerce. Using Magento allows the company the flexibility they desired. This project involved implementing a new site design as well as importing data from the old OSCommerce site.</p>
-
-<h3>Over Board</h3>
-
-
-<p>Over Board are an eCommerce company specialising in the sales of <a href="http://www.over-board.co.uk/">water proof device cases and bags</a>.</p>
-
-<p><img src="/assets/overboards-300x224.png"></p>
-
-<p>This project was terrific as it demonstrates the ability to move away from a relativity old system to a new system and at the same time enabling a lot more functionality and flexibility.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T14:58:56+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/portfolio/blind-express-free-sample-request.html">Blind Express Free Sample Request</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<h2>Magento Free Sample Request Custom Module</h2>
-
-
-<p>Blind Express required that their customers be able to easily request free samples of their products. This required that a custom extension be created and integrated with the existing system.</p>
-
-<h3>Blind Express</h3>
-
-
-<p>Blind Express specialise in supplying made to measure and custom window <a href="http://www.blindexpress.co.uk">blinds</a>.</p>
-
-<p><img src="/assets/blindexpress-300x206.png"></p>
-
-<p>This project was a good challenge as the extension had to be integrated with previously existing custom product configuration.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -662,15 +691,15 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
+    
+    <a class="list-group-item " href="/magento/redirect-to-previous-page-in-magento-after-logout.html">Redirect to Previous Page in Magento After Logout</a>
+    
     <a class="list-group-item " href="/php/running-php-scripts-on-cli-and-faking-a-web-request.html">Running PHP Scripts on CLI and Faking a Web Request</a>
     
     <a class="list-group-item " href="/cpanel/cpanel-download-site-files-and-database.html">cPanel Download Site Files and Database</a>
     
     <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
-    
-    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
-    
-    <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
   </div>
 </section>

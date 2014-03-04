@@ -128,6 +128,160 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-28T13:56:31+01:00" pubdate data-updated="true">Apr 28<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/zend%20framework/flushing-zend-framework.html">Flushing Zend Framework</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>I have recently been messing around trying to figure out the best way of running long processes within a Zend Framework App.</p>
+
+<p>Usually I would code in regular flush(); commands to make sure that the browser didnt time out and also that the user can see that something is happening.</p>
+
+<p>However, the standard MVC structure of the default ZF application system wraps the entire response in an output buffer which is only flushed once everything is done. This has lots of advantages including allowing to add extra headers (FirePHP) on the fly throughout the application process.</p>
+
+<p>For long running scripts though, it is important for me to flush output. My solution to this is twofold.</p>
+
+<p>Firstly set up an &lsquo;output&rsquo; action in my base controller. The output action is looking for an &lsquo;act&rsquo; parameter in its view script. This act param is then used to generate a url string based on the current controller and the action as the act param. This url string is then used to create an iframe which will be used to output the flushing results of the long running script.</p>
+
+<p>For the long running script action itself, I am going to disable layout and also disable view render. Its really important to switch both of these off.</p>
+
+<p>The following needs to be declared at the top of any action that you intend to be viewed via the output iframe.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="c1">// accessed via output action</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">longrunningAction</span><span class="p">(){</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_helper</span><span class="o">-&gt;</span><span class="na">layout</span><span class="o">-&gt;</span><span class="na">disableLayout</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_helper</span><span class="o">-&gt;</span><span class="na">viewRenderer</span><span class="o">-&gt;</span><span class="na">setNoRender</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_model</span><span class="o">-&gt;</span><span class="na">grabImages</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I am free to echo out basic HTML and also call flush from within my model. To flush the output you need to call both ob_flush() and then flush(). To make this easier I set up a static method in my static Tools class</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">flush</span><span class="p">(){</span>
+</span><span class='line'>        <span class="nb">ob_flush</span><span class="p">();</span>
+</span><span class='line'>        <span class="nb">flush</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One issue I have had though is that any time the ZF internals try to add a header, you will get a basically meaningless exception telling you that headers have already been sent. It doesn&rsquo;t tell you what header was attempted to be added or why, so you can be left out in the cold a bit when trying to debug.</p>
+
+<p>If anyone knows a good workaround for this, or can offer a better solution for handling these long running processes I would love to hear about it.<h4>More&hellip;</h4></p>
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://health.nicheultra.com/2009/04/28/gall-bladder-liver-flush/" rel="nofollow"&gt;How Healthy Are You? » Gall Bladder Liver &lt;b&gt;Flush&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.acaiberrybase.com/power-flush-500/" rel="nofollow"&gt;Power &lt;b&gt;Flush&lt;/b&gt; 500&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.tenteges.com/uncategorized/flush-with-class-tenn-bathroom-voted-best-in-us-ap" rel="nofollow"&gt;&lt;b&gt;Flush&lt;/b&gt; with class: Tenn. bathroom voted best in US (AP) : TENTEGES&lt;/a&gt;&lt;br&gt;&lt;a href="http://groaner.gophercentral.com/?p=301" rel="nofollow"&gt;The Daily Groaner » Blog Archive » &lt;b&gt;Flush&lt;/b&gt; The Toilet&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.arcadianlighting.com/plc-lighting-flush-mount-ceiling-light-available-finish/" rel="nofollow"&gt;PLC Lighting &lt;b&gt;flush&lt;/b&gt; mount ceiling light available finish | Lighting &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.gsdesign.ro/blog/zend-framework-losing-session-on-swfflash-upload/" rel="nofollow"&gt;&lt;b&gt;zend framework&lt;/b&gt; losing session on swf/flash upload | GS Design&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.ekini.net/2009/03/04/zend-framework-connecting-to-2-databases/" rel="nofollow"&gt;&lt;b&gt;Zend Framework&lt;/b&gt;: Connecting to 2 databases | eKini: Web Developer Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://blog.ekini.net/2009/03/03/extending-the-models-in-zend-framework-better-readability-easier-to-maintain/" rel="nofollow"&gt;Extending the Models in &lt;b&gt;Zend Framework&lt;/b&gt; = Better readability + &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-28T11:07:26+01:00" pubdate data-updated="true">Apr 28<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/hosting/htaccess-force-ssl-with-redirect-non-standard-ssl-port-compatible.html">Htaccess Force SSL With Redirect (Non Standard SSL Port Compatible)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Check out this little snippet of htaccess code to force SSL usage. Works regardless of port.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>RewriteEngine On
+</span><span class='line'>RewriteCond %{HTTPS} off
+</span><span class='line'>RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>More&#8230;</h4>
+
+
+<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://omelyn.com/top-10-wordpress-htaccess-hacks/" rel="nofollow"&gt;Top 10 Wordpress .&lt;b&gt;htaccess&lt;/b&gt; hacks | Omelyn.com&lt;/a&gt;&lt;br&gt;&lt;a href="http://xplus3.net/2009/04/25/naming-a-htaccess-file-in-windows/" rel="nofollow"&gt;x + 3 - Naming a .&lt;b&gt;htaccess&lt;/b&gt; File in Windows&lt;/a&gt;&lt;br&gt;&lt;a href="http://www.blogherald.com/2009/04/21/movable-type-monday-comment-via-twitter-and-htaccess-hacks/" rel="nofollow"&gt;Movable Type Monday: Comment via Twitter and .&lt;b&gt;htaccess&lt;/b&gt; Hacks | The &lt;b&gt;...&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://vladgh.com/2009/03/slackware-linux-apache2-mysql-php-ssl/" rel="nofollow"&gt;Slackware Linux, Apache2, MySQL, PHP, &lt;b&gt;SSL&lt;/b&gt; | Vlad&amp;#39;s and Alice&amp;#39;s Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://luxsci.com/blog/how-does-secure-socket-layer-ssl-or-tls-work.html" rel="nofollow"&gt;How Does &lt;b&gt;Secure Socket Layer&lt;/b&gt; (&lt;b&gt;SSL&lt;/b&gt;) Work? | LuxSci FYI&lt;/a&gt;&lt;br&gt;&lt;a href="http://whatwouldnickdo.com/wordpress/431/quick-tomcat-https-ssl-config/" rel="nofollow"&gt;Quick Tomcat https &lt;b&gt;SSL&lt;/b&gt; Config | /home/nick&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
+</code></pre>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-27T15:54:22+01:00" pubdate data-updated="true">Apr 27<span>th</span>, 2009</time>
         
       </p>
@@ -648,143 +802,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-11T10:28:44+01:00" pubdate data-updated="true">Apr 11<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/zend%20framework/zend-framework-1and1-index-controller-404s-solution.html">Zend Framework 1and1 Index Controller 404s + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Been tearing my hair out this morning trying to figure out why a Zend Framework based app was giving me 404 messages on any actions that specified the index controller. To explain, any URL that ended with /index or index/{action_name} would give me the ugly 1and1 404 message.</p>
-
-<p>locally of course it worked fine. I messed around with my error controller but it seemed that the ZF app wasn&rsquo;t even being consulted, this was a lower level 404 error.</p>
-
-<p>After some digging around, the solution is to disable something called MultiViews. The MultiViews option allows a file to be called even if the extension is not loaded, so index would look for any files called index, regardless of their extension.</p>
-
-<p>I&rsquo;m not really sure why you would want this behaviour, maybe that&rsquo;s why I have never encountered it before. Anyway, to disable it and get your app working the way you want, simply add the following line to your htaccess file:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>Options -MultiViews
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For information, this is my full htaccess file that works on 1and1 hosting:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>Options -MultiViews
-</span><span class='line'>RewriteEngine On
-</span><span class='line'>RewriteCond %{REQUEST_FILENAME} -s [OR]
-</span><span class='line'>RewriteCond %{REQUEST_FILENAME} -l [OR]
-</span><span class='line'>RewriteCond %{REQUEST_FILENAME} -d
-</span><span class='line'>RewriteRule ^.*$ - [NC,L]
-</span><span class='line'>RewriteRule ^.*$ /path/from/docroot/public/ [NC,L]
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This particular app is running from a subfolder. If your public folder is the document root then that line would simply be /<h4>More&hellip;</h4></p>
-
-<pre><code>        &lt;div style="font-size: .6em;"&gt;&lt;a href="http://www.edmondscommerce.co.uk/blog/php/1and1-has-gui-unzip-functionality/" rel="nofollow"&gt;&lt;b&gt;1and1&lt;/b&gt; has GUI Unzip Functionality | Edmonds Commerce Blog&lt;/a&gt;&lt;br&gt;&lt;a href="http://zendguru.wordpress.com/2008/11/12/zend-pagination-example/" rel="nofollow"&gt;&lt;b&gt;Zend&lt;/b&gt; Pagination example « &lt;b&gt;Zend Framework&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;a href="http://darkyblog.darkylandia.es/2007/12/24/zend-framework-mod_rewrite-y-apache-13/" rel="nofollow"&gt;Darky’s Blog » Blog Archive » &lt;b&gt;Zend Framework&lt;/b&gt;, mod_rewrite y Apache 1.3&lt;/a&gt;&lt;br&gt;&lt;a href="http://elliottback.com/wp/1and1-sucks/" rel="nofollow"&gt;&lt;b&gt;1and1&lt;/b&gt; Sucks: &lt;b&gt;1&amp;amp;1&lt;/b&gt; Will Rip You Off — Elliott C. Back&lt;/a&gt;&lt;br&gt;&lt;/div&gt;
-</code></pre>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-04-11T09:53:09+01:00" pubdate data-updated="true">Apr 11<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/ubuntu-force-quit.html">Ubuntu Force Quit</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>One of the things I quite liked on OSX is the easy ability to force an errant program to quit. In OSX the force quit menu is easily accessible from the apple menu in the top left.</p>
-
-<p>On Ubuntu I was hoping there would be a similar solution and although it is not enabled by default, there is.</p>
-
-<p>Simply go to the top panel (bar) and right click then select &ldquo;add to panel&rdquo;.</p>
-
-<p>In this menu there is a button called &ldquo;Force Quit&rdquo;. If you select this, you will have a new button on your top panel with a picture of a broken computer window. Clicking on this button will then give you a new mouse pointer. Any window that you click on with this mouse pointer will be forcibly closed.</p>
-
-<p>I think that&rsquo;s even slicker than the OSX way :&ndash;)</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -808,15 +825,15 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
+    
+    <a class="list-group-item " href="/magento/redirect-to-previous-page-in-magento-after-logout.html">Redirect to Previous Page in Magento After Logout</a>
+    
     <a class="list-group-item " href="/php/running-php-scripts-on-cli-and-faking-a-web-request.html">Running PHP Scripts on CLI and Faking a Web Request</a>
     
     <a class="list-group-item " href="/cpanel/cpanel-download-site-files-and-database.html">cPanel Download Site Files and Database</a>
     
     <a class="list-group-item " href="/security/nhs-website-hosting-malware.html">NHS Website Hosting Malware</a>
-    
-    <a class="list-group-item " href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a>
-    
-    <a class="list-group-item " href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a>
     
   </div>
 </section>
