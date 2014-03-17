@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-03-12T17:52:38+00:00</updated>
+  <updated>2014-03-17T15:07:38+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,34 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Using Pipe Viewer for an Easy CLI Progress Bar]]></title>
+    <link href="http://edmondscommerce.github.io/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html"/>
+    <updated>2014-03-17T14:58:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/using-pipe-viewer-for-an-easy-cli-progress-bar</id>
+    <content type="html"><![CDATA[<p>If you have a large database file to import or any other longer running process that involves piping data from one place to another then this little utility should definitely be in your arsenal.</p>
+
+<p>Simply enough you use this to give you a progress indication when you are piping large amounts of data.</p>
+
+<p>To use this on a mysql import (which is where I am most likely to use this) you would do the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>pv ./dumpfile.sql | mysql -u<span class="nv">$USER</span> -p<span class="nv">$PASS</span> dbname
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will then give you a simple progress bar and very usefully, an ETA that indicates how much time is left For example:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'> 308MB 0:07:57 <span class="o">[</span> 216kB/s<span class="o">]</span> <span class="o">[===============</span>&gt;                                          <span class="o">]</span> 10% ETA 1:08:32
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To install the utility you should first of all just try <code>yum install pv</code>. If that doesn&rsquo;t work then you can read more about installing for your distribution here:
+<a href="http://www.ivarch.com/programs/pv.shtml">http://www.ivarch.com/programs/pv.shtml</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sharing Google Drive documents from Gmail when sending emails]]></title>
@@ -893,67 +921,6 @@ to be true but are no longer that it really has become a bit of a minefield.</p>
 
 
 <p>From then you can make changes to your post, and the site will be automatically regenerated. This uses a file watcher so it&rsquo;s helpful to keep the terminal open to watch for it building, or having errors</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sorting Results Arbitrarily in MySQL]]></title>
-    <link href="http://edmondscommerce.github.io/mysql/sorting-results-arbitrarily-in-mysql.html"/>
-    <updated>2013-12-03T12:40:04+00:00</updated>
-    <id>http://edmondscommerce.github.io/mysql/sorting-results-arbitrarily-in-mysql</id>
-    <content type="html"><![CDATA[<p>When you have a result set in MySQL that you need to order in a specific way you might think that it is not possible and instead you are going to have to read all
-of your results into your application domain (eg PHP) and manage the sorting from there. On a large results set that could be seriously inefficient.</p>
-
-<p>The truth is that you don&rsquo;t have to do that. You can specify any kind of sort order including sorting by string values as you see fit.</p>
-
-<p>The way to do this is to use the magic of <a href="http://dev.mysql.com/doc/refman/5.0/en/string-functions.html#function_find-in-set">FIND_IN_SET</a> combined with ORDER BY.</p>
-
-<p>For a full example see this query that is pulling out product images from a data repository in descending image size as described in one of the columns as a string.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span>
-</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">prodID</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">dc</span><span class="p">.</span><span class="n">url</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span> <span class="k">AS</span> <span class="n">resolution</span>
-</span><span class='line'><span class="k">FROM</span> <span class="n">cds_DigContent</span> <span class="n">dc</span>
-</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Links</span> <span class="n">dcl</span>
-</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta</span> <span class="n">dcm</span>
-</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcm</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaAtrId</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta_ValVoc</span> <span class="n">dcmv</span>
-</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueId</span> <span class="o">=</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaValueId</span><span class="p">)</span>
-</span><span class='line'><span class="k">WHERE</span> <span class="n">dc</span><span class="p">.</span><span class="n">mediaTypeId</span> <span class="o">=</span> <span class="mi">15</span>
-</span><span class='line'>      <span class="k">AND</span> <span class="n">dcl</span><span class="p">.</span><span class="n">prodId</span> <span class="o">=</span> <span class="s1">&#39;{$this-&gt;getCnetProdID()}&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">ORDER</span> <span class="k">BY</span>
-</span><span class='line'>  <span class="nf">FIND_IN_SET</span><span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span><span class="p">,</span> <span class="s1">&#39;2400 x 1800,1200 x 900,1024 x 768,800 x 600,640 x 480,400 x 300,200 x 150,75 x 75&#39;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">LIMIT</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
 ]]></content>
   </entry>
   
