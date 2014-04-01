@@ -37,7 +37,7 @@ $nodesToCopy = array(
     '/connection/host',
     '/connection/username',
     '/connection/password',
-    '/connection/initStatement',
+    '/connection/initStatements',
     '/connection/model',
     '/connection/type',
     '/connection/pdoType',
