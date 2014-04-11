@@ -128,6 +128,81 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-07-01T14:21:49+01:00" pubdate data-updated="true">Jul 1<span>st</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/white-blank-page-when-printing-packing-slips-from-magento-admin.html">White Blank Page When Printing Packing Slips From Magento Admin</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you&rsquo;re having trouble printing packing slips, receiving a white blank page when selecting Print Packingslips from the Actions menu in Magento&rsquo;s Sales Orders page, then it&rsquo;s likely you&rsquo;re having the same issue I&rsquo;ve had.</p>
+
+<p>I found that having error_reporting enabled wasn&rsquo;t enough</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">error_reporting</span><span class="p">(</span><span class="k">E_ALL</span> <span class="o">|</span> <span class="nx">E_STRICT</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll also need to add this to your index.php:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;display_errors&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll then be shown the following fatal error:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">Fatal</span> <span class="nx">error</span><span class="o">:</span> <span class="nx">Declaration</span> <span class="nx">of</span> <span class="nx">Zend_Pdf_FileParserDataSource_File</span><span class="o">::</span><span class="na">__construct</span><span class="p">()</span> <span class="nx">must</span> <span class="nx">be</span> <span class="nx">compatible</span> <span class="nx">with</span> <span class="nx">Zend_Pdf_FileParserDataSource</span><span class="o">::</span><span class="na">__construct</span><span class="p">()</span> <span class="nx">in</span> <span class="o">/</span><span class="nx">home8</span><span class="o">/</span><span class="nx">stonecr2</span><span class="o">/</span><span class="nx">public_html</span><span class="o">/</span><span class="nx">newsite</span><span class="o">/</span><span class="nx">lib</span><span class="o">/</span><span class="nx">Zend</span><span class="o">/</span><span class="nx">Pdf</span><span class="o">/</span><span class="nx">FileParserDataSource</span><span class="o">/</span><span class="nx">File</span><span class="o">.</span><span class="nx">php</span> <span class="nx">on</span> <span class="nx">line</span> <span class="mi">41</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The issue here is that the contructor of Zend_Pdf_FileParserDataSource_File requires a single paramter, $filePath, whereas its abstract class&rsquo;s constructor does not. To resolve this, we need to make sure the abstract class matches its implementation, so make the following change</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">//from</span>
+</span><span class='line'><span class="k">abstract</span> <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//to</span>
+</span><span class='line'><span class="k">abstract</span> <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nv">$filePath</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Test your printing, and you should be provided with a PDF file.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-06-26T15:00:19+01:00" pubdate data-updated="true">Jun 26<span>th</span>, 2013</time>
         
       </p>
@@ -940,51 +1015,6 @@ and PDO spaces in column names</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-05-17T13:58:20+01:00" pubdate data-updated="true">May 17<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/phpstorm/magicento/magicento-has-a-super-quick-way-to-enable-template-path-hints-in-magento.html">Magicento Has a Super Quick Way to Enable Template Path Hints in Magento</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Magento&rsquo;s Template Path Hints feature can be super handy for working out which templates are in use, but <em>logging into the Admin, navigating to System, Configuration, Developer, Debug, Change Store Scope, Change to Yes, Press Save, Reload</em> is an arduous process. So much so that often it&rsquo;s easier to just suss it out from the folder structure.</p>
-
-<p>No more! Magicento has an entry in its menu to enable these at the click of a menu item.</p>
-
-<p><img src="/assets/MagicentoMenu.png"></p>
-
-<p>There&rsquo;s a couple of settings which need to be enabled (see below) but once set up, it works great.</p>
-
-<p><img src="/assets/MagicentoSettings-600x317.png"></p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1008,6 +1038,8 @@ and PDO spaces in column names</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
+    
     <a class="list-group-item " href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a>
     
     <a class="list-group-item " href="/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html">Using Pipe Viewer for an Easy CLI Progress Bar</a>
@@ -1015,8 +1047,6 @@ and PDO spaces in column names</p>
     <a class="list-group-item " href="/gmail/sharing-google-drive-documents-from-gmail-when-sending-emails.html">Sharing Google Drive Documents From Gmail When Sending Emails</a>
     
     <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
-    
-    <a class="list-group-item " href="/magento/redirect-to-previous-page-in-magento-after-logout.html">Redirect to Previous Page in Magento After Logout</a>
     
   </div>
 </section>

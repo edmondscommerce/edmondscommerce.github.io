@@ -128,6 +128,88 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-03-19T10:57:32+00:00" pubdate data-updated="true">Mar 19<span>th</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-__get-and-empty-not-working-as-you-expect-solution.html">PHP, __get() and Empty() Not Working as You Expect? - Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you are tearing your hair out trying to figure out why empty($object->property) = true when var_dump($object->property) outputs a value &ndash; this might be the problem.</p>
+
+<p>It arises if you are using the magic __get() method to serve up object properties.</p>
+
+<p>Apparently PHP&rsquo;s empty() function actually uses isset() to determine if the property is empty or not. To get this to work properly, you also need to declare a magic __isset() method.</p>
+
+<p>This is how I got around this problem:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">__get</span><span class="p">(</span><span class="nv">$key</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="cm">/* some condition to return your key */</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="nv">$key</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">__isset</span><span class="p">(</span><span class="nv">$key</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="k">null</span><span class="o">===</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">__get</span><span class="p">(</span><span class="nv">$key</span><span class="p">)){</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>thanks to Janci&rsquo;s comment <a href="http://www.php.net/manual/en/function.empty.php#93117">here</a>, I&rsquo;m not sure how long that would have taken me to figure out on my own, but for sure you saved me a LOT of time. I hope this blog post helps out someone else who hits this same issue.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-03-17T15:11:28+00:00" pubdate data-updated="true">Mar 17<span>th</span>, 2010</time>
         
       </p>
@@ -572,75 +654,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-02-15T14:10:35+00:00" pubdate data-updated="true">Feb 15<span>th</span>, 2010</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-1-4-fatal-error-stack-frame-solution.html">Magento 1.4 Fatal Error Stack Frame + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If your shiny new Magento 1.4 is displaying this error message at the bottom of the page then you might want to apply this fix.</p>
-
-<p><strong>Fatal error: Exception thrown without a stack frame in Unknown on line 0</strong></p>
-
-<p>The solution is to comment out a small section of code in</p>
-
-<p>app/code/core/Mage/Core/Model/Cache.php</p>
-
-<p>line 180</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>                <span class="cm">/*try {</span>
-</span><span class='line'><span class="cm">                    if (class_exists($type, true)) {</span>
-</span><span class='line'><span class="cm">                        $implements = class_implements($type, true);</span>
-</span><span class='line'><span class="cm">                        if (in_array(&#39;Zend_Cache_Backend_Interface&#39;, $implements)) {</span>
-</span><span class='line'><span class="cm">                            $backendType = $type;</span>
-</span><span class='line'><span class="cm">                        }</span>
-</span><span class='line'><span class="cm">                    }</span>
-</span><span class='line'><span class="cm">                } catch (Exception $e) {</span>
-</span><span class='line'><span class="cm">                }*/</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>found the solution here:
-<a href="http://www.magentocommerce.com/boards/viewthread/76782/"><a href="http://www.magentocommerce.com/boards/viewthread/76782/">http://www.magentocommerce.com/boards/viewthread/76782/</a></a></p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -664,6 +677,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
+    
     <a class="list-group-item " href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a>
     
     <a class="list-group-item " href="/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html">Using Pipe Viewer for an Easy CLI Progress Bar</a>
@@ -671,8 +686,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/gmail/sharing-google-drive-documents-from-gmail-when-sending-emails.html">Sharing Google Drive Documents From Gmail When Sending Emails</a>
     
     <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
-    
-    <a class="list-group-item " href="/magento/redirect-to-previous-page-in-magento-after-logout.html">Redirect to Previous Page in Magento After Logout</a>
     
   </div>
 </section>
