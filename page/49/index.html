@@ -128,6 +128,114 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-05-26T17:06:10+01:00" pubdate data-updated="true">May 26<span>th</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/mysql-bulk-update-collation-and-character-set-for-entire-database.html">MySQL Bulk Update Collation and Character Set for Entire Database</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you need to change the character set and collation for all columns and tables on an entire database then check out this little PHP script.</p>
+
+<p>It&rsquo;s currently Zend Framework based, though only for the database adapter &ndash; you could easily modify this to suit your own database connection.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="cm">/* collationChange</span>
+</span><span class='line'><span class="cm"> * Edmonds Commerce</span>
+</span><span class='line'><span class="cm"> * www.edmondscommerce.co.uk</span>
+</span><span class='line'><span class="cm"> * info@edmondscommerce.co.uk</span>
+</span><span class='line'><span class="cm"> * 0844 357 0201</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * Description:</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * Bulk Change the Collation and Character Set for an Entire Database</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * Inspiration Came from Here:</span>
+</span><span class='line'><span class="cm"> * http://serverfault.com/questions/65043/alter-charset-and-collation-in-all-columns-in-all-tables-in-mysql</span>
+</span><span class='line'><span class="cm"> * </span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//get Db connection etc</span>
+</span><span class='line'><span class="k">require</span><span class="p">(</span><span class="s1">&#39;../_top.php&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$db</span> <span class="o">=</span> <span class="nx">Zend_Registry</span><span class="o">::</span><span class="na">get</span><span class="p">(</span><span class="s1">&#39;dbAdapter&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$dbName</span><span class="o">=</span><span class="s1">&#39;SET_THE_DB_NAME&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$character_set</span> <span class="o">=</span> <span class="s1">&#39;utf8&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$collation</span> <span class="o">=</span> <span class="s1">&#39;utf8_general_ci&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$stmt</span> <span class="o">=</span> <span class="nv">$db</span><span class="o">-&gt;</span><span class="na">query</span><span class="p">(</span><span class="s2">&quot;SELECT distinct CONCAT( &#39;alter table &#39;, TABLE_SCHEMA, &#39;.&#39;, TABLE_NAME, &#39;  CONVERT TO CHARACTER SET </span><span class="si">$character_set</span><span class="s2"> COLLATE </span><span class="si">$collation</span><span class="s2">;&#39; ) as query, TABLE_NAME as t FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = &#39;</span><span class="si">$dbName</span><span class="s2">&#39;;&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="k">while</span><span class="p">(</span><span class="nv">$r</span><span class="o">=</span><span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">fetch</span><span class="p">()){</span>
+</span><span class='line'>    <span class="nv">$db</span><span class="o">-&gt;</span><span class="na">query</span><span class="p">(</span><span class="nv">$r</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]);</span>
+</span><span class='line'>    <span class="k">echo</span> <span class="s2">&quot;&lt;h3&gt;Done </span><span class="si">{</span><span class="nv">$r</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/h3&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-05-17T14:54:02+01:00" pubdate data-updated="true">May 17<span>th</span>, 2010</time>
         
       </p>
@@ -623,101 +731,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-05-05T17:31:35+01:00" pubdate data-updated="true">May 5<span>th</span>, 2010</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ubuntu/ubuntu-10-04-sun-java.html">Ubuntu 10.04 Sun Java</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Ubuntu 10.04 upgrade seems to have nuked my Java and Netbeans</p>
-
-<p>Here&rsquo;s how I got it all back:</p>
-
-<p>Get Sun Java</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo add-apt-repository "deb http://archive.canonical.com/ lucid partner"
-</span><span class='line'>
-</span><span class='line'>sudo apt-get update
-</span><span class='line'>
-</span><span class='line'>sudo apt-get install sun-java6-jre sun-java6-plugin sun-java6-fonts
-</span><span class='line'>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you need to check the path to sun java from the list output:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo update-alternatives --list java
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and now set the path for sun java:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo update-alternatives --set java {COPY AND PASTE SUN JAVA PATH HERE}
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>now to check its using the correct version</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>java -version
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -741,6 +754,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html">GoAccess - Nice CLI Access Log Parsing Tool (and How to Install on CentOS)</a>
+    
     <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
     
     <a class="list-group-item " href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a>
@@ -748,8 +763,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html">Using Pipe Viewer for an Easy CLI Progress Bar</a>
     
     <a class="list-group-item " href="/gmail/sharing-google-drive-documents-from-gmail-when-sending-emails.html">Sharing Google Drive Documents From Gmail When Sending Emails</a>
-    
-    <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
     
   </div>
 </section>

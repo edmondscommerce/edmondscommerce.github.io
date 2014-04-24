@@ -128,6 +128,56 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-29T11:39:19+00:00" pubdate data-updated="true">Jan 29<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/git/clean-up-meld-files-when-git-merging.html">Clean Up Meld Files When Git Merging</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you do a Git Merge using Meld (a brilliant Linux diff tool) then you might find that there are a bunch of files created that you need to clear up.</p>
+
+<p>These files will be copies of the merged files and can be safely removed as everything you should need to know is already in Git.</p>
+
+<p>I wrote the following quick function to find all of these files and remove them. You could add this as a function to your bashrc file if you need to do this regularly.</p>
+
+<p>Here is the BASH snippet:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git status -su | grep -P <span class="s2">&quot;\.BACKUP|BASE|LOCAL|REMOTE\.&quot;</span> | cut -f2 -d<span class="s2">&quot; &quot;</span> | xargs rm
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-23T15:52:41+00:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2014</time>
         
       </p>
@@ -869,85 +919,6 @@ On a current project I making heavy use of the <a href="https://github.com/sensi
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-05T19:53:16+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I am really enjoying using Composer with a Symfony2 project that I am currently working on.</p>
-
-<p>Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
-JMS/SerializerBundle to handle the actual encoding into JSON.</p>
-
-<p>The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&rsquo;t want that. I want my property and entity names to be the same across formats.</p>
-
-<p>A bit of digging and I found <a href="https://github.com/passkey1510/JMSSerializerBundle">this fork</a> which features a fix for exactly this problem, brilliant!</p>
-
-<p>However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
-the minimum version requirements of the FOSRest bundle. Problem.</p>
-
-<p>The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
-</span><span class='line'>git merge remote/passkey1510/master
-</span><span class='line'>git push</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.</p>
-
-<p>I can now reference my fork in my composer.json file like this:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>"repositories": [
-</span><span class='line'>        {
-</span><span class='line'>            "url": "https://github.com/edmondscommerce/JMSSerializerBundle.git",
-</span><span class='line'>            "type": "vcs"
-</span><span class='line'>        },
-</span><span class='line'>],</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now running a <code>composer update --dev</code> and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.</p>
-
-<p>And that is it, problem solved :)</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -971,6 +942,8 @@ the minimum version requirements of the FOSRest bundle. Problem.</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html">GoAccess - Nice CLI Access Log Parsing Tool (and How to Install on CentOS)</a>
+    
     <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
     
     <a class="list-group-item " href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a>
@@ -978,8 +951,6 @@ the minimum version requirements of the FOSRest bundle. Problem.</p>
     <a class="list-group-item " href="/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html">Using Pipe Viewer for an Easy CLI Progress Bar</a>
     
     <a class="list-group-item " href="/gmail/sharing-google-drive-documents-from-gmail-when-sending-emails.html">Sharing Google Drive Documents From Gmail When Sending Emails</a>
-    
-    <a class="list-group-item " href="/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html">Finding Out the Biggest Folders in a Magento or Other Website Root</a>
     
   </div>
 </section>
