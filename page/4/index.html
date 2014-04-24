@@ -128,6 +128,127 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-10-31T10:25:52+00:00" pubdate data-updated="true">Oct 31<span>st</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I have decided to switch from Debian/Ubuntu/Mint which has served me very well over the last few years and move towards more of a RedHat based distribution as it seems that servers these days are more commonly CentOS or RedHat based and I always like to keep my development environment as close as I can to the server environment for all kinds of reason.</p>
+
+<p>Also, I have decided that I really quite like Gnome Shell and it makes sense to pick a distribution that is properly bundled with Gnome Shell rather than bolting it into a distro after installation.</p>
+
+<h3>1. Install Apache and PHP 5.5</h3>
+
+
+<p>You need to become root first, stay as root for the rest of the steps.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>su
+</span><span class='line'>rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm
+</span><span class='line'>rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm
+</span><span class='line'>rpm -Uvh http://rpms.famillecollet.com/remi-release-19.rpm
+</span><span class='line'>yum --enablerepo<span class="o">=</span>remi install httpd php php-common
+</span><span class='line'>yum --enablerepo<span class="o">=</span>remi install php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h3>2. Set that to start up automatically (you are going to be developing none stop right?)</h3>
+
+
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>service httpd start
+</span><span class='line'>systemctl <span class="nb">enable </span>httpd.service
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h3>3. Create a test PHP file to confirm thats all working</h3>
+
+
+<p>Extra bit here, install <a href="http://vim.spf13.com/" target="_blank">this version of Vim</a>, its quite tasty:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl http://j.mp/spf13-vim3 -L -o - | sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now create your PHP file:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>vim /var/www/html/test.php
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>May as well just throw a phpinfo() in there</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nb">phpinfo</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now check it: <a href="http://localhost/test.php"><a href="http://localhost/test.php">http://localhost/test.php</a></a></p>
+
+<h3>4. Finally lets get a MySQL version installed. Lets choose MariaDB</h3>
+
+
+<p>I tried Percona but it does not have a proper Fedora version. Then I discovered that Fedora have adopted MariaDB which is fine by me, lets go with the flow:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install mariadb mariadb-server
+</span><span class='line'>systemctl start mysqld.service
+</span><span class='line'>systemctl <span class="nb">enable </span>mysqld.service
+</span><span class='line'>/usr/bin/mysql_secure_installation
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it, next up is getting Java and PhpStorm installed and also phpMyAdmin</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-10-17T10:53:15+01:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
         
       </p>
@@ -650,48 +771,6 @@ app/design/frontend/base/default/template/catalog/product/view/type/configurable
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-08-28T09:21:30+01:00" pubdate data-updated="true">Aug 28<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/javascript/disable-javascript-alerts-for-a-page.html">Disable JavaScript Alerts for a Page</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you encounter a webpage that is generating a lot of alerts, the following bookmark will prevent them from stealing focus but still allow you to see what is being said.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">javascript</span><span class="o">:</span><span class="nx">alert</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">text</span> <span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span> <span class="nx">text</span> <span class="p">);</span> <span class="k">return</span> <span class="kc">true</span><span class="p">;</span> <span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -715,6 +794,8 @@ app/design/frontend/base/default/template/catalog/product/view/type/configurable
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html">SagePay, OneStepCheckout, &#8216;Transaction Could Not Be Cancelled and Order Was Not Created, Cart Was Modified While Customer on Payment Pages&#8217;</a>
+    
     <a class="list-group-item " href="/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html">GoAccess - Nice CLI Access Log Parsing Tool (and How to Install on CentOS)</a>
     
     <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
@@ -722,8 +803,6 @@ app/design/frontend/base/default/template/catalog/product/view/type/configurable
     <a class="list-group-item " href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a>
     
     <a class="list-group-item " href="/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html">Using Pipe Viewer for an Easy CLI Progress Bar</a>
-    
-    <a class="list-group-item " href="/gmail/sharing-google-drive-documents-from-gmail-when-sending-emails.html">Sharing Google Drive Documents From Gmail When Sending Emails</a>
     
   </div>
 </section>

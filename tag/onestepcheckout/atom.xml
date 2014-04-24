@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: OneStepCheckout | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/onestepcheckout/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-04-24T19:57:05+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[SagePay, OneStepCheckout, 'Transaction could not be cancelled and order was not created, cart was modified while customer on payment pages']]></title>
+    <link href="http://edmondscommerce.github.io/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html"/>
+    <updated>2014-04-24T19:17:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages</id>
+    <content type="html"><![CDATA[<p>I spent this morning dealing with a Magento sit that was unable to process Credit Card payments when they were placed with SagePay.</p>
+
+<p>When a customer tried to place an order they were able to enter that card details, but were then presented with an alert with the following message</p>
+
+<blockquote><p>Your order could not be completed, please try again. Thanks.</p></blockquote>
+
+<p>They were using the <a href="https://github.com/ebizmarts/sage-pay-suite-ce">EbizMarts SagePay CE Module</a>, so I had a look around to see if the error was known</p>
+
+<p>It appears that a recent release of the SagePay Module introduces some additional checks before creating the order and the current release of the <a href="http://www.onestepcheckout.com/">OneStepCheckout</a> is not compatible with this.</p>
+
+<p>If you look straight at the SagePay Logs you may also see the following errors, which may indicate the same problem.</p>
+
+<ul>
+<li>DEBUG: 4028 : The related transaction cannot be found.</li>
+<li>DEBUG: Your order could not be completed, please try again. Thanks.</li>
+<li>CRIT: Transaction XXXXXXXXX-XXXX-XX-XX-XX-XX-XX could not be cancelled and order was not created, cart was modified while customer on payment pages.</li>
+</ul>
+
+
+<p>Thankfully there is a simple fix for this. In the <strong>app/code/local/Idev/OneStepCheckout/controllers/IndexController.php</strong> file you need to add the following line to the indexAction method</p>
+
+<p><code>php
+Mage::getSingleton('checkout/session')-&gt;setCartWasUpdated(false);
+</code></p>
+
+<p>Just before</p>
+
+<p><code>php
+$this-&gt;loadLayout();
+</code></p>
+
+<p>and then everything will work correctly.</p>
+]]></content>
+  </entry>
+  
+</feed>
