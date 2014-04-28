@@ -128,6 +128,88 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T10:40:28+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/getting-a-billing-address-from-the-magento-orders-table.html">Getting a Billing Address From the Magento Orders Table</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I recently had to generate a report listing the details of all orders from a magento store that matched certain parameters.</p>
+
+<p>There was a requirement that the billing address should be included in this, and I wanted to do this all in SQL if possible.</p>
+
+<p>The biggest problem was formatting the address as there is a value in the address table called suffix, which contains the County information, but is not a required value.</p>
+
+<p>As I was adding in line breaks to the select, this meant for all of the orders that did not have the value, then there would be a blank line using a standard CONCAT statement.</p>
+
+<p>What I found was that it is possible to add an IF statement to the CONCAT query, which gives the required result.</p>
+
+<p>This is done like this</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span>
+</span><span class='line'>    <span class="c1">-- Other Values that are needed --</span>
+</span><span class='line'>    <span class="n">CONCAT</span><span class="p">(</span>
+</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">firstname</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span> <span class="n">billing</span><span class="p">.</span><span class="n">lastname</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
+</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">street</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
+</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">city</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">if</span><span class="p">(</span><span class="n">billing</span><span class="p">.</span><span class="n">suffix</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">CONCAT</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span> <span class="n">billing</span><span class="p">.</span><span class="n">suffix</span><span class="p">),</span>
+</span><span class='line'>                <span class="s1">&#39;&#39;</span>
+</span><span class='line'>              <span class="p">),</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="err">\</span><span class="n">n</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;,</span>
+</span><span class='line'>        <span class="n">billing</span><span class="p">.</span><span class="n">postcode</span><span class="p">)</span> <span class="k">AS</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="n">Billing</span> <span class="n">Address</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">sales_flat_order</span> <span class="k">AS</span> <span class="n">sfo</span>
+</span><span class='line'><span class="k">JOIN</span> <span class="n">sales_flat_order_address</span> <span class="k">AS</span> <span class="n">billing</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="n">billing</span><span class="p">.</span><span class="n">parent_id</span> <span class="o">=</span> <span class="n">sfo</span><span class="p">.</span><span class="n">entity_id</span>
+</span><span class='line'>    <span class="k">AND</span> <span class="n">billing</span><span class="p">.</span><span class="n">address_type</span> <span class="o">=</span> <span class="s1">&#39;billing&#39;</span>
+</span><span class='line'><span class="c1">-- add your WHERE conditions --</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-13T09:07:03+01:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
         
       </p>
@@ -648,68 +730,6 @@ Set your panel&rsquo;s workspace switcher to Number of Workspaces: 1</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-29T14:14:53+01:00" pubdate data-updated="true">Aug 29<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-be-careful-with-magic-properties.html">Magento: Be Careful With Magic Properties</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In certain places in Magento, you can simply access the data from an object by property, but <strong>beware</strong>!</p>
-
-<p>For instance, in the product template the following two code snippets have the same effect :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_qty</span> <span class="o">=</span> <span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">stock_item</span><span class="o">-&gt;</span><span class="na">stock_qty</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_qty</span> <span class="o">=</span> <span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">getStockItem</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getStockQty</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>However only the latter will work if you call it from the category view.  This is because the product is not fully loaded, and even doing a</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_newproductobject</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>will not help!</p>
-
-<p>So the moral of this is, use the getters not the magic property.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -733,6 +753,8 @@ Set your panel&rsquo;s workspace switcher to Number of Workspaces: 1</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/php/simple-database-migrations.html">Simple Database Migrations</a>
+    
     <a class="list-group-item " href="/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html">SagePay, OneStepCheckout, &#8216;Transaction Could Not Be Cancelled and Order Was Not Created, Cart Was Modified While Customer on Payment Pages&#8217;</a>
     
     <a class="list-group-item " href="/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html">GoAccess - Nice CLI Access Log Parsing Tool (and How to Install on CentOS)</a>
@@ -740,8 +762,6 @@ Set your panel&rsquo;s workspace switcher to Number of Workspaces: 1</p>
     <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
     
     <a class="list-group-item " href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a>
-    
-    <a class="list-group-item " href="/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html">Using Pipe Viewer for an Easy CLI Progress Bar</a>
     
   </div>
 </section>

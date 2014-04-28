@@ -128,6 +128,82 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-08-29T15:37:37+01:00" pubdate data-updated="true">Aug 29<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/ssssssssssssss.html">Add a Backorder Message on Magento&#8217;s Product Page</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Magento&rsquo;s use of backorders does notify the customer, but only once you actually reach the basket page, which can lead to disappointment and frustration from the customer. The better answer is to display this on the product page, in place of the &ldquo;In Stock&rdquo; message.</p>
+
+<p>To acheive this, we just need to amend (read: override) the templates at</p>
+
+<p>app/design/frontend/base/default/template/catalog/product/view/type/simple.phtml
+app/design/frontend/base/default/template/catalog/product/view/type/grouped.phtml
+app/design/frontend/base/default/template/catalog/product/view/type/configurable.phtml</p>
+
+<p>And amend it to look like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="nv">$_product</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getProduct</span><span class="p">()</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getPriceHtml</span><span class="p">(</span><span class="nv">$_product</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="nv">$stockLevel</span> <span class="o">=</span> <span class="p">(</span><span class="nx">int</span><span class="p">)</span><span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;cataloginventory/stock_item&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">loadByProduct</span><span class="p">(</span><span class="nv">$_product</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getQty</span><span class="p">();</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">if</span><span class="p">(</span><span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">isSaleable</span><span class="p">()</span><span class="o">&lt;</span><span class="nx">strong</span><span class="o">&gt;</span> <span class="o">&amp;&amp;</span> <span class="nv">$stockLevel</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">&lt;/</span><span class="nx">strong</span><span class="o">&gt;</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">    &lt;p class=&quot;availability in-stock&quot;&gt;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">__</span><span class="p">(</span><span class="s1">&#39;Availability:&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="x"> &lt;span&gt;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">__</span><span class="p">(</span><span class="s1">&#39;In stock&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="x">&lt;/span&gt;&lt;/p&gt;</span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">elseif</span><span class="p">(</span><span class="nv">$_product</span><span class="o">-&gt;</span><span class="na">isSaleable</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="nv">$stockLevel</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">    &lt;p class=&quot;availability in-stock&quot;&gt;</span>
+</span><span class='line'><span class="x">        </span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">__</span><span class="p">(</span><span class="s1">&#39;Availability:&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="x"> &lt;span&gt;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">__</span><span class="p">(</span><span class="s1">&#39;Available for Backorder&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="x">&lt;/span&gt;&lt;br /&gt;</span>
+</span><span class='line'><span class="x">        </span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">__</span><span class="p">(</span><span class="s1">&#39;Please allow up to two weeks for delivery&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">    &lt;/p&gt;</span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">else</span><span class="o">:</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">    &lt;p class=&quot;availability out-of-stock&quot;&gt;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">__</span><span class="p">(</span><span class="s1">&#39;Availability:&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="x"> &lt;span&gt;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">__</span><span class="p">(</span><span class="s1">&#39;Out of stock&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="x">&lt;/span&gt;&lt;/p&gt;</span>
+</span><span class='line'><span class="cp">&lt;?php</span> <span class="k">endif</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-08-28T09:21:30+01:00" pubdate data-updated="true">Aug 28<span>th</span>, 2013</time>
         
       </p>
@@ -642,53 +718,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-07-09T17:25:18+01:00" pubdate data-updated="true">Jul 9<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/side-by-side-diff-on-the-command-line.html">Side by Side Diff on the Command Line</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I have recently discovered a handy trick when comparing files on the command line.</p>
-
-<p>Adding the -y command line options to diff will display the files side by side.</p>
-
-<p>Using this with the <a href="http://www.colordiff.org/" title="Color Diff" target="_blank">Color Diff</a> tool will help you transform this</p>
-
-<p><img src="/assets/normal-diff.png"></p>
-
-<p>To this</p>
-
-<p><img src="/assets/color-diff-600x200.png"></p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -712,6 +741,8 @@
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/php/simple-database-migrations.html">Simple Database Migrations</a>
+    
     <a class="list-group-item " href="/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html">SagePay, OneStepCheckout, &#8216;Transaction Could Not Be Cancelled and Order Was Not Created, Cart Was Modified While Customer on Payment Pages&#8217;</a>
     
     <a class="list-group-item " href="/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html">GoAccess - Nice CLI Access Log Parsing Tool (and How to Install on CentOS)</a>
@@ -719,8 +750,6 @@
     <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
     
     <a class="list-group-item " href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a>
-    
-    <a class="list-group-item " href="/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html">Using Pipe Viewer for an Easy CLI Progress Bar</a>
     
   </div>
 </section>

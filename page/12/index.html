@@ -128,6 +128,85 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-01-02T14:49:35+00:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-not-working-not-creating-report-files-either-solution.html">Magento Not Working, Not Creating Report Files Either + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have a Magento site that is consistently erroring out and giving you the report screen with the file name, but the file does not exist in the reports folder then this could be your solution.</p>
+
+<p>The most likely culprit in this scenario is that the filesystem has run out of space. If this happens, Magento will die because it literally can&rsquo;t create any files and it needs to do this for caching, session etc.</p>
+
+<p>You can easily check this by running this command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>df -h
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you see any filesystems with 100% usage then you have your answer, you have run out of hard drive space and need to free some space up by deleting files.</p>
+
+<p>On occasion though you might run this and see that you still have plenty of space. This can be puzzling at first though you need to bear in mind that Linux filesystems don&rsquo;t purely use space but also something called <a href="http://en.wikipedia.org/wiki/Inode" title="wikipedia explanation of inodes" target="_blank">inodes</a>.</p>
+
+<p>An inode is like a file pointer, you need one for every file that is in the filesystem. Also there is a limit to the number of inodes in any file system. If something goes crazy and your system creates lots of small files then you might find that you run out of inodes before you run out of hard drive space.</p>
+
+<p>To check if this is your issue run this command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>df -i
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you see any lines with 100% then you have run out of inodes and you need to delete some files. There are numerous possible causes of this and tactics that can be used to clear them out. When dealing with Magento though there are a few usual suspects.</p>
+
+<p>Magento is a real culprit for this behaviour as it uses file system based sessions by default. Session files are very small and can be very numerous.</p>
+
+<p>The quick fix is just to completely remove the sessions directory:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>rm -rf /path/to/magento/var/session
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Magento will recreate it on the next request.</p>
+
+<p>If you would like to try to clear out just older sessions then you can do something like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>find /path/to/magento/var/session -name <span class="s1">&#39;sess_*&#39;</span> -type f -mtime +7 -exec rm <span class="o">{}</span> <span class="se">\;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-21T15:06:53+00:00" pubdate data-updated="true">Dec 21<span>st</span>, 2012</time>
         
       </p>
@@ -1191,47 +1270,6 @@ To do this you use the @SuppressWarnings option on the comments block above the 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-07T14:19:33+00:00" pubdate data-updated="true">Dec 7<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/email/google-drops-google-apps-free-tier.html">Google Drops Google Apps Free Tier</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In a move that will hurt a lot of small businesses and especially startups, Google have withdrawn their free Google Apps for Domains which has been slowly reducing in number of users from 50, to 10 to now 0 (almost).</p>
-
-<p>They are keeping the existing accounts open so if you have Google Apps already, don&rsquo;t panic yet, your data is still there.</p>
-
-<p>For one-man-band startups apparently there is the option of creating a single-user apps account still apparently, according to Greg D&#8217;Alesandre of Google.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1255,6 +1293,8 @@ To do this you use the @SuppressWarnings option on the comments block above the 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/php/simple-database-migrations.html">Simple Database Migrations</a>
+    
     <a class="list-group-item " href="/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html">SagePay, OneStepCheckout, &#8216;Transaction Could Not Be Cancelled and Order Was Not Created, Cart Was Modified While Customer on Payment Pages&#8217;</a>
     
     <a class="list-group-item " href="/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html">GoAccess - Nice CLI Access Log Parsing Tool (and How to Install on CentOS)</a>
@@ -1262,8 +1302,6 @@ To do this you use the @SuppressWarnings option on the comments block above the 
     <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
     
     <a class="list-group-item " href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a>
-    
-    <a class="list-group-item " href="/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html">Using Pipe Viewer for an Easy CLI Progress Bar</a>
     
   </div>
 </section>

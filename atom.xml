@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-04-24T19:57:05+01:00</updated>
+  <updated>2014-04-28T13:25:53+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,94 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Database Migrations]]></title>
+    <link href="http://edmondscommerce.github.io/php/simple-database-migrations.html"/>
+    <updated>2014-04-28T13:22:34+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/simple-database-migrations</id>
+    <content type="html"><![CDATA[<p>Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.</p>
+
+<p>It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.</p>
+
+<p>Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.</p>
+
+<p>Here is the code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nv">$res</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;select version from db_migrations order by version desc limit 0,1&quot;</span><span class="p">));</span>
+</span><span class='line'><span class="nv">$current_version</span> <span class="o">=</span> <span class="p">(</span><span class="nv">$res</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span> <span class="o">?</span> <span class="nv">$res</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$di</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DirectoryIterator</span><span class="p">(</span><span class="nx">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/migrations&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$torun</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$di</span> <span class="k">as</span> <span class="nv">$f</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="cm">/* @var $f DirectoryIterator */</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$f</span><span class="o">-&gt;</span><span class="na">isDot</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;php&#39;</span> <span class="o">==</span> <span class="nb">pathinfo</span><span class="p">(</span><span class="nv">$f</span><span class="o">-&gt;</span><span class="na">getFilename</span><span class="p">(),</span> <span class="nx">PATHINFO_EXTENSION</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$exp</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">));</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="mi">2</span> <span class="o">!=</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$exp</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#1 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$version</span> <span class="o">=</span> <span class="nv">$exp</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_numeric</span><span class="p">(</span><span class="nv">$version</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#2 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nv">$version</span> <span class="o">&gt;</span> <span class="nv">$current_version</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$torun</span><span class="p">[</span><span class="nv">$version</span><span class="p">]</span> <span class="o">=</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#3 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$torun</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">ksort</span><span class="p">(</span><span class="nv">$torun</span><span class="p">,</span> <span class="nx">SORT_NUMERIC</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$torun</span> <span class="k">as</span> <span class="nv">$v</span> <span class="o">=&gt;</span> <span class="nv">$t</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">require</span><span class="p">(</span><span class="nx">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/migrations/&#39;</span> <span class="o">.</span> <span class="nv">$t</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">h</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Database Migrations - running migration &#39;</span> <span class="o">.</span> <span class="nv">$t</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;insert into db_migrations set version = &#39;</span><span class="si">$v</span><span class="s2">&#39; &quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[SagePay, OneStepCheckout, 'Transaction could not be cancelled and order was not created, cart was modified while customer on payment pages']]></title>
@@ -831,21 +919,6 @@ On a current project I making heavy use of the <a href="https://github.com/sensi
 <p>To fix this, all you need to do is make sure that your Doctrine class does not declare the first property as a DateTime.</p>
 
 <p>If you have a primary key or unique reference property then try to get this as the first declared property in your Doctrine entity class and then rebuild the CRUD and the problem goes away.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Browsers Currently Supported By Google]]></title>
-    <link href="http://edmondscommerce.github.io/browsers/browsers-currently-supported-by-google.html"/>
-    <updated>2013-12-06T18:49:19+00:00</updated>
-    <id>http://edmondscommerce.github.io/browsers/browsers-currently-supported-by-google</id>
-    <content type="html"><![CDATA[<p>Google Apps, such as Gmail, Calendar, Docs etc lean heavily on Javascript to create fluid web applications. Naturally this requires up to date browsers to take advantage of functionality and technologies.</p>
-
-<p>Google&rsquo;s policy on browser support is quite strict, especially where Internet Explorer is concerned. <strong>For Chrome only the latest version is supported because of its auto-update policy. Internet Explorer, Firefox and Safari are supported in the most recent, and previous version.</strong> The third most recent browser is no longer supported as soon as a new one is released. No official support is offered for Opera.</p>
-
-<p>This is particularly strict for Internet Explorer, since its versioning is vastly different from that of Chrome and Firefox, with the latter incrementing the version for much smaller changes, and being more frequent. Another effect is that ruling out what is currently IE9 rules out both Windows XP and Windows Vista &ndash; both OSs currently supported by Microsoft.</p>
-
-<p>Naturally this doesn&rsquo;t mean that the products won&rsquo;t work, anjd in many cases they were developed before support was dropped for specific versions. In some cases however it does enforce a more simplistic UI, such as redirecting very old browsers to a Basic HTML view for Gmail</p>
 ]]></content>
   </entry>
   

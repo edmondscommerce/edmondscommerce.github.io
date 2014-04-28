@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: database | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/database/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-04-24T19:57:05+01:00</updated>
+  <updated>2014-04-28T13:25:53+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,66 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Database Migrations]]></title>
+    <link href="http://edmondscommerce.github.io/php/simple-database-migrations.html"/>
+    <updated>2014-04-28T13:22:34+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/simple-database-migrations</id>
+    <content type="html"><![CDATA[<p>Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.</p>
+
+<p>It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.</p>
+
+<p>Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.</p>
+
+<p>Here is the code:</p>
+
+<p>``` php
+&lt;?php
+$res = mysql_fetch_assoc(db_query(&ldquo;select version from db_migrations order by version desc limit 0,1&rdquo;));
+$current_version = ($res[&lsquo;version&rsquo;]) ? $res[&lsquo;version&rsquo;] : 0;
+$di = new DirectoryIterator(<strong>DIR</strong> . &lsquo;/migrations&rsquo;);
+$torun = array();
+foreach ($di as $f) {</p>
+
+<pre><code>/* @var $f DirectoryIterator */
+if ($f-&gt;isDot()) {
+    continue;
+}
+if ('php' == pathinfo($f-&gt;getFilename(), PATHINFO_EXTENSION)) {
+    $exp = explode('.', strval($f));
+    if (2 != count($exp)) {
+        throw new Exception('#1 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+    }
+    $version = $exp[0];
+    if (!is_numeric($version)) {
+        throw new Exception('#2 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+    }
+    if ($version &gt; $current_version) {
+        $torun[$version] = strval($f);
+    }
+} else {
+    throw new Exception('#3 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>if (!empty($torun)) {</p>
+
+<pre><code>ksort($torun, SORT_NUMERIC);
+foreach ($torun as $v =&gt; $t) {
+    require(__DIR__ . '/migrations/' . $t);
+    h(3, 'Database Migrations - running migration ' . $t);
+    db_query("insert into db_migrations set version = '$v' ");
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[PHP PDO Fetch Object and Columns with Spaces]]></title>
@@ -132,43 +192,6 @@ $config-&gt;setNode($newPrefix.$nodeToCopy, $nodeVal);
 <p>```</p>
 
 <p>In this example the &lsquo;default_setup&rsquo; connection details are copied to a new connection called &lsquo;orders_db&rsquo;, then the database for this new connection is changed to &lsquo;import_orders&rsquo;. Having defined the configuration for the database simply get the connection object and Magento will establish the connection for you.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Run Multiple MySQL Queries in a Single Function]]></title>
-    <link href="http://edmondscommerce.github.io/php/run-multiple-mysql-queries-in-a-single-function.html"/>
-    <updated>2012-11-14T12:45:09+00:00</updated>
-    <id>http://edmondscommerce.github.io/php/run-multiple-mysql-queries-in-a-single-function</id>
-    <content type="html"><![CDATA[<p>If you want to be able to run multiple queries in a single function call, for example doing the classic drop table blah; create table blah; then you might like this function.</p>
-
-<p>The use case is for things like database migration systems which you might copy and paste chunks of SQL including multiple queries from things like phpMyAdmin</p>
-
-<p>```php</p>
-
-<p>/<em>*
- * Run multiple queries passed in as a single string
- * This is optimised for copying and pasting from phpMyAdmin
- *
- * Handy for things like database migration systems
- *
- * @param string $sql  multiple queries terminated with ; and a new line
- </em>/
-function multiQuery($sql)
-{</p>
-
-<pre><code>$sqls = preg_split('%;$%m', trim($sql));
-foreach ($sqls as $q) {
-    if (empty($q)) {
-        continue;
-    }
-    mysql_query($q); //suggest you replace this with your custom query function or if not throw in some extra error checking at least
-}
-</code></pre>
-
-<p>}</p>
-
-<p>```</p>
 ]]></content>
   </entry>
   

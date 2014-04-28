@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: mysql | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/mysql/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-04-24T19:57:05+01:00</updated>
+  <updated>2014-04-28T13:25:53+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,66 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Database Migrations]]></title>
+    <link href="http://edmondscommerce.github.io/php/simple-database-migrations.html"/>
+    <updated>2014-04-28T13:22:34+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/simple-database-migrations</id>
+    <content type="html"><![CDATA[<p>Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.</p>
+
+<p>It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.</p>
+
+<p>Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.</p>
+
+<p>Here is the code:</p>
+
+<p>``` php
+&lt;?php
+$res = mysql_fetch_assoc(db_query(&ldquo;select version from db_migrations order by version desc limit 0,1&rdquo;));
+$current_version = ($res[&lsquo;version&rsquo;]) ? $res[&lsquo;version&rsquo;] : 0;
+$di = new DirectoryIterator(<strong>DIR</strong> . &lsquo;/migrations&rsquo;);
+$torun = array();
+foreach ($di as $f) {</p>
+
+<pre><code>/* @var $f DirectoryIterator */
+if ($f-&gt;isDot()) {
+    continue;
+}
+if ('php' == pathinfo($f-&gt;getFilename(), PATHINFO_EXTENSION)) {
+    $exp = explode('.', strval($f));
+    if (2 != count($exp)) {
+        throw new Exception('#1 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+    }
+    $version = $exp[0];
+    if (!is_numeric($version)) {
+        throw new Exception('#2 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+    }
+    if ($version &gt; $current_version) {
+        $torun[$version] = strval($f);
+    }
+} else {
+    throw new Exception('#3 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>if (!empty($torun)) {</p>
+
+<pre><code>ksort($torun, SORT_NUMERIC);
+foreach ($torun as $v =&gt; $t) {
+    require(__DIR__ . '/migrations/' . $t);
+    h(3, 'Database Migrations - running migration ' . $t);
+    db_query("insert into db_migrations set version = '$v' ");
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[MySQL Substring not Returning Anything + Solution]]></title>
@@ -80,23 +140,6 @@
 <p>The issue is that then FILE privilege is a Global setting, so the user did not have access to it, hence the access denied message.</p>
 
 <p>Grant FILE privileges and you can connect as expected</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA["Base table or view already exists: 1050 Table ‘*’ already exists" After Deleting Tables]]></title>
-    <link href="http://edmondscommerce.github.io/magento/base-table-or-view-already-exists-1050-table-already-exists-after-deleting-tables.html"/>
-    <updated>2013-01-08T16:27:02+00:00</updated>
-    <id>http://edmondscommerce.github.io/magento/base-table-or-view-already-exists-1050-table-already-exists-after-deleting-tables</id>
-    <content type="html"><![CDATA[<p>If for example you&rsquo;re removing an extension and want to clear out its information from the database, you&rsquo;ll need to establish the rows and tables it&rsquo;s inserted, as well as some standard Magento table entries.</p>
-
-<p>So you&rsquo;ve removed everything, cleared your cache and now you go to the homepage to check everything is all good, and boom, PDOException:</p>
-
-<p><code>
-Base table or view already exists: 1050 Table ‘*’ already exists
-</code></p>
-
-<p>In my case it was <code>salesrule</code>, which made me question why it was trying to create the table afresh. The reason I got this is that I&rsquo;d erroneously removed salesrule_setup from core_resource, and therefore Magento was reinstalling the module. Reinstating the row, and clearing my cache solved the issue</p>
 ]]></content>
   </entry>
   
