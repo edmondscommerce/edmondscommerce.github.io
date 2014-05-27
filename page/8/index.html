@@ -128,6 +128,116 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-04-22T13:57:49+01:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html">Apache Mod Rewrite and Escaped Hashes (and Other Characters)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are having issues with mod rewrite apparently abandoning sections of variables after encoded hashes then this could be your solution.</p>
+
+<p>The use case is particularly clear when using mod_rewrite in front of a search engine (such as Solr which I am really enjoying working with at the moment).</p>
+
+<p>Imagine someone search for a partcode ABC#123</p>
+
+<p>This gets encoded to search/abc%23123</p>
+
+<p>Your rewritten search term will then be mangled by Apache and your search script will only actually see ABC. That is of course a problem and the solution is not really clear.</p>
+
+<p>After a bit of searching around I found the solution is to add a B flag to your mod_rewrite rule so that mod_rewrite will escape these characters so that they are cleanly passed through.</p>
+
+<p>For example:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">RewriteRule</span> <span class="o">^</span><span class="p">(</span><span class="o">.*</span><span class="p">)</span><span class="nx">search</span><span class="o">/</span><span class="p">(</span><span class="o">.*</span><span class="p">)</span><span class="err">$</span> <span class="nx">advanced_search_result</span><span class="o">.</span><span class="nx">php</span><span class="o">?</span><span class="nx">keywords</span><span class="o">=</span><span class="err">$</span><span class="mi">2</span> <span class="p">[</span><span class="nx">L</span><span class="p">,</span><span class="nx">B</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-04-11T11:05:20+01:00" pubdate data-updated="true">Apr 11<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html">Apache Mod Rewrite Escaped Slashes Problem + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>As part of our Magento SEO service, the first thing we do is to make sure there are no issues with the crawlability and general health of the clients web site.</p>
+
+<p>Whilst working on the Google Webmaster Tools crawl errors for a client I noticed one specific and intruiging problem for which I couldn&rsquo;t immediately see the reason, everything looked to be set up perfectly.</p>
+
+<p>Certain URLs were getting 404 responses. The URL was being parsed by mod_rewrite but everything looked fine so why was apache giving a 404?</p>
+
+<p>The problem turns out to be that the URLs contain escaped slashes (eg search/KTA-mb667k2%2F2g),</p>
+
+<p>The problem is that Apache actually handles the escaped slash and helpfully converts it to a real slash. That then means that it is trying to look in a sub folder that does not exist and hence the 404.</p>
+
+<p>Chances are you don&rsquo;t want escaped slashes to really be thought of as real directory separating slashes, especially if you are using mod_rewrite.</p>
+
+<p>The answer is a simple one liner to be added to your vhost.conf or httpd.conf.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>AllowEncodedSlashes On
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-04-05T15:44:14+01:00" pubdate data-updated="true">Apr 5<span>th</span>, 2013</time>
         
       </p>
@@ -557,112 +667,6 @@ Done, the module will appear in the module list but do nothing. You can look at 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-03-18T12:13:21+00:00" pubdate data-updated="true">Mar 18<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/setting-a-magento-store-design-programatically-in-installer-using-php.html">Setting a Magento Store Design Programatically in Installer Using PHP</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I needed to set up a design change for a new store which I was programatically creating. One aspect which I was still doing manually was the design change. Lots of tutorials on the web suggest how to accomplish this in the Admin, but this wasn&rsquo;t what I was after.</p>
-
-<p>I&rsquo;ve done this by updating the store&rsquo;s config as shown below. Hope it helps someone out there too</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$config</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Mage_Core_Model_Config</span><span class="p">();</span>
-</span><span class='line'><span class="nv">$config</span><span class="o">-&gt;</span><span class="na">saveConfig</span><span class="p">(</span><span class="s1">&#39;design/theme/template&#39;</span><span class="p">,</span> <span class="o">&lt;</span><span class="nx">store</span> <span class="nx">name</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;websites&#39;</span><span class="p">,</span> <span class="nx">storeId</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$config</span><span class="o">-&gt;</span><span class="na">saveConfig</span><span class="p">(</span><span class="s1">&#39;design/theme/layout&#39;</span><span class="p">,</span> <span class="o">&lt;</span><span class="nx">store</span> <span class="nx">name</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;websites&#39;</span><span class="p">,</span> <span class="nx">storeId</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$config</span><span class="o">-&gt;</span><span class="na">saveConfig</span><span class="p">(</span><span class="s1">&#39;design/theme/skin&#39;</span><span class="p">,</span> <span class="o">&lt;</span><span class="nx">store</span> <span class="nx">name</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;websites&#39;</span><span class="p">,</span> <span class="nx">storeId</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-03-14T14:53:48+00:00" pubdate data-updated="true">Mar 14<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/4145.html">PHP API Development Logging and Debugging</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are ever working with API integrations, either in or out bound, then it might be useful to set up a simple dumb logging system to assist you with developing and debugging things.</p>
-
-<p>Here is a really simple snippet to help you along with that.</p>
-
-<p>It literally takes exactly what it has received and logs it with no messing about. Brilliant!</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="nv">$log</span><span class="p">[</span><span class="s1">&#39;raw_input&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">file_get_contents</span><span class="p">(</span><span class="s1">&#39;php://input&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$log</span><span class="p">[</span><span class="s1">&#39;_POST&#39;</span><span class="p">]</span><span class="o">=</span><span class="nv">$_POST</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$log</span><span class="p">[</span><span class="s1">&#39;_GET&#39;</span><span class="p">]</span><span class="o">=</span><span class="nv">$_GET</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">file_put_contents</span><span class="p">(</span><span class="s1">&#39;inboundXML.log&#39;</span><span class="p">,</span> <span class="nb">var_export</span><span class="p">(</span><span class="nv">$log</span><span class="p">,</span> <span class="k">true</span><span class="p">));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -686,15 +690,15 @@ Done, the module will appear in the module list but do nothing. You can look at 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/load%20testing/using-apache-jmeter-for-load-testing.html">Using Apache JMeter for Load Testing</a>
+    
+    <a class="list-group-item " href="/security/ebay-security-breach.html">Ebay Security Breach</a>
+    
     <a class="list-group-item " href="/magento/magento-1-dot-9-and-1-dot-14-released.html">Magento 1.9 &amp; 1.14 Released</a>
     
     <a class="list-group-item " href="/php/simple-database-migrations.html">Simple Database Migrations</a>
     
     <a class="list-group-item " href="/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html">SagePay, OneStepCheckout, &#8216;Transaction Could Not Be Cancelled and Order Was Not Created, Cart Was Modified While Customer on Payment Pages&#8217;</a>
-    
-    <a class="list-group-item " href="/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html">GoAccess - Nice CLI Access Log Parsing Tool (and How to Install on CentOS)</a>
-    
-    <a class="list-group-item " href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a>
     
   </div>
 </section>
