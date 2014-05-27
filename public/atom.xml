@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-05-14T11:46:54+01:00</updated>
+  <updated>2014-05-14T11:48:19+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -33,6 +33,872 @@
 <p><strong>Other security fix and performance fixes</strong></p>
 
 <p>The full list of changes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/new-features-ce19-ee114">here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Database Migrations]]></title>
+    <link href="http://edmondscommerce.github.io/php/simple-database-migrations.html"/>
+    <updated>2014-04-28T13:22:34+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/simple-database-migrations</id>
+    <content type="html"><![CDATA[<p>Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.</p>
+
+<p>It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.</p>
+
+<p>Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.</p>
+
+<p>Here is the code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nv">$res</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;select version from db_migrations order by version desc limit 0,1&quot;</span><span class="p">));</span>
+</span><span class='line'><span class="nv">$current_version</span> <span class="o">=</span> <span class="p">(</span><span class="nv">$res</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span> <span class="o">?</span> <span class="nv">$res</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$di</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DirectoryIterator</span><span class="p">(</span><span class="nx">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/migrations&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$torun</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$di</span> <span class="k">as</span> <span class="nv">$f</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="cm">/* @var $f DirectoryIterator */</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$f</span><span class="o">-&gt;</span><span class="na">isDot</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;php&#39;</span> <span class="o">==</span> <span class="nb">pathinfo</span><span class="p">(</span><span class="nv">$f</span><span class="o">-&gt;</span><span class="na">getFilename</span><span class="p">(),</span> <span class="nx">PATHINFO_EXTENSION</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$exp</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">));</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="mi">2</span> <span class="o">!=</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$exp</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#1 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$version</span> <span class="o">=</span> <span class="nv">$exp</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_numeric</span><span class="p">(</span><span class="nv">$version</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#2 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nv">$version</span> <span class="o">&gt;</span> <span class="nv">$current_version</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$torun</span><span class="p">[</span><span class="nv">$version</span><span class="p">]</span> <span class="o">=</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#3 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$torun</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">ksort</span><span class="p">(</span><span class="nv">$torun</span><span class="p">,</span> <span class="nx">SORT_NUMERIC</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$torun</span> <span class="k">as</span> <span class="nv">$v</span> <span class="o">=&gt;</span> <span class="nv">$t</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">require</span><span class="p">(</span><span class="nx">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/migrations/&#39;</span> <span class="o">.</span> <span class="nv">$t</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">h</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Database Migrations - running migration &#39;</span> <span class="o">.</span> <span class="nv">$t</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;insert into db_migrations set version = &#39;</span><span class="si">$v</span><span class="s2">&#39; &quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SagePay, OneStepCheckout, 'Transaction could not be cancelled and order was not created, cart was modified while customer on payment pages']]></title>
+    <link href="http://edmondscommerce.github.io/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html"/>
+    <updated>2014-04-24T19:17:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages</id>
+    <content type="html"><![CDATA[<p>I spent this morning dealing with a Magento sit that was unable to process Credit Card payments when they were placed with SagePay.</p>
+
+<p>When a customer tried to place an order they were able to enter that card details, but were then presented with an alert with the following message</p>
+
+<blockquote><p>Your order could not be completed, please try again. Thanks.</p></blockquote>
+
+<p>They were using the <a href="https://github.com/ebizmarts/sage-pay-suite-ce">EbizMarts SagePay CE Module</a>, so I had a look around to see if the error was known</p>
+
+<p>It appears that a recent release of the SagePay Module introduces some additional checks before creating the order and the current release of the <a href="http://www.onestepcheckout.com/">OneStepCheckout</a> is not compatible with this.</p>
+
+<p>If you look straight at the SagePay Logs you may also see the following errors, which may indicate the same problem.</p>
+
+<ul>
+<li>DEBUG: 4028 : The related transaction cannot be found.</li>
+<li>DEBUG: Your order could not be completed, please try again. Thanks.</li>
+<li>CRIT: Transaction XXXXXXXXX-XXXX-XX-XX-XX-XX-XX could not be cancelled and order was not created, cart was modified while customer on payment pages.</li>
+</ul>
+
+
+<p>Thankfully there is a simple fix for this. In the <strong>app/code/local/Idev/OneStepCheckout/controllers/IndexController.php</strong> file you need to add the following line to the indexAction method</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;checkout/session&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">setCartWasUpdated</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Just before</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">loadLayout</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and then everything will work correctly.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[GoAccess - Nice CLI Access Log Parsing Tool (and how to install on CentOS)]]></title>
+    <link href="http://edmondscommerce.github.io/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html"/>
+    <updated>2014-04-24T12:40:27+01:00</updated>
+    <id>http://edmondscommerce.github.io/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos</id>
+    <content type="html"><![CDATA[<p>Log files are probably the single most useful item on a web server when it comes to debugging. They are packed full of all the information you need to understand what is
+happening on the server and detect any potential issues.</p>
+
+<p>Reading log files by hand is basically imposssible for any meaningful overall monitoring. You can of course do some grepping and other bash tools to gain more insights but some times it&rsquo;s nice to just have a simple tool.</p>
+
+<p>I am a big fan of tools like top, mytop, apachetop and ngxtop. GoAccess is a little bit different though, mainly it just seems a lot more fully featured.</p>
+
+<p>Best thing to do is to try it. Here is how to install it on CentoOS</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install ncurses-devel glib2-devel geoip-devel
+</span><span class='line'>mkdir -p ~/goaccess
+</span><span class='line'><span class="nb">cd</span> ~/goaccess
+</span><span class='line'>wget http://downloads.sourceforge.net/project/goaccess/0.7.1/goaccess-0.7.1.tar.gz
+</span><span class='line'>tar -xzvf goaccess-0.7.1.tar.gz
+</span><span class='line'><span class="nb">cd </span>goaccess-0.7.1/
+</span><span class='line'>./configure --enable-geoip --enable-utf8
+</span><span class='line'>make
+</span><span class='line'>make install
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can read more about GoAccess here:
+<a href="http://goaccess.prosoftcorp.com/">http://goaccess.prosoftcorp.com/</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bash Delete Everything But - Handy Function for your bashrc File]]></title>
+    <link href="http://edmondscommerce.github.io/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html"/>
+    <updated>2014-04-11T11:23:16+01:00</updated>
+    <id>http://edmondscommerce.github.io/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file</id>
+    <content type="html"><![CDATA[<p>For me the use case was a cache directory that I wanted to clear out everything apart from one particular file that was expensive
+to create and didn&rsquo;t need to be cleared for my purposes</p>
+
+<p>I decided to add this to my ~/.bashrc file for ease of use in future.</p>
+
+<p>Here is the function</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Remove Everything But</span>
+</span><span class='line'><span class="k">function </span>rmbut<span class="o">(){</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">BUT</span><span class="o">=</span><span class="s2">&quot;$@&quot;</span>
+</span><span class='line'>    ls | grep -v *<span class="nv">$BUT</span>* | <span class="k">while </span><span class="nb">read </span>f; <span class="k">do </span>rm -rf <span class="nv">$f</span>; <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To use the function, simply <code>cd</code> to the directory you want to clear out and then call <code>rmbut MyFileIWantToKeep</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Compare Text Chunks Quickly in PHPStorm]]></title>
+    <link href="http://edmondscommerce.github.io/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html"/>
+    <updated>2014-03-26T11:34:50+00:00</updated>
+    <id>http://edmondscommerce.github.io/PHPStorm/compare-text-chunks-quickly-in-phpstorm</id>
+    <content type="html"><![CDATA[<p>Some times you just need to compare a few lines from one file to a few lines from somewhere else. Full blown file diffing will give you all kinds of false positive information, actually you just want to compare a few lines.</p>
+
+<p>I had a look around and couldn&rsquo;t see an obvious way to do it but then I saw the &ldquo;Compare with Clipboard&rdquo; option in the right click menu.</p>
+
+<p>To use this is really easy and super handy.</p>
+
+<p>First of all, highlight one of the chunks of text and get it into your clipboard <code>[ctrl]+[c]</code></p>
+
+<p>Now highlight your second chunk of text and simply select the &ldquo;Compare with Clipboard&rdquo; option.</p>
+
+<p>You will now get a standard PHPStorm diff viewer allowing you to compare the text chunks side by side.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Pipe Viewer for an Easy CLI Progress Bar]]></title>
+    <link href="http://edmondscommerce.github.io/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html"/>
+    <updated>2014-03-17T14:58:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/using-pipe-viewer-for-an-easy-cli-progress-bar</id>
+    <content type="html"><![CDATA[<p>If you have a large database file to import or any other longer running process that involves piping data from one place to another then this little utility should definitely be in your arsenal.</p>
+
+<p>Simply enough you use this to give you a progress indication when you are piping large amounts of data.</p>
+
+<p>To use this on a mysql import (which is where I am most likely to use this) you would do the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>pv ./dumpfile.sql | mysql -u<span class="nv">$USER</span> -p<span class="nv">$PASS</span> dbname
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will then give you a simple progress bar and very usefully, an ETA that indicates how much time is left For example:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'> 308MB 0:07:57 <span class="o">[</span> 216kB/s<span class="o">]</span> <span class="o">[===============</span>&gt;                                          <span class="o">]</span> 10% ETA 1:08:32
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To install the utility you should first of all just try <code>yum install pv</code>. If that doesn&rsquo;t work then you can read more about installing for your distribution here:
+<a href="http://www.ivarch.com/programs/pv.shtml">http://www.ivarch.com/programs/pv.shtml</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sharing Google Drive documents from Gmail when sending emails]]></title>
+    <link href="http://edmondscommerce.github.io/gmail/sharing-google-drive-documents-from-gmail-when-sending-emails.html"/>
+    <updated>2014-03-12T17:17:30+00:00</updated>
+    <id>http://edmondscommerce.github.io/gmail/sharing-google-drive-documents-from-gmail-when-sending-emails</id>
+    <content type="html"><![CDATA[<p>I was writing an email to a customer, and had created a Google Drive spreadsheet for us to collaborate on, I put a link to the document into the email, intending to share the document with the customer immediately after.</p>
+
+<p>To my surprise when I hit Send a prompt came up asking me if I want to share the linked document with the email recipients. You can choose to have it publicly viewable/editable using the link, or even to add the email&rsquo;s recipients to the document&rsquo;s share list (which of course requires them to be using a Google account).</p>
+
+<p><img src="http://edmondscommerce.github.io/assets/gmail-drive-prompt.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Finding out the biggest folders in a Magento or other website root]]></title>
+    <link href="http://edmondscommerce.github.io/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html"/>
+    <updated>2014-03-04T16:10:19+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root</id>
+    <content type="html"><![CDATA[<p>Often pulling down a Magento or other site you&rsquo;ll find a load of files that have been dumped in the web root. Downloading these is often pointless and takes extra time, so you&rsquo;ll want to exclude them from an rsync (using the <code>--exclude 'path'</code> paramter).</p>
+
+<p>A simple bash command for this is:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>du -m --max-depth<span class="o">=</span>1 --exclude media | sort -n
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This invokes <code>du</code> to show each direct subfolder&rsquo;s contents&#8217; size, and pipes it through to <code>sort</code> to rank them in increasing size. The sizes are in MB. See <a href="http://explainshell.com/explain?cmd=du+-m+--max-depth%3D1+--exclude+media+|+sort+-n">a more broken down explanation here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Redirect to previous page in Magento after logout]]></title>
+    <link href="http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout.html"/>
+    <updated>2014-02-25T15:58:02+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout</id>
+    <content type="html"><![CDATA[<p>By default Magento sends a user to a logoutSuccess page after they choose to log out. This is &lsquo;hard-baked&rsquo; into the Customer controller&rsquo;s logout action in the line <code>$this-&gt;_redirect('*/*/logoutSuccess');</code>. You can choose to set the Javascript redirect in the template <code>customer/logout.phtml</code>, but a better idea is to bypass the logout success page entirely.</p>
+
+<p>The way to do this is to override the <code>logoutAction()</code> method in the <code>customerController</code>:</p>
+
+<ol>
+<li><a href="http://www.magentocommerce.com/wiki/5_-_modules_and_development/0_-_module_development_in_magento/how_to_overload_a_controller">Rewrite the customer controller as documented here</a></li>
+<li>Override the <code>logoutAction()</code> method</li>
+<li>Set the redirect as below</li>
+</ol>
+
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="k">require_once</span> <span class="s1">&#39;Mage/Customer/controllers/AccountController.php&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_LogoutRedirect_AccountController</span> <span class="k">extends</span> <span class="nx">Mage_Customer_AccountController</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">logoutAction</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$url</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;core/session&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getLastUrl</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_getSession</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">logout</span><span class="p">()</span>
+</span><span class='line'>            <span class="o">-&gt;</span><span class="na">setBeforeAuthUrl</span><span class="p">(</span><span class="nx">Mage</span><span class="o">::</span><span class="na">getUrl</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_redirectUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Running PHP Scripts on CLI and Faking a Web Request]]></title>
+    <link href="http://edmondscommerce.github.io/php/running-php-scripts-on-cli-and-faking-a-web-request.html"/>
+    <updated>2014-02-14T17:31:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/running-php-scripts-on-cli-and-faking-a-web-request</id>
+    <content type="html"><![CDATA[<p>Some times you build a PHP script that is designed to run from a web request and you want to run it on the command line.
+The problem is that you have used the standard PHP super globals and you would rather not refactor the script loads.</p>
+
+<p>Here is a nice quick solution:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$argc</span><span class="p">)){</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;</span> <span class="nv">$argc</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nv">$things</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="nv">$argv</span><span class="p">[</span><span class="nv">$i</span><span class="p">]);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="nb">stripos</span><span class="p">(</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;POST:&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>             <span class="nv">$post</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;POST:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'>             <span class="nv">$_POST</span><span class="p">[</span><span class="nv">$post</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>             <span class="nv">$_GET</span><span class="p">[</span><span class="nv">$things</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nv">$things</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">GET:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="nb">var_dump</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">);</span>
+</span><span class='line'><span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">POST:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="nb">var_dump</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will loop over the argc variable that is defined when running in CLI mode and will fake the <code>$_GET</code> and <code>$_POST</code> variables as required.</p>
+
+<p>To run this with get and post variables you would do this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">php</span> <span class="o">-</span><span class="nx">f</span> <span class="nx">script</span><span class="o">.</span><span class="nx">php</span> <span class="nx">getvar1</span><span class="o">=</span><span class="nx">test</span> <span class="nx">getvar2</span><span class="o">=</span><span class="nx">foo</span> <span class="nx">POST</span><span class="o">:</span><span class="nx">postvar1</span><span class="o">=</span><span class="nx">bar</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it. It is not particularly pretty but it can be pretty handy.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[cPanel Download Site Files and Database]]></title>
+    <link href="http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database.html"/>
+    <updated>2014-02-10T18:03:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database</id>
+    <content type="html"><![CDATA[<p>Often a client won&rsquo;t have access to SSH, or won&rsquo;t be able to provide you with some of the more specifics such as FTP, PHPMyAdmin etc. All they know to give you is access to their cPanel. Through this there&rsquo;s various tools at your disposal.</p>
+
+<h2>Try SSH</h2>
+
+<p>Your cPanel login is actually a Linux user login, which cPanel&rsquo;s FTP hooks into. The first step is to navigate in your cPanel to FTP Accounts and click Configure FTP client on a user. These are SFTP details and can very often provide you with SSH shell access, unless the host has disabled this.</p>
+
+<p>Simply try <code>ssh user@host -p 1234</code>, where the user, host and password are your cPanel login, and the port displayed on the FTP Accounts page.</p>
+
+<p>From here you&rsquo;re free to use <code>tar</code>, <code>gzip</code>, <code>mysqldump</code> etc to acquire the files and database.</p>
+
+<h2>If SSH isn&rsquo;t enabled</h2>
+
+<p>Sometimes the host disables SSH access, only allowing its use for SFTP. There are still many ways to acquire the site&rsquo;s files and database:</p>
+
+<h3>Getting hold of the files</h3>
+
+<ul>
+<li><strong>Plain old FTP</strong> &ndash; You can just use an FTP client such as Filezilla to access and download the site&rsquo;s files using FTP or SFTP. This is the simplest way, but can take a long time because of the amount of files involved</li>
+<li><strong>File Manager Web UI</strong> &ndash; compressing the site&rsquo;s files obviously shrinks the download size, but also vastly reduces the amount of connections you need to make, leading to a faster download speed.
+
+<ol>
+<li> Navigate to the File Manager section (remember to tick &ldquo;Show hidden files&rdquo; to pick up .htaccess files)</li>
+<li>Browse to the web root folder, select all the files and folders you want using Ctrl+Click. Remember to exclude unnecessary large files such as sql dumps, media folders and the var folder</li>
+<li>Click Compress from the toolbar</li>
+</ol>
+</li>
+</ul>
+
+
+<h3>Getting hold of the database</h3>
+
+<ul>
+<li><strong>PHPMyAdmin</strong> &ndash; PHPMyAdmin offers an array of options for dumping your database. You should start by checking the database&rsquo;s size and considering excluding the dump of tables such as <code>log_url</code>, <code>log_url_info</code>, <code>log_visitor</code>, <code>log_visitor_info</code>, <code>report_viewed_product_index</code>
+
+<ol>
+<li> Navigate to the PHPMyAdmin area of cPanel and locate the database in use (check your <code>app/etc/local.xml</code> if you&rsquo;re not sure which</li>
+<li>Click the Export tab</li>
+<li>Select Custom: here&rsquo;s where you can selectively export information</li>
+<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; to &lsquo;structure&rsquo;. This will have PHPMyAdmin set up only the tables&#8217; columns but no data (we&rsquo;ll get to that)</li>
+<li>Click Go</li>
+<li>Once this is complete, navigate back to the Export page and click Custom again.</li>
+<li>Deselect (ctrl+click) any tables which are unnecessary</li>
+<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; this time to &lsquo;data&rsquo;</li>
+<li>This will provide you with two files representing the database. Import first the Structure one, and then the Data one (or concatenate the two together)</li>
+</ol>
+</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[NHS Website Hosting Malware]]></title>
+    <link href="http://edmondscommerce.github.io/security/nhs-website-hosting-malware.html"/>
+    <updated>2014-02-03T10:39:41+00:00</updated>
+    <id>http://edmondscommerce.github.io/security/nhs-website-hosting-malware</id>
+    <content type="html"><![CDATA[<p>This morning I was made aware that certain pages of the NHS website &ndash; the UK&rsquo;s National Health Service &ndash; were hosting malware that was automatically redirecting users to malicious pages. The story broke on the popular news site Reddit, you can see the actual reddit thread <a href="http://www.reddit.com/r/unitedkingdom/comments/1wv91h/nhsuk_compromised_many_pages_are_serving_malware/">here</a>.</p>
+
+<p>The first and most important point is that if you ever find yourself unexpectedly redirected from a page to another page then you should definitely not agree to install any software suggsted by the redirected site. Your safest course of action is likely to close the tab or even your browser as soon as possible and then run a full virus scan after updating your virus software.</p>
+
+<h3>Here is some information on this particular attack</h3>
+
+<p>The list of URLs originally shown to be hosting this malware can be found <a href="http://pastebin.com/DbvR0iyj">here</a>.</p>
+
+<p>The attack vector seems to be in a (possibly accidental) mis spelling of the domain name that is hosting some Javascript related to Google Translate.</p>
+
+<h4>You can see a correct chunk of HTML here:</h4>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;/includes/AC_RunActiveContent.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit&quot;</span><span class="nt">&gt;&lt;/script&gt;&lt;link</span> <span class="na">type=</span><span class="s">&quot;text/css&quot;</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span> <span class="na">href=</span><span class="s">&quot;https://translate.googleapis.com/translate_static/css/translateelement.css&quot;</span><span class="nt">&gt;&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span> <span class="na">src=</span><span class="s">&quot;https://translate.googleapis.com/translate_static/js/element/main.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;/includes/translate.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>And here is the compromised HTML</h4>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;//translate.googleaspis.com/translate_static/js/element/19/element_main.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;//translate.googleaspis.com/translate_static/js/element/element.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;/includes/translate.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The domain name googleaspis.com is registered by regtons.com and though the <a href="http://www.whois.com/whois/googleaspis.com">Whois information</a> has the actual domain ownership details obfuscated by a Czech company that protect the actual real ownership details, it does seem that the server and other <a href="http://www.tcpiputils.com/browse/ip-address/31.170.179.179">internet services</a> are all based in the Czech Republic.</p>
+
+<p>Checking the Google Safe Browsing information, you can see that Google have found <a href="http://www.google.co.uk/safebrowsing/diagnostic?site=hmr.nhs.uk/">numerous issues</a> on the NHS domains seemingly starting on the 31st of January this year.</p>
+
+<p>It seems that the NHS have now confirmed that they are aware of this issue and are currently taking action to resolve the problem.</p>
+
+<p>It is still not clear exactly how or why this issue cropped up in the first place. If it was an accident, how did it manage to get past what you would expect to be quite rigorous quality assurance processes? If this was a result of a malicious break in, how did they manage to compromise the website in this way and are there any further security issues that we should, as a nation, be worried about?</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Clean Up Meld Files when Git Merging]]></title>
+    <link href="http://edmondscommerce.github.io/git/clean-up-meld-files-when-git-merging.html"/>
+    <updated>2014-01-29T11:39:19+00:00</updated>
+    <id>http://edmondscommerce.github.io/git/clean-up-meld-files-when-git-merging</id>
+    <content type="html"><![CDATA[<p>If you do a Git Merge using Meld (a brilliant Linux diff tool) then you might find that there are a bunch of files created that you need to clear up.</p>
+
+<p>These files will be copies of the merged files and can be safely removed as everything you should need to know is already in Git.</p>
+
+<p>I wrote the following quick function to find all of these files and remove them. You could add this as a function to your bashrc file if you need to do this regularly.</p>
+
+<p>Here is the BASH snippet:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git status -su | grep -P <span class="s2">&quot;\.BACKUP|BASE|LOCAL|REMOTE\.&quot;</span> | cut -f2 -d<span class="s2">&quot; &quot;</span> | xargs rm
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Preorders in Magento Using Attribute Value]]></title>
+    <link href="http://edmondscommerce.github.io/magento/preorders-in-magento-using-attribute-value.html"/>
+    <updated>2014-01-23T15:52:41+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/preorders-in-magento-using-attribute-value</id>
+    <content type="html"><![CDATA[<p>Magento doesn&rsquo;t come built with the ability to place preorders: the closest match is in the form of back orders, but there&rsquo;s a crucial difference between the two. Backorders are orders placed when stock isn&rsquo;t present and are shipped as soon as stock becomes available. Preorders however usually have a predefined point at which they will be shipped.</p>
+
+<p>The excellent <a href="http://www.aitoc.com/en/magentomods_pre_order.html">Aitoc Prorders</a> extension provides a drop-in ability to accept preorders including button text changes, checkout customisation and different order statuses for preorders.</p>
+
+<p>One aspect I had to work around is that the way to define a preorder is by using the extra &ldquo;Pre-Orders&rdquo; value of the Magento &ldquo;Backorders&rdquo; Inventory field. In my case I wanted to define a preorder to be a product with a Release Date set in the future. Fortunately the Aitc Preorders module has a very discrete function where it holds the definition of a Preorder. Changing this is a simple case of overriding that method</p>
+
+<h3>Creating a new extension</h3>
+
+<p>You need to create a new standard Magento extension, creating the usual boilerplate files:</p>
+
+<ul>
+<li>/app/etc/modules/Namespace_Module.xml</li>
+<li>/app/code/local/Namespace/Module/etc/config.xml</li>
+</ul>
+
+
+<h3>Rewrite the Aitoc module&rsquo;s Product model</h3>
+
+<p>In /app/code/local/Namespace/Module/etc/config.xml, set up your XML:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;config&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;modules&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;Namespace_Module&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/Namespace_Module&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/modules&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;global&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;models&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;catalog&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;rewrite&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;product&gt;</span>Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct<span class="nt">&lt;/product&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/rewrite&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/catalog&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/models&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/global&gt;</span>
+</span><span class='line'><span class="nt">&lt;/config&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create the class and override the function</h3>
+
+<p>Create the file /app/code/local/Namespace/Module/Model/Aitpreorder/Rewrite/CatalogProduct.php</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct</span> <span class="k">extends</span> <span class="nx">Aitoc_Aitpreorder_Model_Rewrite_CatalogProduct</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">getPreorder</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Add whatever logic you like here and return it as a boolean</span>
+</span><span class='line'>        <span class="nv">$releaseDate</span> <span class="o">=</span> <span class="nx">DateTime</span><span class="o">::</span><span class="na">createFromFormat</span><span class="p">(</span><span class="s1">&#39;Y-m-d H:i:s&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getReleaseDate</span><span class="p">());</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nv">$releaseDate</span> <span class="o">&gt;</span> <span class="k">new</span> <span class="nx">DateTime</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Getting Skype Working on Fedora 20]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20.html"/>
+    <updated>2014-01-17T14:45:29+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20</id>
+    <content type="html"><![CDATA[<p>I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&rsquo;t completely smooth, there were a few hoops I had to jump through.</p>
+
+<p>I am making a note of these here for my own future reference and to help out any one else hitting problems like these.</p>
+
+<p>To install Skype on Fedora 20 64bit, the first thing you need to do is download the <a href="http://www.skype.com/en/download-skype/skype-for-linux/">Fedora 32bit RPM from Skype</a>.</p>
+
+<p>To install this you should use Yum so that dependancies are handled properly:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
+After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
+One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.</p>
+
+<p>Here is the process in commands:</p>
+
+<p>Firstly remove the package and install the i686 version</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>yum remove libvpx.x86_64
+</span><span class='line'>yum install libvpx.i686</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then install Skype</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then reinstall the 64 bit version of libvpx</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install libvpx.x86_64 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then reinstall the programs that were removed when I removed libvpx</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo gnome-open /usr/share/applications/skype.desktop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Change the line that reads <strong>Exec=skype %U</strong> to the following:</p>
+
+<p><strong>Exec=env PULSE_LATENCY_MSEC=30 skype %U</strong></p>
+
+<p>Restart Skype and the audio issues should be resolved.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bash Find Files and Echo Filename and Contents]]></title>
+    <link href="http://edmondscommerce.github.io/bash/bash-find-files-and-echo-filename-and-contents.html"/>
+    <updated>2014-01-13T17:18:55+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/bash-find-files-and-echo-filename-and-contents</id>
+    <content type="html"><![CDATA[<p>I thought this one would be easy but actually its taken a bit of messing about.</p>
+
+<p>The goal was to find files matching a pattern, in this case a file name, and then echo out the full path to the file and also the file contents.</p>
+
+<p>If you are interested, the reason I was doing this was to understand the <em>interesting</em> approach that the ORO Platform has taken to setting up the AppKernel bundles in Symfony2.</p>
+
+<p>The command is here:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> find . -type f -iwholename '*bundles.yml' | xargs -I % bash -c "echo ''; echo '----------------------'; echo %; cat %; echo '';"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I have added in some extra echos to make it format nicely but the main thing is that I am using xargs to handle the results from find.</p>
+
+<p>The individual result is assigned to the % character. Then a sub shell is instantiated to manage a specific command that both echos % itself and then uses cat to echo the contents of %.</p>
+
+<p>This gave me an output like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>----------------------
+</span><span class='line'>./vendor/oro/platform/src/Oro/Bundle/ImportExportBundle/Resources/config/oro/bundles.yml
+</span><span class='line'>bundles:
+</span><span class='line'>    - Oro\Bundle\ImportExportBundle\OroImportExportBundle
+</span><span class='line'>
+</span><span class='line'>----------------------
+</span><span class='line'>./vendor/oro/platform/src/Oro/Bundle/PlatformBundle/Resources/config/oro/bundles.yml
+</span><span class='line'>bundles:
+</span><span class='line'>    - { name: Symfony\Bundle\FrameworkBundle\FrameworkBundle, priority: -255 }
+</span><span class='line'>    - { name: Symfony\Bundle\SecurityBundle\SecurityBundle, priority: -250 }
+</span><span class='line'>    - { name: Symfony\Bundle\TwigBundle\TwigBundle, priority: -245 }
+</span><span class='line'>    - { name: Symfony\Bundle\MonologBundle\MonologBundle, priority: -240 }
+</span><span class='line'>    - { name: Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle, priority: -235 }
+</span><span class='line'>    - { name: Symfony\Bundle\AsseticBundle\AsseticBundle, priority: -230 }
+</span><span class='line'>    - { name: Doctrine\Bundle\DoctrineBundle\DoctrineBundle, priority: -225 }
+</span><span class='line'>    - { name: Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle, priority: -220 }
+</span><span class='line'>    - { name: Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle, priority: -215 }
+</span><span class='line'>    - { name: JMS\SerializerBundle\JMSSerializerBundle, kernel: true, priority: -210 }
+</span><span class='line'>    - { name: Knp\Bundle\PaginatorBundle\KnpPaginatorBundle, priority: -205 }
+</span><span class='line'>    - { name: Knp\Bundle\MenuBundle\KnpMenuBundle, priority: -200 }
+</span><span class='line'>    - { name: FOS\RestBundle\FOSRestBundle, priority: -195 }
+</span><span class='line'>    - { name: FOS\JsRoutingBundle\FOSJsRoutingBundle, priority: -190 }
+</span><span class='line'>    - { name: Nelmio\ApiDocBundle\NelmioApiDocBundle, priority: -185 }
+</span><span class='line'>    - { name: BeSimple\SoapBundle\BeSimpleSoapBundle, priority: -180 }
+</span><span class='line'>    - { name: Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle, priority: -175 }
+</span><span class='line'>    - { name: Escape\WSSEAuthenticationBundle\EscapeWSSEAuthenticationBundle, priority: -170 }
+</span><span class='line'>    - { name: Liip\ImagineBundle\LiipImagineBundle, priority: -165 }
+</span><span class='line'>    - { name: Genemu\Bundle\FormBundle\GenemuFormBundle, priority: -155 }
+</span><span class='line'>    - { name: A2lix\TranslationFormBundle\A2lixTranslationFormBundle, priority: -150 }
+</span><span class='line'>    - { name: Lexik\Bundle\MaintenanceBundle\LexikMaintenanceBundle, priority: -145 }
+</span><span class='line'>    - Oro\Bundle\PlatformBundle\OroPlatformBundle</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And you can see that the bundle file I was looking for is in the Platform Bundle.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Upgrading from Fedora 19 to 20 using FedUp]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html"/>
+    <updated>2014-01-03T19:32:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup</id>
+    <content type="html"><![CDATA[<p>I decided to upgrade to the latest version because why not, its the first Friday of the year.</p>
+
+<p>The first thing to do is head over to <a href="https://fedoraproject.org/wiki/FedUp">this page</a> which explains how to use the tool.</p>
+
+<p>I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y --enablerepo=updates-testing install fedup</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once that is all done then you need to run the fedup command itself:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update fedup fedora-release
+</span><span class='line'>sudo fedup --network 20</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:</em></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
+</span><span class='line'>sudo fedup --network 20</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
+It takes a while, make a brew or something.</p>
+
+<p>Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
+<a href="https://extensions.gnome.org/local/">https://extensions.gnome.org/local/</a> and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
+When that&rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.</p>
+
+<p>For me the only one I&rsquo;m really going to miss is the <a href="https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/">Quick Close in Overview</a> which is really handy, hopefully will be updated soon.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fedora Yum Update Failing - RPMFusion + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html"/>
+    <updated>2014-01-02T10:42:59+00:00</updated>
+    <id>http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution</id>
+    <content type="html"><![CDATA[<p>I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.</p>
+
+<p>To see what was really going on I ran yum update from the command line</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This died with the following error message:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Couldn't open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.</p>
+
+<p>To do that you can run this simple command (again in the command line):</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I did this and then ran the yum update command again and everything is fixed.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Code Blocks with Liquid or Twig Tags using Octopress]]></title>
+    <link href="http://edmondscommerce.github.io/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html"/>
+    <updated>2013-12-09T18:57:42+00:00</updated>
+    <id>http://edmondscommerce.github.io/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress</id>
+    <content type="html"><![CDATA[<p>Here is a quicky I figured out when posting my previous story that included a snippet of Twig code.</p>
+
+<p>If you put Twig code into codeblocks, it doesn&rsquo;t work, instead of regarding anything inside the code block as escaped code, it tries to parse it.</p>
+
+<p>The solution is simply to wrap your code in a raw tag like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{% codeblock %}
+</span><span class='line'>{% raw %}
+</span><span class='line'>   // your code here
+</span><span class='line'>{% end[REMOVE_THIS_BIT]raw %}
+</span><span class='line'>{% endcodeblock %}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In fact I had to do that to get this post to work as well</p>
 ]]></content>
   </entry>
   
