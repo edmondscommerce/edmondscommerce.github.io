@@ -23,5 +23,4 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 </div>
 I've been spending a hell of a lot of time coding <b>Magento</b> recently, and for any full time serious ecommerce business I would recommend a Magento solution. However I have spent much more of my time coding <b>osCommerce</b> and usually <b>CRE Loaded</b> osCommerce based ecommerce sites.
 
-CRELoaded is still a great package (once you get rid of the annoying nags and ads) and is really taking the osCommerce platform and polishing it up to a nice usable fully featured system. If you are looking for a UK based developer who specialises in ecommerce, osCommerce and CRELoaded development then definitely get in touch. Don't be surprised though if I mention that Magento is definitely worth a close look!<h4>More...</h4>
-			<div style="font-size: .6em;"></div>
+CRELoaded is still a great package (once you get rid of the annoying nags and ads) and is really taking the osCommerce platform and polishing it up to a nice usable fully featured system. If you are looking for a UK based developer who specialises in ecommerce, osCommerce and CRELoaded development then definitely get in touch. Don't be surprised though if I mention that Magento is definitely worth a close look! 

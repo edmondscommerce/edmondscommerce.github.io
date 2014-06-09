@@ -27,5 +27,4 @@ It would great to see osCommerce come back into the foreground of open source ec
 
 After a brief look through the source code it looks like osCommerce is leaving its procedural routes behind but is still keeping some of the osCommerce code features such as the application top.
 
-This could be an excellent compromise between OOP flexibility and procedural performance.<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.pixmedial.net/blog/oscommerce-v3-final-por-fin-vera-la-luz-en-febrero" rel="nofollow">PixMedial — Design &amp; Geek » <b>Oscommerce v3</b> final por fin vera la <b>...</b></a><br><a href="http://oshelpers.com/magnum-blog/2009/03/12/the-story-about-cre-and-inessential-fdms-clutter/" rel="nofollow">The story about CRE and inessential FDMS Clutter | Magnum Blog</a><br></div>
+This could be an excellent compromise between OOP flexibility and procedural performance. 

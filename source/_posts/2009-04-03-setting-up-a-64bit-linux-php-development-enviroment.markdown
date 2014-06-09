@@ -73,5 +73,4 @@ Eclipse creates a folder called a workspace, which is where all the project file
 
 
 
-<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://linuxfilesystem.com/tech/flash-player-10-on-64bit-linux" rel="nofollow">Flash Player 10 on <b>64bit</b> Linux | LinuxFileSystem.com</a><br><a href="http://www.tswarez.org/?p=1139" rel="nofollow">Dassault Systemes Catia V5R18 Sp8 <b>64Bit</b> Rapidshare, Megaupload <b>...</b></a><br><a href="http://www.bulgariagazette.com/bulgaria-to-aid-the-financial-development-of-neighbouring-countries/" rel="nofollow">Bulgaria to aid the financial <b>development</b> of neighbouring <b>...</b></a><br><a href="http://developers.sugarcrm.com/wordpress/2009/04/02/php-testers-needed/" rel="nofollow">Sugar Developer Blog » Blog Archive » <b>PHP</b> Testers needed</a><br><a href="http://techportal.ibuildings.com/2009/03/31/php-and-the-cloud/" rel="nofollow"><b>PHP</b> and the Cloud - techPortal</a><br></div>
+ 

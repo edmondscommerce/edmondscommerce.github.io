@@ -23,5 +23,4 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 </div>
 Just came across this <a href="http://www.stylephp.com/2009/02/28/a-php-class-for-facebook-application-developer/" rel="nofollow">blog post featuring a PHP helper class for Facebook application developers</a>. Not something I am planning on getting into for the moment but its bound to come up at some point..
 
-<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.allfacebook.com/2009/03/new-facebook-blackberry-application-coming-soon/" rel="nofollow">New <b>Facebook</b> Blackberry Application Coming Soon</a><br><a href="http://gesterling.wordpress.com/2009/03/03/facebook-classifieds-first-real-cl-challenger/" rel="nofollow"><b>Facebook</b> Marketplace: First Real CL Challenger « Screenwerk</a><br></div>
+ 

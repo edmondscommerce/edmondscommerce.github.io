@@ -31,5 +31,4 @@ sudo lshw
 
 ```
 
-Thanks to the friendly people on the Ubuntu IRC channel on freenode for the tip :-)<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.wgdd.de/?p=60" rel="nofollow">DaLe’s private Blog » Blog Archive » Debian/<b>Ubuntu</b> packages of <b>...</b></a><br><a href="http://jonnyengland.wordpress.com/2009/03/03/ubuntu-drink/" rel="nofollow"><b>Ubuntu</b> Drink « jonny goes to england</a><br><a href="http://linuxfilesystem.com/uncategorized/ubuntu-linux-704-feisty-fawn-with-beryl-on-top" rel="nofollow"><b>Ubuntu</b> Linux 7.04 “Feisty Fawn” with Beryl on top <b>...</b></a><br><a href="http://linuxfilesystem.com/uncategorized/racernl-free-game-in-ubuntu-linux" rel="nofollow">Racer.nl , free game in <b>Ubuntu</b> Linux | LinuxFileSystem.com</a><br><a href="http://johnc4510.wordpress.com/2009/03/01/ubuntu-weekly-newsletter-131/" rel="nofollow"><b>Ubuntu</b> Weekly Newsletter #131 « Johnc4510</a><br></div>
+Thanks to the friendly people on the Ubuntu IRC channel on freenode for the tip :-) 

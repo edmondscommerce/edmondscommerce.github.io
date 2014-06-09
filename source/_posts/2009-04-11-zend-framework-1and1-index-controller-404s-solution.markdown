@@ -49,5 +49,4 @@ RewriteRule ^.*$ /path/from/docroot/public/ [NC,L]
 
 ```
 
-This particular app is running from a subfolder. If your public folder is the document root then that line would simply be /<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.edmondscommerce.co.uk/blog/php/1and1-has-gui-unzip-functionality/" rel="nofollow"><b>1and1</b> has GUI Unzip Functionality | Edmonds Commerce Blog</a><br><a href="http://zendguru.wordpress.com/2008/11/12/zend-pagination-example/" rel="nofollow"><b>Zend</b> Pagination example « <b>Zend Framework</b></a><br><a href="http://darkyblog.darkylandia.es/2007/12/24/zend-framework-mod_rewrite-y-apache-13/" rel="nofollow">Darky’s Blog » Blog Archive » <b>Zend Framework</b>, mod_rewrite y Apache 1.3</a><br><a href="http://elliottback.com/wp/1and1-sucks/" rel="nofollow"><b>1and1</b> Sucks: <b>1&amp;1</b> Will Rip You Off — Elliott C. Back</a><br></div>
+This particular app is running from a subfolder. If your public folder is the document root then that line would simply be / 

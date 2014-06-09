@@ -29,5 +29,4 @@ However on laptops I seem to suffer this problem on a regular basis. The problem
 
 To fix it just open up your laptop HD enclosure and make sure it's firmly attached. I also like to roll up a bit of paper and wedge it in there so that it can't slide out again in future.
 
-Hope this helps out someone else :-)<h4>More...</h4>
-			<div style="font-size: .6em;"></div>
+Hope this helps out someone else :-) 

@@ -41,5 +41,4 @@ throw new Zend_Db_Statement_Mysqli_Exception("Mysqli prepare error: " . $mysqli-
 
 if you wanted to do the same for a different adapter, it should be easy enough to add the ```php
 . "<br><br>SQL:<br>" . $sql
-``` bit to it.<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.qc4blog.com/?p=390" rel="nofollow">call sql functions with Zend_Db</a><br><a href="http://blog.welmers.net/bastiaan/2008/12/zend_db-and-utf-8.html" rel="nofollow">Bastiaans Blog » Blog Archive » <b>Zend_Db</b> and UTF-8</a><br><a href="http://www.qc4blog.com/?p=396" rel="nofollow">Zend_Db &amp; transactions</a><br></div>
+``` bit to it. 

@@ -33,5 +33,4 @@ This indicates that we can expect some nice Javascript based asynchronous tools 
 
 osCommerce is without a doubt one of the most popular open source ecommerce platforms and it is going to be really interesting to see how this new version compares with Magento.
 
-As a long time user, hacker and fan of osCommerce I really wish them all the best of luck.<h4>More...</h4>
-			<div style="font-size: .6em;"></div>
+As a long time user, hacker and fan of osCommerce I really wish them all the best of luck. 

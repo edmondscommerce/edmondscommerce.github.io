@@ -343,5 +343,4 @@ function err($text){
 }
 
 
-```<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.gsdesign.ro/blog/zend-framework-losing-session-on-swfflash-upload/" rel="nofollow"><b>zend framework</b> losing session on swf/flash upload | GS Design</a><br></div>
+``` 

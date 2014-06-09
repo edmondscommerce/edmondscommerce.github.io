@@ -64,5 +64,4 @@ mysqldump -u SomeUser -p --databases mydb1 mydb2 mydb3 > myDbs.sql
 ```
 
 Once you have this dump file you can Gzip it and transfer it via SCP using the same kind of commands as above.
-<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.auctionreport.com/?p=1765" rel="nofollow">Auction Report » <b>SCP</b> Auctions - 0% Commission Special!</a><br><a href="http://www.pakistanviews.com/scp-four-new-judges-take-oath/" rel="nofollow"><b>SCP</b> four new judges take oath - Pakistan News</a><br><a href="http://dandygadget.com/2009/04/01/the-sanyo-scp-2700-phone-will-color-sprint-operator/" rel="nofollow">The Sanyo <b>SCP</b>-2700 Phone Will Color Sprint Operator | dandygadget.com</a><br></div>
+ 

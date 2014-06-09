@@ -23,5 +23,4 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 </div>
 Just came across this link via Twitter - <a href="http://www.leigeber.com/2009/03/table-sorter/" rel="nofollow">TinyTable</a>
 
-A nice simple solution to display table data.<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://mybadattitude.com/2009/03/08/tinytable-javascript-table-sorter/" rel="nofollow">My Bad Attitude » <b>TinyTable</b> JavaScript Table Sorter</a><br></div>
+A nice simple solution to display table data. 

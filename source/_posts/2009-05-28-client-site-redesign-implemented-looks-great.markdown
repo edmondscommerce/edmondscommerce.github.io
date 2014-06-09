@@ -27,5 +27,4 @@ For the design work I have hooked up with local web designers <a href="http://ww
 
 Edmonds Commerce's role in the project was to take the design ideas of Creode and apply them to the existing osCommerce system with the minimum of fuss. We have also added in a few extra nice features such as a popular searches system on sub category pages.
 
-We will shortly be upgrading the site with a streamlined fast checkout procedure as well which will be the icing on the cake.<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.philstockworld.com/2009/05/25/104340-portfolio-update/" rel="nofollow">$104340 <b>Portfolio</b> Update | Phil&#39;s Stock World</a><br></div>
+We will shortly be upgrading the site with a streamlined fast checkout procedure as well which will be the icing on the cake. 

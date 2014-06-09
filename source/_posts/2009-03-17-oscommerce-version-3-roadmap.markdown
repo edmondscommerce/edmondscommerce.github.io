@@ -96,5 +96,4 @@ osCommerce Online Merchant v3.1
 
 osCommerce Online Merchant v3.2
 
-    * Gift Vouchers and Coupons<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.capitaine-commerce.com/2009/01/20/22325-surprise-des-news-doscommerce-v3/" rel="nofollow">Surprise ! Des news d’OSCommerce v3 !!!</a><br><a href="http://www.capitaine-commerce.com/2009/01/20/22325-surprise-des-news-doscommerce-v3/" rel="nofollow">Surprise ! Des news d’OSCommerce <b>v3</b> !!!</a><br><a href="http://www.pixmedial.net/blog/oscommerce-v3-final-por-fin-vera-la-luz-en-febrero" rel="nofollow">PixMedial — Design &amp; Geek » <b>Oscommerce v3</b> final por fin vera la <b>...</b></a><br><a href="http://www.oscommercesupport.net/news/?p=10" rel="nofollow">A new version of <b>oscommerce</b>: ezOSC</a><br></div>
+    * Gift Vouchers and Coupons 

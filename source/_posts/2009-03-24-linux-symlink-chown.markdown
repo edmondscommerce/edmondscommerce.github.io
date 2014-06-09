@@ -35,5 +35,4 @@ For example:
 
 chown -h user:group symlink
 
-```<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.epistasis.co.uk/?p=6" rel="nofollow">FreeBSD <b>chown</b> and chmod</a><br><a href="http://www.edmondscommerce.co.uk/blog/ecommerce/setting-up-amazons-amtu-on-a-linux-server/" rel="nofollow">Setting Up Amazon’s AMTU on a Linux Server | Edmonds Commerce Blog</a><br><a href="http://www.robertbolton.com/netbeans-subversion-and-symlinks" rel="nofollow">RobertBolton.com » NetBeans, Subversion and <b>Symlinks</b></a><br></div>
+``` 

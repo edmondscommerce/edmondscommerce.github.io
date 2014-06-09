@@ -83,5 +83,4 @@ echo 'flat product was rebuilt successfully<br>';
 
 flush();
 
-```<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://ecommerce.aheadworks.com/blog/2009/05/magento-world-newsletter-may-5-2009/" rel="nofollow">Magento World Newsletter (May 5, 2009)</a><br><a href="http://kernelhack.com/?p=37" rel="nofollow">How to add custom fields to <b>Magento</b> checkout | KERNELHACK.com</a><br><a href="http://www.magento.cn/111/ecommerce-seo/magento-stores-ecommerce-search-engine-optimization/" rel="nofollow"><b>Magento</b> Stores Ecommerce Search Engine Optimization, <b>Magento</b> store <b>...</b></a><br></div>
+``` 

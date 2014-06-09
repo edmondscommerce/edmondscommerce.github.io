@@ -29,5 +29,4 @@ This snippet of code will search all php files within a specified folder. It wil
 
 find /path/to/root/search/folder/ -name "*.php" -print0 | xargs -0 grep 'id="something"'
 ```
-<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://beginlinux.wordpress.com/2009/04/03/using-grep/" rel="nofollow">Using <b>Grep</b> « Begin Linux Blog</a><br><a href="http://www.xmodx.com/31337/compaq-presario-cq40-340tu/" rel="nofollow">Compaq Presario CQ40-340TU | netstat -an | <b>grep</b> -i listen</a><br></div>
+ 

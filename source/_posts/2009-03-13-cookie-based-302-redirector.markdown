@@ -42,5 +42,4 @@ if(!isset($_COOKIE['letmeinmydomain.com']) && !isset($_GET['letmein'])){
 	exit;
 }
 
-```<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.ip-seo.com/latest/index.php/2009/02/254/" rel="nofollow">SEO News » What is a 301 re-direct?</a><br><a href="http://blogs.isaserver.org/shinder/2009/03/06/how-to-allow-http-301-through-isa-server-2006/" rel="nofollow">Thomas Shinder Blog » Blog Archive » How to Allow HTTP 301 through <b>...</b></a><br><a href="http://www.dizitalblog.com/2009/03/12/the-power-of-php/" rel="nofollow">The Power of <b>PHP</b> | DizitalBlog</a><br><a href="http://www.crivionweb.com/phpblog/php-tutorial-cookies-and-sessions/" rel="nofollow">» <b>PHP</b> Tutorial : <b>Cookies</b> and sessions</a><br></div>
+``` 

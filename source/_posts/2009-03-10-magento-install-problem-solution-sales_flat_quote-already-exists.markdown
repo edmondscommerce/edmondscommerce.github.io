@@ -44,5 +44,4 @@ CREATE TABLE `{$installer->getTable('sales_flat_quote')}` (.....
 
 I have created an issue on their bug tracker <a href="http://www.magentocommerce.com/bug-tracking/issue/?issue=5517" rel="nofollow">here</a>.
 
-<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.pixelinternet.co.uk/blog/106/installing-magento/" rel="nofollow"><b>Installing Magento</b>, <b>Magento Installation</b> | Web Hosting Blog from <b>...</b></a><br><a href="http://zee.balogh.sk/?p=1010" rel="nofollow">Zee&#39;s Blog » <b>Magento Install</b> for Impatient</a><br><a href="http://www.mytestbox.com/e-commerce-software-reviews/magento-new-e-commerce-software-solution/comment-page-1/" rel="nofollow"><b>Magento</b> - the newest e-commerce package to hit the market <b>...</b></a><br><a href="http://www.inacode.com/magento/magento-speed-problem" rel="nofollow">Ina Code Blog » Blog Archive » <b>Magento</b> speed <b>problem</b></a><br><a href="http://www.casualcommerce.com/2009/02/magento-notes-fix-for-admin-login-problem/" rel="nofollow">Casual Commerce » <b>Magento</b> Notes - Fix for admin login <b>problem</b></a><br></div>
+ 

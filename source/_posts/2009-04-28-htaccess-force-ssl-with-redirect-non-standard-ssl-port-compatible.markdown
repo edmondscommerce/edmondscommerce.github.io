@@ -30,5 +30,4 @@ RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
 
-```<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://omelyn.com/top-10-wordpress-htaccess-hacks/" rel="nofollow">Top 10 Wordpress .<b>htaccess</b> hacks | Omelyn.com</a><br><a href="http://xplus3.net/2009/04/25/naming-a-htaccess-file-in-windows/" rel="nofollow">x + 3 - Naming a .<b>htaccess</b> File in Windows</a><br><a href="http://www.blogherald.com/2009/04/21/movable-type-monday-comment-via-twitter-and-htaccess-hacks/" rel="nofollow">Movable Type Monday: Comment via Twitter and .<b>htaccess</b> Hacks | The <b>...</b></a><br><a href="http://vladgh.com/2009/03/slackware-linux-apache2-mysql-php-ssl/" rel="nofollow">Slackware Linux, Apache2, MySQL, PHP, <b>SSL</b> | Vlad&#39;s and Alice&#39;s Blog</a><br><a href="http://luxsci.com/blog/how-does-secure-socket-layer-ssl-or-tls-work.html" rel="nofollow">How Does <b>Secure Socket Layer</b> (<b>SSL</b>) Work? | LuxSci FYI</a><br><a href="http://whatwouldnickdo.com/wordpress/431/quick-tomcat-https-ssl-config/" rel="nofollow">Quick Tomcat https <b>SSL</b> Config | /home/nick</a><br></div>
+``` 

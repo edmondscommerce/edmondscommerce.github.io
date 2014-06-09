@@ -25,5 +25,4 @@ As I am getting my head around the twitosphere (is that a real word?) I came acr
 
 Now installed Twitter Bar which should making tweeting about interesting sites exceptionally easy.
 
-The Twitter journey continues...<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.dirjournal.com/articles/the-travel-industry-twitter-virgin-america-sets-the-bar/" rel="nofollow">The Travel Industry &amp; <b>Twitter</b> - Virgin America Sets the <b>Bar</b></a><br><a href="http://thelistenerd.com/2009/03/03/links-for-3309-snoops-allegiances-princes-target-twitters-sonnets/" rel="nofollow">Links for 3.3.09: Snoop’s allegiances, Prince’s Target, <b>Twitter</b>’s <b>...</b></a><br><a href="http://pugetsoundblogs.com/kitsapbusiness/2009/03/03/port-ludlow-raises-bar-on-buyer-incentive-programs/" rel="nofollow">Kitsap Business and Economy » Blog Archive » Port Ludlow Raises <b>...</b></a><br><a href="http://twittercism.com/twitter-pop-quiz/" rel="nofollow"><b>Twitter</b> Pop Quiz | Twittercism</a><br></div>
+The Twitter journey continues... 

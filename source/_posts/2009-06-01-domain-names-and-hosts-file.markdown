@@ -45,5 +45,4 @@ at the bottom of the file. Then save that file, close all of your web browser wi
 
 For windows users, you can generally find your HOSTS file here:
 c:windowssystem32driversetc
-<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://jrwren.wrenfam.com/blog/2009/05/25/using-the-mvpsorg-hosts-file-with-isc-bind/" rel="nofollow">Jay R. Wren - lazy dawg evarlast » Blog Archive » Using the MVPS <b>...</b></a><br><a href="http://www.activoinc.com/blog/2009/05/15/avoid-editing-hosts-file-by-using-foxyproxy-plugin-for-firefox/" rel="nofollow">About Web Development by Activo » Avoid editing &#39;<b>hosts</b>&#39; <b>file</b> by <b>...</b></a><br></div>
+ 

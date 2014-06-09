@@ -23,5 +23,4 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 </div>
 Just came across userfly, looks like an interesting tool. Would appreciate any feedback in the comments from people who've used it.
 
-http://userfly.com/<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://blog.flashden.net/general/effective-flash-usability/" rel="nofollow">Down the Foxhole - Effective Flash <b>Usability</b></a><br><a href="http://www.malcolmcoles.co.uk/blog/usability-taps-lessons-web-design/" rel="nofollow">On the <b>usability</b> of taps and the lessons for web design » malcolm <b>...</b></a><br><a href="http://technews.blogs2k.com/2009/05/21/mex-2009-usability-tops-buying-criteria-for-mobile-phones/" rel="nofollow">MEX 2009 - <b>Usability</b> tops buying criteria for mobile phones | Tech <b>...</b></a><br><a href="http://usabilitytesting.quebecblogue.com/2009/05/21/super-talent-luxio-64-gig-lanoc-reviews/" rel="nofollow"><b>usability</b> testing » Archive du blog » Super Talent Luxio 64 Gig <b>...</b></a><br></div>
+http://userfly.com/ 

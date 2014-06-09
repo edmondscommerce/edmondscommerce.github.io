@@ -43,5 +43,4 @@ $ mysqldump -u root --password=pass db1 | mysql -u root --password=pass db2
 
 I suppose you could start hacking on the bundled phpMyAdmin source code to fix the bug without upgrading the whole version... Ever looked at the phpMyAdmin source code? 
 
-:-)<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.speedzoneroping.com/2009/04/26/mail-message-submission-mail-port-587/" rel="nofollow">Mail message submission MAIL PORT 587 « Speed Zone Roping</a><br><a href="http://www.wroolie.co.uk/?p=367" rel="nofollow">Overpass Experiences » <b>Plesk</b> Upgrade messed up Mysql and PHP</a><br><a href="http://www.speedzoneroping.com/2009/04/26/horde-email-client-left-menu-advertising/" rel="nofollow">HORDE email client left menu advertising « Speed Zone Roping</a><br></div>
+:-) 

@@ -23,5 +23,4 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 </div>
 I really like NetBeans IDE for coding PHP. However there are lots of hidden features which are only accessible via keyboard shortcut.
 
-<a href="http://wiki.netbeans.org/RubyShortcuts" rel="nofollow">This page</a> lists a bunch of them. Its titled Ruby Shortcuts, but they seem to work just as well for PHP.<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.thelifeofjohn.com/development/xdebug-netbeans-wamp-apache-crash-solution/" rel="nofollow">the life of john : XDebug, <b>NetBeans</b>, WAMP Apache Crash Solution</a><br><a href="http://www.stefan-motz.de/wordpress/2009/05/setting-default-browser-for-netbeans-65-on-mac-os-x/" rel="nofollow">Stefan&#39;s Blog » Setting default browser for <b>NetBeans</b> 6.5 on Mac OS X</a><br></div>
+<a href="http://wiki.netbeans.org/RubyShortcuts" rel="nofollow">This page</a> lists a bunch of them. Its titled Ruby Shortcuts, but they seem to work just as well for PHP. 

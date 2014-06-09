@@ -50,5 +50,4 @@ graphical FTP program.</blockquote>
 
 You can find it in syntaptic package manager. Install this and also edit the command to gksudo and you should then be able to move your music around freely. Oh yeah it runs a damn site faster than the creative windows software - sweet :-)
 
-Windows already feels like a distant memory...<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.mossroot.com/worlds/2008/11/22/connecting-the-creative-zen-x-fi-to-linux/" rel="nofollow">Bloginomicon &gt;&gt; Using the Creative <b>Zen X</b>-<b>Fi</b> with <b>Linux</b> (Saturday <b>...</b></a><br><a href="http://www.technologytricks.com/creative-zen-x-fi-a-great-alternative-to-ipod/" rel="nofollow">Creative <b>Zen X</b>-<b>Fi</b>: A Great Alternative to iPod - Technology Tips <b>...</b></a><br><a href="http://naminews.com/english/?p=3" rel="nofollow">naminews.com » Blog Archive » The 100 Best Computer Products of <b>...</b></a><br></div>
+Windows already feels like a distant memory... 

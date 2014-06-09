@@ -29,5 +29,4 @@ I love having a nice landscape shot of somewhere beautiful in the background.
 <a href="http://interfacelift.com/wallpaper_beta/downloads/date/any/" rel="nofollow">http://interfacelift.com/wallpaper_beta/downloads/date/any/</a>
 
 It's great because not only are the pictures really nice, but they are all available in all of the usual desktop resolutions eg 1680x1050.
-<h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://www.hecklerspray.com/tv-review-moving-wallpaper-itv1-0603/200921892.php" rel="nofollow">TV Review: Moving <b>Wallpaper</b>, ITV1, 06/03 | Hecklerspray</a><br><a href="http://www.shockya.com/news/2009/03/10/x-men-origins-wolverine-wallpaper-featuring-sabretooth/" rel="nofollow">X-Men Origins Wolverine <b>Wallpaper</b> featuring Sabretooth | Shockya.com</a><br><a href="http://www.shockya.com/news/2009/03/10/fast-and-furious-wallpaper-featuring-jordana-brewster/" rel="nofollow">Fast and Furious <b>Wallpaper</b> Featuring Jordana Brewster | Shockya.com</a><br><a href="http://desktop.93vs.com/2009/03/10/space-wallpaper-world-wallpaper/" rel="nofollow">Space <b>wallpaper</b>, world <b>wallpaper</b> « Free <b>Wallpaper</b>, desktop themes <b>...</b></a><br></div>
+ 

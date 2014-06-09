@@ -27,5 +27,4 @@ What I really need is someone else to put together some nice playlists for me.
 
 Ah they have - check this out:
 
-<a href="http://www.spotifyfriends.com/browse/" rel="nofollow">http://www.spotifyfriends.com/browse/</a><h4>More...</h4>
-			<div style="font-size: .6em;"><a href="http://copyriot.se/2009/04/03/fosandet-har-borjat-kopify-ar-en-politisk-nodvandighet/" rel="nofollow">Copyriot › Fösandet har börjat: “Kopify” är en politisk nödvändighet</a><br><a href="http://www.zaramis.nu/blog/2009/03/30/spotify-ska-bli-kramare/" rel="nofollow"><b>Spotify</b> ska bli krämare | Svensson</a><br></div>
+<a href="http://www.spotifyfriends.com/browse/" rel="nofollow">http://www.spotifyfriends.com/browse/</a> 
