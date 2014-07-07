@@ -128,6 +128,97 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-17T14:45:29+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/Fedora/getting-skype-working-on-fedora-20.html">Getting Skype Working on Fedora 20</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&rsquo;t completely smooth, there were a few hoops I had to jump through.</p>
+
+<p>I am making a note of these here for my own future reference and to help out any one else hitting problems like these.</p>
+
+<p>To install Skype on Fedora 20 64bit, the first thing you need to do is download the <a href="http://www.skype.com/en/download-skype/skype-for-linux/">Fedora 32bit RPM from Skype</a>.</p>
+
+<p>To install this you should use Yum so that dependancies are handled properly:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
+After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
+One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.</p>
+
+<p>Here is the process in commands:</p>
+
+<p>Firstly remove the package and install the i686 version</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>yum remove libvpx.x86_64
+</span><span class='line'>yum install libvpx.i686</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then install Skype</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then reinstall the 64 bit version of libvpx</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install libvpx.x86_64 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then reinstall the programs that were removed when I removed libvpx</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo gnome-open /usr/share/applications/skype.desktop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Change the line that reads <strong>Exec=skype %U</strong> to the following:</p>
+
+<p><strong>Exec=env PULSE_LATENCY_MSEC=30 skype %U</strong></p>
+
+<p>Restart Skype and the audio issues should be resolved.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-13T17:18:55+00:00" pubdate data-updated="true">Jan 13<span>th</span>, 2014</time>
         
       </p>
@@ -782,73 +873,6 @@ to be true but are no longer that it really has become a bit of a minefield.</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-03T17:47:30+00:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Setting up a blog post using Octopress involves writing up your Markdown content, building the site, and previewing it.</p>
-
-<p>This can be time-consuming when writing posts, having to run several commands repeatedly. Here&rsquo;s a few lines you can put into a bash script and run once each time:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">PATHTOLATEST</span><span class="o">=</span><span class="sb">`</span>ls -t <span class="nb">source</span>/_posts | head -1<span class="sb">`</span>;
-</span><span class='line'><span class="nb">echo</span> <span class="nv">$PATHTOLATEST</span>
-</span><span class='line'>bundle <span class="nb">exec </span>rake isolate<span class="o">[</span><span class="nv">$PATHTOLATEST</span><span class="o">]</span>;
-</span><span class='line'>bundle <span class="nb">exec </span>rake generate;
-</span><span class='line'>bundle <span class="nb">exec </span>rake preview;
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ol>
-<li>The PATHTOLATEST variable finds the latest post</li>
-<li>echo the variable for debugging purposes</li>
-<li>rake isolate instructs octopress to build the site with only the latest blog post</li>
-<li>rake generate builds the site</li>
-<li>rake preview initialises the web server</li>
-</ol>
-
-
-<p>From then you can make changes to your post, and the site will be automatically regenerated. This uses a file watcher so it&rsquo;s helpful to keep the terminal open to watch for it building, or having errors</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -872,6 +896,8 @@ to be true but are no longer that it really has become a bit of a minefield.</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a>
+    
     <a class="list-group-item " href="/ecommerce/fast-e-commerce-search-solution.html">Fast E-Commerce Search Solution</a>
     
     <a class="list-group-item " href="/linux/prevent-ctrl-plus-s-freezing-your-terminal.html">Prevent Ctrl+S Freezing Your Terminal</a>
@@ -879,8 +905,6 @@ to be true but are no longer that it really has become a bit of a minefield.</p>
     <a class="list-group-item " href="/load%20testing/using-apache-jmeter-for-load-testing.html">Using Apache JMeter for Load Testing</a>
     
     <a class="list-group-item " href="/security/ebay-security-breach.html">Ebay Security Breach</a>
-    
-    <a class="list-group-item " href="/magento/magento-1-dot-9-and-1-dot-14-released.html">Magento 1.9 &amp; 1.14 Released</a>
     
   </div>
 </section>
