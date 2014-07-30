@@ -128,6 +128,144 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-03-13T16:41:07+00:00" pubdate data-updated="true">Mar 13<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/zip/php-and-zip-files.html">PHP and Zip Files</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>There aren&rsquo;t many things you can&rsquo;t do with PHP. One of the things you can do is deal with zip files.</p>
+
+<p>PHP has a built in class for dealing with zip files which allows you to create them, unpack them, add and delete things from them and generally use them within your scripts.</p>
+
+<p>Recently on a spidering / product feed integration job that I have been working on I needed to grab a load of image zip files and unpack them all into a folder called &lsquo;images/&rsquo; (surprisingly enough)</p>
+
+<p>Here is how I did it:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">unpack_zips</span><span class="p">(</span><span class="nv">$directory</span><span class="p">,</span> <span class="nv">$destination</span> <span class="o">=</span> <span class="s1">&#39;images/&#39;</span><span class="p">){</span>
+</span><span class='line'>  <span class="nv">$files</span> <span class="o">=</span> <span class="nx">dir_list</span><span class="p">(</span><span class="nv">$directory</span><span class="p">);</span>
+</span><span class='line'>  <span class="c1">//print_r($files);</span>
+</span><span class='line'>  <span class="nv">$zips</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'>  <span class="k">foreach</span><span class="p">(</span><span class="nv">$files</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$file</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="nb">stristr</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span> <span class="s1">&#39;.zip&#39;</span><span class="p">)){</span>
+</span><span class='line'>          <span class="nv">$zips</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$directory</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nb">print_r</span><span class="p">(</span><span class="nv">$zips</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$zip</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ZipArchive</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">foreach</span><span class="p">(</span><span class="nv">$zips</span> <span class="k">as</span> <span class="nv">$z</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nv">$zip</span><span class="o">-&gt;</span><span class="na">open</span><span class="p">(</span><span class="nv">$z</span><span class="p">)</span> <span class="o">===</span> <span class="k">TRUE</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nv">$zip</span><span class="o">-&gt;</span><span class="na">extractTo</span><span class="p">(</span><span class="nv">$directory</span> <span class="o">.</span> <span class="nv">$destination</span><span class="p">);</span>
+</span><span class='line'>          <span class="nv">$zip</span><span class="o">-&gt;</span><span class="na">close</span><span class="p">();</span>
+</span><span class='line'>          <span class="c1">//echo &quot;&lt;h3&gt;$z OK&lt;/h3&gt;&quot;;</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">echo</span><span class="s2">&quot;&lt;h3 style=</span><span class="se">\&quot;</span><span class="s2">color: red;</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="si">$z</span><span class="s2"> Failed&lt;/h3&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="nx">bottom</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">}</span>    
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nf">dir_list</span><span class="p">(</span><span class="nv">$directory</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">echo</span> <span class="nv">$directory</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$handle</span> <span class="o">=</span> <span class="nb">opendir</span><span class="p">(</span><span class="nv">$directory</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="p">(</span><span class="nv">$file</span> <span class="o">=</span> <span class="nb">readdir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;..&#39;</span><span class="p">){</span>
+</span><span class='line'>              <span class="nv">$return</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$file</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="nb">closedir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nv">$return</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span><span class="k">else</span><span class="p">{</span>     
+</span><span class='line'>      <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are two functions. The first function is the one that deals with the Zip files. The second function is called by the first function and simply lists all files within a specified directory.</p>
+
+<p>These two functions combined allowed me to find all zip files in a particular folder and then unpack them all into a destination folder.</p>
+
+<p><b>Related Resources</b></p>
+
+<p><a href="http://www.phpclasses.org/browse/package/945.html" rel="nofollow"><a href="http://www.phpclasses.org/browse/package/945.html">http://www.phpclasses.org/browse/package/945.html</a></a></p>
+
+<p><a rel="nofollow" href="http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/"><a href="http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/">http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/</a></a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-03-10T16:45:13+00:00" pubdate data-updated="true">Mar 10<span>th</span>, 2008</time>
         
       </p>
@@ -741,63 +879,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-02-25T10:47:02+00:00" pubdate data-updated="true">Feb 25<span>th</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ecommerce/management/customer%20services/ecommerce-back-office-optimisations.html">Ecommerce Back Office Optimisations</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Its easy sometimes to focus entirely on the front end features of your web site or ecommerce business. Without a doubt the front end is the most imporant part of your web site as it needs to work well to allow your visitors to find and purchase what they are looking for.</p>
-
-<p>However, the back end of your ecommerce site also needs some investment putting into it. A well designed and implemented back end will mean that your customers get better customer services and your staff are happier and therefore more cheerful and better at making your customers happy.</p>
-
-<p>A well designed back office system will have the utmost automation built in, which means that your staff costs are lower and the capacity for human error to upset the flow of your business is minimised. Naturally it is the most mundane and boring tasks which are the most ripe for automation. This means that your staff are happier as they can concentrate on the tasks that really do require a human mind to be dealt with effectively.</p>
-
-<p>The other major aspect of a well designed back end system is easily accessible and relevant information. This means that if your customer services operative takes a call from a customer who is chasing up an order, your operative can be looking at all of the relevant information within a couple of seconds, and can quickly determine the current status and advise the customer with accurate and up to date information.</p>
-
-<p>It also means that as a manager, you can have access to performance indicators and other management information just as easily. This will allow you to quickly spot and diagnose problems and take action to fix current problems and prevent future problems.</p>
-
-<p>All of this means a better bottom line.</p>
-
-<p>If you would like to get some help with your ecommerce back office, get in touch today.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -821,6 +902,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a>
+    
     <a class="list-group-item " href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a>
     
     <a class="list-group-item " href="/ecommerce/fast-e-commerce-search-solution.html">Fast E-Commerce Search Solution</a>
@@ -828,8 +911,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/linux/prevent-ctrl-plus-s-freezing-your-terminal.html">Prevent Ctrl+S Freezing Your Terminal</a>
     
     <a class="list-group-item " href="/load%20testing/using-apache-jmeter-for-load-testing.html">Using Apache JMeter for Load Testing</a>
-    
-    <a class="list-group-item " href="/security/ebay-security-breach.html">Ebay Security Breach</a>
     
   </div>
 </section>

@@ -128,6 +128,118 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T13:24:37+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html">Apache Access Logs Find Spiders by Counting Requests to IP Addresses</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nv">LOG_FILE</span><span class="o">=</span>/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+</span><span class='line'><span class="nv">OUT_FILE</span><span class="o">=</span>/tmp/spider_analysis
+</span><span class='line'>
+</span><span class='line'><span class="c">#This generates a file with the top 20 IP addresses by number of requests</span>
+</span><span class='line'>cat <span class="nv">$LOG_FILE</span> | awk <span class="s1">&#39;{print $1}&#39;</span> | sort | uniq -c | sort -nr | head -n 20 &gt; <span class="nv">$OUT_FILE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Top 20 IP addresses by number of request&quot;</span>
+</span><span class='line'>cat <span class="nv">$OUT_FILE</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#allow for loop to split on new line</span>
+</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span><span class="nv">$IFS</span>
+</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for </span>i in <span class="sb">`</span>cat <span class="nv">$OUT_FILE</span><span class="sb">`</span>
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'><span class="k">    </span><span class="nv">COUNT</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nv">IP_ADD</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;$IP_ADD has made $COUNT requests&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;Whois Information&quot;</span>
+</span><span class='line'>    whois <span class="nv">$IP_ADD</span>
+</span><span class='line'>    <span class="c">#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># set that back</span>
+</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="nv">$IFS_BAK</span>
+</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would use this to give you some idea of which IPs are hitting the server a lot.</p>
+
+<p>Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-17T15:57:47+01:00" pubdate data-updated="true">Aug 17<span>th</span>, 2012</time>
         
       </p>
@@ -749,54 +861,6 @@ You need to tell my top how it should connect to your database. You <em>can</em>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T13:54:17+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/stop-magento-writing-to-tmp.html">Stop Magento Writing to /tmp</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>So some of us disagree when it comes to what should happen when magento cannot write to var/ in the webroot.  Magento itself chooses to try /tmp/magento/ if the var/ folder is not writable.  This can cause many issues and confusion.  Not least of which emptying var/ and making it writable does not make magento start using it, if there&rsquo;s already a /tmp/magento!</p>
-
-<p>One preferable option is to force magento to just stop if it can&rsquo;t write to var/ &ndash; here&rsquo;s a simple way to do this, which is sneaky but really handy :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /tmp
-</span><span class='line'>ln -s abracadabra-dangling-symlink magento
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What that does is create a dangling symlink in /tmp/ called magento, which cannot be overwritten by a directory.  Magento then simply stops.  Stopping because of permissions errors is often preferable to continuing and causing later confusion and problems.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -820,6 +884,8 @@ You need to tell my top how it should connect to your database. You <em>can</em>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a>
+    
     <a class="list-group-item " href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a>
     
     <a class="list-group-item " href="/ecommerce/fast-e-commerce-search-solution.html">Fast E-Commerce Search Solution</a>
@@ -827,8 +893,6 @@ You need to tell my top how it should connect to your database. You <em>can</em>
     <a class="list-group-item " href="/linux/prevent-ctrl-plus-s-freezing-your-terminal.html">Prevent Ctrl+S Freezing Your Terminal</a>
     
     <a class="list-group-item " href="/load%20testing/using-apache-jmeter-for-load-testing.html">Using Apache JMeter for Load Testing</a>
-    
-    <a class="list-group-item " href="/security/ebay-security-breach.html">Ebay Security Breach</a>
     
   </div>
 </section>

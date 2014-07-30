@@ -128,6 +128,108 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-04T12:21:44+00:00" pubdate data-updated="true">Dec 4<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html">Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Generate a nice unique block cache key</span>
+</span><span class='line'><span class="sd">     *</span>
+</span><span class='line'><span class="sd">     * @param Mage_Core_Block_Abstract $block</span>
+</span><span class='line'><span class="sd">     * @return string</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">ecCacheKey</span><span class="p">(</span><span class="nx">Mage_Core_Block_Abstract</span> <span class="nv">$block</span><span class="p">){</span>
+</span><span class='line'>        <span class="nv">$class</span> <span class="o">=</span> <span class="nb">get_class</span><span class="p">(</span><span class="nv">$block</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$template</span> <span class="o">=</span> <span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getTemplateFile</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$md5</span> <span class="o">=</span> <span class="nb">md5</span><span class="p">(</span><span class="nb">var_export</span><span class="p">(</span><span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getData</span><span class="p">(),</span> <span class="k">true</span><span class="p">));</span>
+</span><span class='line'>        <span class="nv">$params</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nb">implode</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getRequest</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getParams</span><span class="p">()),</span> <span class="s1">&#39;,&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$category</span><span class="o">=</span><span class="p">(</span><span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getCurrentCategory</span><span class="p">())</span><span class="o">?</span><span class="nv">$block</span><span class="o">-&gt;</span><span class="na">getCurrentCategory</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">()</span><span class="o">:</span><span class="s1">&#39;no-category&#39;</span><span class="p">;</span>
+</span><span class='line'>        <span class="nv">$store_id</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getStore</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s1">&#39;edmondscommerce-&#39;</span><span class="o">.</span> <span class="nv">$params</span> <span class="o">.</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span> <span class="nv">$category</span> <span class="o">.</span> <span class="s1">&#39;-&#39;</span> <span class="o">.</span> <span class="nv">$store_id</span> <span class="o">.</span> <span class="s1">&#39;-&#39;</span> <span class="o">.</span> <span class="nv">$class</span><span class="o">.</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="nv">$template</span><span class="o">.</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="nv">$md5</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">_construct</span><span class="p">(){</span>
+</span><span class='line'>        <span class="k">parent</span><span class="o">::</span><span class="na">_construct</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">addData</span><span class="p">(</span><span class="k">array</span><span class="p">(</span>
+</span><span class='line'>            <span class="s1">&#39;cache_lifetime&#39;</span> <span class="o">=&gt;</span> <span class="mi">999999999</span><span class="p">,</span>
+</span><span class='line'>            <span class="s1">&#39;cache_tags&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span><span class="nx">Mage_Catalog_Model_Product</span><span class="o">::</span><span class="na">CACHE_TAG</span><span class="p">,</span> <span class="nx">Mage_Catalog_Model_Category</span><span class="o">::</span><span class="na">CACHE_TAG</span><span class="p">),</span>
+</span><span class='line'>            <span class="s1">&#39;cache_key&#39;</span> <span class="o">=&gt;</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;blockcaching&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">ecCacheKey</span><span class="p">(</span><span class="nv">$this</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-30T17:46:34+00:00" pubdate data-updated="true">Nov 30<span>th</span>, 2012</time>
         
       </p>
@@ -624,45 +726,6 @@ Warning: include(): Failed opening &lsquo;Model/Base.php&rsquo; for inclusion (i
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-14T15:01:37+00:00" pubdate data-updated="true">Nov 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/web%20development/tip-how-to-get-the-right-click-reload-button-in-chrome.html">Tip: How to Get the Right-click Reload Button in Chrome</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Recently the good folks at chrome have added a feature where you can reload without the cache, which is in a right-click on the reload button, but I was really confused as some machines seem to have it and others don&rsquo;t.</p>
-
-<p>The key is whether developer tools is open or not! If you&rsquo;re using a recent version of chrome, press F12 to open the developer tools and then you can right-click the reload button, and you get three options &ndash; Reload, Hard Reload (redownloads images) and Empty Cache and Hard Reload.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -686,6 +749,8 @@ Warning: include(): Failed opening &lsquo;Model/Base.php&rsquo; for inclusion (i
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a>
+    
     <a class="list-group-item " href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a>
     
     <a class="list-group-item " href="/ecommerce/fast-e-commerce-search-solution.html">Fast E-Commerce Search Solution</a>
@@ -693,8 +758,6 @@ Warning: include(): Failed opening &lsquo;Model/Base.php&rsquo; for inclusion (i
     <a class="list-group-item " href="/linux/prevent-ctrl-plus-s-freezing-your-terminal.html">Prevent Ctrl+S Freezing Your Terminal</a>
     
     <a class="list-group-item " href="/load%20testing/using-apache-jmeter-for-load-testing.html">Using Apache JMeter for Load Testing</a>
-    
-    <a class="list-group-item " href="/security/ebay-security-breach.html">Ebay Security Breach</a>
     
   </div>
 </section>

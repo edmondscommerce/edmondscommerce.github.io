@@ -128,6 +128,63 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-11T11:23:16+01:00" pubdate data-updated="true">Apr 11<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>For me the use case was a cache directory that I wanted to clear out everything apart from one particular file that was expensive
+to create and didn&rsquo;t need to be cleared for my purposes</p>
+
+<p>I decided to add this to my ~/.bashrc file for ease of use in future.</p>
+
+<p>Here is the function</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Remove Everything But</span>
+</span><span class='line'><span class="k">function </span>rmbut<span class="o">(){</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">BUT</span><span class="o">=</span><span class="s2">&quot;$@&quot;</span>
+</span><span class='line'>    ls | grep -v *<span class="nv">$BUT</span>* | <span class="k">while </span><span class="nb">read </span>f; <span class="k">do </span>rm -rf <span class="nv">$f</span>; <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To use the function, simply <code>cd</code> to the directory you want to clear out and then call <code>rmbut MyFileIWantToKeep</code></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-03-26T11:34:50+00:00" pubdate data-updated="true">Mar 26<span>th</span>, 2014</time>
         
       </p>
@@ -673,129 +730,6 @@ The problem is that you have used the standard PHP super globals and you would r
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-23T15:52:41+00:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/preorders-in-magento-using-attribute-value.html">Preorders in Magento Using Attribute Value</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Magento doesn&rsquo;t come built with the ability to place preorders: the closest match is in the form of back orders, but there&rsquo;s a crucial difference between the two. Backorders are orders placed when stock isn&rsquo;t present and are shipped as soon as stock becomes available. Preorders however usually have a predefined point at which they will be shipped.</p>
-
-<p>The excellent <a href="http://www.aitoc.com/en/magentomods_pre_order.html">Aitoc Prorders</a> extension provides a drop-in ability to accept preorders including button text changes, checkout customisation and different order statuses for preorders.</p>
-
-<p>One aspect I had to work around is that the way to define a preorder is by using the extra &ldquo;Pre-Orders&rdquo; value of the Magento &ldquo;Backorders&rdquo; Inventory field. In my case I wanted to define a preorder to be a product with a Release Date set in the future. Fortunately the Aitc Preorders module has a very discrete function where it holds the definition of a Preorder. Changing this is a simple case of overriding that method</p>
-
-<h3>Creating a new extension</h3>
-
-<p>You need to create a new standard Magento extension, creating the usual boilerplate files:</p>
-
-<ul>
-<li>/app/etc/modules/Namespace_Module.xml</li>
-<li>/app/code/local/Namespace/Module/etc/config.xml</li>
-</ul>
-
-
-<h3>Rewrite the Aitoc module&rsquo;s Product model</h3>
-
-<p>In /app/code/local/Namespace/Module/etc/config.xml, set up your XML:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
-</span><span class='line'><span class="nt">&lt;config&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;modules&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;Namespace_Module&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/Namespace_Module&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/modules&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;global&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;models&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;catalog&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;rewrite&gt;</span>
-</span><span class='line'>                    <span class="nt">&lt;product&gt;</span>Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct<span class="nt">&lt;/product&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;/rewrite&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/catalog&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/models&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/global&gt;</span>
-</span><span class='line'><span class="nt">&lt;/config&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Create the class and override the function</h3>
-
-<p>Create the file /app/code/local/Namespace/Module/Model/Aitpreorder/Rewrite/CatalogProduct.php</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct</span> <span class="k">extends</span> <span class="nx">Aitoc_Aitpreorder_Model_Rewrite_CatalogProduct</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">getPreorder</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Add whatever logic you like here and return it as a boolean</span>
-</span><span class='line'>        <span class="nv">$releaseDate</span> <span class="o">=</span> <span class="nx">DateTime</span><span class="o">::</span><span class="na">createFromFormat</span><span class="p">(</span><span class="s1">&#39;Y-m-d H:i:s&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getReleaseDate</span><span class="p">());</span>
-</span><span class='line'>        <span class="k">return</span> <span class="nv">$releaseDate</span> <span class="o">&gt;</span> <span class="k">new</span> <span class="nx">DateTime</span><span class="p">();</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -819,6 +753,8 @@ The problem is that you have used the standard PHP super globals and you would r
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a>
+    
     <a class="list-group-item " href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a>
     
     <a class="list-group-item " href="/ecommerce/fast-e-commerce-search-solution.html">Fast E-Commerce Search Solution</a>
@@ -826,8 +762,6 @@ The problem is that you have used the standard PHP super globals and you would r
     <a class="list-group-item " href="/linux/prevent-ctrl-plus-s-freezing-your-terminal.html">Prevent Ctrl+S Freezing Your Terminal</a>
     
     <a class="list-group-item " href="/load%20testing/using-apache-jmeter-for-load-testing.html">Using Apache JMeter for Load Testing</a>
-    
-    <a class="list-group-item " href="/security/ebay-security-breach.html">Ebay Security Breach</a>
     
   </div>
 </section>
