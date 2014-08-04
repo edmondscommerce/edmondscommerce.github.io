@@ -6,4 +6,4 @@ git pull -Xtheirs
 
 echo "Now running rake command, please answer questions"
 
-rake new_post
+bundle exec rake new_post
