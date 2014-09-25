@@ -21,7 +21,7 @@ This is a newly discovered bug and affects a very large number of servers.
 There is a patch, you should ensure that your server's BASH version is updated ASAP.
 
 ```
-yum -y update bash
+yum clean all; yum -y update bash
 ```
 
 To check if you are vulnerable, you can run this code:
