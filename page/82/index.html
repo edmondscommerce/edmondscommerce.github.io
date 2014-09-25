@@ -128,6 +128,164 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-02-14T11:56:16+00:00" pubdate data-updated="true">Feb 14<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/curl/spidering/firefox/programming/building-spiders-grab-data-post-forms-and-interact-with-web-sites-automatically.html">Building Spiders: Grab Data, Post Forms and Interact With Web Sites Automatically</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>One of the most useful and powerful things you can do with PHP is to create a programme which will simulate a web browser and can grab data, post data to forms and generally interact with other web sites &ndash; automatically.</p>
+
+<p>For PHP to be able to work like this it must have the CURL library installed and active. It is the CURL library which actually handles all of the interaction and PHP is my scripting language of choice for interacting with CURL.</p>
+
+<p>A simple CURL function is like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">curl</span><span class="p">(</span><span class="nv">$url</span><span class="p">){</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$timeout</span> <span class="o">=</span> <span class="s1">&#39;300&#39;</span><span class="p">;</span> <span class="c1">//how long before CURL gives up on this page</span>
+</span><span class='line'><span class="nv">$go</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">();</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_FOLLOWLOCATION</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_TIMEOUT</span><span class="p">,</span> <span class="nv">$timeout</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$page</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$go</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_close</span><span class="p">(</span><span class="nv">$go</span><span class="p">);</span>
+</span><span class='line'><span class="k">return</span> <span class="nv">$page</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This function when called and echoed will output the entire html of the $url specified.</p>
+
+<p>For grabbing data from this page to be inserted into a database (for example when spidering a suppliers web site for product information to be inserted into your site) we then use regular expressions to find what we are looking for and then insert that into the database.</p>
+
+<p>so for example if we wanted to grab the product title and we knew that this was wrapped in a h1 tag with the class &ldquo;product title&rdquo; we could use this regexp to grab this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$page</span> <span class="o">=</span> <span class="nx">curl</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$pattern</span> <span class="o">=</span> <span class="s1">&#39;%</span>
+</span><span class='line'><span class="s1">&lt;h1 class=&quot;product_title&quot;&gt;(.+?)&lt;/h1&gt;</span>
+</span><span class='line'><span class="s1">%i&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">preg_match</span><span class="p">(</span><span class="nv">$pattern</span><span class="p">,</span><span class="nv">$page</span><span class="p">,</span><span class="nv">$matches</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">print_r</span><span class="p">(</span><span class="nv">$matches</span><span class="p">);</span> <span class="c1">//we can see the entire array of matches and choose which we want to insert into the database</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can also Post data to web sites using curl. This allows us to do all kinds of things including grabbing data that is displayed on the submission of post forms. Here is an example Curl Post Function:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">curl_post</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span><span class="nv">$post_data</span><span class="p">){</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$timeout</span> <span class="o">=</span> <span class="s1">&#39;300&#39;</span><span class="p">;</span> <span class="c1">//how long before CURL gives up on this page</span>
+</span><span class='line'><span class="nv">$go</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">();</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_FOLLOWLOCATION</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_setopt</span> <span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_TIMEOUT</span><span class="p">,</span> <span class="nv">$timeout</span><span class="p">);</span>
+</span><span class='line'><span class="c1">//now for the post section</span>
+</span><span class='line'><span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_POST</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$go</span><span class="p">,</span> <span class="nx">CURLOPT_POSTFIELDS</span><span class="p">,</span> <span class="nv">$post_data</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$page</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$go</span><span class="p">);</span>
+</span><span class='line'><span class="nb">curl_close</span><span class="p">(</span><span class="nv">$go</span><span class="p">);</span>
+</span><span class='line'><span class="k">return</span> <span class="nv">$page</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It can be tricky to figure out exactly what data should be in the post string. To help you out though is this incredibly handy addon for firefox: <a href="https://addons.mozilla.org/en-US/firefox/addon/3829" target="_blank">Live Http Headers</a>.</p>
+
+<p>This addon lets you see exactly what is going on between your browser and the web site you are visiting. This can quickly and easily give you the information you need to replicate the same behaviour with your CURL script.</p>
+
+<p>Edmonds Commerce specialise in working with PHP and CURL. If you have any spidering, screen scraping or other application that requires PHP to actively interact with other web sites &ndash; <a href="http://www.edmondscommerce.co.uk/contact-about-curl-and-php.html">get in touch today</a> to see how we can help you benefit from this incredibly powerful technique.</p>
+
+<p>Related Resources</p>
+
+<p><a href="http://www.phpfour.com/blog/2008/01/20/php-http-class/" rel="nofollow"><a href="http://www.phpfour.com/blog/2008/01/20/php-http-class/">http://www.phpfour.com/blog/2008/01/20/php-http-class/</a></a></p>
+
+<p><a href="http://www.phpclasses.org/browse/package/1988.html" rel="nofollow"><a href="http://www.phpclasses.org/browse/package/1988.html">http://www.phpclasses.org/browse/package/1988.html</a></a></p>
+
+<p><a href="http://www.phpit.net/article/using-curl-php/" rel="nofollow"><a href="http://www.phpit.net/article/using-curl-php/">http://www.phpit.net/article/using-curl-php/</a></a></p>
+
+<p><a href="http://skeymedia.com/intro-to-curl-with-php/" rel="nofollow"><a href="http://skeymedia.com/intro-to-curl-with-php/">http://skeymedia.com/intro-to-curl-with-php/</a></a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-02-12T13:02:00+00:00" pubdate data-updated="true">Feb 12<span>th</span>, 2008</time>
         
       </p>
@@ -664,6 +822,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/urgent-update-bash-big-security-issue.html">Urgent Update Bash Big Security Issue</a>
+    
     <a class="list-group-item " href="/Fedora/fedora-live-usb-key-creation.html">Fedora Live USB Key Creation</a>
     
     <a class="list-group-item " href="/linux/mute-chrome-slash-chromium-in-gnome-shell.html">Mute Chrome/Chromium in Gnome Shell</a>
@@ -671,8 +831,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a>
     
     <a class="list-group-item " href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a>
-    
-    <a class="list-group-item " href="/ecommerce/fast-e-commerce-search-solution.html">Fast E-Commerce Search Solution</a>
     
   </div>
 </section>

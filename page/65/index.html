@@ -128,6 +128,280 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-06-24T15:45:15+01:00" pubdate data-updated="true">Jun 24<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/mysql-database-migration-synchronisation-script.html">Mysql Database Migration / Synchronisation Script</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>This is a nice little script I just knocked together that helps to synchronise databases when the table structures might not be exactly the same (for example different versions of the same system).</p>
+
+<p>You would need to edit the top section to put the correct DB credentials etc.</p>
+
+<p>This is definitely <b>not to be used on a live DB</b>, purely for aiding development and migration.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="sd">/** Database Synchronisation / Migration Tool</span>
+</span><span class='line'><span class="sd"> *</span>
+</span><span class='line'><span class="sd"> * For synching up an old and a new DB schema.</span>
+</span><span class='line'><span class="sd"> *</span>
+</span><span class='line'><span class="sd"> * @author EdmondsCommerce.co.uk</span>
+</span><span class='line'><span class="sd"> *</span>
+</span><span class='line'><span class="sd"> */</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//do you want the system to empty the new table before inserting data from the old table?</span>
+</span><span class='line'><span class="nv">$truncate</span><span class="o">=</span><span class="k">true</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd"> * DB Server Credentials - Needs to have full access to both databases</span>
+</span><span class='line'><span class="sd"> */</span>
+</span><span class='line'><span class="nv">$dbHost</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$dbUser</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$dbPass</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">/** Tables to Synch</span>
+</span><span class='line'><span class="sd"> */</span>
+</span><span class='line'><span class="nv">$tablesToSynch</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+</span><span class='line'>    <span class="s1">&#39;categories&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;categories_description&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;products&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;products_description&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;products_to_categories&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;manufacturers&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$dbOld</span> <span class="o">=</span> <span class="s1">&#39;dbold&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$dbNew</span> <span class="o">=</span> <span class="s1">&#39;dbnew&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="sd">/*********** CODE BELOW HERE - NO NEED TO EDIT UNLESS YOU WANT TO ***********/</span>
+</span><span class='line'><span class="nv">$_conn</span> <span class="o">=</span> <span class="nb">mysql_connect</span><span class="p">(</span><span class="nv">$dbHost</span><span class="p">,</span><span class="nv">$dbUser</span><span class="p">,</span><span class="nv">$dbPass</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;DB Connection Failed&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$dbOldTables</span><span class="o">=</span> <span class="nx">fetch_tables</span><span class="p">(</span><span class="nv">$dbOld</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$dbNewTables</span> <span class="o">=</span> <span class="nx">fetch_tables</span><span class="p">(</span><span class="nv">$dbNew</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$tablesToSynch</span> <span class="k">as</span> <span class="nv">$table</span><span class="p">){</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;Doing &#39;</span><span class="o">.</span><span class="nv">$table</span><span class="o">.</span><span class="s1">&#39;&lt;/h3&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">//check for common tables</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$table</span><span class="p">,</span> <span class="nv">$dbOldTables</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nb">in_array</span><span class="p">(</span><span class="nv">$table</span><span class="p">,</span> <span class="nv">$dbNewTables</span><span class="p">)){</span>
+</span><span class='line'>        <span class="c1">//now get column data</span>
+</span><span class='line'>        <span class="nv">$dbOldTableCols</span> <span class="o">=</span> <span class="nx">fetch_columns</span><span class="p">(</span><span class="nv">$dbOld</span><span class="p">,</span><span class="nv">$table</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nv">$dbNewTableCols</span> <span class="o">=</span> <span class="nx">fetch_columns</span><span class="p">(</span><span class="nv">$dbNew</span><span class="p">,</span><span class="nv">$table</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">//now for the column comparison</span>
+</span><span class='line'>        <span class="nv">$cols</span><span class="o">=</span><span class="nb">array_intersect</span><span class="p">(</span><span class="nv">$dbOldTableCols</span><span class="p">,</span> <span class="nv">$dbNewTableCols</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">//now emptying the new DB if set to do so</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nv">$truncate</span><span class="p">){</span>
+</span><span class='line'>            <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;TRUNCATE </span><span class="si">$dbNew</span><span class="s2">.</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">//copy old table to new DB so we can copy columns</span>
+</span><span class='line'>        <span class="nv">$tempTable</span><span class="o">=</span><span class="nx">copy_table</span><span class="p">(</span><span class="nv">$dbOld</span><span class="p">,</span> <span class="nv">$dbNew</span><span class="p">,</span> <span class="nv">$table</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">//now build SQL and run</span>
+</span><span class='line'>        <span class="nv">$sql</span> <span class="o">=</span> <span class="s2">&quot;insert into </span><span class="si">$dbNew</span><span class="s2">.</span><span class="si">$table</span><span class="s2"> (&quot;</span> <span class="o">.</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span><span class="nv">$cols</span><span class="p">)</span> <span class="o">.</span> <span class="s2">&quot;) select &quot;</span> <span class="o">.</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span><span class="nv">$cols</span><span class="p">)</span> <span class="o">.</span> <span class="s2">&quot; from </span><span class="si">$dbNew</span><span class="s2">.</span><span class="si">$tempTable</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="nx">db_query</span><span class="p">(</span><span class="nv">$sql</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">//now drop temp table</span>
+</span><span class='line'>        <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;DROP TABLE </span><span class="si">$dbNew</span><span class="s2">.</span><span class="si">$tempTable</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">/****** FUNCTIONS ********/</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nf">db_query</span><span class="p">(</span><span class="nv">$query</span><span class="p">){</span>
+</span><span class='line'><span class="nv">$output</span> <span class="o">=</span> <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$query</span><span class="p">)</span> <span class="k">or</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;</span>
+</span><span class='line'><span class="s1">&lt;h1 style=&quot;color: red&quot;&gt;Uh Oh......MySQL Error:&lt;/h1&gt;</span>
+</span><span class='line'><span class="s1">&lt;h3&gt;Query:&lt;/h3&gt;</span>
+</span><span class='line'><span class="s1">&lt;pre&gt;&#39;</span> <span class="o">.</span> <span class="nb">htmlentities</span><span class="p">(</span><span class="nv">$query</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;&lt;/pre&gt;</span>
+</span><span class='line'><span class="s1">&lt;h3&gt;MySQL Error:&lt;/h3&gt;</span>
+</span><span class='line'><span class="s1">&#39;</span> <span class="o">.</span> <span class="nb">mysql_error</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;</span>
+</span><span class='line'><span class="s1">&lt;hr /&gt; &lt;hr /&gt;&#39;</span><span class="p">);</span>   <span class="k">return</span> <span class="nv">$output</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nf">fetch_tables</span><span class="p">(</span><span class="nv">$dbname</span><span class="p">){</span>
+</span><span class='line'>    <span class="nv">$query</span><span class="o">=</span><span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;show tables from </span><span class="si">$dbname</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">while</span><span class="p">(</span><span class="nv">$r</span><span class="o">=</span><span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$query</span><span class="p">)){</span>
+</span><span class='line'>        <span class="nv">$return</span><span class="p">[]</span><span class="o">=</span><span class="nv">$r</span><span class="p">[</span><span class="s2">&quot;Tables_in_</span><span class="si">$dbname</span><span class="s2">&quot;</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$return</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nf">fetch_columns</span><span class="p">(</span><span class="nv">$dbname</span><span class="p">,</span> <span class="nv">$table</span><span class="p">){</span>
+</span><span class='line'>    <span class="nv">$query</span> <span class="o">=</span> <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;SHOW COLUMNS from </span><span class="si">$dbname</span><span class="s2">.</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">while</span><span class="p">(</span><span class="nv">$r</span><span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nv">$query</span><span class="p">)){</span>
+</span><span class='line'>        <span class="nv">$return</span><span class="p">[]</span><span class="o">=</span><span class="nv">$r</span><span class="p">[</span><span class="s1">&#39;Field&#39;</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$return</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nf">copy_table</span><span class="p">(</span><span class="nv">$fromDb</span><span class="p">,</span> <span class="nv">$toDb</span><span class="p">,</span> <span class="nv">$table</span><span class="p">){</span>
+</span><span class='line'>    <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2"> LIKE </span><span class="si">$fromDb</span><span class="s2">.</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;ALTER TABLE </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2"> DISABLE KEYS&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;INSERT INTO </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2"> SELECT * FROM </span><span class="si">$fromDb</span><span class="s2">.</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;ALTER TABLE </span><span class="si">$toDb</span><span class="s2">.temp_</span><span class="si">$table</span><span class="s2"> ENABLE KEYS&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s2">&quot;temp_</span><span class="si">$table</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-06-24T09:49:19+01:00" pubdate data-updated="true">Jun 24<span>th</span>, 2009</time>
         
       </p>
@@ -857,62 +1131,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-06-09T08:06:03+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/zend%20framework/zend-dojo-form-input-size-solution.html">Zend Dojo Form Input Size + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p><b>Problem:</b>
-You are dutifully setting your size attribute in your Zend Form class and you input elements are being rendered with that size attribute. However if Javascript is enabled and you are using Dojo for your forms, the size attribute gets dropped.</p>
-
-<p><b>Solution:</b>
-To set the width on dojo form elements you must use the width css operator. eg</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$form</span><span class="o">-&gt;</span><span class="na">getElement</span><span class="p">(</span><span class="s1">&#39;blah&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">setAttrib</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="o">=&gt;</span><span class="s1">&#39;width: 50em;&#39;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So simple once you know how!</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -936,6 +1154,8 @@ To set the width on dojo form elements you must use the width css operator. eg</
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/urgent-update-bash-big-security-issue.html">Urgent Update Bash Big Security Issue</a>
+    
     <a class="list-group-item " href="/Fedora/fedora-live-usb-key-creation.html">Fedora Live USB Key Creation</a>
     
     <a class="list-group-item " href="/linux/mute-chrome-slash-chromium-in-gnome-shell.html">Mute Chrome/Chromium in Gnome Shell</a>
@@ -943,8 +1163,6 @@ To set the width on dojo form elements you must use the width css operator. eg</
     <a class="list-group-item " href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a>
     
     <a class="list-group-item " href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a>
-    
-    <a class="list-group-item " href="/ecommerce/fast-e-commerce-search-solution.html">Fast E-Commerce Search Solution</a>
     
   </div>
 </section>

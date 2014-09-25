@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-09-10T17:44:02+01:00</updated>
+  <updated>2014-09-25T15:23:21+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,31 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Urgent Update Bash Big Security Issue]]></title>
+    <link href="http://edmondscommerce.github.io/urgent-update-bash-big-security-issue.html"/>
+    <updated>2014-09-25T00:00:00+01:00</updated>
+    <id>http://edmondscommerce.github.io/urgent-update-bash-big-security-issue</id>
+    <content type="html"><![CDATA[<p>Shell Shock is a BASH exploit that can allow the running of arbitrary commands on Linux servers.</p>
+
+<p>This is a newly discovered bug and affects a very large number of servers.</p>
+
+<p>There is a patch, you should ensure that your server&rsquo;s BASH version is updated ASAP.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>yum -y update bash</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To check if you are vulnerable, you can run this code:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>env X="() { :;} ; echo VULNERABLE" /bin/sh -c "echo completed"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you see VULNERABLE then you need to update BASH.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Fedora Live USB Key Creation]]></title>
@@ -604,62 +629,6 @@ The problem is that you have used the standard PHP super globals and you would r
 
 
 <p>And that&rsquo;s it. It is not particularly pretty but it can be pretty handy.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[cPanel Download Site Files and Database]]></title>
-    <link href="http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database.html"/>
-    <updated>2014-02-10T18:03:36+00:00</updated>
-    <id>http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database</id>
-    <content type="html"><![CDATA[<p>Often a client won&rsquo;t have access to SSH, or won&rsquo;t be able to provide you with some of the more specifics such as FTP, PHPMyAdmin etc. All they know to give you is access to their cPanel. Through this there&rsquo;s various tools at your disposal.</p>
-
-<h2>Try SSH</h2>
-
-<p>Your cPanel login is actually a Linux user login, which cPanel&rsquo;s FTP hooks into. The first step is to navigate in your cPanel to FTP Accounts and click Configure FTP client on a user. These are SFTP details and can very often provide you with SSH shell access, unless the host has disabled this.</p>
-
-<p>Simply try <code>ssh user@host -p 1234</code>, where the user, host and password are your cPanel login, and the port displayed on the FTP Accounts page.</p>
-
-<p>From here you&rsquo;re free to use <code>tar</code>, <code>gzip</code>, <code>mysqldump</code> etc to acquire the files and database.</p>
-
-<h2>If SSH isn&rsquo;t enabled</h2>
-
-<p>Sometimes the host disables SSH access, only allowing its use for SFTP. There are still many ways to acquire the site&rsquo;s files and database:</p>
-
-<h3>Getting hold of the files</h3>
-
-<ul>
-<li><strong>Plain old FTP</strong> &ndash; You can just use an FTP client such as Filezilla to access and download the site&rsquo;s files using FTP or SFTP. This is the simplest way, but can take a long time because of the amount of files involved</li>
-<li><strong>File Manager Web UI</strong> &ndash; compressing the site&rsquo;s files obviously shrinks the download size, but also vastly reduces the amount of connections you need to make, leading to a faster download speed.
-
-<ol>
-<li> Navigate to the File Manager section (remember to tick &ldquo;Show hidden files&rdquo; to pick up .htaccess files)</li>
-<li>Browse to the web root folder, select all the files and folders you want using Ctrl+Click. Remember to exclude unnecessary large files such as sql dumps, media folders and the var folder</li>
-<li>Click Compress from the toolbar</li>
-</ol>
-</li>
-</ul>
-
-
-<h3>Getting hold of the database</h3>
-
-<ul>
-<li><strong>PHPMyAdmin</strong> &ndash; PHPMyAdmin offers an array of options for dumping your database. You should start by checking the database&rsquo;s size and considering excluding the dump of tables such as <code>log_url</code>, <code>log_url_info</code>, <code>log_visitor</code>, <code>log_visitor_info</code>, <code>report_viewed_product_index</code>
-
-<ol>
-<li> Navigate to the PHPMyAdmin area of cPanel and locate the database in use (check your <code>app/etc/local.xml</code> if you&rsquo;re not sure which</li>
-<li>Click the Export tab</li>
-<li>Select Custom: here&rsquo;s where you can selectively export information</li>
-<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; to &lsquo;structure&rsquo;. This will have PHPMyAdmin set up only the tables&#8217; columns but no data (we&rsquo;ll get to that)</li>
-<li>Click Go</li>
-<li>Once this is complete, navigate back to the Export page and click Custom again.</li>
-<li>Deselect (ctrl+click) any tables which are unnecessary</li>
-<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; this time to &lsquo;data&rsquo;</li>
-<li>This will provide you with two files representing the database. Import first the Structure one, and then the Data one (or concatenate the two together)</li>
-</ol>
-</li>
-</ul>
-
 ]]></content>
   </entry>
   
