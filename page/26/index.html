@@ -128,6 +128,154 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-01T11:00:05+00:00" pubdate data-updated="true">Mar 1<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel.html">Netbeans AutoComplete on Magento Objects Called by Mage::getModel()</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>As we have been working with the various versions of Magento its nice to see more and more use of DocBlock notation to help IDEs auto suggest and auto complete methods etc when working with objects.</p>
+
+<p>However the style is inconsistent and with a few subtle tweaks would be much, much better.</p>
+
+<h3>Template Files, What is $this?</h3>
+
+
+<p>First one is the @see syntax often used in .phtml files to describe which block object is in play as $this. Whilst that is useful to read, it is totally useless to the IDE.</p>
+
+<p>For example have a look at
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/design/frontend/base/default/template/catalog/product/view.phtml">app/design/frontend/base/default/template/catalog/product/view.phtml</a></b></p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd"> * Product view template</span>
+</span><span class='line'><span class="sd"> *</span>
+</span><span class='line'><span class="sd"> * @see Mage_Catalog_Block_Product_View</span>
+</span><span class='line'><span class="sd"> * @see Mage_Review_Block_Product_View</span>
+</span><span class='line'><span class="sd"> */</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All we need to do is add this underneath</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * @var $this Mage_Catalog_Block_Product_View</span>
+</span><span class='line'><span class="cm"> */</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now when working with in the .phtml file, $this will auto complete for you.</p>
+
+<blockquote><i>Eagle eyed readers may think that as $this could be either this is perhaps a bad idea, however the Review one actually extends the Catalog one overriding some functionality, it is basically the same.</i></blockquote>
+
+
+
+
+<h3>$Model = Mage::getModel() why always the Abstract?</h3>
+
+
+<p>Another one that I have just finally figured out is the correct way to get Netbeans to recognise exactly what class an object is when called with Mage::getModel() or Mage::getSingleton().</p>
+
+<p>You might have auto complete suggesting that this is an instance of Mage_Core_Model_Abstract.</p>
+
+<p>Whilst effectively true, this is unlikely to be useful for you in your context, you need to know exactly what Model class it is.</p>
+
+<p>The reason that Netbeans thinks its Mage_Core_Model_Abstract is because the docblock in
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/Mage.php">app/Mage.php</a></b>
+describes this as the return value of this method.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Retrieve model object</span>
+</span><span class='line'><span class="sd">     *</span>
+</span><span class='line'><span class="sd">     * @link    Mage_Core_Model_Config::getModelInstance</span>
+</span><span class='line'><span class="sd">     * @param   string $modelClass</span>
+</span><span class='line'><span class="sd">     * @param   array $arguments</span>
+</span><span class='line'><span class="sd">     * @return  Mage_Core_Model_Abstract</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">getModel</span><span class="p">(</span><span class="nv">$modelClass</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$arguments</span> <span class="o">=</span> <span class="k">array</span><span class="p">())</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nx">self</span><span class="o">::</span><span class="na">getConfig</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getModelInstance</span><span class="p">(</span><span class="nv">$modelClass</span><span class="p">,</span> <span class="nv">$arguments</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I often see blocks of code where the author is attempting to get auto complete working properly by using this syntax</p>
+
+<p>see
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/code/core/Mage/Customer/controllers/AccountController.php">app/code/core/Mage/Customer/controllers/AccountController.php</a></b>
+createPostAction()</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="cm">/* @var $customerForm Mage_Customer_Model_Form */</span>
+</span><span class='line'><span class="nv">$customerForm</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;customer/form&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is generally the right way to do it, however I think the docblock specifying the return value on Mage:getModel clobbers it.</p>
+
+<p>The simple solution is to move the docblock from above the Mage::getModel call to below it.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$customerForm</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;customer/form&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="cm">/* @var $customerForm Mage_Customer_Model_Form */</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><b>And it works!</b></p>
+
+<p><img src="/assets/screenshot4-600x475.png"></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-03-01T08:39:04+00:00" pubdate data-updated="true">Mar 1<span>st</span>, 2012</time>
         
       </p>
@@ -559,77 +707,6 @@ SELECT 'some_attribute2' FROM Table WHERE 'some_attribute1'='attribute_value'
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-02-24T15:19:41+00:00" pubdate data-updated="true">Feb 24<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/encryping-data-with-magento.html">Encryping Data With Magento!</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Encrypting a string in Magneto is really easy and will use the encryption key specified in the local.xml file:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="nv">$encryptedData</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;core&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">encrypt</span><span class="p">(</span><span class="s2">&quot;This will be encrypted&quot;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There is one problem that you may encounter that can be a little bit problematic but there is an easy work around. The encryption process will strip out non-printing characters or character it does not recognise. Easiest way to get about this is to base64 encode what you are about to encrypt:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="nv">$encryptedData</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;core&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">encrypt</span><span class="p">(</span><span class="nb">base64_encode</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\r</span><span class="s2">I start with a carriage return&quot;</span><span class="p">));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Decrypting is just as easy:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="nv">$decyptedData</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;core&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">decrypt</span><span class="p">(</span><span class="nv">$encryptedData</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Remember to base64_decode after decryption if you did base64 encode before encryption:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="nv">$decyptedData</span> <span class="o">=</span> <span class="nb">base64_decode</span><span class="p">(</span><span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;core&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">decrypt</span><span class="p">(</span><span class="nv">$encryptedData</span><span class="p">));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -653,6 +730,8 @@ SELECT 'some_attribute2' FROM Table WHERE 'some_attribute1'='attribute_value'
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/linux/nice-gnome-shell-theme-elegance-colours.html">Nice Gnome Shell Theme - Elegance Colours</a>
+    
     <a class="list-group-item " href="/security/urgent-update-bash-big-security-issue.html">URGENT Update BASH - Big Security Issue</a>
     
     <a class="list-group-item " href="/Fedora/fedora-live-usb-key-creation.html">Fedora Live USB Key Creation</a>
@@ -660,8 +739,6 @@ SELECT 'some_attribute2' FROM Table WHERE 'some_attribute1'='attribute_value'
     <a class="list-group-item " href="/linux/mute-chrome-slash-chromium-in-gnome-shell.html">Mute Chrome/Chromium in Gnome Shell</a>
     
     <a class="list-group-item " href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a>
-    
-    <a class="list-group-item " href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a>
     
   </div>
 </section>
