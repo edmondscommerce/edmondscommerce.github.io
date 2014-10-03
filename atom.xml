@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-10-02T09:34:14+01:00</updated>
+  <updated>2014-10-03T12:36:28+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,38 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Password Protecting SSH keys]]></title>
+    <link href="http://edmondscommerce.github.io/security/password-protecting-ssh-keys.html"/>
+    <updated>2014-10-03T11:42:01+01:00</updated>
+    <id>http://edmondscommerce.github.io/security/password-protecting-ssh-keys</id>
+    <content type="html"><![CDATA[<p>If you work with multiple server and need SSH access to them, setting up SSH Keys makes it easier, and in theory more secure, to access them.</p>
+
+<p>However, if you generate your key and do not add a password/phrase to it, then that key then allows access to all of the servers it has been linked to.</p>
+
+<p>If you have not protected your key, you can do this by running the following command</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ssh-keygen -p
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make things easier you can use keychain so you only need to enter your password when you first login. This is done by doing the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install keychain
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and then add the following to the bottom of your bashrc file</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">eval</span> <span class="sb">`</span>keychain --eval id_dsa<span class="sb">`</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Nice Gnome Shell Theme - Elegance Colours]]></title>
@@ -601,55 +633,6 @@ to create and didn&rsquo;t need to be cleared for my purposes</p>
 
 
 <p>This invokes <code>du</code> to show each direct subfolder&rsquo;s contents&#8217; size, and pipes it through to <code>sort</code> to rank them in increasing size. The sizes are in MB. See <a href="http://explainshell.com/explain?cmd=du+-m+--max-depth%3D1+--exclude+media+|+sort+-n">a more broken down explanation here</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Redirect to previous page in Magento after logout]]></title>
-    <link href="http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout.html"/>
-    <updated>2014-02-25T15:58:02+00:00</updated>
-    <id>http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout</id>
-    <content type="html"><![CDATA[<p>By default Magento sends a user to a logoutSuccess page after they choose to log out. This is &lsquo;hard-baked&rsquo; into the Customer controller&rsquo;s logout action in the line <code>$this-&gt;_redirect('*/*/logoutSuccess');</code>. You can choose to set the Javascript redirect in the template <code>customer/logout.phtml</code>, but a better idea is to bypass the logout success page entirely.</p>
-
-<p>The way to do this is to override the <code>logoutAction()</code> method in the <code>customerController</code>:</p>
-
-<ol>
-<li><a href="http://www.magentocommerce.com/wiki/5_-_modules_and_development/0_-_module_development_in_magento/how_to_overload_a_controller">Rewrite the customer controller as documented here</a></li>
-<li>Override the <code>logoutAction()</code> method</li>
-<li>Set the redirect as below</li>
-</ol>
-
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="k">require_once</span> <span class="s1">&#39;Mage/Customer/controllers/AccountController.php&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_LogoutRedirect_AccountController</span> <span class="k">extends</span> <span class="nx">Mage_Customer_AccountController</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">logoutAction</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$url</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;core/session&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getLastUrl</span><span class="p">();</span>
-</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_getSession</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">logout</span><span class="p">()</span>
-</span><span class='line'>            <span class="o">-&gt;</span><span class="na">setBeforeAuthUrl</span><span class="p">(</span><span class="nx">Mage</span><span class="o">::</span><span class="na">getUrl</span><span class="p">());</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_redirectUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   
