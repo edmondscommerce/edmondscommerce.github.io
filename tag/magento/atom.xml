@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: magento | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/magento/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento 1.9 &amp; 1.14 released]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released.html"/>
+    <updated>2014-05-14T11:12:02+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released</id>
+    <content type="html"><![CDATA[<p>Magento has released the latest version of both CE and EE.</p>
+
+<p>The big changes that are included are as follows</p>
+
+<p><strong>Responsive design included as default</strong></p>
+
+<p>Both editions now come with a responsive theme. This introduces jQuery, SASS, and Compass into native Magento and should allow for easier customisation in the future.</p>
+
+<p><strong>Bill Me Later</strong></p>
+
+<p>The PayPal integration has been upgraded to include the <a href="https://www.paypal.com/webapps/mpp/promotional-financing">Bill Me Later</a> financing option. This allows customer to pay for products over six months whilst the merchant gets paid straight away.</p>
+
+<p><strong>Other security fix and performance fixes</strong></p>
+
+<p>The full list of changes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/new-features-ce19-ee114">here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Finding out the biggest folders in a Magento or other website root]]></title>
+    <link href="http://edmondscommerce.github.io/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html"/>
+    <updated>2014-03-04T16:10:19+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root</id>
+    <content type="html"><![CDATA[<p>Often pulling down a Magento or other site you&rsquo;ll find a load of files that have been dumped in the web root. Downloading these is often pointless and takes extra time, so you&rsquo;ll want to exclude them from an rsync (using the <code>--exclude 'path'</code> paramter).</p>
+
+<p>A simple bash command for this is:</p>
+
+<p>```bash</p>
+
+<p>du -m &mdash;max-depth=1 &mdash;exclude media | sort -n</p>
+
+<p>```</p>
+
+<p>This invokes <code>du</code> to show each direct subfolder&rsquo;s contents' size, and pipes it through to <code>sort</code> to rank them in increasing size. The sizes are in MB. See <a href="http://explainshell.com/explain?cmd=du+-m+--max-depth%3D1+--exclude+media+|+sort+-n">a more broken down explanation here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Redirect to previous page in Magento after logout]]></title>
+    <link href="http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout.html"/>
+    <updated>2014-02-25T15:58:02+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout</id>
+    <content type="html"><![CDATA[<p>By default Magento sends a user to a logoutSuccess page after they choose to log out. This is &lsquo;hard-baked&rsquo; into the Customer controller&rsquo;s logout action in the line <code>$this-&gt;_redirect('*/*/logoutSuccess');</code>. You can choose to set the Javascript redirect in the template <code>customer/logout.phtml</code>, but a better idea is to bypass the logout success page entirely.</p>
+
+<p>The way to do this is to override the <code>logoutAction()</code> method in the <code>customerController</code>:</p>
+
+<ol>
+<li><a href="http://www.magentocommerce.com/wiki/5_-_modules_and_development/0_-_module_development_in_magento/how_to_overload_a_controller">Rewrite the customer controller as documented here</a></li>
+<li>Override the <code>logoutAction()</code> method</li>
+<li>Set the redirect as below</li>
+</ol>
+
+
+<p>```php</p>
+
+<pre><code>&lt;?php
+require_once 'Mage/Customer/controllers/AccountController.php';
+
+
+class EdmondsCommerce_LogoutRedirect_AccountController extends Mage_Customer_AccountController {
+    public function logoutAction()
+    {
+        $url = Mage::getSingleton('core/session')-&gt;getLastUrl();
+        $this-&gt;_getSession()-&gt;logout()
+            -&gt;setBeforeAuthUrl(Mage::getUrl());
+
+        $this-&gt;_redirectUrl($url);
+    }
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[cPanel Download Site Files and Database]]></title>
+    <link href="http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database.html"/>
+    <updated>2014-02-10T18:03:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database</id>
+    <content type="html"><![CDATA[<p>Often a client won&rsquo;t have access to SSH, or won&rsquo;t be able to provide you with some of the more specifics such as FTP, PHPMyAdmin etc. All they know to give you is access to their cPanel. Through this there&rsquo;s various tools at your disposal.</p>
+
+<h2>Try SSH</h2>
+
+<p>Your cPanel login is actually a Linux user login, which cPanel&rsquo;s FTP hooks into. The first step is to navigate in your cPanel to FTP Accounts and click Configure FTP client on a user. These are SFTP details and can very often provide you with SSH shell access, unless the host has disabled this.</p>
+
+<p>Simply try <code>ssh user@host -p 1234</code>, where the user, host and password are your cPanel login, and the port displayed on the FTP Accounts page.</p>
+
+<p>From here you&rsquo;re free to use <code>tar</code>, <code>gzip</code>, <code>mysqldump</code> etc to acquire the files and database.</p>
+
+<h2>If SSH isn&rsquo;t enabled</h2>
+
+<p>Sometimes the host disables SSH access, only allowing its use for SFTP. There are still many ways to acquire the site&rsquo;s files and database:</p>
+
+<h3>Getting hold of the files</h3>
+
+<ul>
+<li><strong>Plain old FTP</strong> &ndash; You can just use an FTP client such as Filezilla to access and download the site&rsquo;s files using FTP or SFTP. This is the simplest way, but can take a long time because of the amount of files involved</li>
+<li><strong>File Manager Web UI</strong> &ndash; compressing the site&rsquo;s files obviously shrinks the download size, but also vastly reduces the amount of connections you need to make, leading to a faster download speed.
+
+<ol>
+<li> Navigate to the File Manager section (remember to tick &ldquo;Show hidden files&rdquo; to pick up .htaccess files)</li>
+<li>Browse to the web root folder, select all the files and folders you want using Ctrl+Click. Remember to exclude unnecessary large files such as sql dumps, media folders and the var folder</li>
+<li>Click Compress from the toolbar</li>
+</ol>
+</li>
+</ul>
+
+
+<h3>Getting hold of the database</h3>
+
+<ul>
+<li><strong>PHPMyAdmin</strong> &ndash; PHPMyAdmin offers an array of options for dumping your database. You should start by checking the database&rsquo;s size and considering excluding the dump of tables such as <code>log_url</code>, <code>log_url_info</code>, <code>log_visitor</code>, <code>log_visitor_info</code>, <code>report_viewed_product_index</code>
+
+<ol>
+<li> Navigate to the PHPMyAdmin area of cPanel and locate the database in use (check your <code>app/etc/local.xml</code> if you&rsquo;re not sure which</li>
+<li>Click the Export tab</li>
+<li>Select Custom: here&rsquo;s where you can selectively export information</li>
+<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; to &lsquo;structure&rsquo;. This will have PHPMyAdmin set up only the tables' columns but no data (we&rsquo;ll get to that)</li>
+<li>Click Go</li>
+<li>Once this is complete, navigate back to the Export page and click Custom again.</li>
+<li>Deselect (ctrl+click) any tables which are unnecessary</li>
+<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; this time to &lsquo;data&rsquo;</li>
+<li>This will provide you with two files representing the database. Import first the Structure one, and then the Data one (or concatenate the two together)</li>
+</ol>
+</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento 1.8 released]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-1-8-released.html"/>
+    <updated>2013-09-30T10:01:28+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-1-8-released</id>
+    <content type="html"><![CDATA[<p>Today I got a notification through that Magento 1.8 had finally been released.</p>
+
+<p>This has been in beta since alpha since April, and contains server fixes that a lot of people have been waiting for.</p>
+
+<p>The most important one for UK vendors is that the rounding issue in tax calculations has been fixed.</p>
+
+<p>There are also improvements to caching and database performance. The full release notes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/ce-18-later-release-notes">here</a></p>
+
+<p>These are issues that have affected merchants since that change in the VAT rate, so we would recommend upgrading for everyone at this time.</p>
+]]></content>
+  </entry>
+  
+</feed>

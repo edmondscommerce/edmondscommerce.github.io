@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: magento | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/category/magento/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento 1.9 &amp; 1.14 released]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released.html"/>
+    <updated>2014-05-14T11:12:02+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released</id>
+    <content type="html"><![CDATA[<p>Magento has released the latest version of both CE and EE.</p>
+
+<p>The big changes that are included are as follows</p>
+
+<p><strong>Responsive design included as default</strong></p>
+
+<p>Both editions now come with a responsive theme. This introduces jQuery, SASS, and Compass into native Magento and should allow for easier customisation in the future.</p>
+
+<p><strong>Bill Me Later</strong></p>
+
+<p>The PayPal integration has been upgraded to include the <a href="https://www.paypal.com/webapps/mpp/promotional-financing">Bill Me Later</a> financing option. This allows customer to pay for products over six months whilst the merchant gets paid straight away.</p>
+
+<p><strong>Other security fix and performance fixes</strong></p>
+
+<p>The full list of changes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/new-features-ce19-ee114">here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SagePay, OneStepCheckout, 'Transaction could not be cancelled and order was not created, cart was modified while customer on payment pages']]></title>
+    <link href="http://edmondscommerce.github.io/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html"/>
+    <updated>2014-04-24T19:17:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages</id>
+    <content type="html"><![CDATA[<p>I spent this morning dealing with a Magento sit that was unable to process Credit Card payments when they were placed with SagePay.</p>
+
+<p>When a customer tried to place an order they were able to enter that card details, but were then presented with an alert with the following message</p>
+
+<blockquote><p>Your order could not be completed, please try again. Thanks.</p></blockquote>
+
+<p>They were using the <a href="https://github.com/ebizmarts/sage-pay-suite-ce">EbizMarts SagePay CE Module</a>, so I had a look around to see if the error was known</p>
+
+<p>It appears that a recent release of the SagePay Module introduces some additional checks before creating the order and the current release of the <a href="http://www.onestepcheckout.com/">OneStepCheckout</a> is not compatible with this.</p>
+
+<p>If you look straight at the SagePay Logs you may also see the following errors, which may indicate the same problem.</p>
+
+<ul>
+<li>DEBUG: 4028 : The related transaction cannot be found.</li>
+<li>DEBUG: Your order could not be completed, please try again. Thanks.</li>
+<li>CRIT: Transaction XXXXXXXXX-XXXX-XX-XX-XX-XX-XX could not be cancelled and order was not created, cart was modified while customer on payment pages.</li>
+</ul>
+
+
+<p>Thankfully there is a simple fix for this. In the <strong>app/code/local/Idev/OneStepCheckout/controllers/IndexController.php</strong> file you need to add the following line to the indexAction method</p>
+
+<p><code>php
+Mage::getSingleton('checkout/session')-&gt;setCartWasUpdated(false);
+</code></p>
+
+<p>Just before</p>
+
+<p><code>php
+$this-&gt;loadLayout();
+</code></p>
+
+<p>and then everything will work correctly.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Redirect to previous page in Magento after logout]]></title>
+    <link href="http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout.html"/>
+    <updated>2014-02-25T15:58:02+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/redirect-to-previous-page-in-magento-after-logout</id>
+    <content type="html"><![CDATA[<p>By default Magento sends a user to a logoutSuccess page after they choose to log out. This is &lsquo;hard-baked&rsquo; into the Customer controller&rsquo;s logout action in the line <code>$this-&gt;_redirect('*/*/logoutSuccess');</code>. You can choose to set the Javascript redirect in the template <code>customer/logout.phtml</code>, but a better idea is to bypass the logout success page entirely.</p>
+
+<p>The way to do this is to override the <code>logoutAction()</code> method in the <code>customerController</code>:</p>
+
+<ol>
+<li><a href="http://www.magentocommerce.com/wiki/5_-_modules_and_development/0_-_module_development_in_magento/how_to_overload_a_controller">Rewrite the customer controller as documented here</a></li>
+<li>Override the <code>logoutAction()</code> method</li>
+<li>Set the redirect as below</li>
+</ol>
+
+
+<p>```php</p>
+
+<pre><code>&lt;?php
+require_once 'Mage/Customer/controllers/AccountController.php';
+
+
+class EdmondsCommerce_LogoutRedirect_AccountController extends Mage_Customer_AccountController {
+    public function logoutAction()
+    {
+        $url = Mage::getSingleton('core/session')-&gt;getLastUrl();
+        $this-&gt;_getSession()-&gt;logout()
+            -&gt;setBeforeAuthUrl(Mage::getUrl());
+
+        $this-&gt;_redirectUrl($url);
+    }
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Preorders in Magento Using Attribute Value]]></title>
+    <link href="http://edmondscommerce.github.io/magento/preorders-in-magento-using-attribute-value.html"/>
+    <updated>2014-01-23T15:52:41+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/preorders-in-magento-using-attribute-value</id>
+    <content type="html"><![CDATA[<p>Magento doesn&rsquo;t come built with the ability to place preorders: the closest match is in the form of back orders, but there&rsquo;s a crucial difference between the two. Backorders are orders placed when stock isn&rsquo;t present and are shipped as soon as stock becomes available. Preorders however usually have a predefined point at which they will be shipped.</p>
+
+<p>The excellent <a href="http://www.aitoc.com/en/magentomods_pre_order.html">Aitoc Prorders</a> extension provides a drop-in ability to accept preorders including button text changes, checkout customisation and different order statuses for preorders.</p>
+
+<p>One aspect I had to work around is that the way to define a preorder is by using the extra &ldquo;Pre-Orders&rdquo; value of the Magento &ldquo;Backorders&rdquo; Inventory field. In my case I wanted to define a preorder to be a product with a Release Date set in the future. Fortunately the Aitc Preorders module has a very discrete function where it holds the definition of a Preorder. Changing this is a simple case of overriding that method</p>
+
+<h3>Creating a new extension</h3>
+
+<p>You need to create a new standard Magento extension, creating the usual boilerplate files:</p>
+
+<ul>
+<li>/app/etc/modules/Namespace_Module.xml</li>
+<li>/app/code/local/Namespace/Module/etc/config.xml</li>
+</ul>
+
+
+<h3>Rewrite the Aitoc module&rsquo;s Product model</h3>
+
+<p>In /app/code/local/Namespace/Module/etc/config.xml, set up your XML:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="ni">&amp;lt;</span>?xml version=<span class="ni">&amp;ldquo;</span>1.0<span class="ni">&amp;rdquo;</span>?&gt;
+</span><span class='line'><span class="nt">&lt;config&gt;&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>modules<span class="ni">&amp;gt;</span>
+</span><span class='line'>    <span class="ni">&amp;lt;</span>Namespace_Module<span class="ni">&amp;gt;</span>
+</span><span class='line'>        <span class="ni">&amp;lt;</span>version<span class="ni">&amp;gt;</span>0.1.0<span class="ni">&amp;lt;</span>/version<span class="ni">&amp;gt;</span>
+</span><span class='line'>    <span class="ni">&amp;lt;</span>/Namespace_Module<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="ni">&amp;lt;</span>/modules<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="ni">&amp;lt;</span>global<span class="ni">&amp;gt;</span>
+</span><span class='line'>    <span class="ni">&amp;lt;</span>models<span class="ni">&amp;gt;</span>
+</span><span class='line'>        <span class="ni">&amp;lt;</span>catalog<span class="ni">&amp;gt;</span>
+</span><span class='line'>            <span class="ni">&amp;lt;</span>rewrite<span class="ni">&amp;gt;</span>
+</span><span class='line'>                <span class="ni">&amp;lt;</span>product<span class="ni">&amp;gt;</span>Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct<span class="ni">&amp;lt;</span>/product<span class="ni">&amp;gt;</span>
+</span><span class='line'>            <span class="ni">&amp;lt;</span>/rewrite<span class="ni">&amp;gt;</span>
+</span><span class='line'>        <span class="ni">&amp;lt;</span>/catalog<span class="ni">&amp;gt;</span>
+</span><span class='line'>    <span class="ni">&amp;lt;</span>/models<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="ni">&amp;lt;</span>/global<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;&lt;/config&gt;</span> <span class="nt">&lt;br/&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>Create the class and override the function</h3>
+
+<p>Create the file /app/code/local/Namespace/Module/Model/Aitpreorder/Rewrite/CatalogProduct.php</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;&amp;</span><span class="nx">lt</span><span class="p">;</span><span class="o">?</span><span class="nx">php</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="k">class</span> <span class="nc">Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct</span> <span class="k">extends</span> <span class="nx">Aitoc_Aitpreorder_Model_Rewrite_CatalogProduct</span> <span class="p">{</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="k">public</span> <span class="k">function</span> <span class="nf">getPreorder</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Add whatever logic you like here and return it as a boolean</span>
+</span><span class='line'>    <span class="nv">$releaseDate</span> <span class="o">=</span> <span class="nx">DateTime</span><span class="o">::</span><span class="na">createFromFormat</span><span class="p">(</span><span class="s1">&#39;Y-m-d H:i:s&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&amp;</span><span class="nx">gt</span><span class="p">;</span><span class="nx">getReleaseDate</span><span class="p">());</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$releaseDate</span> <span class="o">&amp;</span><span class="nx">gt</span><span class="p">;</span> <span class="k">new</span> <span class="nx">DateTime</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="nx">code</span><span class="o">&gt;&lt;/</span><span class="nx">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento 1.8 released]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-1-8-released.html"/>
+    <updated>2013-09-30T10:01:28+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-1-8-released</id>
+    <content type="html"><![CDATA[<p>Today I got a notification through that Magento 1.8 had finally been released.</p>
+
+<p>This has been in beta since alpha since April, and contains server fixes that a lot of people have been waiting for.</p>
+
+<p>The most important one for UK vendors is that the rounding issue in tax calculations has been fixed.</p>
+
+<p>There are also improvements to caching and database performance. The full release notes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/ce-18-later-release-notes">here</a></p>
+
+<p>These are issues that have affected merchants since that change in the VAT rate, so we would recommend upgrading for everyone at this time.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: offer | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/offer/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Security Patch Script]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-security-patch-script.html"/>
+    <updated>2012-07-10T16:29:28+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-security-patch-script</id>
+    <content type="html"><![CDATA[<p>We are currently offering a free service to apply the security patches for any Magento store. <a href="http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/">You can read all about that here</a>.</p>
+
+<p>For those of you who are comfortable SSHing into your server and running things manually but would like this to be as easy as possible, you can use our bash script to automatically determine which Magento security patch you require and then apply it.</p>
+
+<p>Simply run the following command:</p>
+
+<p>```bash</p>
+
+<p>wget -qO- <a href="http://www.edmondscommerce.co.uk/stuff/applysecuritypatch.sh">http://www.edmondscommerce.co.uk/stuff/applysecuritypatch.sh</a> | /bin/sh</p>
+
+<p>```</p>
+
+<p>For information, this is the source of the above file.</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<p>if [ ! -f app/Mage.php ]; then
+  echo &ldquo;Not in the magento basedir. please run from public_html, httpdocs, www or wherever index.php is.&rdquo;
+  exit 99
+fi</p>
+
+<p>WGET_BINARY=$(which wget)</p>
+
+<p>if [ &ldquo;&rdquo; = &ldquo;$WGET_BINARY&rdquo; ]; then
+  echo &ldquo;Can&rsquo;t find wget in path&hellip; can&rsquo;t continue&rdquo;
+  exit 98
+fi</p>
+
+<p>MAGENTO_VERSION=$(grep &lsquo;function getVersionInfo()&rsquo; -A6 app/Mage.php | sed s/[^0-9]//g | tr &lsquo;\n&rsquo; &lsquo;.&rsquo; | sed s/&lsquo;..*&rsquo;// | sed s/&lsquo;.$&rsquo;//)
+echo &ldquo;Your Magento version is $MAGENTO_VERSION&rdquo;</p>
+
+<p>export $(grep &lsquo;function getVersionInfo()&rsquo; -A6 app/Mage.php | grep = | sed s/,// | sed s/>// | sed s/&lsquo;[\t ]&rsquo;//g | tr &ldquo;a-z&rdquo; &ldquo;A-Z&rdquo; | sed s/^/MAGENTO_/ | sed s/&ldquo;&lsquo;&rdquo;//g)</p>
+
+<p>set | grep MAGENTO</p>
+
+<p>#</p>
+
+<h1>Community Edition 1.4.0.0 through 1.4.1.1 <a href="http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch">http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch</a></h1>
+
+<h1>Community Edition 1.4.2.0 <a href="http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch">http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch</a></h1>
+
+<h1>Community Edition 1.5.0.0 through 1.7.0.1 <a href="http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch">http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch</a></h1>
+
+<p>#</p>
+
+<p>if [ &ldquo;$MAGENTO_MAJOR&rdquo; -eq &ldquo;1&rdquo; ]; then
+  if [ &ldquo;$MAGENTO_MINOR&rdquo; -eq &ldquo;4&rdquo; ]; then</p>
+
+<pre><code>if [ $MAGENTO_PATCH -lt "2" ]; then
+    CORRECT_PATCH='http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch'
+  echo "Running Magento &lt; 1.4.2.0 - patch is $CORRECT_PATCH";
+else
+  CORRECT_PATCH='http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch'
+  echo "Running Magento 1.4.2.0 - patch is $CORRECT_PATCH";
+fi
+</code></pre>
+
+<p>  elif [ $MAGENTO_MINOR -gt &ldquo;4&rdquo; ]; then</p>
+
+<pre><code>if [ $MAGENTO_MINOR -lt "7" ]; then
+  CORRECT_PATCH='http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch'
+  echo "Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH";
+elif [ $MAGENTO_MINOR -eq "7" -a $MAGENTO_PATCH -eq "0" -a $MAGENTO_REVISION -lt "2" ]; then
+  CORRECT_PATCH='http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch'
+  echo "Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH";
+else
+  echo "Running Magento 1.7.0.2 - already patched."
+  exit 1
+fi
+</code></pre>
+
+<p>  fi
+else
+  echo &ldquo;You&rsquo;re not running version 1.x.x.x of Magento, I have no idea what to do!&rdquo;
+  exit 97
+fi</p>
+
+<p>wget -O &ndash; $CORRECT_PATCH 2> /dev/null | patch -p0
+if [ $? -eq 0 ]; then
+  echo &ldquo;Patch succeeded.&rdquo;
+else
+  echo &ldquo;For some reason the patch failed.  See the output above.&rdquo;
+  echo &ldquo;You could attempt to download the patch manually and apply it &ndash; the url is :&ndash; &rdquo;
+  echo $CORRECT_PATCH
+fi</p>
+
+<p>```</p>
+
+<p>Please note this script is supplied without any warranty, use at your own risk. We are not supplying the patch files simply making it easy to download and apply the correct one.</p>
+
+<p>We strongly recommend you patch your store as soon as possible.</p>
+
+<p><b><a href="http://www.edmondscommerce.co.uk/contact-us/?about=Free+Magento+Security+Fix"> If you need help, just ask!</a></b></p>
+]]></content>
+  </entry>
+  
+</feed>

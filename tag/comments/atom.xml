@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: comments | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/comments/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Netbeans AutoComplete on Magento Objects called by Mage::getModel()]]></title>
+    <link href="http://edmondscommerce.github.io/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel.html"/>
+    <updated>2012-03-01T11:00:05+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel</id>
+    <content type="html"><![CDATA[<p>As we have been working with the various versions of Magento its nice to see more and more use of DocBlock notation to help IDEs auto suggest and auto complete methods etc when working with objects.</p>
+
+<p>However the style is inconsistent and with a few subtle tweaks would be much, much better.</p>
+
+<h3>Template Files, What is $this?</h3>
+
+
+<p>First one is the @see syntax often used in .phtml files to describe which block object is in play as $this. Whilst that is useful to read, it is totally useless to the IDE.</p>
+
+<p>For example have a look at
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/design/frontend/base/default/template/catalog/product/view.phtml">app/design/frontend/base/default/template/catalog/product/view.phtml</a></b></p>
+
+<p>```php</p>
+
+<p>/<em>*
+ * Product view template
+ *
+ * @see Mage_Catalog_Block_Product_View
+ * @see Mage_Review_Block_Product_View
+ </em>/</p>
+
+<p>```</p>
+
+<p>All we need to do is add this underneath
+```php</p>
+
+<p>/<em>
+ * @var $this Mage_Catalog_Block_Product_View
+ </em>/</p>
+
+<p>```</p>
+
+<p>And now when working with in the .phtml file, $this will auto complete for you.</p>
+
+<blockquote><i>Eagle eyed readers may think that as $this could be either this is perhaps a bad idea, however the Review one actually extends the Catalog one overriding some functionality, it is basically the same.</i></blockquote>
+
+
+
+
+<h3>$Model = Mage::getModel() why always the Abstract?</h3>
+
+
+<p>Another one that I have just finally figured out is the correct way to get Netbeans to recognise exactly what class an object is when called with Mage::getModel() or Mage::getSingleton().</p>
+
+<p>You might have auto complete suggesting that this is an instance of Mage_Core_Model_Abstract.</p>
+
+<p>Whilst effectively true, this is unlikely to be useful for you in your context, you need to know exactly what Model class it is.</p>
+
+<p>The reason that Netbeans thinks its Mage_Core_Model_Abstract is because the docblock in
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/Mage.php">app/Mage.php</a></b>
+describes this as the return value of this method.</p>
+
+<p>```php</p>
+
+<pre><code>/**
+ * Retrieve model object
+ *
+ * @link    Mage_Core_Model_Config::getModelInstance
+ * @param   string $modelClass
+ * @param   array $arguments
+ * @return  Mage_Core_Model_Abstract
+ */
+public static function getModel($modelClass = '', $arguments = array())
+{
+    return self::getConfig()-&gt;getModelInstance($modelClass, $arguments);
+}
+</code></pre>
+
+<p>```</p>
+
+<p>I often see blocks of code where the author is attempting to get auto complete working properly by using this syntax</p>
+
+<p>see
+<b><a href="https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/code/core/Mage/Customer/controllers/AccountController.php">app/code/core/Mage/Customer/controllers/AccountController.php</a></b>
+createPostAction()
+```php</p>
+
+<p>/<em> @var $customerForm Mage_Customer_Model_Form </em>/
+$customerForm = Mage::getModel(&lsquo;customer/form&rsquo;);</p>
+
+<p>```</p>
+
+<p>This is generally the right way to do it, however I think the docblock specifying the return value on Mage:getModel clobbers it.</p>
+
+<p>The simple solution is to move the docblock from above the Mage::getModel call to below it.</p>
+
+<p>```php</p>
+
+<p>$customerForm = Mage::getModel(&lsquo;customer/form&rsquo;);
+/<em> @var $customerForm Mage_Customer_Model_Form </em>/</p>
+
+<p>```</p>
+
+<p><b>And it works!</b></p>
+
+<p><img src="/assets/screenshot4-600x475.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[NetBeans PHP Comments]]></title>
+    <link href="http://edmondscommerce.github.io/netbeans/netbeans-php-comments.html"/>
+    <updated>2011-09-08T10:35:22+01:00</updated>
+    <id>http://edmondscommerce.github.io/netbeans/netbeans-php-comments</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Comments your code are essential to help both other developers and, in some cases, yourself understand what the code is meant to be doing.</p>
+
+<p>When developing PHP in NetBeans there are two types of comments to consider. The first type of comments are the normal type of comments that are for a human to read and understand. This type of comments will say thing like &ldquo;// This section is here to&hellip;&rdquo; and &ldquo;// This is necessary because&hellip;&rdquo;. While human readable are definitely good, one of the issues when developing PHP is that it is difficult for IDEs to maintain the type of variables, the return types of methods and the type of variables that a method excepts. This is mainly because PHP is loosely typed but also because IDEs often can&rsquo;t follow the inheritance hierarchy for what ever reason.</p>
+
+<p>To get around the issues of type hierarchy and PHP been a loosely typed language, NetBeans supports type definition comments. This type of comment is intended to help the user of the IDE know what type a variable should be and also what types of variables a method expects and allow auto completion to function.</p>
+
+<p>Example:
+<code></p>
+
+<pre><code>/**
+ * Remove item from cart
+ *
+ * @param   int $itemId This is the id of the item to remove
+ * @return  Mage_Checkout_Model_Cart
+ */
+public function removeItem($itemId)
+{
+    $this-&gt;getQuote()-&gt;removeItem($itemId);
+    return $this;
+}
+</code></pre>
+
+<p></code>
+This example lets NetBeans know that removeItem&rsquo;s one parameter should be an integer and that it returns an object of type Mage_Checkout_Model_Cart.
+<img src="/assets/autocompleate1.png"></p>
+
+<p>The other type of type comment tells NetBeans that a particular variable is of a specific type.
+For example:
+<code>
+class RemeberNumber {</p>
+
+<pre><code>/** @var $theNumber int */
+protected $theNumber;
+
+public function __construct($number) {
+    $this-&gt;theNumber = $number;
+}
+</code></pre>
+
+<p>}
+</code></p>
+
+<p>Because of the /<em>* @var $theNumber int </em>/ auto completion will now use that as the type else where with in the scope of that variable definition.</p>
+
+<p><img src="/assets/autocompleate2.png"></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: improve | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/improve/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html"/>
+    <updated>2012-12-04T12:21:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys</id>
+    <content type="html"><![CDATA[<p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php
+```php</p>
+
+<p>/**</p>
+
+<pre><code> * Generate a nice unique block cache key
+ *
+ * @param Mage_Core_Block_Abstract $block
+ * @return string
+ */
+public function ecCacheKey(Mage_Core_Block_Abstract $block){
+    $class = get_class($block);
+    $template = $block-&gt;getTemplateFile();
+    $md5 = md5(var_export($block-&gt;getData(), true));
+    $params = trim(implode(",", $block-&gt;getRequest()-&gt;getParams()), ',');
+    $category=($block-&gt;getCurrentCategory())?$block-&gt;getCurrentCategory()-&gt;getName():'no-category';
+    $store_id = Mage::app()-&gt;getStore()-&gt;getId();
+    return 'edmondscommerce-'. $params . '-'. $category . '-' . $store_id . '-' . $class.'-'.$template.'-'.$md5;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:
+```php</p>
+
+<pre><code>public function _construct(){
+    parent::_construct();
+    $this-&gt;addData(array(
+        'cache_lifetime' =&gt; 999999999,
+        'cache_tags' =&gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),
+        'cache_key' =&gt; Mage::helper('blockcaching')-&gt;ecCacheKey($this)
+    ));
+
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Optimised Hosting]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-optimised-hosting.html"/>
+    <updated>2011-09-15T07:17:03+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-optimised-hosting</id>
+    <content type="html"><![CDATA[<p>Edmonds Commerce have been with Magento since the beginning. If you would like us to optimise your VPS or dedicated server for Magento then please <a href="http://edmondscommerce.github.io/contact-us/">get in touch today</a>.</p>
+
+<p>Back then the speed of Magento was one of its main drawbacks. Since that time, the code has improved a lot and things have generally got a lot better but one thing that has become clear over the years is that Magento really does require a well optimised hosting platform to perform the best. Conversely, hosting Magento on a badly configured or none optimised hosting stack will have a really detrimental effect on the performance of the store.</p>
+
+<p>If you are using shared hosting then you are a bit stuck. Magento optimised shared hosting is available and there are some good companies out there that we would be happy to recommend for you. If your current store is not performing well though and you are on shared hosting then the likelihood is that the only solution is to either upgrade to some kind of dedicated or virtual private server, commonly shortened to VPS.</p>
+
+<p>A VPS or VDS as they are some times called is what is known as a virtual machine. It is a full instance of an operating system (Linux) running on hardware that is actually running multiple virtual machines from one real server. In some respects this is like shared hosting, however the difference is that on a VPS you have a fully dedicated, private and customisable operating system that can be configured and optimised as required.</p>
+
+<p>Of course if you have a real dedicated server then you have the same benefits of a VPS and also enjoy dedicated hardware.</p>
+
+<p>Either way, as soon as you have a dedicated operating system you are free to configure your database, web server and PHP however you wish. Generally though this is too technical for most people. This is where we come in.</p>
+
+<p>We are happy to provide for you a full VPS or dedicated server Magento optimisation service. Our Magento hosting optimisation service will ensure you are getting the best out of your current hosting package. It means that you are not required to move hosts if you are generally happy them, but you can be assured that you are running on a highly optimised Magento stack.</p>
+
+<p>If that sounds interesting and you would like to discuss this in more detail, simply <a href="http://edmondscommerce.github.io/contact-us/">get in touch today</a></p>
+]]></content>
+  </entry>
+  
+</feed>

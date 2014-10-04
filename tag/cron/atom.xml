@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: cron | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/cron/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Bash Single Process Enforcement]]></title>
+    <link href="http://edmondscommerce.github.io/bash/simple-bash-single-process-enforcement.html"/>
+    <updated>2013-02-21T15:06:39+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/simple-bash-single-process-enforcement</id>
+    <content type="html"><![CDATA[<p>If you have a bash script that you want to make sure there is only ever one instance of, for example something triggered by cron that might not have finished the next time cron tries to trigger it then you might like this little snippet:</p>
+
+<p>This is built for running Magento shell scripts (if you don&rsquo;t know about these, check them out) that are run on cron.</p>
+
+<p>Also note the logging that keeps log files</p>
+
+<p>Note the use of a character class in grep means it wont match itself &ndash; nice eh :)</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<p>HOUR=<code>date +'%H:%M'</code>
+RUNNING=<code>ps waux | grep "longrunner[.]php"</code>
+if [ &ldquo;&rdquo; == &ldquo;$RUNNING&rdquo; ]
+then</p>
+
+<pre><code>echo "Its not running, we can now run it"
+php -f /home/my/public_html/shell/longrunner.php -- import &gt; /home/my/public_html/var/log/mylog.txt 2&gt;&amp;1
+cp -f  /home/my/public_html/var/log/my.txt /home/my/public_html/var/log/${HOUR}.my.txt
+echo "COMPLETED"
+</code></pre>
+
+<p>else</p>
+
+<pre><code>echo "It is running, aborting running this time"
+</code></pre>
+
+<p>fi</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Cron not Working in Magento +Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/cron-not-working-in-magento-solution.html"/>
+    <updated>2012-11-13T16:34:33+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/cron-not-working-in-magento-solution</id>
+    <content type="html"><![CDATA[<p>I recently had a Magento store that was not running cron jobs despite everything appearing to be set up correctly.</p>
+
+<p>After tearing out my hair, I discovered that there was a cron job running that had not closed properly, which prevented any new cron jobs from starting.</p>
+
+<p>This is because the cron.sh file that is used by magento checks the currently running processes, and if one exists quietly exits.</p>
+
+<p>To check if this is the case you can run a modified line from the cron.sh file as set out below</p>
+
+<p><code>
+ps auxwww | grep &ldquo;/path/to/magento/cron.php&rdquo; | grep -v grep | grep -v cron.sh
+</code></p>
+
+<p>If this returns a line similar to the one below</p>
+
+<p><code>
+root      2125  0.0  0.9 329896 40484 ?        S    Nov13   0:00 /usr/bin/php /path/to/magento/cron.php
+</code></p>
+
+<p>You can kill the running job, which will allow cron to run normally. At this stage you should debug the cron tasks to see why the process stalled</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Linux Bash Scripting: Force Screen if not Cron Task]]></title>
+    <link href="http://edmondscommerce.github.io/linux/linux-bash-scripting-force-screen-if-not-cron-task.html"/>
+    <updated>2012-08-30T09:27:16+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/linux-bash-scripting-force-screen-if-not-cron-task</id>
+    <content type="html"><![CDATA[<p>If you have a long running script that is designed to run as cron but may be run manually from the terminal then you may want to enforce screen so that the process can&rsquo;t be aborted by the SSH terminal being closed for whatever reason.</p>
+
+<p>We already blogged about how to <a href="http://www.edmondscommerce.co.uk/linux/force-a-bash-script-to-run-in-screen/" title="Linux Force Screen">force running as screen here</a>.</p>
+
+<p>This is an extension of this that also checks for running as Cron and if so, does not force screen.</p>
+
+<p>```bash</p>
+
+<h1>First off, ensure running from Cron and if not, Screen</h1>
+
+<p>if [ -t 1 ]
+then</p>
+
+<pre><code>echo &amp;quot;Not running as Cron Task&amp;quot;
+if [ -n &amp;quot;$STY&amp;quot; ];
+then
+    echo 'We are inside screen, good';
+else
+    echo &amp;quot;Not in a screen, please run with screen&amp;quot;
+    echo &amp;quot;Exiting&amp;quot;
+    exit 1
+fi
+</code></pre>
+
+<p>else</p>
+
+<pre><code>echo &amp;quot;Running as Cron Task&amp;quot;
+</code></pre>
+
+<p>fi</p>
+
+<p>```</p>
+
+<p>Simply paste this somewhere close to the top of your script before it does anything and this will work nicely.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Increase the Stabilty of your Magento cron]]></title>
+    <link href="http://edmondscommerce.github.io/magento/increase-the-stabilty-of-your-magento-cron.html"/>
+    <updated>2012-08-24T13:51:04+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/increase-the-stabilty-of-your-magento-cron</id>
+    <content type="html"><![CDATA[<p>Sometimes when your cron process in Magento seems to not be working it is worth doubling up the ways it gets executed.</p>
+
+<p>One reason for this is various extensions (notably EERP from boostmyshop) set up an override to ensure that the same cron task is not run a second time if it&rsquo;s still running when the first run happens.</p>
+
+<p>Often the cli setup for php is not configured with the same timeouts etc. that the web setup is.  Therefore one thing that can make your cron more &ldquo;stable&rdquo; is to use wget or curl to fetch the cron.php file rather than (or as well as) running the cron.sh script.</p>
+
+<p>Here&rsquo;s what to add to the server&rsquo;s crontab (/etc/crontab or crontab -e) to use wget to fire off the cron :
+```</p>
+
+<ul>
+<li><ul>
+<li><ul>
+<li><ul>
+<li><ul>
+<li>/usr/bin/wget -O- www.mycoolsite.com/cron.php > /dev/null 2> /dev/null</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>```</p>
+
+<p>That of course needs the url changing to match your domain.  It&rsquo;s worth noting that having output and stderror piped to /dev/null in a crontab is probably not the best practice but given that any module can create cron tasks that output stuff, your sysadmin might dislike getting that emailed to them!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Server Migration - Synch Cron Tab via SSH]]></title>
+    <link href="http://edmondscommerce.github.io/linux/server-migration-synch-cron-tab-via-ssh.html"/>
+    <updated>2012-01-04T17:54:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/server-migration-synch-cron-tab-via-ssh</id>
+    <content type="html"><![CDATA[<p>If you are handling a server migration and would like to have a scripted way to copy the crontab from one machine to the other then you might like this little snippet.</p>
+
+<p>```</p>
+
+<p>ssh -p2020 <a href="&#x6d;&#97;&#105;&#108;&#x74;&#x6f;&#x3a;&#114;&#111;&#x6f;&#116;&#64;&#x31;&#50;&#51;&#x2e;&#x31;&#50;&#x33;&#46;&#x31;&#50;&#51;&#x2e;&#x31;&#50;&#51;">&#114;&#111;&#111;&#x74;&#x40;&#x31;&#x32;&#51;&#46;&#x31;&#x32;&#51;&#x2e;&#49;&#50;&#x33;&#46;&#x31;&#x32;&#x33;</a> &lsquo;crontab -l&rsquo; | crontab &ndash;</p>
+
+<p>```</p>
+
+<p>This will get the contents of the root crontab from one server and apply it to the current server, replacing any current cron tab settings.</p>
+
+<p>This is nice if you want to have a repeatable server resynch process whilst you are migrating and the crontab on the old server may change</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: functions | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/functions/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Building Bash function libraries]]></title>
+    <link href="http://edmondscommerce.github.io/programming/linux/ubuntu/building-bash-function-libraries.html"/>
+    <updated>2011-05-27T10:04:15+01:00</updated>
+    <id>http://edmondscommerce.github.io/programming/linux/ubuntu/building-bash-function-libraries</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Bash provides many powerful functions but how can you use these easily?</p>
+
+<p>If you spend any time using the command line, either to manage a server or on the desktop, you have to quickly become proficient with bash. You will also find the you carry out many of the same tasks time after time.</p>
+
+<p>This can quickly become tiresome and error prone, particularly if you are piping several commands together. However, bash provides several ways to make your life easier.</p>
+
+<h3>Aliases</h3>
+
+
+<p>If you are always going to be using the same flags with a command, you can ensure that they are called by default by using an alias.</p>
+
+<p>An alias is a shorthand that bash uses in order to fire commands. Several are included as standard with Ubuntu (and other distros) and are stored in your .bashrc file. You can edit these and add your own as the need occurs.</p>
+
+<p>An example of this is that I prefer the human readable file sizes when using ls. You can turn these on using the -h flag, but you have to include this every time you run the command. To make things easier I changed the alias for ll (long list) to read as follows</p>
+
+<p>```</p>
+
+<p>alias ll=&ldquo;ls -ahlF&rdquo;</p>
+
+<p>```</p>
+
+<p>This way I don&rsquo;t need to remember to put the flag in.</p>
+
+<p>As you build up more of these commands, it makes sense to store them in a separate file so you can easily find and edit them. You can place all of you aliases in a file called .bash_aliases and they will be available for use.</p>
+
+<h3>Scripts</h3>
+
+
+<p>Aliases are fine for quickly calling simple commands, but many times you will need to carry out more complex tasks. In order to do this, you can make a script, and then call that.</p>
+
+<p>By placing everything into a script, you benefit from being able to carry out more complicated functions, and the easy of calling it from a single command.</p>
+
+<p>An example of this would be if you wanted to compare two branches in git, and see all of the files that had been created or modified, but not the files that had been deleted. You create a file called git_get_changed_files and put the following in</p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>local ORIGINAL CHANGED FILES
+ORIGINAL=&ldquo;$1&rdquo;
+CHANGED=&ldquo;$2&rdquo;</p>
+
+<pre><code>FILES=$(git diff --name-status $ORIGINAL..$CHANGED public/ | awk '{print $1"@@@@@"$2}')
+for FILE in $FILES
+do
+        echo "$FILE" | awk -F "@@@@@" '{ i=""; if ($1 != "D") print $2}'
+done
+</code></pre>
+
+<p>```</p>
+
+<p>If you place this in your home/bin folder you will then be able to run  git_get_changed_files like a normal command.</p>
+
+<h3>A Global Function Library</h3>
+
+
+<p>You can expand on this by creating a global library of functions. This works by putting all of the functions into a folder, where each file is a namespace for different functions.</p>
+
+<p>This can be achieved by creating a script that will source of all of the files in a folder, like so:</p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>for f in $(ls /path/to/folder/);</p>
+
+<pre><code>do source /path/to/folder/$f; 
+</code></pre>
+
+<p>done</p>
+
+<p>```</p>
+
+<p>Call this script func and place it in your home/bin folder. Then you put a script in the folder referenced in the file and use the following structure.</p>
+
+<p>```</p>
+
+<p>function parse.(){ # auto complete helper, second argument is a grep against the function list</p>
+
+<pre><code>if [[ '' == "$@" ]]
+then
+    echo "Parse Namespaced Functions List"
+    cat $BASH_SOURCE | grep "^function[^(]" | awk '{j=" USAGE:"; for (i=5; i&lt;=NF; i++) j=j" "$i; print $2" "j}'
+else
+    echo "Parse Functions Matching: $@"
+    cat $BASH_SOURCE | grep "^function[^(]" | awk '{j=" USAGE:"; for (i=5; i&lt;=NF; i++) j=j" "$i; print $2" "j}' | grep $@
+fi
+</code></pre>
+
+<p>}</p>
+
+<p>function parse.access_log_top_ten_code() { # Show the top ten code from access_log: useage &hellip;code $FILE $CODE</p>
+
+<pre><code>FILE=$1
+CODE=$2
+echo "Count the top ten $CODE'd pages"
+
+cat $FILE | awk '{ i=($9=="$CODE" ) ? $7 : ""; print i; }' | sort | uniq -c | sort -n | tail -n 11 | head -n 10
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>In this folder a namespace of parse is created. Running
+```</p>
+
+<p>func parse.</p>
+
+<p>```</p>
+
+<p>Will list all of the function in the file. Running func parse. log will list all of the function that contain log in the function name or description. When the files are listed, the function name will be displayed with the comment along side it.</p>
+
+<p>As the func command sources all of the different files, you are able to makes use of the functions across different namespaces. This means that you can create a file that will format output and then use that in with your git functions.</p>
+
+<p>I hope that you are able to make use of this idea, and build your own library of functions. Anything that you thing would be useful to add to the library, please mention below.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Symfony.. More Thoughts as I Continue to Play]]></title>
+    <link href="http://edmondscommerce.github.io/symfony/symfony-more-thoughts-as-i-continue-to-play.html"/>
+    <updated>2009-11-26T17:47:15+00:00</updated>
+    <id>http://edmondscommerce.github.io/symfony/symfony-more-thoughts-as-i-continue-to-play</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Continuing to play around with Symfony I am impressed with what I am seeing. It definitely has a feeling of &ldquo;best practices&rdquo; that seems to pervade the whole framework. It feels like without any effort you are going to be working in a secure way. It also seems to do a hell of a lot for you automatically.</p>
+
+<p>As it relies heavily on command line scripts, there is even room for further automation by creating my own custom scripts to chain together symfony commands. In fact I&rsquo;m starting to feel like I wont need to do any PHP coding at all any more, just figure out the data model and run a custom shell script, and then issue the invoice!</p>
+
+<p>Of course its not going to be that easy. For one thing, creating YAML files is still taking some getting used to. And deciphering errors on the command line is also taking some getting used to, even though they are probably the same old error messages. One thing that tripped me up was a typo in one of my YAML files that sent Propel looking for a non existant class when running the data-load command. That&rsquo;s one of those &ldquo;gotchas&rdquo; that is bound to happen, but being so green it stumped me for a few minutes until I spotted the errant extra &lsquo;l&rsquo; in one part of the YAML.</p>
+
+<p>I now have some nice generated class structures with data models, and Netbeans&rsquo;s autocomplete is making life even easier for me, suggesting object property getters as I type so I don&rsquo;t even need to refer back to the schema to double check column names, cool.</p>
+
+<p>Another thing I have noticed is the use of good old fashioned procedural style functions. This is good, because PHP lets you do this and why should you have to have absolutely everything inside a class when all you need is a little function that you can use here and there. Namely the template system uses functions like <code>
+&lt;?php include_metas()?&gt; and &lt;?php echo url_for('module/action')?&gt;
+</code>. I like this. I&rsquo;m not a Java developer, I&rsquo;m a PHP developer, so we can do this kind of thing :).</p>
+]]></content>
+  </entry>
+  
+</feed>

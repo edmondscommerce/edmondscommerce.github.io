@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: method | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/method/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html"/>
+    <updated>2012-12-04T12:21:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys</id>
+    <content type="html"><![CDATA[<p>If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.</p>
+
+<p>Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.</p>
+
+<p>When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.</p>
+
+<p>For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php
+```php</p>
+
+<p>/**</p>
+
+<pre><code> * Generate a nice unique block cache key
+ *
+ * @param Mage_Core_Block_Abstract $block
+ * @return string
+ */
+public function ecCacheKey(Mage_Core_Block_Abstract $block){
+    $class = get_class($block);
+    $template = $block-&gt;getTemplateFile();
+    $md5 = md5(var_export($block-&gt;getData(), true));
+    $params = trim(implode(",", $block-&gt;getRequest()-&gt;getParams()), ',');
+    $category=($block-&gt;getCurrentCategory())?$block-&gt;getCurrentCategory()-&gt;getName():'no-category';
+    $store_id = Mage::app()-&gt;getStore()-&gt;getId();
+    return 'edmondscommerce-'. $params . '-'. $category . '-' . $store_id . '-' . $class.'-'.$template.'-'.$md5;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>You would use this in the following way:</p>
+
+<p>In a block class, set up the following:
+```php</p>
+
+<pre><code>public function _construct(){
+    parent::_construct();
+    $this-&gt;addData(array(
+        'cache_lifetime' =&gt; 999999999,
+        'cache_tags' =&gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),
+        'cache_key' =&gt; Mage::helper('blockcaching')-&gt;ecCacheKey($this)
+    ));
+
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Create Category Method]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-create-category-method.html"/>
+    <updated>2012-03-02T18:30:04+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-create-category-method</id>
+    <content type="html"><![CDATA[<p>Ideal to drop into a helper, this is a simplified create category method.</p>
+
+<p>You need to specify the name, store_id and parent category id and can optionally set to active, anchor and change the display mode if you wish.</p>
+
+<p>```php</p>
+
+<p>public function createCategory($name, $store_id, $parent_id, $active = 0, $anchor = 0, $display_mode=&lsquo;PRODUCTS&rsquo;) {</p>
+
+<pre><code>    $parent = Mage::getModel('catalog/category')-&gt;load($parent_id);
+    if($parent-&gt;getId() != $parent_id){
+        Mage::helper('exception')-&gt;except('Failed to load parent category', 'Fatal');
+    }
+    $category = Mage::getModel('catalog/category');
+    /* @var $category Mage_Catalog_Model_Category */
+    $category
+            -&gt;setStoreId($store_id)
+            -&gt;setPath($parent-&gt;getPath())
+            -&gt;setName($name)
+            -&gt;setUrlKey($name)
+            -&gt;setIsActive($active)
+            -&gt;setIsAnchor($anchor)
+            -&gt;setDisplayMode($display_mode)
+            -&gt;setAttributeSetId($category-&gt;getDefaultAttributeSetId())
+    ;
+    $category-&gt;save();
+    return $category;
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP, __get() and empty() Not Working As You Expect? - Solution]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-__get-and-empty-not-working-as-you-expect-solution.html"/>
+    <updated>2010-03-19T10:57:32+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-__get-and-empty-not-working-as-you-expect-solution</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you are tearing your hair out trying to figure out why empty($object->property) = true when var_dump($object->property) outputs a value &ndash; this might be the problem.</p>
+
+<p>It arises if you are using the magic __get() method to serve up object properties.</p>
+
+<p>Apparently PHP&rsquo;s empty() function actually uses isset() to determine if the property is empty or not. To get this to work properly, you also need to declare a magic __isset() method.</p>
+
+<p>This is how I got around this problem:</p>
+
+<p>```php</p>
+
+<p>public function __get($key){</p>
+
+<pre><code>if(/* some condition to return your key */){
+    return $this-&gt;$key;
+}
+return null;
+</code></pre>
+
+<p>}</p>
+
+<p>public function __isset($key){</p>
+
+<pre><code>if(null===$this-&gt;__get($key)){
+    return false;
+}
+return true;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>thanks to Janci&rsquo;s comment <a href="http://www.php.net/manual/en/function.empty.php#93117">here</a>, I&rsquo;m not sure how long that would have taken me to figure out on my own, but for sure you saved me a LOT of time. I hope this blog post helps out someone else who hits this same issue.</p>
+]]></content>
+  </entry>
+  
+</feed>

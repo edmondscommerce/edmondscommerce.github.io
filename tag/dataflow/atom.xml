@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: dataflow | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/dataflow/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Dataflow Images Not Working + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-dataflow-images-not-working-solution.html"/>
+    <updated>2011-02-17T16:03:49+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-dataflow-images-not-working-solution</id>
+    <content type="html"><![CDATA[<p>If you are struggling to understand why Magento is not finding images that are definitely there, the problem may well be that you are not prefixing your image with a slash, i.e for a new image we would put:</p>
+
+<p>/image.jpg</p>
+
+<p>and the image would be in</p>
+
+<p>media/import/image.jpg</p>
+
+<p>Unfortunately whoever wrote the Dataflow product importer though it would be a good idea to silently capture all exceptions on image imports which removes any useful error messages that might occur (such as no image at media/importimage.jpg)</p>
+
+<p>If you would prefer to fix this, you can override Mage_Catalog_Model_Convert_Adapter_Product</p>
+
+<p>Copy the saveRow() method into your overriding class and then change this bit</p>
+
+<p>```php</p>
+
+<p>foreach ($imageData as $file => $fields) {</p>
+
+<pre><code>        try {
+            $filepath = Mage::getBaseDir('media') . DS . 'import' . trim($file);
+            $product-&gt;addImageToMediaGallery($filepath, $fields);
+        } catch (Exception $e) {}
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>To something like this</p>
+
+<p>```php</p>
+
+<p>foreach ($imageData as $file => $fields) {</p>
+
+<pre><code>        //try {
+            $filepath = Mage::getBaseDir('media') . DS . 'import' . trim($file);
+            $product-&gt;addImageToMediaGallery($filepath, $fields);
+       //} catch (Exception $e) {}
+    }
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Dataflow Not Updating Some Columns / Attributes + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-dataflow-not-updating-some-columns-attributes.html"/>
+    <updated>2010-12-10T14:32:20+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-dataflow-not-updating-some-columns-attributes</id>
+    <content type="html"><![CDATA[<p>If you are scratching your head trying to figure out why Magento Dataflow seems to be totally ignoring the values you are putting in some columns (for me it was qty_increments and enable_qty_increments) then this is your solution.</p>
+
+<p>In a nutshell, Dataflow totally ignores some columns despite including them in the output file &ndash; quite a few actually.</p>
+
+<p>I am planning to release an extension that generally tidies up the behaviour of Dataflow and also includes creation of Attribute Sets and Categories which has come up as a requirement for a client project. However this little nugget of fun has cost me a few hours so I thought I would share the solution straight away.</p>
+
+<p>The columns that are updated by dataflow are controlled by the modules (in this case Mage_Catalog) config.xml file. If you want to enable extra columns you need to create a simple custom module to override that xml.</p>
+
+<p>This is the contents of the config.xml</p>
+
+<p>```xml</p>
+
+<p>&lt;?xml version=&ldquo;1.0&rdquo;?></p>
+
+<!--
+/**
+ * EdmondsCommerce
+ * www.edmondscommerce.co.uk
+ * info@edmondscommerce.co.uk
+ * +44 (0)844 357 0201
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ *
+ * @category   EdmondsCommerce
+ * @package    EdmondsCommerce_DataFlow
+ * @copyright  Copyright (c) 2010 Edmonds Commerce (http://www.edmondscommerce.co.uk)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ -->
+
+
+<p><config></p>
+
+<pre><code>&lt;modules&gt;
+    &lt;EdmondsCommerce_DataFlow&gt;
+            &lt;depends&gt;
+                    &lt;Mage_Catalog /&gt;
+                    &lt;Mage_Dataflow /&gt;
+              &lt;/depends&gt;
+            &lt;version&gt;0.1.0&lt;/version&gt;
+    &lt;/EdmondsCommerce_DataFlow&gt;
+&lt;/modules&gt;
+   &lt;admin&gt;
+    &lt;fieldsets&gt;
+        &lt;catalog_product_dataflow&gt;
+            &lt;qty&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;to_number&gt;1&lt;/to_number&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                &lt;/product_type&gt;
+            &lt;/qty&gt;
+            &lt;min_qty&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;to_number&gt;1&lt;/to_number&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                &lt;/product_type&gt;
+            &lt;/min_qty&gt;
+            &lt;is_qty_decimal&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                &lt;/product_type&gt;
+            &lt;/is_qty_decimal&gt;
+            &lt;backorders&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                &lt;/product_type&gt;
+            &lt;/backorders&gt;
+            &lt;min_sale_qty&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;to_number&gt;1&lt;/to_number&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                &lt;/product_type&gt;
+            &lt;/min_sale_qty&gt;
+            &lt;max_sale_qty&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;to_number&gt;1&lt;/to_number&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                &lt;/product_type&gt;
+            &lt;/max_sale_qty&gt;
+            &lt;is_in_stock&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;inventory_other&gt;1&lt;/inventory_other&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                    &lt;configurable /&gt;
+                    &lt;grouped /&gt;
+                &lt;/product_type&gt;
+            &lt;/is_in_stock&gt;
+            &lt;notify_stock_qty&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                &lt;/product_type&gt;
+            &lt;/notify_stock_qty&gt;
+            &lt;manage_stock&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                    &lt;configurable /&gt;
+                    &lt;grouped /&gt;
+                &lt;/product_type&gt;
+            &lt;/manage_stock&gt;
+            &lt;!-- EdmondsCommerce added //--&gt;
+            &lt;enable_qty_increments&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                    &lt;configurable /&gt;
+                    &lt;grouped /&gt;
+                &lt;/product_type&gt;
+            &lt;/enable_qty_increments&gt;
+            &lt;qty_increments&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                    &lt;configurable /&gt;
+                    &lt;grouped /&gt;
+                &lt;/product_type&gt;
+            &lt;/qty_increments&gt;
+            &lt;!-- EdmondsCommerce ends //--&gt;
+            &lt;image&gt;&lt;img&gt;1&lt;/img&gt;&lt;/image&gt;
+            &lt;small_image&gt;&lt;img&gt;1&lt;/img&gt;&lt;/small_image&gt;
+            &lt;thumbnail&gt;&lt;img&gt;1&lt;/img&gt;&lt;/thumbnail&gt;
+
+            &lt;store&gt;&lt;external&gt;1&lt;/external&gt;&lt;/store&gt;
+            &lt;websites&gt;&lt;external&gt;1&lt;/external&gt;&lt;/websites&gt;
+            &lt;sku&gt;&lt;external&gt;1&lt;/external&gt;&lt;/sku&gt;
+            &lt;attribute_set&gt;&lt;external&gt;1&lt;/external&gt;&lt;ignore&gt;1&lt;/ignore&gt;&lt;/attribute_set&gt;
+            &lt;type&gt;&lt;external&gt;1&lt;/external&gt;&lt;ignore&gt;1&lt;/ignore&gt;&lt;/type&gt;
+            &lt;name&gt;&lt;external&gt;1&lt;/external&gt;&lt;required&gt;1&lt;/required&gt;&lt;/name&gt;
+            &lt;description&gt;&lt;external&gt;1&lt;/external&gt;&lt;required&gt;1&lt;/required&gt;&lt;/description&gt;
+            &lt;short_description&gt;&lt;external&gt;1&lt;/external&gt;&lt;required&gt;1&lt;/required&gt;&lt;/short_description&gt;
+            &lt;weight&gt;&lt;external&gt;1&lt;/external&gt;&lt;required&gt;1&lt;/required&gt;&lt;/weight&gt;
+            &lt;price&gt;&lt;external&gt;1&lt;/external&gt;&lt;required&gt;1&lt;/required&gt;&lt;/price&gt;
+
+            &lt;tax_class_id&gt;&lt;required&gt;1&lt;/required&gt;&lt;/tax_class_id&gt;
+            &lt;category_ids&gt;&lt;system&gt;1&lt;/system&gt;&lt;ignore&gt;1&lt;/ignore&gt;&lt;/category_ids&gt;
+
+            &lt;entity_id&gt;&lt;system&gt;1&lt;/system&gt;&lt;internal&gt;1&lt;/internal&gt;&lt;ignore&gt;1&lt;/ignore&gt;&lt;/entity_id&gt;
+            &lt;old_id&gt;&lt;internal&gt;1&lt;/internal&gt;&lt;/old_id&gt;
+            &lt;tier_price&gt;&lt;internal&gt;1&lt;/internal&gt;&lt;/tier_price&gt;
+            &lt;media_gallery&gt;&lt;internal&gt;1&lt;/internal&gt;&lt;/media_gallery&gt;
+
+            &lt;entity_type_id&gt;&lt;system&gt;1&lt;/system&gt;&lt;/entity_type_id&gt;
+            &lt;attribute_set_id&gt;&lt;system&gt;1&lt;/system&gt;&lt;ignore&gt;1&lt;/ignore&gt;&lt;/attribute_set_id&gt;
+            &lt;type_id&gt;&lt;system&gt;1&lt;/system&gt;&lt;ignore&gt;1&lt;/ignore&gt;&lt;/type_id&gt;
+            &lt;created_at&gt;&lt;system&gt;1&lt;/system&gt;&lt;/created_at&gt;
+            &lt;updated_at&gt;&lt;system&gt;1&lt;/system&gt;&lt;/updated_at&gt;
+            &lt;item_id&gt;&lt;system&gt;1&lt;/system&gt;&lt;/item_id&gt;
+            &lt;product_id&gt;&lt;system&gt;1&lt;/system&gt;&lt;/product_id&gt;
+            &lt;stock_id&gt;&lt;system&gt;1&lt;/system&gt;&lt;/stock_id&gt;
+            &lt;required_options&gt;&lt;system&gt;1&lt;/system&gt;&lt;ignore&gt;1&lt;/ignore&gt;&lt;/required_options&gt;
+        &lt;/catalog_product_dataflow&gt;
+    &lt;/fieldsets&gt;
+&lt;/admin&gt;
+</code></pre>
+
+<p></config></p>
+
+<p>```</p>
+
+<p>If you look towards the middle you will see this bit:</p>
+
+<p>```xml</p>
+
+<pre><code>        &lt;!-- EdmondsCommerce added //--&gt;
+            &lt;enable_qty_increments&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                    &lt;configurable /&gt;
+                    &lt;grouped /&gt;
+                &lt;/product_type&gt;
+            &lt;/enable_qty_increments&gt;
+            &lt;qty_increments&gt;
+                &lt;inventory&gt;1&lt;/inventory&gt;
+                &lt;use_config&gt;1&lt;/use_config&gt;
+                &lt;product_type&gt;
+                    &lt;simple /&gt;
+                    &lt;virtual /&gt;
+                    &lt;configurable /&gt;
+                    &lt;grouped /&gt;
+                &lt;/product_type&gt;
+            &lt;/qty_increments&gt;
+            &lt;!-- EdmondsCommerce ends //--&gt;
+</code></pre>
+
+<p>```</p>
+
+<p>If there are any other columns you need to enable then you will need to do something similar.</p>
+]]></content>
+  </entry>
+  
+</feed>

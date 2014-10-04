@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: http | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/http/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-03T12:36:28+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Trigger Basic Auth Popup in Chrome]]></title>
+    <link href="http://edmondscommerce.github.io/chrome/trigger-basic-auth-popup-in-chrome.html"/>
+    <updated>2013-12-02T19:32:58+00:00</updated>
+    <id>http://edmondscommerce.github.io/chrome/trigger-basic-auth-popup-in-chrome</id>
+    <content type="html"><![CDATA[<p>In Chrome, if you have already authenticated with a site using Basic Authentiation (a Web Server level authentication) then you will have probably realised that once you are authenticated, Chrome does not continuously prompt you for the details, and that is a good thing.
+However, in a scenario where perhaps you want to authenticate as a different user or otherwise re enter the details then it can be tricky to figure out how to do this.</p>
+
+<p>The answer is simple enough, you can retrigger this prompt by putting your username@ the url and the pop up will be shown again.</p>
+
+<p>To be clear:</p>
+
+<p><code>
+http://www.somedomain.com
+</code></p>
+
+<p>becomes:</p>
+
+<p><code>
+http://username@www.somedomain.com
+</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Wget For Beginners]]></title>
+    <link href="http://edmondscommerce.github.io/linux/wget-for-beginners.html"/>
+    <updated>2012-11-19T08:02:25+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/wget-for-beginners</id>
+    <content type="html"><![CDATA[<h3>What is Wget in general ?</h3>
+
+
+<p>Wget is a free utility for non-interactive download of file from the web. The user doesn’t need to login system every time <a href="http://www.gnu.org/software/wget/" rel="nofollow">Wget</a> can download the entire web page or mirroring the entire web page. If download crashed or stop for various reason Wget will start download again from where it stopped. It is highly recommended for downloading file from web with slow network connections.</p>
+
+<h2>How to Use Wget ? </h2>
+
+
+<p>```php</p>
+
+<p>wget -t 10 www.google.com</p>
+
+<p>```</p>
+
+<p>If network connection fails Wget will to try to reconnect 20 times in default.With -t command we can specify how many times it need to  reconnect.</p>
+
+<p>```php</p>
+
+<p>wget -p &mdash;convert-links -r www.google.com -o logfile</p>
+
+<p>```</p>
+
+<p>This command will download the site -p and &mdash;convert will make sure all linked files are linked to downloaded document such as images and external links it enables complete offline viewing. Log file can be enabled with -O command to view the output message.</p>
+
+<p>```php</p>
+
+<p>wget &mdash;spider &mdash;force-html www.google.com</p>
+
+<p>```</p>
+
+<p>&mdash;spider Will check the webpage is existent or not.
+&mdash;force  It will enforce the file type that have to be downloaded.</p>
+
+<p>```php</p>
+
+<p>wget -u mozilla www.google.com</p>
+
+<p>```</p>
+
+<p>some site access allowed to certain user <a href="http://www.user-agents.org/" rel="nofollow">agents</a>. So to access with certain user agent you can use this command.</p>
+
+<p>Ftp connection download is achieved by</p>
+
+<p>```php</p>
+
+<p>wget -r <a href="ftp://username:password@ftp.example.com">ftp://username:password@ftp.example.com</a></p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Zend Framework Rest HTTP Basic Authentication]]></title>
+    <link href="http://edmondscommerce.github.io/zend%20framework/zend-framework-rest-http-basic-authentication.html"/>
+    <updated>2012-02-21T12:43:44+00:00</updated>
+    <id>http://edmondscommerce.github.io/zend%20framework/zend-framework-rest-http-basic-authentication</id>
+    <content type="html"><![CDATA[<p>I have recently been working on a Magento project that required a custom API integration with Zen Desk.</p>
+
+<p>Magento is based on Zend Framework which is nice because it means we can use the Zend_Rest_Client object to handle the API integration which provides a nice layer of abstraction and sorts out a lot of the heavy lifting required.</p>
+
+<p>However I came across a terminal issue trying to get it working properly with HTTP Basic Authentication which the Zen Desk API uses.</p>
+
+<p>I found some instructions which recommended creating a Zend_Uri_Http object and then setting the username and password against this. However as Zen Desk uses the email address as the username component, this failed completely.</p>
+
+<p>In the end the solution I found was to grab the static HTTP client object that the REST client is built upon and call the public setAuth method on this. This way the Authorisation header is correctly created, encoded and appended to the headers.</p>
+
+<p>Logically it feels like a dirty way to do things, grabbing the HTTP client statically to do this, but it works and I can&rsquo;t see how else you would do it.</p>
+
+<p>For info here is the code:</p>
+
+<p>```php</p>
+
+<p>/**</p>
+
+<pre><code> * @return Zend_Rest_Client 
+ */
+protected function getClient() {
+    if (null === $this-&gt;_client) {
+        $url = $this-&gt;getApiUrl();
+        $uri = Zend_Uri_Http::fromString($url);
+        $this-&gt;_client = new Zend_Rest_Client($uri);
+        Zend_Service_Abstract::getHttpClient()-&gt;setAuth($this-&gt;getUsername(),$this-&gt;getPassword());
+    }
+    return $this-&gt;_client;
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mixed Content HTTPS Red Line SSL Google Chrome]]></title>
+    <link href="http://edmondscommerce.github.io/debugging/mixed-content-https-red-line-ssl-google-chrome.html"/>
+    <updated>2012-02-13T17:11:45+00:00</updated>
+    <id>http://edmondscommerce.github.io/debugging/mixed-content-https-red-line-ssl-google-chrome</id>
+    <content type="html"><![CDATA[<p>If Chrome is displaying mix content errors this means that Chrome thinks that some of the resources on the page where loaded over HTTP rather than HTTPS. But one behaviour of Chrome that might catch you out is that if Chrome at any point on a domain encountered a page with mixed content, it will then treat the whole site as having mixed content even if a given single page does not have mixed content. Chrome is unlikely to tell you this is the reason a single page has mixed content, the best way to tell is to keep closing chrome, starting a new session and browse until you get mixed content.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Building Spiders: Grab Data, Post Forms and Interact with Web Sites Automatically]]></title>
+    <link href="http://edmondscommerce.github.io/php/curl/spidering/firefox/programming/building-spiders-grab-data-post-forms-and-interact-with-web-sites-automatically.html"/>
+    <updated>2008-02-14T11:56:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/curl/spidering/firefox/programming/building-spiders-grab-data-post-forms-and-interact-with-web-sites-automatically</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>One of the most useful and powerful things you can do with PHP is to create a programme which will simulate a web browser and can grab data, post data to forms and generally interact with other web sites &ndash; automatically.</p>
+
+<p>For PHP to be able to work like this it must have the CURL library installed and active. It is the CURL library which actually handles all of the interaction and PHP is my scripting language of choice for interacting with CURL.</p>
+
+<p>A simple CURL function is like this:</p>
+
+<p>```php</p>
+
+<p>function curl($url){</p>
+
+<p>$timeout = &lsquo;300&rsquo;; //how long before CURL gives up on this page
+$go = curl_init();
+curl_setopt ($go, CURLOPT_URL, $url);
+curl_setopt ($go, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt ($go, CURLOPT_FOLLOWLOCATION, 1);
+curl_setopt ($go, CURLOPT_TIMEOUT, $timeout);
+$page = curl_exec($go);
+curl_close($go);
+return $page;</p>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>This function when called and echoed will output the entire html of the $url specified.</p>
+
+<p>For grabbing data from this page to be inserted into a database (for example when spidering a suppliers web site for product information to be inserted into your site) we then use regular expressions to find what we are looking for and then insert that into the database.</p>
+
+<p>so for example if we wanted to grab the product title and we knew that this was wrapped in a h1 tag with the class &ldquo;product title&rdquo; we could use this regexp to grab this:</p>
+
+<p>```php</p>
+
+<p>$page = curl($url);</p>
+
+<p>$pattern = &lsquo;%</p>
+
+<h1 class="product_title">(.+?)</h1>
+
+
+<p>%i';</p>
+
+<p>preg_match($pattern,$page,$matches);</p>
+
+<p>print_r($matches); //we can see the entire array of matches and choose which we want to insert into the database</p>
+
+<p>```</p>
+
+<p>We can also Post data to web sites using curl. This allows us to do all kinds of things including grabbing data that is displayed on the submission of post forms. Here is an example Curl Post Function:
+```php</p>
+
+<p>function curl_post($url,$post_data){</p>
+
+<p>$timeout = &lsquo;300&rsquo;; //how long before CURL gives up on this page
+$go = curl_init();
+curl_setopt ($go, CURLOPT_URL, $url);
+curl_setopt ($go, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt ($go, CURLOPT_FOLLOWLOCATION, 1);
+curl_setopt ($go, CURLOPT_TIMEOUT, $timeout);
+//now for the post section
+curl_setopt($go, CURLOPT_POST, true);</p>
+
+<p>curl_setopt($go, CURLOPT_POSTFIELDS, $post_data);
+$page = curl_exec($go);
+curl_close($go);
+return $page;
+}</p>
+
+<p>```</p>
+
+<p>It can be tricky to figure out exactly what data should be in the post string. To help you out though is this incredibly handy addon for firefox: <a href="https://addons.mozilla.org/en-US/firefox/addon/3829" target="_blank">Live Http Headers</a>.</p>
+
+<p>This addon lets you see exactly what is going on between your browser and the web site you are visiting. This can quickly and easily give you the information you need to replicate the same behaviour with your CURL script.</p>
+
+<p>Edmonds Commerce specialise in working with PHP and CURL. If you have any spidering, screen scraping or other application that requires PHP to actively interact with other web sites &ndash; <a href="http://www.edmondscommerce.co.uk/contact-about-curl-and-php.html">get in touch today</a> to see how we can help you benefit from this incredibly powerful technique.</p>
+
+<p>Related Resources</p>
+
+<p><a href="http://www.phpfour.com/blog/2008/01/20/php-http-class/" rel="nofollow"><a href="http://www.phpfour.com/blog/2008/01/20/php-http-class/">http://www.phpfour.com/blog/2008/01/20/php-http-class/</a></a></p>
+
+<p><a href="http://www.phpclasses.org/browse/package/1988.html" rel="nofollow"><a href="http://www.phpclasses.org/browse/package/1988.html">http://www.phpclasses.org/browse/package/1988.html</a></a></p>
+
+<p><a href="http://www.phpit.net/article/using-curl-php/" rel="nofollow"><a href="http://www.phpit.net/article/using-curl-php/">http://www.phpit.net/article/using-curl-php/</a></a></p>
+
+<p><a href="http://skeymedia.com/intro-to-curl-with-php/" rel="nofollow"><a href="http://skeymedia.com/intro-to-curl-with-php/">http://skeymedia.com/intro-to-curl-with-php/</a></a></p>
+]]></content>
+  </entry>
+  
+</feed>
