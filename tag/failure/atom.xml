@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: failure | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/failure/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-15T18:49:34+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Silent Failures and How to Find and Stop Them]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-silent-failures-and-how-to-find-and-stop-them.html"/>
+    <updated>2011-02-03T14:04:09+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-silent-failures-and-how-to-find-and-stop-them</id>
+    <content type="html"><![CDATA[<p>If you are finding that Magento seems to be silently failing to include your files without triggering any kind of error (this tends to happen mostly with layouts or installer scripts) then you might find this useful.</p>
+
+<p>For me, my installer script wasn&rsquo;t working and it turned out to be a tiny typo in my config.xml file that meant that Magento was looking in the wrong place for the file and failing silently when it didn&rsquo;t find it:</p>
+
+<p>The code in question is here:</p>
+
+<p><strong>Mage_Core_Model_Resource_Setup
+</strong>
+```php</p>
+
+<p>protected function _modifyResourceDb($actionType, $fromVersion, $toVersion)</p>
+
+<pre><code>{
+    $resModel = (string)$this-&gt;_connectionConfig-&gt;model;
+    $modName = (string)$this-&gt;_moduleConfig[0]-&gt;getName();
+
+    $sqlFilesDir = Mage::getModuleDir('sql', $modName).DS.$this-&gt;_resourceName;
+    if (!is_dir($sqlFilesDir) || !is_readable($sqlFilesDir)) {
+        die($sqlFilesDir); //it was failing silently here, not really helpful to me
+        return false;
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>There are a few of these kinds of code snippets around the codebase. I started to think how much easier a developers life would be if we could make Magento throw exceptions instead of silently failing, at least if we are in developer mode anyway.</p>
+
+<p>To track them down we can use a bit of grep and xargs</p>
+
+<p>```</p>
+
+<p>find $ABSOLUTE_PATH_TO_MAGENTO_ROOT  -name &ldquo;*.php&rdquo; | xargs  grep -n -B 6 -A 3 &ldquo;!is_readable(&rdquo;  > $ABSOLUTE_PATH_TO_OUTPUT_FILE_INC_FILE_NAME</p>
+
+<p>```</p>
+
+<p>At some point I intend to figure a way of tracking down all these silent failures and making them noisy!</p>
+]]></content>
+  </entry>
+  
+</feed>

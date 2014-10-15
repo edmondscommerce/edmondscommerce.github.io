@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: phpunit | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/phpunit/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-15T18:49:34+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Setting up database testing in PHPUnit]]></title>
+    <link href="http://edmondscommerce.github.io/php/setting-up-database-testing-in-phpunit.html"/>
+    <updated>2012-11-09T17:34:45+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/setting-up-database-testing-in-phpunit</id>
+    <content type="html"><![CDATA[<p>I have recently been trying to write unit tests for a piece of code that reads and writes to a database.</p>
+
+<p>As I have spent far too much time trying to get this to work, this is here to act as an <em>aide-mémoire </em>for the next time that I have to do this.</p>
+
+<p>This is the actual class that is used</p>
+
+<p>```php</p>
+
+<p>&lt;?php
+require_once <strong>DIR</strong> . &lsquo;/DataPump.php&rsquo;;
+/<em><em>
+ </em> These are required to ensure that the PDO object in the class is able to work correctly
+ </em> @backupGlobals disabled
+ <em> @backupStaticAttributes disabled
+ </em>/
+class DataPumpTest extends PHPUnit_Extensions_Database_TestCase
+{</p>
+
+<p>    /<strong>
+     <em> This is the object that will be tested
+     </em> @var DataPump
+     */
+    protected $object;
+    
+    /</strong>
+     <em> only instantiate pdo once for test clean-up/fixture load
+     </em> @var PDO
+     */
+    static private $pdo = null;</p>
+
+<p>    /<em><em>
+     </em> only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
+     </em> @var type 
+     */
+    private $conn = null;</p>
+
+<p>    /<em><em>
+     </em> Sets up the fixture, for example, opens a network connection.
+     </em> This method is called before a test is executed.
+     */
+    protected function setUp()
+    {
+        $this->object = new DataPump;
+    }</p>
+
+<p>    /<em><em>
+     </em> Tears down the fixture, for example, closes a network connection.
+     </em> This method is called after a test is executed.
+     */
+    protected function tearDown()
+    {
+        
+    }
+    
+    protected function getConnection()
+    {
+        if ($this->conn === null) {
+            if (self::$pdo == null) {
+                self::$pdo = new PDO(&lsquo;mysql:dbname=testing_database;host=localhost&rsquo;, &lsquo;dbUserName&rsquo;, &lsquo;dbPassword&rsquo;);;
+            }
+            $this->conn = $this->createDefaultDBConnection(self::$pdo, &lsquo;ross_testing&rsquo;);
+        }
+        return $this->conn;
+    }</p>
+
+<p>    protected function getDataSet()
+    {
+        return $this->createMySQLXMLDataSet(<strong>DIR</strong> . &lsquo;/datapump.xml&rsquo;);
+    }</p>
+
+<p>    /<em><em>
+     </em> This is here to ensure that the database is working correctly
+     </em>/
+    public function testDataBaseConnection()
+    {
+        
+        $this->getConnection()&ndash;>createDataSet(array(&lsquo;products&rsquo;));
+        $prod = $this->getDataSet();
+        $queryTable = $this->getConnection()&ndash;>createQueryTable(
+            &lsquo;products&rsquo;, &lsquo;SELECT * FROM products&rsquo;
+        );
+        $expectedTable = $this->getDataSet()&ndash;>getTable(&lsquo;products&rsquo;);</p>
+
+<pre><code>    //Here we check that the table in the database matches the data in the XML file
+</code></pre>
+
+<p>        $this->assertTablesEqual($expectedTable, $queryTable);
+    }</p>
+
+<pre><code>/**
+ * This is where you can put your actual tests
+ */
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>The following steps need to be taken to get everything here to work.</p>
+
+<p>You need to create the testing database and tables before you can do anything else. This includes the tables that you will be reading from and the tables that you will eventually write to.</p>
+
+<p>You then need to create an XML file for the data that you are expecting. I suggest checking that the data from the read table is included in this, so you can confirm that you are working with the correct data.</p>
+
+<p>You can generate the data that is already in the database using the following command
+<code>
+mysqldump &mdash;xml -t -u username -p testing_database products > datapump.xml
+</code>
+Which will give you a file like this</p>
+
+<p>```xml</p>
+
+<p>&lt;?xml version=&ldquo;1.0&rdquo;?>
+<mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></p>
+
+<pre><code>&lt;database name="testing_database"&gt;
+    &lt;table_data name="products"&gt;
+        &lt;row&gt;
+            &lt;field name="products_id"&gt;1000001&lt;/field&gt;
+            &lt;field name="products_quantity"&gt;31&lt;/field&gt;
+            &lt;field name="products_model"&gt;example1&lt;/field&gt;
+            &lt;!-- ... --&gt;
+        &lt;/row&gt;
+        &lt;row&gt;
+            &lt;field name="products_id"&gt;1000002&lt;/field&gt;
+            &lt;field name="products_quantity"&gt;15&lt;/field&gt;
+            &lt;field name="products_model"&gt;example2&lt;/field&gt;
+            &lt;!-- ... --&gt;
+        &lt;/row&gt;
+    &lt;/table_data&gt;
+&lt;/database&gt;
+</code></pre>
+
+<p></mysqldump></p>
+
+<p>```</p>
+
+<p>The two variables in the assertTablesEqual methods are just strings, which means if after you have set everything up and the test is failing, it is possible to export them to check where the differences are.</p>
+
+<p>The big problem I had was that some export methods escaped ampersands, whilst others did not. Correcting this allowed the test to path.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHPUnit and PDOException + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/php/phpunit-and-pdoexception-solution.html"/>
+    <updated>2012-11-01T12:30:21+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/phpunit-and-pdoexception-solution</id>
+    <content type="html"><![CDATA[<p>I recently needed to run a test suite against a couple of classes that were making use of PDO.</p>
+
+<p>When I tried to run the I got the following errors in the output for every test</p>
+
+<p>PDOException: You cannot serialize or unserialize PDO instances</p>
+
+<p>There is a quick way around this you just need to add the following lines to the class level doc block</p>
+
+<p>```php</p>
+
+<p>/<em>*
+ *
+ * @backupGlobals disabled
+ * @backupStaticAttributes disabled
+ </em>/</p>
+
+<p>```</p>
+
+<p>A full explanation of these, and other annotations can be found <a title="PHP Unit Appendix B. Annotations" href="http://www.phpunit.de/manual/current/en/appendixes.annotations.html">here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento or Zend Framework Session issues with PHPUnit and session_start()]]></title>
+    <link href="http://edmondscommerce.github.io/php/magento-or-zend-framework-session-issues-with-phpunit-and-session_start.html"/>
+    <updated>2012-02-24T16:07:57+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/magento-or-zend-framework-session-issues-with-phpunit-and-session_start</id>
+    <content type="html"><![CDATA[<p>If you are having issues running unit tests that work with sessions and call session_start(), you might see error messages like this:</p>
+
+<p><strong>output started at &ldquo;PHPUnit/Util/Printer.php:173&rdquo;</strong></p>
+
+<p>If you do, the solution is fairly simple. Just add the flag &mdash;stderr to PHPUnit eg</p>
+
+<p>```</p>
+
+<p> phpunit &mdash;stderr mytest.php</p>
+
+<p>```</p>
+
+<p>If you are using Netbeans, you simply need to add this to your PHPUnit script setting in</p>
+
+<p>Tools->Options->PHP->Unit Test</p>
+
+<p>eg /opt/lampp/bin/phpunit &mdash;stderr</p>
+
+<p><img src="/assets/Screenshot-600x323.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHPUnit, LAMP, Magento and Netbeans]]></title>
+    <link href="http://edmondscommerce.github.io/netbeans/phpunit-lamp-magento-and-netbeans.html"/>
+    <updated>2012-01-10T13:11:10+00:00</updated>
+    <id>http://edmondscommerce.github.io/netbeans/phpunit-lamp-magento-and-netbeans</id>
+    <content type="html"><![CDATA[<p>When using PHPUnit with xampp the first the to do is install PHPUnit through pear. You usually need to update pear first, after that you should be able to follow the instructions <a href="http://pear.phpunit.de/">here</a></p>
+
+<p>Getting PHPUnit working with Magento is fairly straight forward. It&rsquo;s just a case of including Mage.php and then calling Mage::app(); in the setup method of your test class:</p>
+
+<p>```php
+&lt;?php</p>
+
+<p>require_once &lsquo;../app/Mage.php&rsquo;;</p>
+
+<p>class TemplateTest extends PHPUnit_Framework_TestCase {</p>
+
+<pre><code>public function setUp() {
+    Mage::app();
+}
+
+public function testExample() {
+    $helper = Mage::helper('core');
+    $this-&gt;assertTrue($helper instanceof Mage_Core_Helper_Data, "Magento isn't running!");
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>If you use NetBeans as your IDE you&rsquo;ll be glad to know that it has support for running your tests directly without having to use a terminal. This does require a bit of configuration. You need to tell NetBeans where the PHPUnit script is under Tools > Options > PHP > Unit Testing. If you are using it with XAMPP it will be located at /opt/lampp/bin/phpunit. To begin running the tests you then go Run > Test Project and NetBeans will ask you where your tests are. After that you will get a &ldquo;Test File&rdquo; source folder in the Projects pane. You can now right click each test file and choose &ldquo;Run file&rdquo; and netbeans will run it. If you have xdebug setup the debug option also works nicely.</p>
+]]></content>
+  </entry>
+  
+</feed>

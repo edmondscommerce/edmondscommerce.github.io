@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: file | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/file/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-15T18:49:34+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Log File Analysis Script]]></title>
+    <link href="http://edmondscommerce.github.io/bash/apache-log-file-analysis-script.html"/>
+    <updated>2013-03-14T14:17:48+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/apache-log-file-analysis-script</id>
+    <content type="html"><![CDATA[<p>Here is a little bash script we knocked together to track down some malicious activity on a clients server.</p>
+
+<p>Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.</p>
+
+<p>Here is the script:</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash</h1>
+
+<h6>SETUP</h6>
+
+<p>LOG_FOLDER=/var/www/vhosts/domain.co.uk/statistics/logs
+ACCESS_LOG=$LOG_FOLDER/access_log</p>
+
+<p>HOW_MANY_ROWS=20000</p>
+
+<h6>### FUNCTIONS</h6>
+
+<p>function title() {</p>
+
+<pre><code>echo "
+</code></pre>
+
+<hr />
+
+<h2>$@</h2>
+
+<p>&ldquo;
+}</p>
+
+<p>function urls_by_ip() {</p>
+
+<pre><code>local IP=$1
+tail -5000 $ACCESS_LOG | awk -v ip=$IP ' $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20
+</code></pre>
+
+<p>}</p>
+
+<p>function ip_addresses_by_user_agent(){</p>
+
+<pre><code>local USERAGENT_STRING="$1"
+local TOP_20_IPS="`tail  -$HOW_MANY_ROWS $ACCESS_LOG | grep "${USERAGENT_STRING}"  | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20`"
+echo "$TOP_20_IPS"
+</code></pre>
+
+<p>}</p>
+
+<h6># RUN REPORTS</h6>
+
+<p>title &ldquo;top 20 URLs&rdquo;
+TOP_20_URLS=&ldquo;<code>tail -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS&rdquo;</p>
+
+<p>title &ldquo;top 20 URLS excluding POST data&rdquo;
+TOP_20_URLS_WITHOUT_POST=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk -F"[ ?]" '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_URLS_WITHOUT_POST&rdquo;</p>
+
+<p>title &ldquo;top 20 IPs&rdquo;
+TOP_20_IPS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_IPS&rdquo;</p>
+
+<p>title &ldquo;top 20 user agents&rdquo;
+TOP_20_USER_AGENTS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20</code>&rdquo;
+echo &ldquo;$TOP_20_USER_AGENTS&rdquo;</p>
+
+<p>title &ldquo;IP Addresses for Top 3 User Agents&rdquo;</p>
+
+<p>for ((I=1; I&lt;=3; I++))
+do</p>
+
+<pre><code>UA="`echo "$TOP_20_USER_AGENTS" | head -n $I | tail -n 1 | awk '{$1=""; print $0}'`"
+echo "$UA"
+echo "~~~~~~~~~~~~~~~~~~"
+ip_addresses_by_user_agent "$UA"
+echo "
+"
+</code></pre>
+
+<p>done</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Form File Upload Limits with PHP]]></title>
+    <link href="http://edmondscommerce.github.io/php/form-file-upload-limits-with-php.html"/>
+    <updated>2013-01-11T16:49:24+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/form-file-upload-limits-with-php</id>
+    <content type="html"><![CDATA[<p>If you have a form designed to handle file uploads which is failing due to file size then you might like this:</p>
+
+<p>```php</p>
+
+<p>$arrayMaxes = array(</p>
+
+<pre><code>'upload_max_filesize' =&gt; intval(ini_get('upload_max_filesize')),
+'post_max_size' =&gt; intval(ini_get('post_max_size')),
+'memory_limit' =&gt; intval(ini_get('memory_limit'))
+</code></pre>
+
+<p>);
+$maxUploadSize = min($arrayMaxes);
+foreach ($arrayMaxes as $key => $value) {</p>
+
+<pre><code>if ($value == min($arrayMaxes)) {
+    $minimumOfThree = $key;
+    break;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>echo &ldquo;The maximum file size you can upload is $maxUploadSize, this is due to the php.ini setting $mininimumOfThree&rdquo;;</p>
+
+<p>```</p>
+
+<p>This will calculate the smallest value that will be allowed based upon php.ini settings.</p>
+
+<p>You can then incorporate this into your form logic and display so that users have a clear understanding of how large a file they can upload.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Not Working, Not Creating Report Files Either + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-not-working-not-creating-report-files-either-solution.html"/>
+    <updated>2013-01-02T14:49:35+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-not-working-not-creating-report-files-either-solution</id>
+    <content type="html"><![CDATA[<p>If you have a Magento site that is consistently erroring out and giving you the report screen with the file name, but the file does not exist in the reports folder then this could be your solution.</p>
+
+<p>The most likely culprit in this scenario is that the filesystem has run out of space. If this happens, Magento will die because it literally can&rsquo;t create any files and it needs to do this for caching, session etc.</p>
+
+<p>You can easily check this by running this command:</p>
+
+<p>```bash</p>
+
+<p>df -h</p>
+
+<p>```</p>
+
+<p>If you see any filesystems with 100% usage then you have your answer, you have run out of hard drive space and need to free some space up by deleting files.</p>
+
+<p>On occasion though you might run this and see that you still have plenty of space. This can be puzzling at first though you need to bear in mind that Linux filesystems don&rsquo;t purely use space but also something called <a href="http://en.wikipedia.org/wiki/Inode" title="wikipedia explanation of inodes" target="_blank">inodes</a>.</p>
+
+<p>An inode is like a file pointer, you need one for every file that is in the filesystem. Also there is a limit to the number of inodes in any file system. If something goes crazy and your system creates lots of small files then you might find that you run out of inodes before you run out of hard drive space.</p>
+
+<p>To check if this is your issue run this command:</p>
+
+<p>```bash</p>
+
+<p>df -i</p>
+
+<p>```</p>
+
+<p>If you see any lines with 100% then you have run out of inodes and you need to delete some files. There are numerous possible causes of this and tactics that can be used to clear them out. When dealing with Magento though there are a few usual suspects.</p>
+
+<p>Magento is a real culprit for this behaviour as it uses file system based sessions by default. Session files are very small and can be very numerous.</p>
+
+<p>The quick fix is just to completely remove the sessions directory:</p>
+
+<p>```bash</p>
+
+<p>rm -rf /path/to/magento/var/session</p>
+
+<p>```</p>
+
+<p>Magento will recreate it on the next request.</p>
+
+<p>If you would like to try to clear out just older sessions then you can do something like this:</p>
+
+<p>```bash</p>
+
+<p>find /path/to/magento/var/session -name &lsquo;sess_*&rsquo; -type f -mtime +7 -exec rm {} \;</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Force Download with Custom Filename]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-force-download-with-custom-filename.html"/>
+    <updated>2012-01-23T15:22:03+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-force-download-with-custom-filename</id>
+    <content type="html"><![CDATA[<p>If you want to serve up text files for download (perhaps product feeds etc) then you might like this little snippet.</p>
+
+<p>Not only will it force the file to be downloaded but it allows you to specify a custom filename that it should be saved as.</p>
+
+<p>```php</p>
+
+<p>if(isset($_GET[&lsquo;download_file&rsquo;])){</p>
+
+<pre><code>header("Content-type: application/octet-stream");
+header("Content-Disposition: attachment; filename=Export.txt");
+readfile('Export.txt');
+die;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Merged CSS Clear Not Working + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-merged-css-clear-not-working-solution.html"/>
+    <updated>2011-11-18T18:42:27+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-merged-css-clear-not-working-solution</id>
+    <content type="html"><![CDATA[<p>If you are having an issue with Magento and the optional Merge CSS Files (beta) turned on and it not updating with recent CSS changes, you may appreciate this.</p>
+
+<p>Unlike other cached elements that are stored in var/cache, Magento stores the cached and minified CSS files in media/css</p>
+
+<p>If you simply delete the contents of this folder, your CSS changes should kick in as Magento is forced to rebuild these files.</p>
+
+<p>There is an option in cache management to flush CSS storage but for some reason this wasn&rsquo;t working for me. Could be a permissions issue or something else I am not sure, we simply needed to get this change implemented (emergency live site fix) so flushing this folder manually did the trick.</p>
+
+<p>Hope it helps someone else looking for Magento merged CSS clear not working, Magento CSS cache, Magento CSS Files beta</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: git | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/git/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-15T18:49:34+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Clean Up Meld Files when Git Merging]]></title>
+    <link href="http://edmondscommerce.github.io/git/clean-up-meld-files-when-git-merging.html"/>
+    <updated>2014-01-29T11:39:19+00:00</updated>
+    <id>http://edmondscommerce.github.io/git/clean-up-meld-files-when-git-merging</id>
+    <content type="html"><![CDATA[<p>If you do a Git Merge using Meld (a brilliant Linux diff tool) then you might find that there are a bunch of files created that you need to clear up.</p>
+
+<p>These files will be copies of the merged files and can be safely removed as everything you should need to know is already in Git.</p>
+
+<p>I wrote the following quick function to find all of these files and remove them. You could add this as a function to your bashrc file if you need to do this regularly.</p>
+
+<p>Here is the BASH snippet:</p>
+
+<p><code>bash
+git status -su | grep -P "\.BACKUP|BASE|LOCAL|REMOTE\." | cut -f2 -d" " | xargs rm
+</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Merging Forks for Composer]]></title>
+    <link href="http://edmondscommerce.github.io/composer/merging-forks-for-composer.html"/>
+    <updated>2013-12-05T19:53:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/composer/merging-forks-for-composer</id>
+    <content type="html"><![CDATA[<p>I am really enjoying using Composer with a Symfony2 project that I am currently working on.</p>
+
+<p>Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
+JMS/SerializerBundle to handle the actual encoding into JSON.</p>
+
+<p>The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&rsquo;t want that. I want my property and entity names to be the same across formats.</p>
+
+<p>A bit of digging and I found <a href="https://github.com/passkey1510/JMSSerializerBundle">this fork</a> which features a fix for exactly this problem, brilliant!</p>
+
+<p>However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
+the minimum version requirements of the FOSRest bundle. Problem.</p>
+
+<p>The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:</p>
+
+<p><code>
+git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
+git merge remote/passkey1510/master
+git push
+</code></p>
+
+<p>Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.</p>
+
+<p>I can now reference my fork in my composer.json file like this:</p>
+
+<p>```
+&ldquo;repositories&rdquo;: [</p>
+
+<pre><code>    {
+        "url": "https://github.com/edmondscommerce/JMSSerializerBundle.git",
+        "type": "vcs"
+    },
+</code></pre>
+
+<p>],
+```</p>
+
+<p>Now running a <code>composer update --dev</code> and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.</p>
+
+<p>And that is it, problem solved :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[A Great Way to Simplify Git Merges]]></title>
+    <link href="http://edmondscommerce.github.io/git/a-great-way-to-simplify-git-merges.html"/>
+    <updated>2013-09-26T17:34:04+01:00</updated>
+    <id>http://edmondscommerce.github.io/git/a-great-way-to-simplify-git-merges</id>
+    <content type="html"><![CDATA[<p>If you are struggling with a git merge with a long list of failed merge files then this little trick might be helpful.</p>
+
+<p>The standard approach is to go file by file and use git mergetool to open the files in a tool like Meld and then manually manage the differences. In many cases though you know exactly which version you want and this is simply a laborious process that doesn&rsquo;t really require human input.</p>
+
+<p>The solution to this is deceptively simple. All you need to do is to check out the file from the branch you want to keep the version of. If you have an entire directory where you know that the branch (for example master) has the correct version then you can check out that entire directory.</p>
+
+<p>You might find that sensible use of this technique can save you lots of time and really make the mergetool the one you use for the files where you really do need to merge.</p>
+
+<p>Thanks to <a href="http://stackoverflow.com/questions/914939/simple-tool-to-accept-theirs-or-accept-mine-on-a-whole-file-using-git?answertab=active#tab-top">this StackOverflow answer</a> for simplifying this for me.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[During git pull: error: RPC failed; result=56, HTTP code = 200 [x] KiB/s       fatal: The remote end hung up unexpectedly]]></title>
+    <link href="http://edmondscommerce.github.io/git/during-git-pull-error-rpc-failed-result56-http-code-200-x-kibs-fatal-the-remote-end-hung-up-unexpectedly.html"/>
+    <updated>2013-09-16T15:07:54+01:00</updated>
+    <id>http://edmondscommerce.github.io/git/during-git-pull-error-rpc-failed-result56-http-code-200-x-kibs-fatal-the-remote-end-hung-up-unexpectedly</id>
+    <content type="html"><![CDATA[<p>If you receive this series of errors during a git pull (after the Receiving Objects stage):</p>
+
+<p>```</p>
+
+<p>$ git pull
+Password for &lsquo;<a href="https://xxxxxxxxxx@bitbucket.org">https://xxxxxxxxxx@bitbucket.org</a>&rsquo;:
+remote: Counting objects: 1011, done.
+remote: Compressing objects: 100% (394/394), done.
+error: RPC failed; result=56, HTTP code = 200 51 KiB/s    <br/>
+fatal: The remote end hung up unexpectedly
+fatal: early EOF
+fatal: index-pack failed</p>
+
+<p>```</p>
+
+<p>a quick solution is to use ssh to pull rather than the https protocol</p>
+
+<p>Hope this helps</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Bitbucket on Windows using TortoiseGit]]></title>
+    <link href="http://edmondscommerce.github.io/Windows/magento/git/using-bitbucket-on-windows-using-tortoisegit-2.html"/>
+    <updated>2013-06-11T12:00:31+01:00</updated>
+    <id>http://edmondscommerce.github.io/Windows/magento/git/using-bitbucket-on-windows-using-tortoisegit-2</id>
+    <content type="html"><![CDATA[<h2>Install TortoiseGit</h2>
+
+
+<p>TortoiseGit is a Windows GIU for using Git on Windows, integrating nicely with Windows Explorer.</p>
+
+<p><a href="http://code.google.com/p/tortoisegit/wiki/Download?tm=2" target="_blank">Download TortoiseGit</a> and install it.</p>
+
+<h2>Install and set up PuTTYgen</h2>
+
+
+<p>PuTTYgen is a program used to create SSH keys on Windows, the Public-Private-Key encryption used by SSH in place of passwords, you&rsquo;ll need these to authenticate with Bitbucket.</p>
+
+<p><a href="http://the.earth.li/~sgtatham/putty/latest/x86/puttygen.exe" target="_blank">Download PuTTYgen</a> and install it.</p>
+
+<p>Once installed, you&rsquo;ll need to set up a public and private key. Open PuTTYgen from your Start menu/screen and follow the instructions on the screen. Once you&rsquo;ve generate the key, save both the Prive and Public keys to your computer.</p>
+
+<h2>Add your keys to Bitbucket</h2>
+
+
+
+
+<ul>
+    <li>Log in to Bitbucket navigate to Manage Account > SSH Keys > Add Key</li>
+    <li>Right-click your public key file and open in a text editor</li>
+    <li>Remove the lines beginning with -- and the Comment line</li>
+    <li>Remove any remaining line breaks</li>
+    <li>Prepend the key with "ssh-rsa " - including the space</li>
+    <li>Paste this into the Key field</li>
+</ul>
+
+
+
+
+<h2>Clone the repository</h2>
+
+
+<ul>
+    <li>Right-click a folder in Explorer > Git Clone</li>
+    <li>Copy the repository access from the Repository's main page, on the right next to the SSH button</li>
+    <li>Paste this into the URL field of TortoiseGit</li>
+    <li>Tick Load Putty Key, and add your Private key from PuTTYgen</li>
+</ul>
+
+
+
+
+<h2>Switching Branches</h2>
+
+
+
+
+<ul>
+    <li>Enter your local repository's folder</li>
+    <li>Right-click an empty space > TortoiseGit > Switch/Checkout...</li>
+    <li>Select your branch from the dropdown</li>
+
+</ul>
+
+
+
+
+<h2>Committing changes</h2>
+
+
+
+
+<ul>
+    <li>Right-click an empty space</li>
+    <li>Click Git Commit -> "branchname"</li>
+    <li>Add a commit message</li>
+</ul>
+
+
+<p>When you&rsquo;re ready to push your changes to Bitbucket</p>
+
+<ul>
+    <li>Right-click an empty space</li>
+    <li>Click TortoiseGit > Push...</li>
+
+</ul>
+
+
+
+]]></content>
+  </entry>
+  
+</feed>

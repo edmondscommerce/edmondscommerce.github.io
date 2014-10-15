@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: mysql | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/mysql/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-15T18:49:34+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Database Migrations]]></title>
+    <link href="http://edmondscommerce.github.io/php/simple-database-migrations.html"/>
+    <updated>2014-04-28T13:22:34+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/simple-database-migrations</id>
+    <content type="html"><![CDATA[<p>Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.</p>
+
+<p>It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.</p>
+
+<p>Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.</p>
+
+<p>Here is the code:</p>
+
+<p>``` php
+&lt;?php
+$res = mysql_fetch_assoc(db_query(&ldquo;select version from db_migrations order by version desc limit 0,1&rdquo;));
+$current_version = ($res[&lsquo;version&rsquo;]) ? $res[&lsquo;version&rsquo;] : 0;
+$di = new DirectoryIterator(<strong>DIR</strong> . &lsquo;/migrations&rsquo;);
+$torun = array();
+foreach ($di as $f) {</p>
+
+<pre><code>/* @var $f DirectoryIterator */
+if ($f-&gt;isDot()) {
+    continue;
+}
+if ('php' == pathinfo($f-&gt;getFilename(), PATHINFO_EXTENSION)) {
+    $exp = explode('.', strval($f));
+    if (2 != count($exp)) {
+        throw new Exception('#1 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+    }
+    $version = $exp[0];
+    if (!is_numeric($version)) {
+        throw new Exception('#2 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+    }
+    if ($version &gt; $current_version) {
+        $torun[$version] = strval($f);
+    }
+} else {
+    throw new Exception('#3 Invalid migration file ' . strval($f) . ' in ' . __FILE__);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>if (!empty($torun)) {</p>
+
+<pre><code>ksort($torun, SORT_NUMERIC);
+foreach ($torun as $v =&gt; $t) {
+    require(__DIR__ . '/migrations/' . $t);
+    h(3, 'Database Migrations - running migration ' . $t);
+    db_query("insert into db_migrations set version = '$v' ");
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[MySQL Substring not Returning Anything + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/mysql-substring-not-returning-anything-solution.html"/>
+    <updated>2013-08-20T10:54:20+01:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/mysql-substring-not-returning-anything-solution</id>
+    <content type="html"><![CDATA[<p>If you are puzzled why your simple usage of the MySQL SUBSTRING() function is not returning anything this could be your solution.</p>
+
+<p>The substring function allows you to specify a string (eg a column), the start character and the length. If you are used to languages like PHP then you are probably used to this kind of function regarding 0 as the starting character. In fact this function regards 1 as the starting character. If you specify 0 then you simply won&rsquo;t get any results.</p>
+
+<p>This does not work:
+```</p>
+
+<p>SELECT SUBSTRING(column, 0, 10) as tenchars</p>
+
+<p>```</p>
+
+<p>This does work:
+```</p>
+
+<p>SELECT SUBSTRING(column, 1, 10) as tenchars</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ERROR 1062 (23000) at line [Line No]: Duplicate entry for key '[Key Name]']]></title>
+    <link href="http://edmondscommerce.github.io/mysql/error-1062-23000-at-line-line-no-duplicate-entry-for-key-key-name.html"/>
+    <updated>2013-07-02T14:09:53+01:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/error-1062-23000-at-line-line-no-duplicate-entry-for-key-key-name</id>
+    <content type="html"><![CDATA[<p>Importing a database dump from one location using mysqldump, and them importing it into a blank database I received this error:</p>
+
+<p>ERROR 1062 (23000) at line [Line No]: Duplicate entry for key &lsquo;[Key Name]&rsquo;</p>
+
+<p>The issue here is that a constraint is set up to prevent two rows containing the same value. Although key checks are disabled, it still can&rsquo;t add the rows. Sometimes as a useful technique to just get it running locally (obviously there&rsquo;s an issue here which does need resolving), simply change the &ldquo;INSERT INTO&rdquo; statement to &ldquo;INSERT IGNORE INTO&rdquo;, which will skip that entry.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Implementation of Jewellery Site (White Label)]]></title>
+    <link href="http://edmondscommerce.github.io/featured/magento-implementation-of-jewellery-site-white-label.html"/>
+    <updated>2013-02-20T20:19:01+00:00</updated>
+    <id>http://edmondscommerce.github.io/featured/magento-implementation-of-jewellery-site-white-label</id>
+    <content type="html"><![CDATA[<p>As part of our white label service we provided the development and design implementation requirements for a large London agency to deliver a high quality Magento site on budget and time.</p>
+
+<p>The site required some customised functionality along with a full bespoke design implementation.</p>
+
+<p><img src="/assets/screenshot-thumb1.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SQLSTATE[28000]: Invalid authorization specification: 1045 Access denied for user + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html"/>
+    <updated>2013-02-12T18:03:29+00:00</updated>
+    <id>http://edmondscommerce.github.io/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution</id>
+    <content type="html"><![CDATA[<p>I have recently been running some MySql scripts that wrote to a file.</p>
+
+<p>These worked fine locally, but as soon as I deployed them I started to get the error above.</p>
+
+<p>After much looking around I came across this solution.</p>
+
+<p>When I was developing locally, I was connecting with a user that had global privileges. When I was running the code on the server I was connecting with a user that only had privileges for the database I was using.</p>
+
+<p>The issue is that then FILE privilege is a Global setting, so the user did not have access to it, hence the access denied message.</p>
+
+<p>Grant FILE privileges and you can connect as expected</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Magento Rounding Errors (1.6.0+) - Edmonds Commerce Dev Blog</title>
+  <meta name="author" content="EdmondsCommerce Development Team">
+
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://edmondscommerce.github.io/magento/magento-rounding-errors-1-6-0.html">
+  <link href="/favicon.png" type="image/png" rel="icon">
+  <link href="/atom.xml" rel="alternate" title="Edmonds Commerce Dev Blog" type="application/atom+xml">
+
+  <link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+
+
+  <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-27853727-2', 'edmondscommerce.github.io');
+  ga('send', 'pageview');
+
+</script>
+
+</head>
+
+  <body   >
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img height="20" src="https://2.gravatar.com/avatar/04b807394911b26ea8a79dbe25ea4e1a?d=https%3A%2F%2Fidenticons.github.com%2Fccb745f4b144d30c4b883330a1114834.png&amp;r=x&amp;s=140" width="20"> Dev Blog</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="/">Blog</a>
+                </li>
+                <li >
+                    <a href="/blog/archives">Archives</a>
+                </li>
+                
+                <li ><a href="/categories/index.html">Categories</a></li>
+                
+                <li ><a href="/contact-us/index.html">Contact</a></li>
+                
+            </ul>
+            <ul class="nav pull-right">
+                
+                
+                <li><a href="http://linkedin.com/in/edmondscommerce" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
+                
+                
+                
+                <li><a href="http://plus.google.com/104488822194646220248" title="Google+ Profile"><i class="icon-google-plus-sign social-navbar"></i></a></li>
+                
+                
+                
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a class="subscribe-rss" href="/atom.xml" title="subscribe via RSS">
+                        <span class="visible-xs">RSS</span>
+                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
+                    </a>
+                </li>
+                
+            </ul>
+            
+                <form class="search navbar-form navbar-right" action="http://google.com/search" method="GET">
+                    <input type="hidden" name="q" value="site:edmondscommerce.github.io">
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="q" placeholder="Search">
+                    </div>
+                </form>
+            
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" class="container">
+        <div id="content">
+          <div class="row">
+  <div class="page-content col-md-9">
+    <article class="hentry" role="article">
+      
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-17T11:02:21+01:00" pubdate data-updated="true">Jul 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+    <h1 class="entry-title">
+        Magento Rounding Errors (1.6.0+)
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix"><p>The latest version of Magento has a fairly major issue that mostly affects UK and EU businesses, in the way it calculates taxes.</p>
+
+<p>One of the most obvious situations is if you sell something worth £24.99 (inc. tax) and enter that as the price in Magento.  The thread on the Magento forum is <a href="http://www.magentocommerce.com/boards/viewthread/247201/">here</a>.</p>
+
+<p>On the front end (if you have left the standard price templates alone) you will in 1.6.2+ see a price of £24.98.</p>
+
+<p>This is because Magento first takes off the tax, then adds it back on, unfortunately a rounding error creeps in at one or the other side of the process.</p>
+
+<p>Magento claims this is fixed in 1.7.0.1 but from reports we have seen this is not the case.  There are two current fixes but they both have issues.</p>
+
+<p>The first (listed <a href="http://www.magentocommerce.com/boards/viewreply/353791/">here</a>) is to override the store rounding system and have Magento work to 4 decimal places instead of 2.  That&rsquo;s fine and works but if you have a payment gateway that gets fed the line items (such as Paypal Express Checkout for instance), the total does not match the line items (probably because it is passed a 4dp number and it doesn&rsquo;t match the totals of the 2dp items).</p>
+
+<p>Another option (as mentioned <a href="http://www.magentocommerce.com/boards/viewreply/361474/">here</a>) is to assume no rounding where it is not specified rather than assuming rounding.  This won&rsquo;t cause problems with gateways but then you do need to fiddle with your templates to make sure your prices are displayed with tax.</p>
+
+<p>As mentioned, we haven&rsquo;t actually seen a solution that works across the board and is right with stats, payment gateways, frontend and backend.  It&rsquo;s a major bug and hopefully the next release of Magento will fix this.</p>
+
+<p>This appears to be most prevalent when using the &ldquo;Prices include tax in backend&rdquo; setting as the tax calculation only gets done once if you enter pre-tax prices and have the tax only added on.  That isn&rsquo;t to say that it will always calculate the tax correctly that way round either, just that this particular rounding issue is not as visible.</p>
+
+<p>Also, the fixes listed on that thread involve modifying core files &ndash; <strong>don&rsquo;t do this!</strong> copy the files to /app/code/local/Mage from /app/code/core/Mage and modify them in there.</p>
+</div>
+
+
+      <footer>
+        <p class="meta text-muted">
+          
+  
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span></span></span>
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-17T11:02:21+01:00" pubdate data-updated="true">Jul 17<span>th</span>, 2012</time>
+          
+
+<span class="glyphicon glyphicon-folder-open" title="categories"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category label label-primary' href='/category/magento/'>magento</a>
+  
+</span>
+
+
+          
+
+<br/>
+<span class="glyphicon glyphicon-tags" title="tags"></span>&nbsp;
+<span class="tags">
+  
+    <a class='tag' href='/tag/ecommerce/'>ecommerce</a>, <a class='tag' href='/tag/magento/'>magento</a>, <a class='tag' href='/tag/php/'>php</a>, <a class='tag' href='/tag/problem/'>problem</a>, <a class='tag' href='/tag/rounding/'>rounding</a>
+  
+</span>
+
+
+
+        </p>
+        
+          <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://edmondscommerce.github.io/magento/magento-rounding-errors-1-6-0.html" data-via="" data-counturl="http://edmondscommerce.github.io/magento/magento-rounding-errors-1-6-0.html" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/magento/magento-security-patch-script.html" title="Previous Post: Magento Security Patch Script">&laquo; Magento Security Patch Script</a></li>
+            
+            
+            <li class="next"><a href="/magento/how-to-get-a-list-of-all-modules-in-magento.html" title="Next Post: How to get a list of all modules in Magento">How to get a list of all modules in Magento &raquo;</a></li>
+            
+          </ul>
+        
+      </footer>
+    </article>
+    
+  </div>
+
+  
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Recent Posts</h3>
+  </div>
+  
+  <div id="recent_posts" class="list-group">
+    
+    <a class="list-group-item " href="/testing/this-is-a-test-post.html">This Is a Test Post</a>
+    
+    <a class="list-group-item " href="/magento/intermittent-paypal-ipn-failure-in-magento.html">Intermittent PayPal IPN Failure in Magento</a>
+    
+    <a class="list-group-item " href="/linux/selinux-configuration-for-alternative-document-root.html">SELinux Configuration for Alternative Document Root</a>
+    
+    <a class="list-group-item " href="/linux/nice-gnome-shell-theme-elegance-colours.html">Nice Gnome Shell Theme - Elegance Colours</a>
+    
+    <a class="list-group-item " href="/security/urgent-update-bash-big-security-issue.html">URGENT Update BASH - Big Security Issue</a>
+    
+  </div>
+</section>
+
+
+
+
+<section class="googleplus panel panel-default">
+  <div class="panel-body">
+    <h3>
+      <a href="https://plus.google.com/104488822194646220248?rel=author">
+        <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+        Google+
+      </a>
+    </h3>
+  </div>
+</section>
+
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">About Us</h3>
+    </div>
+    <div class="panel-body">
+        <p>
+            <a href="http://www.edmondscommerce.co.uk">Edmonds Commerce</a> are a UK based E-Commerce web development
+            agency.
+        </p>
+
+        <p>
+            We are based in <a href="http://www.yorkshire.com/">Yorkshire</a> near <a
+                href="http://www.visitleeds.co.uk/">Leeds</a> and <a href="http://www.visitbradford.com/">Bradford</a>.
+        </p>
+
+        <p>
+            Our primary specialism is <a href="http://magento.com/">Magento</a> and other PHP based E-Commerce platforms
+            such as <a href="http://www.opencart.com/">OpenCart</a>.
+        </p>
+
+        <p>
+            In terms of technology we are very strong in:
+        <ul>
+            <li><a href="http://php.net/">PHP</a>,</li>
+            <li><a href="http://www.mysql.com/">MySQL</a>,</li>
+            <li><a href="http://www.linuxfoundation.org/">Linux</a>,</li>
+            <li><a href="http://www.w3.org/standards/techs/html#w3c_all">HTML<a/>,</li>
+            <li><a href="http://www.w3.org/Style/CSS/Overview.en.html">CSS</a></li>
+            <li><a href="http://en.wikipedia.org/wiki/JavaScript">Javascript</a>.</li>
+        </ul>
+        </p>
+    </div>
+</section>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Commercial Enquiries</h3>
+    </div>
+    <div class="panel-body">
+        <p>
+            If you would like to discuss your project requirements then please get in touch today.
+        </p>
+
+        <p>
+            <a href="http://www.edmondscommerce.co.uk">www.edmondscommerce.co.uk</a><br/><br/>
+            <a href="mailto:info@edmondscommerce.co.uk">info@edmondscommerce.co.uk</a><br/><br/>
+            <a href="tel:00441274590036">+44 1274 590036</a>
+        </p>
+    </div>
+</section>
+
+    
+  </aside>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  <small>
+      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
+  </small>
+</p>
+
+</div>
+</footer>
+    <script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr-2.0.js"></script>
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+  </body>
+</html>

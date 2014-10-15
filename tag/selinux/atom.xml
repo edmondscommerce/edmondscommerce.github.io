@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: selinux | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/selinux/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-15T18:49:34+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[SELinux Configuration for Alternative Document Root]]></title>
+    <link href="http://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root.html"/>
+    <updated>2014-10-04T12:19:52+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root</id>
+    <content type="html"><![CDATA[<p>SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.</p>
+
+<p>By default SELinux is configured expecting Apache to be using /var/www as its document root.</p>
+
+<p>If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.</p>
+
+<p>If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.</p>
+
+<p>First of all you should double check what types http has:</p>
+
+<p><code>bash
+semanage fcontext -l | grep http
+</code></p>
+
+<p>We specifically need read/write access so lets grep for that:</p>
+
+<p><code>bash
+semanage fcontext -l | grep http | grep rw
+</code></p>
+
+<p>For me that shows the type: httpd_sys_rw_content_t</p>
+
+<p>We now need to add this to our custom document root:</p>
+
+<p><code>bash
+semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects(/.*)?’
+restorecon -R -v /opt/Projects/
+</code>
+And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux</p>
+]]></content>
+  </entry>
+  
+</feed>

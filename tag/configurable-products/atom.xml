@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: configurable products | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/configurable-products/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-15T18:49:34+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to get a configurable products parent in Magento]]></title>
+    <link href="http://edmondscommerce.github.io/magento/how-to-get-a-configurable-products-parent-in-magento.html"/>
+    <updated>2012-01-20T15:19:23+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/how-to-get-a-configurable-products-parent-in-magento</id>
+    <content type="html"><![CDATA[<p>I recently needed magento to be able to load a product, and if that product was part of a configurable product detect this and return the parent product if that existed. Looking around google I came across this code snippet and thought it should work</p>
+
+<p>```php</p>
+
+<p>$<em>product = Mage::getModel(&lsquo;catalog/product&rsquo;)&ndash;>load($productId);
+$parentIdArray = $</em>product->loadParentProductIds()</p>
+
+<pre><code>             -&gt;getData('parent_product_ids');
+</code></pre>
+
+<p>if(!empty($parentIdArray)) {</p>
+
+<pre><code>// do something
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>The problem is that the loadParentProductIds method was depreciated in 1.4.2.0 and I&rsquo;m running 1.6. The new way of doing detecting if a product has a parent is to do this
+```php</p>
+
+<p>$configurable_product_model = Mage::getModel(&lsquo;catalog/product_type_configurable&rsquo;);
+$parentIdArray= $configurable_product_model->getParentIdsByChild($productId);
+if(!empty($parentIdArray)) {</p>
+
+<pre><code>// do something
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>Using this method I overrode the Mage_Catalog_Model_Product class and added this method, which will always return a configurable product if the product is associated with one. Be aware, that if you products belong to more than one configurable product you will have to modify the logic</p>
+
+<p>```php</p>
+
+<p>public function getConfigurableProduct() {</p>
+
+<pre><code>switch ($this-&gt;type_id) {
+    case 'configurable':
+        return $this;
+        break;
+    default:
+        $configurable_product_model = Mage::getModel('catalog/product_type_configurable');
+        $parentId= $configurable_product_model-&gt;getParentIdsByChild($this-&gt;getId());
+        if(isset($parentId[0])) {
+            $this-&gt;load($parentId[0]);
+        }
+        break;
+}
+
+return $this;
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+</feed>

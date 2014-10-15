@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: kint | Edmonds Commerce Dev Blog]]></title>
+  <link href="http://edmondscommerce.github.io/tag/kint/atom.xml" rel="self"/>
+  <link href="http://edmondscommerce.github.io/"/>
+  <updated>2014-10-15T18:49:34+01:00</updated>
+  <id>http://edmondscommerce.github.io/</id>
+  <author>
+    <name><![CDATA[EdmondsCommerce Development Team]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[PHP Stack traces you can click on! (in PhpStorm)]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-stack-traces-you-can-click-on-in-phpstorm.html"/>
+    <updated>2012-09-07T14:35:37+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-stack-traces-you-can-click-on-in-phpstorm</id>
+    <content type="html"><![CDATA[<p>Having a stack trace is very handy at times but wouldn&rsquo;t it be nice if you could click on the filename in the stack trace in your browser and your IDE take you to the file and line that it&rsquo;s talking about?</p>
+
+<p>Well, with PhpStorm and kint, you can!  Using a plugin called Remote Call, the PhpStorm IDE can listen on a port and go to files and line numbers via an ajax call.</p>
+
+<p>To configure this, grab the latest version of kint, and copy it&rsquo;s sample config to an actual config file, and edit the section about pathDisplayCallback to look like this :&ndash;
+```php</p>
+
+<p>$<em>kintSettings[&lsquo;pathDisplayCallback&rsquo;] = &ldquo;</em>kintLine&rdquo;;
+function _kintLine( $file, $line = NULL ) {</p>
+
+<pre><code>    if ( !$line ) { // means this is called from resource type dump
+            return $file;
+    }
+    return "&lt;u&gt;&lt;a class=\"kint-ide-link\" href=\"http://localhost:8091/?message={$file}:{$line}\"&gt;" . $file . "&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;{$line}&lt;/i&gt;";
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>You can even be clever with regex to make the filenames be relative &ndash; for instance, we run our projects from a directory below one called, oddly enough &ldquo;projects&rdquo; and our function looks like this :&ndash;
+```php</p>
+
+<p>function _kintLine( $file, $line = NULL )
+{</p>
+
+<pre><code>    $shortname = preg_replace('#.*/[Pp]rojects/[^/]*/#','',$file);
+    if ( !$line ) { // means this is called from resource type dump
+            return $shortname;
+    }
+    return "&lt;u&gt;&lt;a class=\"kint-ide-link\" href=\"http://localhost:8091/?message={$file}:{$line}\"&gt;" . $shortname . "&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;{$line}&lt;/i&gt;";
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>Now, if you call Kint::trace(); from your file that you&rsquo;ve included Kint.class.php from, you get a clickable stacktrace!</p>
+]]></content>
+  </entry>
+  
+</feed>
