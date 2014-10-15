@@ -3,7 +3,7 @@
 set -x;
 cd /opt/Projects/edmondscommerce.github.io/
 git checkout source;
-if [ ! -d _deploy ]; then
+if [ ! -d _deploy/.git ]; then
   rake setup_github_pages;
 fi
 bundle exec rake integrate
