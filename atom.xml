@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-10-03T12:36:28+01:00</updated>
+  <updated>2014-10-15T14:03:58+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,34 +14,79 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Password Protecting SSH keys]]></title>
-    <link href="http://edmondscommerce.github.io/security/password-protecting-ssh-keys.html"/>
-    <updated>2014-10-03T11:42:01+01:00</updated>
-    <id>http://edmondscommerce.github.io/security/password-protecting-ssh-keys</id>
-    <content type="html"><![CDATA[<p>If you work with multiple server and need SSH access to them, setting up SSH Keys makes it easier, and in theory more secure, to access them.</p>
+    <title type="html"><![CDATA[Intermittent PayPal IPN failure in Magento]]></title>
+    <link href="http://edmondscommerce.github.io/magento/intermittent-paypal-ipn-failure-in-magento.html"/>
+    <updated>2014-10-15T09:53:44+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/intermittent-paypal-ipn-failure-in-magento</id>
+    <content type="html"><![CDATA[<p>On one or two store we had an issue with intermittent IPN failures. Some paypal orders would be stuck on the &lsquo;Pending&rsquo; status even if there was a sucessful paypal payment. In the exception logs there would be the following exception being thrown &lsquo;PayPal IPN postback failure. See paypal_unknown_ipn.log for details.&rsquo; on line 156 of app/code/core/Mage/Paypal/Model/Ipn.php.</p>
 
-<p>However, if you generate your key and do not add a password/phrase to it, then that key then allows access to all of the servers it has been linked to.</p>
+<h3>What the issue turned out to be</h3>
 
-<p>If you have not protected your key, you can do this by running the following command</p>
+<p>The issue turned out to be curl adding in extra error. On occasions curl will send the following header &lsquo;Expect: 100&rsquo;. The idea behind that is that rather than curl just send the data. It will send a inital request just to check if the web server will accept the data. Curl will usually fall on this bahaviour if the request is above a certain size.</p>
+
+<p>It turns out that the magento implementation assumes that the response will be consitant. But with the ocasional &lsquo;Expect&rsquo; header bing in the request this is not always the case.</p>
+
+<p>In the _postBack method in the IPN class where it makes the curl post back is recived there is the following code near to the end of the method.</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>ssh-keygen -p
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$response</span> <span class="o">=</span> <span class="nb">preg_split</span><span class="p">(</span><span class="s1">&#39;/^\r?$/m&#39;</span><span class="p">,</span> <span class="nv">$response</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$response</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nv">$response</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>To make things easier you can use keychain so you only need to enter your password when you first login. This is done by doing the following:</p>
+<p>This code assumes the line position of where the &lsquo;VERIFIED&rsquo; line would occur. To resolve the header issue the following code should be used instead.</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install keychain
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$response</span> <span class="o">=</span> <span class="nb">preg_split</span><span class="p">(</span><span class="s1">&#39;/^\r?$/m&#39;</span><span class="p">,</span> <span class="nv">$response</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$response</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nb">end</span><span class="p">(</span><span class="nv">$response</span><span class="p">));</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>and then add the following to the bottom of your bashrc file</p>
+<p>As the &lsquo;VERIFIED&rsquo; line will always be the last line in the response. Regardless of any extra headers being added. This should resolve the issue but of corse remeber to use the local method and copy the class to the local folder with the correct path before doing the modification.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SELinux Configuration for Alternative Document Root]]></title>
+    <link href="http://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root.html"/>
+    <updated>2014-10-04T12:19:52+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root</id>
+    <content type="html"><![CDATA[<p>SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.</p>
+
+<p>By default SELinux is configured expecting Apache to be using /var/www as its document root.</p>
+
+<p>If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.</p>
+
+<p>If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.</p>
+
+<p>First of all you should double check what types http has:</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">eval</span> <span class="sb">`</span>keychain --eval id_dsa<span class="sb">`</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -l | grep http
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p>We specifically need read/write access so lets grep for that:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -l | grep http | grep rw
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For me that shows the type: httpd_sys_rw_content_t</p>
+
+<p>We now need to add this to our custom document root:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects<span class="o">(</span>/.*<span class="o">)</span>?’
+</span><span class='line'>restorecon -R -v /opt/Projects/
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux</p>
 ]]></content>
   </entry>
   
@@ -615,24 +660,6 @@ to create and didn&rsquo;t need to be cleared for my purposes</p>
 <p>To my surprise when I hit Send a prompt came up asking me if I want to share the linked document with the email recipients. You can choose to have it publicly viewable/editable using the link, or even to add the email&rsquo;s recipients to the document&rsquo;s share list (which of course requires them to be using a Google account).</p>
 
 <p><img src="http://edmondscommerce.github.io/assets/gmail-drive-prompt.png"></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Finding out the biggest folders in a Magento or other website root]]></title>
-    <link href="http://edmondscommerce.github.io/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html"/>
-    <updated>2014-03-04T16:10:19+00:00</updated>
-    <id>http://edmondscommerce.github.io/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root</id>
-    <content type="html"><![CDATA[<p>Often pulling down a Magento or other site you&rsquo;ll find a load of files that have been dumped in the web root. Downloading these is often pointless and takes extra time, so you&rsquo;ll want to exclude them from an rsync (using the <code>--exclude 'path'</code> paramter).</p>
-
-<p>A simple bash command for this is:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>du -m --max-depth<span class="o">=</span>1 --exclude media | sort -n
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This invokes <code>du</code> to show each direct subfolder&rsquo;s contents&#8217; size, and pipes it through to <code>sort</code> to rank them in increasing size. The sizes are in MB. See <a href="http://explainshell.com/explain?cmd=du+-m+--max-depth%3D1+--exclude+media+|+sort+-n">a more broken down explanation here</a></p>
 ]]></content>
   </entry>
   
