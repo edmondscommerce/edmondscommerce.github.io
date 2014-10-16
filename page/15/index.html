@@ -128,6 +128,51 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-28T17:26:39+00:00" pubdate data-updated="true">Nov 28<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/prestashop/extending-a-modules-css-within-a-theme-in-prestashop.html">Extending a Modules CSS Within a Theme in PrestaShop</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>PrestaShop has a really nice structure for handling all the CSS that will appear in a site. It starts by splitting the CSS so that the CSS is split up per modules. There is a global CSS sheet but this should only be used for things that genuinely appear on all pages.</p>
+
+<p>Extending the CSS of a module in PrestaShop is easy. All you need to do is create a CSS file that matches the naming convention of the module you are looking to extend.</p>
+
+<p>For example if you wanted to change the CSS of the “Wishlist block” module (a.k.a. blockwishlist) in your theme, you would create the file themes/mytheme/css/modules/blockwishlist/blockwishlist.css. This file will then be included on every page that the CSS from the blockwishlist module appears on.</p>
+
+<p>This system is good because it minimises the amount of CSS the browser has to load and also splits the concern of CSS into separate files making it much easier to manage. It also makes adding to a modules CSS with in a theme much easier.</p>
+
+<p>One problem with this method of handling CSS is that by default a PrestaShop site may want the browser to download ten or more individual CSS files which is quite a overhead. Fortunately since PrestaShop 1.4 it has supported CCS merging (referred to as CCC in the admin) which causes the CSS for a page to be merged into a single file on the server to prevent the client having to download tens of CSS files.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-26T17:36:22+00:00" pubdate data-updated="true">Nov 26<span>th</span>, 2012</time>
         
       </p>
@@ -605,84 +650,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-14T12:45:09+00:00" pubdate data-updated="true">Nov 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/run-multiple-mysql-queries-in-a-single-function.html">Run Multiple MySQL Queries in a Single Function</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you want to be able to run multiple queries in a single function call, for example doing the classic drop table blah; create table blah; then you might like this function.</p>
-
-<p>The use case is for things like database migration systems which you might copy and paste chunks of SQL including multiple queries from things like phpMyAdmin</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
-</span><span class='line'><span class="sd"> * Run multiple queries passed in as a single string</span>
-</span><span class='line'><span class="sd"> * This is optimised for copying and pasting from phpMyAdmin</span>
-</span><span class='line'><span class="sd"> * </span>
-</span><span class='line'><span class="sd"> * Handy for things like database migration systems</span>
-</span><span class='line'><span class="sd"> * </span>
-</span><span class='line'><span class="sd"> * @param string $sql  multiple queries terminated with ; and a new line</span>
-</span><span class='line'><span class="sd"> */</span>
-</span><span class='line'><span class="k">function</span> <span class="nf">multiQuery</span><span class="p">(</span><span class="nv">$sql</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="nv">$sqls</span> <span class="o">=</span> <span class="nb">preg_split</span><span class="p">(</span><span class="s1">&#39;%;$%m&#39;</span><span class="p">,</span> <span class="nx">trim</span><span class="p">(</span><span class="nv">$sql</span><span class="p">));</span>
-</span><span class='line'>    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$sqls</span> <span class="k">as</span> <span class="nv">$q</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$q</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">continue</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nb">mysql_query</span><span class="p">(</span><span class="nv">$q</span><span class="p">);</span> <span class="c1">//suggest you replace this with your custom query function or if not throw in some extra error checking at least</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -706,6 +673,8 @@
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/testing/test-post-from-michael.html">Test Post From Michael</a>
+    
     <a class="list-group-item " href="/testing/this-is-a-test-post.html">This Is a Test Post</a>
     
     <a class="list-group-item " href="/magento/intermittent-paypal-ipn-failure-in-magento.html">Intermittent PayPal IPN Failure in Magento</a>
@@ -713,8 +682,6 @@
     <a class="list-group-item " href="/linux/selinux-configuration-for-alternative-document-root.html">SELinux Configuration for Alternative Document Root</a>
     
     <a class="list-group-item " href="/linux/nice-gnome-shell-theme-elegance-colours.html">Nice Gnome Shell Theme - Elegance Colours</a>
-    
-    <a class="list-group-item " href="/security/urgent-update-bash-big-security-issue.html">URGENT Update BASH - Big Security Issue</a>
     
   </div>
 </section>

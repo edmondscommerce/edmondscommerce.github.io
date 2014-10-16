@@ -128,6 +128,107 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-12-11T14:29:42+00:00" pubdate data-updated="true">Dec 11<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/converting-simplexml-objects-into-arrays.html">Converting SimpleXML Objects Into Arrays</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>PHP&rsquo;s simple XML is sometimes counter intuitive. Whilst it is acknowledged to be more simple than its predecessors, the &ldquo;simple&rdquo; name might be pushing things a bit.</p>
+
+<p>One thing that keeps cropping up when working with SimpleXML is the way that it lets you work with its objects as if they were arrays. That sometimes makes you feel like you are working with an array &ndash; and therefore makes things confusing when they display particularly non array like behaviour.</p>
+
+<p>Sometimes the simplest thing to do here is to turn the object into a real array.</p>
+
+<p>Check out this function:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">sx_array</span><span class="p">(</span><span class="nv">$obj</span><span class="p">){</span>
+</span><span class='line'>  <span class="nv">$arr</span> <span class="o">=</span> <span class="p">(</span><span class="k">array</span><span class="p">)</span><span class="nv">$obj</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$arr</span><span class="p">)){</span>
+</span><span class='line'>      <span class="nv">$arr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">foreach</span><span class="p">(</span><span class="nv">$arr</span> <span class="k">as</span> <span class="nv">$key</span><span class="o">=&gt;</span><span class="nv">$value</span><span class="p">){</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">is_scalar</span><span class="p">(</span><span class="nv">$value</span><span class="p">)){</span>
+</span><span class='line'>              <span class="nv">$arr</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">sx_array</span><span class="p">(</span><span class="nv">$value</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nv">$arr</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For example if you are working with an xml element that may or may not contain attributes, converting to an array first will allow you to figure this out.</p>
+
+<p>For example</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$file_index_xml</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SimpleXMLElement</span><span class="p">(</span><span class="nv">$local_full_index</span><span class="p">,</span> <span class="k">NULL</span><span class="p">,</span> <span class="k">TRUE</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$file_index_xml</span><span class="o">-&gt;</span><span class="na">xpath</span><span class="p">(</span><span class="s2">&quot;/interface/files.index/file&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$file</span><span class="p">){</span>
+</span><span class='line'>  <span class="nv">$arr</span> <span class="o">=</span> <span class="nx">sx_array</span><span class="p">(</span><span class="nv">$file</span><span class="o">-&gt;</span><span class="na">attributes</span><span class="p">());</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="s1">&#39;@attributes&#39;</span><span class="p">][</span><span class="s1">&#39;Value&#39;</span><span class="p">]){</span>
+</span><span class='line'>      <span class="c1">//do something</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-12-08T10:15:04+00:00" pubdate data-updated="true">Dec 8<span>th</span>, 2008</time>
         
       </p>
@@ -686,57 +787,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-10-17T13:11:17+01:00" pubdate data-updated="true">Oct 17<span>th</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/oscommerce/ecommerce/oscommerce-uk.html">osCommerce UK</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>osCommerce is undoubtedly the most popular open source ecommerce system available today. It has been around for a long time and whilst this does mean that it is not particularly cutting edge in the way it is put together, it also means that it is tried and tested and guaranteed to work well.</p>
-
-<p>One of the other great things about osCommerce is the fact that it has also spawned various offshoots or forks. Most notably these include Zen Cart and CRELoaded. There are a few other less well know osCommerce offshoots as well. These are basically packages that have taken the base osCommerce system and added a selection of customisations and extra features to make it a more complete package.</p>
-
-<p>My particular preference is the CRELoaded version of osCommerce. This version includes an excellent templating system making it very easy to get the store to look exactly how you want with minimal fuss. It also includes some excellent catalogue management tools including the incredibly useful and powerful easypopulate system. This system allows you to edit your products via spreadsheet. With a little modification it can handle bulk insertions of tens or even hundreds of thousands of products.</p>
-
-<p>Edmonds Commerce are a freelance PHP development specialist and have years of experience with all flavours of osCommerce. If you have any customisation, optimisation or SEO requirements for your existing osCommerce store, or if you are looking to set up a new ecommerce site based around osCommerce &ndash; Simply get in touch.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -760,6 +810,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/testing/test-post-from-michael.html">Test Post From Michael</a>
+    
     <a class="list-group-item " href="/testing/this-is-a-test-post.html">This Is a Test Post</a>
     
     <a class="list-group-item " href="/magento/intermittent-paypal-ipn-failure-in-magento.html">Intermittent PayPal IPN Failure in Magento</a>
@@ -767,8 +819,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/linux/selinux-configuration-for-alternative-document-root.html">SELinux Configuration for Alternative Document Root</a>
     
     <a class="list-group-item " href="/linux/nice-gnome-shell-theme-elegance-colours.html">Nice Gnome Shell Theme - Elegance Colours</a>
-    
-    <a class="list-group-item " href="/security/urgent-update-bash-big-security-issue.html">URGENT Update BASH - Big Security Issue</a>
     
   </div>
 </section>
