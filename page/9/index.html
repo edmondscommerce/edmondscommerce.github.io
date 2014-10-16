@@ -128,6 +128,95 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-05-09T12:15:23+01:00" pubdate data-updated="true">May 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/testing-a-magento-site-in-maintenance-mode.html">Testing a Magento Site in Maintenance Mode</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Often you&rsquo;ll have your site in maintenance mode, but obviously before you show your changes to the world you&rsquo;ll want to check the site over.</p>
+
+<p>The best way to set Magento into Maintenance Mode is to add a maintenance.flag file to the web root, and there&rsquo;s a snippet of code in Magento&rsquo;s index.php which handles this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$maintenanceFile</span> <span class="o">=</span> <span class="s1">&#39;maintenance.flag&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$maintenanceFile</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">include_once</span> <span class="nb">dirname</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;/errors/503.php&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">exit</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll want to set this to also take your IP address into consideration, so just make the following amends and you&rsquo;ll have added conditional maintenance mode:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$maintenanceFile</span> <span class="o">=</span> <span class="s1">&#39;maintenance.flag&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$maintenanceFile</span><span class="p">)</span> <span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="nx">quot</span><span class="p">;</span><span class="mf">123.123</span><span class="o">.</span><span class="mf">123.123</span><span class="o">&amp;</span><span class="nx">quot</span><span class="p">;)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="o">&amp;</span><span class="nx">quot</span><span class="p">;</span><span class="mf">123.123</span><span class="o">.</span><span class="mf">123.123</span><span class="o">&amp;</span><span class="nx">quot</span><span class="p">;)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">//Do nothing, but it&#39;s safer to check if it *is* your IP than *isn&#39;t*</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">include_once</span> <span class="nb">dirname</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;/errors/503.php&#39;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">exit</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-04-25T11:12:37+01:00" pubdate data-updated="true">Apr 25<span>th</span>, 2013</time>
         
       </p>
@@ -618,49 +707,6 @@ jQuery.noConflict();
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-03-19T17:54:16+00:00" pubdate data-updated="true">Mar 19<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/sagepay/release-sagepay-form-orders-via-api.html">Release SagePay Form Orders via API</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you use SagePay Form integration then you might think that it is impossible to release orders created via this integration system via the API.</p>
-
-<p>Historically this was true however thanks to the new admin and reporting API you can now grab all of the details you need to perform the kind of admin side integration previously only possible via Server and Direct integrations.</p>
-
-<p>This does take a bit of work but if you like the fact that Form alleviates PCI compliance issues, allows your customers to use the nice easy to use Form interface and also gives you easy PayPal integration then this is a great solution.</p>
-
-<p>Thanks goes out to SagePay&rsquo;s technical support who have proved really helpful in ironing out the kinks in getting this working.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -684,6 +730,8 @@ jQuery.noConflict();
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/browsers/add-a-warning-for-off-site-links-when-developing-locally.html">Add a Warning for Off-site Links When Developing Locally</a>
+    
     <a class="list-group-item " href="/testing/test-post-from-michael.html">Test Post From Michael</a>
     
     <a class="list-group-item " href="/testing/this-is-a-test-post.html">This Is a Test Post</a>
@@ -691,8 +739,6 @@ jQuery.noConflict();
     <a class="list-group-item " href="/magento/intermittent-paypal-ipn-failure-in-magento.html">Intermittent PayPal IPN Failure in Magento</a>
     
     <a class="list-group-item " href="/linux/selinux-configuration-for-alternative-document-root.html">SELinux Configuration for Alternative Document Root</a>
-    
-    <a class="list-group-item " href="/linux/nice-gnome-shell-theme-elegance-colours.html">Nice Gnome Shell Theme - Elegance Colours</a>
     
   </div>
 </section>
