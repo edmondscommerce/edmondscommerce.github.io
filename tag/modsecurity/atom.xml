@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: modsecurity | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/modsecurity/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-11-10T11:40:03+00:00</updated>
+  <updated>2014-11-11T14:12:46+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,137 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Compile NGINX with PageSpeed and ModSecurity on CentOS]]></title>
+    <link href="http://edmondscommerce.github.io/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html"/>
+    <updated>2014-11-11T14:06:37+00:00</updated>
+    <id>http://edmondscommerce.github.io/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos</id>
+    <content type="html"><![CDATA[<p>ModSecurity is a brilliant addition to web servers to block any nefarious requests before they hit your application.
+This improves security and reduces load if your server comes under attack as the requests are killed very quickly.</p>
+
+<p>PageSpeed is a module provided by Google to automatically improve the performance of your web pages in the browser. In a stroke it can offer a much more responsive front end with just a few configuration options.</p>
+
+<p>Nginx is a very fast and lightweight web server ideal for using with back end servers such as PHP-FPM.</p>
+
+<p>Here is a script that will download and compile Nginx with the two modules and also apply the correct ModSecurity configuration.</p>
+
+<p>``` bash</p>
+
+<h1>!/bin/bash</h1>
+
+<p>echo &ldquo;Please run as root&rdquo;
+yum install gcc-c++ pcre-dev pcre-devel zlib-devel make unzip</p>
+
+<p>NPS_VERSION=1.9.32.2;</p>
+
+<p>NGINX_VERSION=1.7.7;</p>
+
+<p>MODSEC_VERSION=2.8.0</p>
+
+<p>NGINX_EXTRA_MODULES=&ldquo; &mdash;with-http_realip_module &mdash;with-http_ssl_module &rdquo;;</p>
+
+<p>NGINX_ADD_MODULES=&lsquo;&rsquo;</p>
+
+<p>WORKING_DIRECTORY=/opt/nginx_with_pagespeed_and_mod_security</p>
+
+<p>mkdir -p $WORKING_DIRECTORY</p>
+
+<h1>echo "</h1>
+
+<p>Mod Security</p>
+
+<p>Installing dependencies, grabbing the repo, checking out the tag for our version and building it
+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ldquo;
+cd $WORKING_DIRECTORY
+yum install libtool httpd-devel libxml2 libxml2-devel
+git clone <a href="https://github.com/SpiderLabs/ModSecurity.git">https://github.com/SpiderLabs/ModSecurity.git</a>
+cd ModSecurity
+git checkout tags/v${MODSEC_VERSION}
+./autogen.sh
+./configure &mdash;enable-standalone-module &mdash;disable-mlogc
+make
+make install
+NGINX_ADD_MODULES=&rdquo;$NGINX_ADD_MODULES &mdash;add-module=$WORKING_DIRECTORY/ModSecurity/nginx/modsecurity &ldquo;
+echo &rdquo;</p>
+
+<h2>Mod Security Config and Rules</h2>
+
+<p>For nginx, we have to get all the config and cat it all into one single config file
+&ldquo;
+wget <a href="https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended">https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended</a>
+cat modsecurity.conf-recommended  > /etc/nginx/modsecurity.conf
+wget <a href="https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master">https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master</a> -O owasp-modsecurity-crs.tar.gz
+tar -xvzf owasp-modsecurity-crs.tar.gz
+CRS_DIR=$(find . -type d -name SpiderLabs-owasp-modsecurity-crs<em>)
+cat ${CRS_DIR}/modsecurity_crs_10_setup.conf.example >> /etc/nginx/modsecurity.conf
+cat ${CRS_DIR}/base_rules/modsecurity_</em>.conf >> /etc/nginx/modsecurity.conf
+for f in $(find $CRS_DIR -type f -name *.data)
+do</p>
+
+<pre><code>FILE=$(basename $f)
+CMD="cp $f /etc/nginx/$FILE"
+echo ${CMD}
+${CMD}
+</code></pre>
+
+<p>done
+cp ModSecurity/unicode.mapping /etc/nginx/unicode.mapping</p>
+
+<h1>echo "</h1>
+
+<h2>Page Speed</h2>
+
+<p>Downlading the pagespeed version and building this
+&ldquo;
+cd $WORKING_DIRECTORY
+wget <a href="https://github.com/pagespeed/ngx_pagespeed/archive/release-$">https://github.com/pagespeed/ngx_pagespeed/archive/release-$</a>{NPS_VERSION}-beta.zip
+unzip release-${NPS_VERSION}-beta.zip
+cd ngx_pagespeed-release-${NPS_VERSION}-beta/
+wget <a href="https://dl.google.com/dl/page-speed/psol/$">https://dl.google.com/dl/page-speed/psol/$</a>{NPS_VERSION}.tar.gz
+tar -xzvf ${NPS_VERSION}.tar.gz  # extracts to psol/
+NGINX_ADD_MODULES=&rdquo;$NGINX_ADD_MODULES &mdash;add-module=$WORKING_DIRECTORY/ngx_pagespeed-release-${NPS_VERSION}-beta "</p>
+
+<h1>echo "</h1>
+
+<h2>Nginx</h2>
+
+<p>Finally, compiling Nginx with our extra modules and the added modules and installing it
+&ldquo;
+cd $WORKING_DIRECTORY
+wget <a href="http://nginx.org/download/nginx-$">http://nginx.org/download/nginx-$</a>{NGINX_VERSION}.tar.gz
+tar -xvzf nginx-${NGINX_VERSION}.tar.gz
+cd nginx-${NGINX_VERSION}/
+./configure $NGINX_ADD_MODULES $NGINX_EXTRA_MODULES
+make
+sudo make install</p>
+
+<h1>echo "</h1>
+
+<p>COMPLETED INSTALL &ndash; CHECKING</p>
+
+<p>checking the nginx version now, should be $NGINX_VERSION and you should see our modules
+&ldquo;
+nginx -V</p>
+
+<p>echo &ldquo;
+And now doing a config test&rdquo;
+/etc/init.d/nginx configtest</p>
+
+<h1>echo "</h1>
+
+<p>SCRIPT COMPLETED</p>
+
+<p>However, you are not there yet</p>
+
+<p>You need to go and look at the /etc/nginx/modsecurity.conf file and change settings there as appropriate</p>
+
+<p>Also you need to modify your nginx vhost config &ndash; see:
+<a href="https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps">https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps</a>
+&ldquo;
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Google Checkout, 501 Error with Mod Security + Solution]]></title>
