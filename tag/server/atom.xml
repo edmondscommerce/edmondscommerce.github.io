@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: server | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/server/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-11-12T14:02:06+00:00</updated>
+  <updated>2014-11-12T14:18:28+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,32 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[SSL testing and SHA-1 Sunsetting]]></title>
+    <link href="http://edmondscommerce.github.io/security/ssl-testing-and-sha-1-sunsetting.html"/>
+    <updated>2014-11-12T13:03:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/security/ssl-testing-and-sha-1-sunsetting</id>
+    <content type="html"><![CDATA[<p>Over last few days we been doing a bit of work on doing some audits for people and one of the things that has come up is ssl. For the purpose of checking the servers ssl implementation we have been using <a href="https://www.ssllabs.com/ssltest/">Qualys SSL Labs</a> which is a excelent tool.</p>
+
+<p>The checker checks for the ssl certificate and tells you if your server setup is vulnerable to attacks such as Poodle and OpenSSL CCS Injection. We will produce a blog post shortly on the best practise setup to prevent these attcks.</p>
+
+<p>For the moment SHA-1 as a certificate signature algorithm is getting depricated in <a href="https://community.qualys.com/blogs/securitylabs/2014/09/09/sha1-deprecation-what-you-need-to-know">chrome</a>. As the cost for collision attcks against SHA-1 will become more <a href="https://www.schneier.com/blog/archives/2012/10/when_will_we_se.html">affordable</a> in the next few years.</p>
+
+<p>Goole have set the cut off for certificates after 2016 but we will be seeing some crosses on the padlock in chrom during the first quater of 2015.</p>
+
+<p>If your certificate expires in 2015 then you will not see any chrome. If your certificate expires in 2016 you will see some minor errors being reported in chrome. However if your certificate expires in 2017 then chrome will treat it as an insecure certificate in 2015.</p>
+
+<p>So our advice is:</p>
+
+<ul>
+<li>If your certificate expires in 2015: When you come to renew make sure you get SHA-256 as the certificate signature</li>
+<li>If your certificate expires in 2016: Think about getting renewed during 2015 or earlier.</li>
+<li>If your certificate expires in 2017: Think about getting a new one issue as soon as possible.</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using Apache JMeter For Load Testing]]></title>
@@ -126,96 +152,6 @@ else {
 <p>This does take a bit of work but if you like the fact that Form alleviates PCI compliance issues, allows your customers to use the nice easy to use Form interface and also gives you easy PayPal integration then this is a great solution.</p>
 
 <p>Thanks goes out to SagePay&rsquo;s technical support who have proved really helpful in ironing out the kinks in getting this working.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Log File Analysis Script]]></title>
-    <link href="http://edmondscommerce.github.io/bash/apache-log-file-analysis-script.html"/>
-    <updated>2013-03-14T14:17:48+00:00</updated>
-    <id>http://edmondscommerce.github.io/bash/apache-log-file-analysis-script</id>
-    <content type="html"><![CDATA[<p>Here is a little bash script we knocked together to track down some malicious activity on a clients server.</p>
-
-<p>Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.</p>
-
-<p>Here is the script:</p>
-
-<p>```bash</p>
-
-<h1>!/bin/bash</h1>
-
-<h6>SETUP</h6>
-
-<p>LOG_FOLDER=/var/www/vhosts/domain.co.uk/statistics/logs
-ACCESS_LOG=$LOG_FOLDER/access_log</p>
-
-<p>HOW_MANY_ROWS=20000</p>
-
-<h6>### FUNCTIONS</h6>
-
-<p>function title() {</p>
-
-<pre><code>echo "
-</code></pre>
-
-<hr />
-
-<h2>$@</h2>
-
-<p>&ldquo;
-}</p>
-
-<p>function urls_by_ip() {</p>
-
-<pre><code>local IP=$1
-tail -5000 $ACCESS_LOG | awk -v ip=$IP ' $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20
-</code></pre>
-
-<p>}</p>
-
-<p>function ip_addresses_by_user_agent(){</p>
-
-<pre><code>local USERAGENT_STRING="$1"
-local TOP_20_IPS="`tail  -$HOW_MANY_ROWS $ACCESS_LOG | grep "${USERAGENT_STRING}"  | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20`"
-echo "$TOP_20_IPS"
-</code></pre>
-
-<p>}</p>
-
-<h6># RUN REPORTS</h6>
-
-<p>title &ldquo;top 20 URLs&rdquo;
-TOP_20_URLS=&ldquo;<code>tail -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
-echo &ldquo;$TOP_20_URLS&rdquo;</p>
-
-<p>title &ldquo;top 20 URLS excluding POST data&rdquo;
-TOP_20_URLS_WITHOUT_POST=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk -F"[ ?]" '{freq[$7]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
-echo &ldquo;$TOP_20_URLS_WITHOUT_POST&rdquo;</p>
-
-<p>title &ldquo;top 20 IPs&rdquo;
-TOP_20_IPS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk '{freq[$1]++} END {for (x in freq) {print freq[x], x}}' | sort -rn | head -20</code>&rdquo;
-echo &ldquo;$TOP_20_IPS&rdquo;</p>
-
-<p>title &ldquo;top 20 user agents&rdquo;
-TOP_20_USER_AGENTS=&ldquo;<code>tail  -$HOW_MANY_ROWS $ACCESS_LOG | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20</code>&rdquo;
-echo &ldquo;$TOP_20_USER_AGENTS&rdquo;</p>
-
-<p>title &ldquo;IP Addresses for Top 3 User Agents&rdquo;</p>
-
-<p>for ((I=1; I&lt;=3; I++))
-do</p>
-
-<pre><code>UA="`echo "$TOP_20_USER_AGENTS" | head -n $I | tail -n 1 | awk '{$1=""; print $0}'`"
-echo "$UA"
-echo "~~~~~~~~~~~~~~~~~~"
-ip_addresses_by_user_agent "$UA"
-echo "
-"
-</code></pre>
-
-<p>done</p>
-
-<p>```</p>
 ]]></content>
   </entry>
   

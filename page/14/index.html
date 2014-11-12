@@ -128,6 +128,186 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-01-02T14:49:35+00:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-not-working-not-creating-report-files-either-solution.html">Magento Not Working, Not Creating Report Files Either + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you have a Magento site that is consistently erroring out and giving you the report screen with the file name, but the file does not exist in the reports folder then this could be your solution.</p>
+
+<p>The most likely culprit in this scenario is that the filesystem has run out of space. If this happens, Magento will die because it literally can&rsquo;t create any files and it needs to do this for caching, session etc.</p>
+
+<p>You can easily check this by running this command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>df -h
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you see any filesystems with 100% usage then you have your answer, you have run out of hard drive space and need to free some space up by deleting files.</p>
+
+<p>On occasion though you might run this and see that you still have plenty of space. This can be puzzling at first though you need to bear in mind that Linux filesystems don&rsquo;t purely use space but also something called <a href="http://en.wikipedia.org/wiki/Inode" title="wikipedia explanation of inodes" target="_blank">inodes</a>.</p>
+
+<p>An inode is like a file pointer, you need one for every file that is in the filesystem. Also there is a limit to the number of inodes in any file system. If something goes crazy and your system creates lots of small files then you might find that you run out of inodes before you run out of hard drive space.</p>
+
+<p>To check if this is your issue run this command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>df -i
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you see any lines with 100% then you have run out of inodes and you need to delete some files. There are numerous possible causes of this and tactics that can be used to clear them out. When dealing with Magento though there are a few usual suspects.</p>
+
+<p>Magento is a real culprit for this behaviour as it uses file system based sessions by default. Session files are very small and can be very numerous.</p>
+
+<p>The quick fix is just to completely remove the sessions directory:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>rm -rf /path/to/magento/var/session
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Magento will recreate it on the next request.</p>
+
+<p>If you would like to try to clear out just older sessions then you can do something like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>find /path/to/magento/var/session -name <span class="s1">&#39;sess_*&#39;</span> -type f -mtime +7 -exec rm <span class="o">{}</span> <span class="se">\;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-21T15:06:53+00:00" pubdate data-updated="true">Dec 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux%20mint/how-to-restore-hibernate-after-deleting-and-recreating-your-swap-partition-in-mint-13-mint-14-and-ubuntu-12-04-ubuntu-12-10.html">How to Restore Hibernate After Deleting and Recreating Your Swap Partition in Mint 13, Mint 14 and Ubuntu 12.04, Ubuntu 12.10</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>As part of increasing my swap space in order to hibernate (my previous setup had 4GB of swap but 8GB of RAM) I had deleted and recreated my swap partition. There was no change in the partition&rsquo;s device files &ndash; it was still /dev/sda2, however my new swap partition seemed to be nonfunctional. This is down to the device&rsquo;s UUID having changed.</p>
+
+<h2>Finding your new UUID</h2>
+
+
+<p>To find the new UUID, issue:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>$ ls -l /dev/disk/by-uuid/
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll get this output. Just copy the UUID (the string of random letters and numbers), we&rsquo;ll use this soon</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>total 0
+</span><span class='line'>lrwxrwxrwx 1 root root 10 Dec 21 14:27 13823b29-79f5-485f-a260-ba4c4c7f2d92 -&gt; ../../sda1
+</span><span class='line'>lrwxrwxrwx 1 root root 10 Dec 21 14:27 65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69 -&gt; ../../sda2
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Fixing swap on bootup</h2>
+
+
+<p>You&rsquo;ll find that the new swap partition isn&rsquo;t available on boot, nor can it be manually enabled using sudo swapon -a. To fix these, use your favourite text editor to open /etc/fstab and add the new UUID on the swap line</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>UUID=65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69 none            swap    sw              0       0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Issue a sudo swapon -a and check your System Monitor. If you have available swap then you&rsquo;re all good</p>
+
+<h2>Fixing hibernate</h2>
+
+
+<p>Because fstab is used way after the system decides whether to resume from Hibernate you&rsquo;ll need to update it on which partition it should resume from</p>
+
+<p>Again, use your favourite text editor to open /etc/initramfs-tools/conf.d/resume. Add in your new UUID</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>RESUME=UUID=65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Update your configuration for it to take effect, and hibernate will work just fine again</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>sudo update-initramfs -u
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-19T11:53:48+00:00" pubdate data-updated="true">Dec 19<span>th</span>, 2012</time>
         
       </p>
@@ -1090,136 +1270,6 @@ To do this you use the @SuppressWarnings option on the comments block above the 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-07T14:19:33+00:00" pubdate data-updated="true">Dec 7<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/email/google-drops-google-apps-free-tier.html">Google Drops Google Apps Free Tier</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In a move that will hurt a lot of small businesses and especially startups, Google have withdrawn their free Google Apps for Domains which has been slowly reducing in number of users from 50, to 10 to now 0 (almost).</p>
-
-<p>They are keeping the existing accounts open so if you have Google Apps already, don&rsquo;t panic yet, your data is still there.</p>
-
-<p>For one-man-band startups apparently there is the option of creating a single-user apps account still apparently, according to Greg D&#8217;Alesandre of Google.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-12-05T17:27:51+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/solution-magento-catalog-url-rewrites-never-finishes-processing.html">Solution: Magento Catalog URL Rewrites Never Finishes (Processing)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In <a title="Magento" href="http://www.edmondscommerce.co.uk/platforms/Magento">Magento</a> 1.4.2 and possibly other versions, you can often find that the Catalog URL Rewrite process will sit at Processing forever.</p>
-
-<p>One of the problems that can cause this is if you have products in multiple categories and the solution is not pretty, but it works.</p>
-
-<p>Copy the file /app/code/core/Mage/Catalog/Model/Url.php to /app/code/local/Mage/Catalog/Model/Url.php (You never edit core files right?!) and around line 770 there is the following code block :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>        <span class="c1">// generate id_path</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span> <span class="o">===</span> <span class="nv">$type</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;category/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$category</span> <span class="o">&amp;&amp;</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getLevel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>        <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Changing this to the following seems to fix the problem :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>        <span class="c1">// generate id_path</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;id&#39;</span> <span class="o">===</span> <span class="nv">$type</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;category/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$category</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getPath</span><span class="p">()))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s1">&#39;product/&#39;</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">();</span>
-</span><span class='line'>        <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1243,15 +1293,15 @@ To do this you use the @SuppressWarnings option on the comments block above the 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/security/ssl-testing-and-sha-1-sunsetting.html">SSL Testing and SHA-1 Sunsetting</a>
+    
     <a class="list-group-item " href="/atop-quick-start-an-introduction-to-atop-snapshotting.html">Atop Quick Start: An Introduction to Atop Snapshotting</a>
     
     <a class="list-group-item " href="/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html">Compile NGINX With PageSpeed and ModSecurity on CentOS</a>
     
+    <a class="list-group-item " href="/linux/se-linux-and-connecting-to-a-mysql-database.html">SELinux and Connecting to Mysql Databases on Red Hat Based Distributions</a>
+    
     <a class="list-group-item " href="/Vim/php-error-checking-in-vim-with-syntastic.html">PHP Error Checking in Vim With Syntastic</a>
-    
-    <a class="list-group-item " href="/testing/test-post-from-michael.html">Test Post From Michael</a>
-    
-    <a class="list-group-item " href="/testing/this-is-a-test-post.html">This Is a Test Post</a>
     
   </div>
 </section>
