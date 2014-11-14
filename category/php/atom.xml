@@ -4,7 +4,7 @@
   <title><![CDATA[Category: php | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/category/php/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-11-12T14:18:28+00:00</updated>
+  <updated>2014-11-14T13:57:47+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,71 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Getting sub domains and domain from a url]]></title>
+    <link href="http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url.html"/>
+    <updated>2014-11-14T13:34:08+00:00</updated>
+    <id>http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url</id>
+    <content type="html"><![CDATA[<p>At first it seems like a simple one &ndash; just use the <code>parse_url</code> function already built into PHP.</p>
+
+<p>Unfortunately though, this just gives you the host &ndash; which is usually a combination of a subdomain &ndash; such as www &ndash; and the domain itself.</p>
+
+<p>To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.</p>
+
+<p>Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.</p>
+
+<p>Here is the code:</p>
+
+<p>``` php</p>
+
+<pre><code>public function getDomain($url)
+{
+    if (!$this-&gt;_domain) {
+        $host = parse_url($url, PHP_URL_HOST);
+        $sanity = $this-&gt;getHeadersForUrl($host);
+        if (!$sanity) {
+            throw new ErrorException("No headers when sanity checking full host: $host in " . __METHOD__);
+        }
+        $elems = explode('.', $host);
+        $subdomains = array();
+        $domain = false;
+        while (!$domain) {
+            $check = implode('.', $elems);
+            $headers = $this-&gt;getHeadersForUrl($check);
+            if ($headers) {
+                $subdomains[] = array_shift($elems);
+            } else {
+                array_unshift($elems, array_pop($subdomains));
+                $domain = implode('.', $elems);
+            }
+        }
+        $this-&gt;_domain = $domain;
+    }
+    return $this-&gt;_domain;
+}
+
+public function getHeadersForUrl($url, $followOnLocation = true)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HEADER, true);
+    curl_setopt($ch, CURLOPT_NOBODY, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $followOnLocation);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+    $data = curl_exec($ch);
+
+    return $data;
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Simple Database Migrations]]></title>
@@ -209,115 +274,6 @@ $xml = simplexml_load_string(utf8_encode($response));</p>
 <p>```</p>
 
 <p>And that&rsquo;s it, another crazy API defeated and bent to my will!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PHP SOAP Client Basic Template]]></title>
-    <link href="http://edmondscommerce.github.io/php/php-soap-client-basic-template.html"/>
-    <updated>2013-07-08T08:28:17+01:00</updated>
-    <id>http://edmondscommerce.github.io/php/php-soap-client-basic-template</id>
-    <content type="html"><![CDATA[<p>Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&rsquo;m just unlucky?</p>
-
-<p>In my experience decent API&rsquo;s don&rsquo;t use SOAP.</p>
-
-<p>Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&rsquo;t work), I&rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!</p>
-
-<p>```php</p>
-
-<p>&lt;?php
-/<em>*
- * Class Template Soap Client Consuming Class
- </em>/</p>
-
-<p>class EdmondsCommerceSoap
-{</p>
-
-<pre><code>protected $username = 'edmondscommerce';
-
-protected $pass = 'NotReallyMyPassw0rd';
-
-
-public function test($wsdl)
-{
-    $options["connection_timeout"] = 25;
-    $options["location"] = $wsdl; 
-    $options['trace'] = 1; //this is important if you want to be able to use the soapDebug method
-    try {
-        $client = new SoapClient($wsdl, $options);
-        $client = $this-&gt;setAuthHeader($client);
-        $client-&gt;Method();
-    } catch (SoapFault $e) {
-        echo '&lt;h1&gt;SoapFault: ' . $e-&gt;getMessage() . '&lt;/h1&gt;';
-        echo '&lt;pre&gt;' . $e-&gt;getTraceAsString() . '&lt;/pre&gt;';
-    }
-    echo '&lt;h2&gt;Debug Info:&lt;/h2&gt;';
-    var_dump($this-&gt;soapDebug($client));
-}
-
-/**
-* This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers
-**/
-protected function setAuthHeader(SoapClient $client)
-{
-    $auth = array(
-        'username' =&gt; $this-&gt;username,
-        'MessageId' =&gt; md5(time()),
-        'password' =&gt; $this-&gt;password
-    );
-    foreach($auth as $k=&gt;$v){
-        $headers[] = new SoapHeader('Header', $k, $v, false);
-    }
-    $client-&gt;__setSoapHeaders($headers);
-    return $client;
-}
-
-/**
- *  This method gathers all debug info into a handy array ready for var_dump, log etc etc
- **/
-protected function soapDebug(SoapClient $client)
-{
-    $debug = array();
-    $debug['request']['headers'] = $client-&gt;__getLastRequestHeaders();
-    $debug['request']['body'] = $client-&gt;__getLastRequest();
-    $debug['request']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastRequest());
-    $debug['response']['headers'] = $client-&gt;__getLastResponseHeaders();
-    $debug['response']['body'] = $client-&gt;__getLastResponse();
-    $debug['response']['body_formatted'] = $this-&gt;formatXmlString($client-&gt;__getLastResponse());
-    return $debug;
-}
-
-
-/**
- * This method is purely to assist the debug method and simply makes generated XML readable
- **/
-protected function formatXmlString($xml)
-{
-    $xml = preg_replace('/(&gt;)(&lt;)(\/*)/', "$1\n$2$3", $xml);
-    $token = strtok($xml, "\n");
-    $result = '';
-    $pad = 0;
-    $matches = array();
-    while ($token !== false) :
-        if (preg_match('/.+&lt;\/\w[^&gt;]*&gt;$/', $token, $matches)) :
-            $indent = 0; elseif (preg_match('/^&lt;\/\w/', $token, $matches)) :
-            $pad--;
-            $indent = 0; elseif (preg_match('/^&lt;\w[^&gt;]*[^\/]&gt;.*$/', $token, $matches)) :
-            $indent = 1; else :
-            $indent = 0;
-        endif;
-        $line = str_pad($token, strlen($token) + $pad, ' ', STR_PAD_LEFT);
-        $result .= $line . "\n";
-        $token = strtok("\n");
-        $pad += $indent;
-    endwhile;
-    return $result;
-}
-</code></pre>
-
-<p>}</p>
-
-<p>```</p>
 ]]></content>
   </entry>
   

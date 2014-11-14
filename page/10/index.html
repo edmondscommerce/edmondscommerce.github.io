@@ -128,6 +128,49 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-04-05T15:44:14+01:00" pubdate data-updated="true">Apr 5<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-category-move-error-exception-general-error-1205-solution.html">Magento Category Move Error Exception General Error: 1205 + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>There is a problem in Magento that when you try to move a category by dragging it in the admin, it can cause the above error, whilst causing the rest of the site to slow down.</p>
+
+<p>This is caused by the system trying to re-index every product within the space of a transaction.</p>
+
+<p>An easy way to get round this is to switch the indexing mode from auto to manual and then move the categories.</p>
+
+<p>You will still need to re-index the site, but this can be run on a cron when the site is quite.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-04-03T19:02:26+01:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2013</time>
         
       </p>
@@ -620,184 +663,6 @@ Done, the module will appear in the module list but do nothing. You can look at 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-03-14T14:17:48+00:00" pubdate data-updated="true">Mar 14<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/apache-log-file-analysis-script.html">Apache Log File Analysis Script</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Here is a little bash script we knocked together to track down some malicious activity on a clients server.</p>
-
-<p>Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.</p>
-
-<p>Here is the script:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
-</span><span class='line'>
-</span><span class='line'><span class="c">###### SETUP ############</span>
-</span><span class='line'><span class="nv">LOG_FOLDER</span><span class="o">=</span>/var/www/vhosts/domain.co.uk/statistics/logs
-</span><span class='line'><span class="nv">ACCESS_LOG</span><span class="o">=</span><span class="nv">$LOG_FOLDER</span>/access_log
-</span><span class='line'>
-</span><span class='line'><span class="nv">HOW_MANY_ROWS</span><span class="o">=</span>20000
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="c">######### FUNCTIONS ##############</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">function </span>title<span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">---------------------------------</span>
-</span><span class='line'><span class="s2">$@</span>
-</span><span class='line'><span class="s2">---------------------------------</span>
-</span><span class='line'><span class="s2">&quot;</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">function </span>urls_by_ip<span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">local </span><span class="nv">IP</span><span class="o">=</span><span class="nv">$1</span>
-</span><span class='line'>    tail -5000 <span class="nv">$ACCESS_LOG</span> | awk -v <span class="nv">ip</span><span class="o">=</span><span class="nv">$IP</span> <span class="s1">&#39; $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}&#39;</span> | sort -rn | head -20
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">function </span>ip_addresses_by_user_agent<span class="o">(){</span>
-</span><span class='line'>    <span class="nb">local </span><span class="nv">USERAGENT_STRING</span><span class="o">=</span><span class="s2">&quot;$1&quot;</span>
-</span><span class='line'>    <span class="nb">local </span><span class="nv">TOP_20_IPS</span><span class="o">=</span><span class="s2">&quot;`tail  -$HOW_MANY_ROWS $ACCESS_LOG | grep &quot;</span><span class="k">${</span><span class="nv">USERAGENT_STRING</span><span class="k">}</span><span class="s2">&quot;  | awk &#39;{freq[$1]++} END {for (x in freq) {print freq[x], x}}&#39; | sort -rn | head -20`&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;$TOP_20_IPS&quot;</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c">####### RUN REPORTS #############</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>title <span class="s2">&quot;top 20 URLs&quot;</span>
-</span><span class='line'><span class="nv">TOP_20_URLS</span><span class="o">=</span><span class="s2">&quot;`tail -$HOW_MANY_ROWS $ACCESS_LOG | awk &#39;{freq[$7]++} END {for (x in freq) {print freq[x], x}}&#39; | sort -rn | head -20`&quot;</span>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;$TOP_20_URLS&quot;</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>title <span class="s2">&quot;top 20 URLS excluding POST data&quot;</span>
-</span><span class='line'><span class="nv">TOP_20_URLS_WITHOUT_POST</span><span class="o">=</span><span class="s2">&quot;`tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk -F&quot;</span><span class="o">[</span> ?<span class="o">]</span><span class="s2">&quot; &#39;{freq[$7]++} END {for (x in freq) {print freq[x], x}}&#39; | sort -rn | head -20`&quot;</span>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;$TOP_20_URLS_WITHOUT_POST&quot;</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>title <span class="s2">&quot;top 20 IPs&quot;</span>
-</span><span class='line'><span class="nv">TOP_20_IPS</span><span class="o">=</span><span class="s2">&quot;`tail  -$HOW_MANY_ROWS $ACCESS_LOG | awk &#39;{freq[$1]++} END {for (x in freq) {print freq[x], x}}&#39; | sort -rn | head -20`&quot;</span>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;$TOP_20_IPS&quot;</span>
-</span><span class='line'>
-</span><span class='line'>title <span class="s2">&quot;top 20 user agents&quot;</span>
-</span><span class='line'><span class="nv">TOP_20_USER_AGENTS</span><span class="o">=</span><span class="s2">&quot;`tail  -$HOW_MANY_ROWS $ACCESS_LOG | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20`&quot;</span>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;$TOP_20_USER_AGENTS&quot;</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>title <span class="s2">&quot;IP Addresses for Top 3 User Agents&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">for</span> <span class="o">((</span><span class="nv">I</span><span class="o">=</span>1; I&lt;<span class="o">=</span>3; I++<span class="o">))</span>
-</span><span class='line'><span class="k">do</span>
-</span><span class='line'><span class="k">    </span><span class="nv">UA</span><span class="o">=</span><span class="s2">&quot;`echo &quot;</span><span class="nv">$TOP_20_USER_AGENTS</span><span class="s2">&quot; | head -n $I | tail -n 1 | awk &#39;{$1=&quot;&quot;; print $0}&#39;`&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;$UA&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;~~~~~~~~~~~~~~~~~~&quot;</span>
-</span><span class='line'>    ip_addresses_by_user_agent <span class="s2">&quot;$UA&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">    &quot;</span>
-</span><span class='line'><span class="k">done</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -821,6 +686,8 @@ Done, the module will appear in the module list but do nothing. You can look at 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    
     <a class="list-group-item " href="/security/ssl-testing-and-sha-1-sunsetting.html">SSL Testing and SHA-1 Sunsetting</a>
     
     <a class="list-group-item " href="/atop-quick-start-an-introduction-to-atop-snapshotting.html">Atop Quick Start: An Introduction to Atop Snapshotting</a>
@@ -828,8 +695,6 @@ Done, the module will appear in the module list but do nothing. You can look at 
     <a class="list-group-item " href="/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html">Compile NGINX With PageSpeed and ModSecurity on CentOS</a>
     
     <a class="list-group-item " href="/linux/se-linux-and-connecting-to-a-mysql-database.html">SELinux and Connecting to Mysql Databases on Red Hat Based Distributions</a>
-    
-    <a class="list-group-item " href="/Vim/php-error-checking-in-vim-with-syntastic.html">PHP Error Checking in Vim With Syntastic</a>
     
   </div>
 </section>
