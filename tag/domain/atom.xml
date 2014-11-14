@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: domain | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/domain/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-11-14T13:45:08+00:00</updated>
+  <updated>2014-11-12T14:18:28+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,70 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Getting sub domains and domain from a url]]></title>
-    <link href="http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url.html"/>
-    <updated>2014-11-14T13:34:08+00:00</updated>
-    <id>http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url</id>
-    <content type="html"><![CDATA[<p>At first it seems like a simple one &ndash; just use the <code>parse_url</code> function already built into PHP.</p>
-
-<p>Unfortunately though, this just gives you the host &ndash; which is usually a combination of a subdomain &ndash; such as www &ndash; and the domain itself.</p>
-
-<p>To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.</p>
-
-<p>Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.</p>
-
-<p>Here is the code:</p>
-
-<p>``` php</p>
-
-<pre><code>public function getDomain($url)
-{
-    if (!$this-&gt;_domain) {
-        $host = parse_url($url, PHP_URL_HOST);
-        $sanity = $this-&gt;getHeadersForUrl($host);
-        if (!$sanity) {
-            throw new ErrorException("No headers when sanity checking full host: $host in " . __METHOD__);
-        }
-        $elems = explode('.', $host);
-        $subdomains = array();
-        $domain = false;
-        while (!$domain) {
-            $check = implode('.', $elems);
-            $headers = $this-&gt;getHeadersForUrl($check);
-            if ($headers) {
-                $subdomains[] = array_shift($elems);
-            } else {
-                $domain = implode('.', $elems);
-            }
-        }
-        $this-&gt;_domain = $domain;
-    }
-    return $this-&gt;_domain;
-}
-
-public function getHeadersForUrl($url, $followOnLocation = true)
-{
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HEADER, true);
-    curl_setopt($ch, CURLOPT_NOBODY, true);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $followOnLocation);
-    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-    $data = curl_exec($ch);
-
-    return $data;
-}
-</code></pre>
-
-<p>```</p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Magento Multi Store, Websites and Storeviews Explained]]></title>
