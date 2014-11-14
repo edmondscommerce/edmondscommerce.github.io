@@ -42,6 +42,7 @@ Here is the code:
                 if ($headers) {
                     $subdomains[] = array_shift($elems);
                 } else {
+                    array_unshift($elems, array_pop($subdomains));
                     $domain = implode('.', $elems);
                 }
             }
