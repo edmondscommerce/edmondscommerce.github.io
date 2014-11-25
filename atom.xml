@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-11-14T13:57:47+00:00</updated>
+  <updated>2014-11-12T14:18:28+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,110 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Getting sub domains and domain from a url]]></title>
-    <link href="http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url.html"/>
-    <updated>2014-11-14T13:34:08+00:00</updated>
-    <id>http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url</id>
-    <content type="html"><![CDATA[<p>At first it seems like a simple one &ndash; just use the <code>parse_url</code> function already built into PHP.</p>
-
-<p>Unfortunately though, this just gives you the host &ndash; which is usually a combination of a subdomain &ndash; such as www &ndash; and the domain itself.</p>
-
-<p>To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.</p>
-
-<p>Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.</p>
-
-<p>Here is the code:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getDomain</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$host</span> <span class="o">=</span> <span class="nb">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nx">PHP_URL_HOST</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$sanity</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$host</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$sanity</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">ErrorException</span><span class="p">(</span><span class="s2">&quot;No headers when sanity checking full host: </span><span class="si">$host</span><span class="s2"> in &quot;</span> <span class="o">.</span> <span class="nx">__METHOD__</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nv">$elems</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$host</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$subdomains</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
-</span><span class='line'>        <span class="nv">$domain</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nv">$domain</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$check</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="nv">$headers</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$check</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$headers</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nv">$subdomains</span><span class="p">[]</span> <span class="o">=</span> <span class="nb">array_shift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nb">array_unshift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">,</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$subdomains</span><span class="p">));</span>
-</span><span class='line'>                <span class="nv">$domain</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span> <span class="o">=</span> <span class="nv">$domain</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getHeadersForUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nv">$followOnLocation</span> <span class="o">=</span> <span class="k">true</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="nv">$ch</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">();</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_HEADER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_NOBODY</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_FOLLOWLOCATION</span><span class="p">,</span> <span class="nv">$followOnLocation</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_MAXREDIRS</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYPEER</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYHOST</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nv">$data</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$data</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[SSL testing and SHA-1 Sunsetting]]></title>
@@ -882,6 +778,29 @@ It features a GUI which is ideal for creating your tests, then a command line ve
 <p>It is considered bad practice to have the same password for multiple site, so to help me keep track of all of them I use <a href="https://lastpass.com">lastpass</a> to make the job simpler</p>
 
 <p>The full statement for ebay is available <a href="http://www.ebayinc.com/in_the_news/story/ebay-inc-ask-ebay-users-change-passwords">here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento 1.9 &amp; 1.14 released]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released.html"/>
+    <updated>2014-05-14T11:12:02+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released</id>
+    <content type="html"><![CDATA[<p>Magento has released the latest version of both CE and EE.</p>
+
+<p>The big changes that are included are as follows</p>
+
+<p><strong>Responsive design included as default</strong></p>
+
+<p>Both editions now come with a responsive theme. This introduces jQuery, SASS, and Compass into native Magento and should allow for easier customisation in the future.</p>
+
+<p><strong>Bill Me Later</strong></p>
+
+<p>The PayPal integration has been upgraded to include the <a href="https://www.paypal.com/webapps/mpp/promotional-financing">Bill Me Later</a> financing option. This allows customer to pay for products over six months whilst the merchant gets paid straight away.</p>
+
+<p><strong>Other security fix and performance fixes</strong></p>
+
+<p>The full list of changes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/new-features-ce19-ee114">here</a></p>
 ]]></content>
   </entry>
   

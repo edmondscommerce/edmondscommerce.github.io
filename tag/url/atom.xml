@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: url | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/url/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-11-14T13:57:47+00:00</updated>
+  <updated>2014-11-12T14:18:28+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,71 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Getting sub domains and domain from a url]]></title>
-    <link href="http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url.html"/>
-    <updated>2014-11-14T13:34:08+00:00</updated>
-    <id>http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url</id>
-    <content type="html"><![CDATA[<p>At first it seems like a simple one &ndash; just use the <code>parse_url</code> function already built into PHP.</p>
-
-<p>Unfortunately though, this just gives you the host &ndash; which is usually a combination of a subdomain &ndash; such as www &ndash; and the domain itself.</p>
-
-<p>To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.</p>
-
-<p>Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.</p>
-
-<p>Here is the code:</p>
-
-<p>``` php</p>
-
-<pre><code>public function getDomain($url)
-{
-    if (!$this-&gt;_domain) {
-        $host = parse_url($url, PHP_URL_HOST);
-        $sanity = $this-&gt;getHeadersForUrl($host);
-        if (!$sanity) {
-            throw new ErrorException("No headers when sanity checking full host: $host in " . __METHOD__);
-        }
-        $elems = explode('.', $host);
-        $subdomains = array();
-        $domain = false;
-        while (!$domain) {
-            $check = implode('.', $elems);
-            $headers = $this-&gt;getHeadersForUrl($check);
-            if ($headers) {
-                $subdomains[] = array_shift($elems);
-            } else {
-                array_unshift($elems, array_pop($subdomains));
-                $domain = implode('.', $elems);
-            }
-        }
-        $this-&gt;_domain = $domain;
-    }
-    return $this-&gt;_domain;
-}
-
-public function getHeadersForUrl($url, $followOnLocation = true)
-{
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HEADER, true);
-    curl_setopt($ch, CURLOPT_NOBODY, true);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $followOnLocation);
-    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-    $data = curl_exec($ch);
-
-    return $data;
-}
-</code></pre>
-
-<p>```</p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Mod Rewrite and Escaped Hashes (and other characters)]]></title>
@@ -172,6 +107,23 @@ http://www.google.co.uk/search?ie=UTF-8&amp;oe=UTF-8&amp;sourceid=navclient&amp;
 <p>```</p>
 
 <p>Handy :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Magento URL Request Routing]]></title>
+    <link href="http://edmondscommerce.github.io/magento/magento-url-request-routing.html"/>
+    <updated>2012-01-17T16:13:03+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/magento-url-request-routing</id>
+    <content type="html"><![CDATA[<p>Magento is a typical PHP Model View Architecture (MVC) system which routes its URLs in ways not particularly different from other PHP MVC Frameworks like codeigniter, symphony etc. But the difference it has with other MVC architecture is that most of its routing directives or configurations are XML based i.e. found in one XML file or the other.</p>
+
+<p>For example, www.yourstore.co.uk/index.php/checkout/cart/index, tells Magento to use the checkout module found in app/code/Mage/,  use the cart controller (i.e. CartController.php) in app/code/Mage/Checkout/controller/ and run the index action method in the CartController.php, when the last &ldquo;index&rdquo; is omitted Magento still defaults to run the index action method, and every other value in the url after the first three url steps, Magento treats them as PHP GET parameters i.e. www.yourstore.co.uk/index.php/checkout/cart/index/store/1 would make $_GET[&lsquo;store&rsquo;]=1</p>
+
+<p>It is this action method that searches through the magneto xml configuration file using x-path to obtain information regarding this request e.g. the indexAction method found in app/code/Mage/Checkout/controller/CartController.php uses  Mage::getStoreConfig(&lsquo;sales/minimum_order/description&rsquo;) to get the value of the description node  in sales module, the minimum_order node and description child node, which can be found in system.xml in the Sales/etc/ folder.</p>
+
+<p>Its is worthwhile also knowing that Magento uses Apache&rsquo;s URL rewrite engine (mod_rewrite) to make its URLs SEO friendly i.e. www.yourstore.co.uk/index.php/catalog/product/view/id/1 could be routed to www.yourstore.co.uk/index.php/product1.html which can be regarded as an alias for  www.yourstore.co.uk/index.php/catalog/product/view/id/1 to make Google happy and improve the sites SEO.</p>
+
+<p>This basically describes how Magento decides what to do when accessed by a particular URL.</p>
 ]]></content>
   </entry>
   
