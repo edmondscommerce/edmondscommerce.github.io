@@ -128,6 +128,121 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-17T16:13:03+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-url-request-routing.html">Magento URL Request Routing</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Magento is a typical PHP Model View Architecture (MVC) system which routes its URLs in ways not particularly different from other PHP MVC Frameworks like codeigniter, symphony etc. But the difference it has with other MVC architecture is that most of its routing directives or configurations are XML based i.e. found in one XML file or the other.</p>
+
+<p>For example, www.yourstore.co.uk/index.php/checkout/cart/index, tells Magento to use the checkout module found in app/code/Mage/,  use the cart controller (i.e. CartController.php) in app/code/Mage/Checkout/controller/ and run the index action method in the CartController.php, when the last &ldquo;index&rdquo; is omitted Magento still defaults to run the index action method, and every other value in the url after the first three url steps, Magento treats them as PHP GET parameters i.e. www.yourstore.co.uk/index.php/checkout/cart/index/store/1 would make $_GET[&lsquo;store&rsquo;]=1</p>
+
+<p>It is this action method that searches through the magneto xml configuration file using x-path to obtain information regarding this request e.g. the indexAction method found in app/code/Mage/Checkout/controller/CartController.php uses  Mage::getStoreConfig(&lsquo;sales/minimum_order/description&rsquo;) to get the value of the description node  in sales module, the minimum_order node and description child node, which can be found in system.xml in the Sales/etc/ folder.</p>
+
+<p>Its is worthwhile also knowing that Magento uses Apache&rsquo;s URL rewrite engine (mod_rewrite) to make its URLs SEO friendly i.e. www.yourstore.co.uk/index.php/catalog/product/view/id/1 could be routed to www.yourstore.co.uk/index.php/product1.html which can be regarded as an alias for  www.yourstore.co.uk/index.php/catalog/product/view/id/1 to make Google happy and improve the sites SEO.</p>
+
+<p>This basically describes how Magento decides what to do when accessed by a particular URL.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-16T16:02:14+00:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/adding-custom-variables-to-magento-static-blocks.html">Adding Custom Variables to Magento Static Blocks</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I&rsquo;ve recently been asked to customise the front page of a magento store. The client wanted the ability to specify a different set of top links depending on whether the customer was logged in or not, and they wanted to be able to changes these links from the admin section. They also wanted the logged in links to display the customers name.</p>
+
+<p>The problem with this is that the standard magento CMS static blocks don&rsquo;t provide access to the customer by default, so I thought I was going to have to build an extension to pass the variables in. However after a little bit of digging, I discovered that this functionality is available as standard in Magento, you just need to set it up!</p>
+
+<p>The way to do this is as follows. Within you template file add in the following code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$blockToDisplay</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getLayout</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">createBlock</span><span class="p">(</span><span class="s1">&#39;cms/block&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">setBlockId</span><span class="p">(</span><span class="s1">&#39;static_block_id_to_display&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd">* Here we create an array of custom variables that will be passed to the static block. You can set as many as you</span>
+</span><span class='line'><span class="sd">* need and call them whatever makes sense. The important part is in the Static Block you call these like this</span>
+</span><span class='line'><span class="sd">* </span>
+</span><span class='line'><span class="sd">* Note there are no spaces between the braces and the characters - this is something that caught me out</span>
+</span><span class='line'><span class="sd">*/</span>
+</span><span class='line'><span class="nv">$customVariables</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'><span class="nv">$customVariables</span><span class="p">[</span><span class="s1">&#39;customer_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;customer&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getCustomerName</span><span class="p">();</span>
+</span><span class='line'><span class="nv">$filter</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;core/email_template_filter&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$filter</span><span class="o">-&gt;</span><span class="na">setVariables</span><span class="p">(</span><span class="nv">$customVariables</span><span class="p">);</span>
+</span><span class='line'><span class="k">echo</span> <span class="nv">$filter</span><span class="o">-&gt;</span><span class="na">filter</span><span class="p">(</span><span class="nv">$blockToDisplay</span><span class="o">-&gt;</span><span class="na">toHtml</span><span class="p">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will then display the static block with your variables expanded to values you&rsquo;ve set.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-16T10:44:36+00:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
         
       </p>
@@ -517,140 +632,6 @@ tail -f /path/to/file | sed -u G | grep -A 1 searchTerm
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-10T16:47:32+00:00" pubdate data-updated="true">Jan 10<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-catalog-prices-include-tax-not-working.html">Magento Catalog Prices Include Tax Not Working</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Magento will some times not treat catalogue prices as tax inclusive even if configured to do so. There can be a number of reasons for it but usually it&rsquo;s because the origin address is not configured correctly.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-10T16:30:14+00:00" pubdate data-updated="true">Jan 10<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ubuntu/path-tools-netbeans-open-file-in-external-program-plus-guake-code.html">Path Tools Netbeans Open File in External Program Plus Guake Code</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Not many people are aware of the Path Tools extension for netbeans, and even fewer know how to make it really useful.</p>
-
-<p>Effectively it provides 4 buttons &ndash; Copy Path, Open Folder, Open Terminal and Edit Path, the latter three being configurable.</p>
-
-<p>Its default for Open Folder is great (for gnome users) but that&rsquo;s the only one that has a default.</p>
-
-<p>I use Guake (a pull-down transparent terminal) and for the two options (For Folder and For File) I set to the following for a nice &ldquo;New tab in guake&rdquo; :&ndash;</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>guake --new-tab "{path}" -t</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>guake --new-tab "{parent-path}" -t</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And for the &ldquo;Edit Path&rdquo; button, I find it extremely useful to create a &ldquo;run external program&rdquo; script &ndash; sat in my personal bin directory ($HOME/bin/) containing the following code :&ndash;</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#!/bin/bash
-</span><span class='line'>
-</span><span class='line'>ESCAPEDPARAMS=`echo $* | sed -e 's/\([[\/.*]\|\]\)/\\\&/g'`
-</span><span class='line'>MIME=`file --mime-type $* | cut -f2 -d: | cut -f2 -d' '`
-</span><span class='line'>DESKTOPFILE=/usr/share/applications/`xdg-mime query default $MIME`
-</span><span class='line'>EXEC=`grep '^Exec=' $DESKTOPFILE | cut -f2 -d=`
-</span><span class='line'>COMMAND=`zenity --width 600 --entry --title="Path Tools" --text="Run Command : " --entry-text="$(echo $EXEC | sed s/'%U'/"$ESCAPEDPARAMS"/)"` 
-</span><span class='line'>
-</span><span class='line'>if [ "$?"=="0" ]; then
-</span><span class='line'>  sh -c "$COMMAND"
-</span><span class='line'>else
-</span><span class='line'>  echo ""
-</span><span class='line'>fi</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and set that up as the command &ldquo;For Folder&rdquo; and &ldquo;For File&rdquo; with {path} for both (not {parent-path} notice).</p>
-
-<p>So, what does it do?</p>
-
-<ul>
-    <li>MIME variable is set to the mime-type of the file (e.g. image/jpeg)</li>
-    <li>DESKTOPFILE is set to the .desktop file that is associated with that mime-type (for my gnome setup this is /usr/share/applications/${DESKTOPFILE} )</li>
-    <li>EXEC is the command contained within that desktop file</li>
-    <li>COMMAND uses zenity to prompt for the commandline I want to run, pre-populated with the gnome default</li>
-</ul>
-
-
-<p>This means when I press the &ldquo;Edit Path&rdquo; button on a JPeg file, a popup asks for a commandline, prepopulated with my defaults (in this instance &ldquo;eog /path/to/file.jpg&rdquo;) and if I want I can change the command to gimp.  If I click OK in the box, the command is run.  If I just wanted to see the full path, I can maximise the box, look at it and click Cancel.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -674,15 +655,15 @@ tail -f /path/to/file | sed -u G | grep -A 1 searchTerm
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
+    
+    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    
     <a class="list-group-item " href="/security/ssl-testing-and-sha-1-sunsetting.html">SSL Testing and SHA-1 Sunsetting</a>
     
     <a class="list-group-item " href="/atop-quick-start-an-introduction-to-atop-snapshotting.html">Atop Quick Start: An Introduction to Atop Snapshotting</a>
     
     <a class="list-group-item " href="/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html">Compile NGINX With PageSpeed and ModSecurity on CentOS</a>
-    
-    <a class="list-group-item " href="/linux/se-linux-and-connecting-to-a-mysql-database.html">SELinux and Connecting to Mysql Databases on Red Hat Based Distributions</a>
-    
-    <a class="list-group-item " href="/Vim/php-error-checking-in-vim-with-syntastic.html">PHP Error Checking in Vim With Syntastic</a>
     
   </div>
 </section>
