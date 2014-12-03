@@ -128,6 +128,59 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-26T16:16:58+00:00" pubdate data-updated="true">Nov 26<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/bash/tip-remove-spaces-from-filenames-one-liner.html">Tip: Remove Spaces From Filenames One-liner</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>There is often the case when you need to remove spaces from filenames &ndash; for instance when importing broken data feeds into <a title="Magento" href="http://www.edmondscommerce.co.uk/platforms/magento">Magento</a> or <a title="osCommerce" href="http://www.edmondscommerce.co.uk/platforms/osCommerce">osCommerce</a> systems.</p>
+
+<p>The following strips spaces and replaces them with nothing :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>find directoryname -name <span class="s1">&#39;* *&#39;</span> -type f | <span class="k">while </span><span class="nb">read </span>f; <span class="k">do </span>mv &amp;quot;<span class="nv">$f</span>&amp;quot; &amp;quot;<span class="k">$(</span><span class="nb">echo</span> <span class="nv">$f</span> | sed s/&amp;quot; &amp;quot;/&amp;quot;&amp;quot;/g<span class="k">)</span>&amp;quot;;  done
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or alternatively replace them with underscores :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>find directoryname -name <span class="s1">&#39;* *&#39;</span> -type f | <span class="k">while </span><span class="nb">read </span>f; <span class="k">do </span>mv &amp;quot;<span class="nv">$f</span>&amp;quot; &amp;quot;<span class="k">$(</span><span class="nb">echo</span> <span class="nv">$f</span> | sed s/&amp;quot; &amp;quot;/&amp;quot;_&amp;quot;/g<span class="k">)</span>&amp;quot;;  done
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or any other character/string combo you like, you can even be more clever moving them out into subdirectories with more sed magic but you get the idea.  The reason the read command is there is to get the spaces in found filenames which if you simply use a &ldquo;for&rdquo; loop, bash splits on the spaces.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-23T19:17:50+00:00" pubdate data-updated="true">Nov 23<span>rd</span>, 2012</time>
         
       </p>
@@ -636,87 +689,6 @@ root      2125  0.0  0.9 329896 40484 ?        S    Nov13   0:00 /usr/bin/php /p
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-13T16:17:29+00:00" pubdate data-updated="true">Nov 13<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-admin-login-not-working-in-some-browsers.html">Magento Admin Login Not Working in Some Browsers + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are tearing your hair out trying to figure out why you are not able to log into the Magento admin on some browsers then this might be your solution.</p>
-
-<p>This solution will apply particularly if you are setting up Magento on a brand new server or VPS as you will see.</p>
-
-<p>The problem is actually that the server time is wrong. The server time is used for generating cookies and the fact that the time is wrong means that cookies become invalidated immediately. Some browsers will deal with this in a less aggressive way than others and might actually let the cookie work, others will go for hard line security and will make the whole thing break.</p>
-
-<p>The way to check this is to SSH into the server and check the time:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>date
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If the time is wrong then you need to do the following to fix it:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install ntp
-</span><span class='line'>chkconfig ntpd on
-</span><span class='line'>ntpdate pool.ntp.org
-</span><span class='line'>/etc/init.d/ntpd start
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The above will install NTP, make it run on startup, will update the time and will set it running so the time should stay up to date from here on.</p>
-
-<p>To check that has worked simply check the time again:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>date
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then finally flush your Magento cache and sessions</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>rm -rf var/cache/*
-</span><span class='line'>rm -rf var/sessions/*
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And you should be good to go</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -740,6 +712,8 @@ root      2125  0.0  0.9 329896 40484 ?        S    Nov13   0:00 /usr/bin/php /p
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
+    
     <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
     
     <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
@@ -747,8 +721,6 @@ root      2125  0.0  0.9 329896 40484 ?        S    Nov13   0:00 /usr/bin/php /p
     <a class="list-group-item " href="/security/ssl-testing-and-sha-1-sunsetting.html">SSL Testing and SHA-1 Sunsetting</a>
     
     <a class="list-group-item " href="/atop-quick-start-an-introduction-to-atop-snapshotting.html">Atop Quick Start: An Introduction to Atop Snapshotting</a>
-    
-    <a class="list-group-item " href="/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html">Compile NGINX With PageSpeed and ModSecurity on CentOS</a>
     
   </div>
 </section>
