@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-12-03T15:14:17+00:00</updated>
+  <updated>2014-12-08T12:55:30+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,56 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Bash Script to Kill Sleeping MySQL Processes]]></title>
+    <link href="http://edmondscommerce.github.io/bash/bash-script-to-kill-sleeping-mysql-processes.html"/>
+    <updated>2014-12-08T12:52:03+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/bash-script-to-kill-sleeping-mysql-processes</id>
+    <content type="html"><![CDATA[<p>Pretty much what is says on the tin, if for some reason you have a large amount of sleeping MySQL processes and you want to quickly clear them all out, this little BASH script will do the job.</p>
+
+<p>I leave it to you to decide how to handle the DBUSER and DBPASS variables</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>mysql -u <span class="nv">$DBUSER</span> -p<span class="nv">$DBPASS</span> -e <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">select </span>
+</span><span class='line'><span class="s2">-- * </span>
+</span><span class='line'><span class="s2">id</span>
+</span><span class='line'><span class="s2">from information_schema.processlist </span>
+</span><span class='line'><span class="s2">where command = &#39;Sleep&#39; </span>
+</span><span class='line'><span class="s2">and time &gt; 1 </span>
+</span><span class='line'><span class="s2">and host =&#39;localhost&#39;</span>
+</span><span class='line'><span class="s2">&quot;</span> | <span class="k">while </span><span class="nb">read </span>id;
+</span><span class='line'><span class="k">do </span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[[</span> <span class="s2">&quot;id&quot;</span> <span class="o">==</span> <span class="s2">&quot;$id&quot;</span> <span class="o">]]</span>
+</span><span class='line'>    <span class="k">then</span>
+</span><span class='line'><span class="k">        continue</span>
+</span><span class='line'><span class="k">    fi</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;kill $id&quot;</span>;
+</span><span class='line'>    mysql -u <span class="nv">$DBUSER</span> -p<span class="nv">$DBPASS</span> -e <span class="s2">&quot;kill $id&quot;</span>;
+</span><span class='line'><span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Blocking Direct IP Access in Apache]]></title>
@@ -907,32 +957,6 @@ The text highlighting is very nice and things like brace matching are also inclu
 <h2>Implement Solr Search Today</h2>
 
 <p>If you would like your site to be fitted out with a Solr based search system by a professional UK based e-commerce web development agency then get in touch with <a href="http://www.edmondscommerce.co.uk/contact">Edmonds Commerce</a> today.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Prevent Ctrl+S Freezing Your Terminal]]></title>
-    <link href="http://edmondscommerce.github.io/linux/prevent-ctrl-plus-s-freezing-your-terminal.html"/>
-    <updated>2014-06-11T10:30:25+01:00</updated>
-    <id>http://edmondscommerce.github.io/linux/prevent-ctrl-plus-s-freezing-your-terminal</id>
-    <content type="html"><![CDATA[<p>As someone who types a lot of text everyday and am generally quite keen not to lose my work, I tend to hit the key combination [Ctrl]+[S] quite a lot.
-In fact its almost become muscle memory that every sentence or two I will hit that combination.</p>
-
-<p>When working on a terminal, this can have the unfortunate outcome that the terminal freezes up. For more time than I would like to admit, I thought that this was a Linux bug
-And found myself frequently restarting terminal sessions that had locked up.</p>
-
-<p>Then I discovered that you can unlock this when it freezes by hitting [Ctrl]+[Q]. However this is a bit of a pain.</p>
-
-<p>I have now discovered a way of turning off this behaviour completely which is a real relief. Simply add the following to your .bashrc file:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#Prevent Ctrl+S Freezing Terminal
-</span><span class='line'>stty -ixon</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Credit goes to this Stackoverflow post:
-<a href="http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal">http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal</a></p>
 ]]></content>
   </entry>
   
