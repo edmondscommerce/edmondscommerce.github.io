@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-12-03T15:11:25+00:00</updated>
+  <updated>2014-12-08T12:55:04+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,15 +14,15 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Blocking Direct IP Access in Apache]]></title>
-    <link href="http://edmondscommerce.github.io/apache/blocking-direct-ip-access-in-apache.html"/>
-    <updated>2014-12-03T15:08:37+00:00</updated>
-    <id>http://edmondscommerce.github.io/apache/blocking-direct-ip-access-in-apache</id>
-    <content type="html"><![CDATA[<p>If you are using Name based virtual hosts, you may want to simply block any bots etc that try to access your server by direct IP address. It&rsquo;s unlikely a real user would try to hit your server by using the actual IP address.</p>
+    <title type="html"><![CDATA[Bash Script to Kill Sleeping MySQL Processes]]></title>
+    <link href="http://edmondscommerce.github.io/bash/bash-script-to-kill-sleeping-mysql-processes.html"/>
+    <updated>2014-12-08T12:52:03+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/bash-script-to-kill-sleeping-mysql-processes</id>
+    <content type="html"><![CDATA[<p>Pretty much what is says on the tin, if for some reason you have a large amount of sleeping MySQL processes and you want to quickly clear them all out, this little BASH script will do the job.</p>
 
-<p>To do this, you can use this Virtual Host config:</p>
+<p>I leave it to you to decide how to handle the DBUSER and DBPASS variables</p>
 
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -30,20 +30,36 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;VirtualHost *:80&gt;
-</span><span class='line'>    ServerName 123.123.123.123
-</span><span class='line'>    Redirect 403 /
-</span><span class='line'>    ErrorDocument 403 "No"
-</span><span class='line'>    DocumentRoot /dev/null/
-</span><span class='line'>    UseCanonicalName Off
-</span><span class='line'>    UserDir disabled
-</span><span class='line'>&lt;/VirtualHost&gt;
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>mysql -u <span class="nv">$DBUSER</span> -p<span class="nv">$DBPASS</span> -e <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">select </span>
+</span><span class='line'><span class="s2">-- * </span>
+</span><span class='line'><span class="s2">id</span>
+</span><span class='line'><span class="s2">from information_schema.processlist </span>
+</span><span class='line'><span class="s2">where command = &#39;Sleep&#39; </span>
+</span><span class='line'><span class="s2">and time &gt; 1 </span>
+</span><span class='line'><span class="s2">and host =&#39;localhost&#39;</span>
+</span><span class='line'><span class="s2">&quot;</span> | <span class="k">while </span><span class="nb">read </span>id;
+</span><span class='line'><span class="k">do </span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[[</span> <span class="s2">&quot;id&quot;</span> <span class="o">==</span> <span class="s2">&quot;$id&quot;</span> <span class="o">]]</span>
+</span><span class='line'>    <span class="k">then</span>
+</span><span class='line'><span class="k">        continue</span>
+</span><span class='line'><span class="k">    fi</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;kill $id&quot;</span>;
+</span><span class='line'>    mysql -u <span class="nv">$DBUSER</span> -p<span class="nv">$DBPASS</span> -e <span class="s2">&quot;kill $id&quot;</span>;
+</span><span class='line'><span class="k">done</span>
 </span></code></pre></td></tr></table></div></figure>
 
-
-<p>Of course, please change the IP to the real server IP address(es)</p>
-
-<p>And that&rsquo;s it, anyone trying to hit the server by IP address will get a simple 403 error.</p>
 ]]></content>
   </entry>
   
