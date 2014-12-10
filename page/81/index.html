@@ -128,6 +128,183 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-04-15T09:00:32+01:00" pubdate data-updated="true">Apr 15<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/ubuntu/debugging/file-comparison-on-ubuntu.html">File Comparison on Ubuntu</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you are a windows user, you may be familiar with the Beyond Compare programme which is used to compare two text files. This can be an invaluable tool when you are debugging or tracking changes as it highlights for you any differences between two text files.</p>
+
+<p>For Ubuntu, there is an excellent programme called Meld which offers the same functionality and works very well. You can download and install it easily using the Add/Remove tool in your applications menu.</p>
+
+<p>You can read all about Meld <a href="http://meld.sourceforge.net/">here</a></p>
+
+<p>Another great open source linux package!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-04-09T18:39:55+01:00" pubdate data-updated="true">Apr 9<span>th</span>, 2008</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/php/mysql-dump-partial-restore-split-mysql-dump-into-tables.html">MySQL Dump Partial Restore - Split MySQL Dump Into Tables</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>MySQL dumps are often used as a quick and easy way of backing up an entire MySQL database in one go. However, they are only really designed to restore whole databases as well. So what if you only want to restore certain tables?</p>
+
+<p>I have written this nice little PHP script which will take your dump file and split it into lots of little sql files &ndash; one for each table. You can then restore which ever tables you want.</p>
+
+<p>Simply create a php file in the same directory as your dump file. Name it something easy to remember. Then go to it in your web browser, input the name of the dump file and click go.</p>
+
+<p>As this is a fairly massive task (depending on the size of your dump file) you may find it works better on your local test server with some generous php_ini settings for max_execution_time etc.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="cm">/*MySQL Dump Split to Tables</span>
+</span><span class='line'><span class="cm">* script supplied by Edmonds Commerce</span>
+</span><span class='line'><span class="cm">* www.edmondscommerce.co.uk</span>
+</span><span class='line'><span class="cm">* if you like it, please link back with a do-follow</span>
+</span><span class='line'><span class="cm">*/</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;MySQL Dump Split to Tables&lt;/h1&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nb">set_time_limit</span><span class="p">(</span><span class="mi">600</span><span class="p">);</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">])){</span>
+</span><span class='line'>  <span class="k">echo</span> <span class="s1">&#39;&lt;form&gt;&lt;b&gt;Dump File Path:&lt;/b&gt; &lt;input name=&quot;dump_file&quot;&gt; &lt;input type=&quot;submit&quot; value=&quot;go&quot;&gt;&lt;/form&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>  <span class="nv">$handle</span> <span class="o">=</span> <span class="o">@</span><span class="nb">fopen</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;dump_file&#39;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$handle</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nb">feof</span><span class="p">(</span><span class="nv">$handle</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nv">$line</span> <span class="o">=</span> <span class="nb">fgets</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nx">strstr</span><span class="p">(</span><span class="nv">$line</span><span class="p">,</span> <span class="s1">&#39;CREATE TABLE&#39;</span><span class="p">)){</span>
+</span><span class='line'>              <span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$out</span><span class="p">)){</span>
+</span><span class='line'>                  <span class="nb">fclose</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+</span><span class='line'>                  <span class="nb">unset</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="nb">preg_match</span><span class="p">(</span><span class="s1">&#39;%CREATE TABLE `(.+?)`%&#39;</span><span class="p">,</span> <span class="nv">$line</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">);</span>
+</span><span class='line'>              <span class="nv">$table_name</span> <span class="o">=</span> <span class="nv">$matches</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>              <span class="nv">$out</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="nv">$table_name</span> <span class="o">.</span> <span class="s1">&#39;.sql&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">);</span>
+</span><span class='line'>              <span class="nb">fwrite</span><span class="p">(</span><span class="nv">$out</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">.</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>              <span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$out</span><span class="p">)){</span>
+</span><span class='line'>                  <span class="nb">fwrite</span><span class="p">(</span><span class="nv">$out</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">.</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>    
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="nb">fclose</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+</span><span class='line'>      <span class="nb">fclose</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>    
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;Done&lt;/h1&gt;&#39;</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-04-08T18:20:47+01:00" pubdate data-updated="true">Apr 8<span>th</span>, 2008</time>
         
       </p>
@@ -791,164 +968,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-03-05T09:53:12+00:00" pubdate data-updated="true">Mar 5<span>th</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/spidering/ecommerce/product%20catalogue/product%20feed/scraping/product-feed-integration-and-scraping-products-from-supplier-web-sites.html">Product Feed Integration and Scraping Products From Supplier Web Sites</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>One of the big tasks that any ecommerce retail business must undertake is the continual updating and inserting of products into the catalogue. Done one by one, this task can take a ridiculous amount of time. In some instances there is no better option, but in the vast majority of cases there is!</p>
-
-<p><strong>Product Feed</strong></p>
-
-<p>The ideal scenario is that your supplier makes available an up to date product feed which is regularly updated and contains all of the information you need to insert those products into your catalogue. The challenge with this is that it is highly unlikely that you will literally be able to upload this data as is. The reason being that each ecommerce system has its own quirks and separate ways of doing things. Before you can upload this data into your feed, it is highly likely that it will need to be altered and prepared for insertion.</p>
-
-<p>You could do updating by hand &ndash; but that brings us back to our first point. Doing things by hand can take a ridiculously large amount of time. Instead &ndash; we recommend that you have a script which does all this preparation for you.</p>
-
-<p>In fact this task is something that Edmonds Commerce specialise in. Not least because it is something that we have done plenty of and so we have a good understanding of how to do the job. Furthermore &ndash; we understand how to do the job well.</p>
-
-<p><strong>Spidering and Scraping Products from Supplier Web Site</strong></p>
-
-<p>If your supplier does not provide a feed, or if the feed they supply does not have all of the information that you want, you might think you are stuck. You are not!</p>
-
-<p>It is perfectly possible to build a system which will visit every product on your suppliers web site and grab all of the information and pictures and then save them into a format that you can insert into your catalogue system. It is even possible to extend the scraping system so that it goes all the way and inserts the products into your site for you.</p>
-
-<p>Again this is something that Edmonds Commerce specialise in.</p>
-
-<p><strong>Conclusion</strong></p>
-
-<p>If you find that you or your staff are spending large amounts of time manually copying and pasting information from supplier web sites &ndash; you need to ask yourself if that is really cost effective. Whilst developing a script to process a feed or scrape a supplier web site might involve a significant initial outlay &ndash; the humongous saving in staff time ensures that you will quickly recoup this cost and then will be straight into a profitable scenario. Furthermore your catalogue will be absolutely up to date with the latest pictures, information and prices meaning that you have the best chance to sell those products.</p>
-
-<p>If you want to discuss how Edmonds Commerce could help you achieve these great goals of cost reduction and totally up to date catalogue &ndash; please do get in touch.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2008-03-04T11:26:55+00:00" pubdate data-updated="true">Mar 4<span>th</span>, 2008</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/search%20engine%20optimisation/mod_rewrite/apache/apache-mod_rewrite-and-seo.html">Apache, Mod_rewrite and SEO</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Dynamic database driven web sites tend to use various GET variables to define which content to display on that particular page. This is perfectly normal and reasonable. However it does make things a little confusing for search engine spiders as not every GET variable pertains to alternative content. Often GET is used for session, or maybe referrer tracking &ndash; or pretty much any piece of information which your web site may use.</p>
-
-<p>This can mean that your product page about fluffy banana shaped teddy bears has the address</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>mysite.com/index.php?cat=123&amp;product=333&amp;breadcrumb=123_43_2&amp;session_id=89o7324kjhlef8y234h
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Not only does this make life difficult for search engine spiders, but its not exactly the most memorable url for your visitors either.</p>
-
-<p>There is a solution and its called mod_rewrite.</p>
-
-<p>Apache is part of the LAMP stack which is one of the most popular software and operating system combinations used to power web servers. Mod_rewrite is a particular plugin for Apache which allows you to create rules which will rewrite urls when they meet specific criteria.</p>
-
-<p>The only really tricky part about setting up rewrite rules is that by neccessity they rely on regular expressions. Regular expressions can seem like a dark art at first, and often even for a seasoned coder familiar with a bit of regex, decoding someone elses expression can take a bit of brain power to say the least!</p>
-
-<p>However there is no real reason to worry as all you really need to do is to learn how to achieve what you want. You do not need to learn the ins and outs of every particular regex function or operator.</p>
-
-<p>For example take this</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>
-</span><span class='line'>RewriteEngine On
-</span><span class='line'>
-</span><span class='line'>RewriteRule ^(.*)\.p(.*).html$ product.php?products_id=$2&amp;%{QUERY_STRING} [L]
-</span><span class='line'>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This rewrite rule will take a url in the form of:
-mysite.com/whatever-you-want-here.p.[products_id].html</p>
-
-<p>And automatically convert it so that to your web system it is the url:
-mysite.com/product.php?products_id=[products_id]</p>
-
-<p>All you need to do now is devise a nice way of dynamically generating all of those nice keyword rich urls for your product pages and you are in business.</p>
-
-<p>If you want any help enabling the power of mod_rewrite to give your web site properly search engine friendly URLS, get in touch today.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -972,15 +991,15 @@ mysite.com/product.php?products_id=[products_id]</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    
+    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    
     <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
     
     <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
     
     <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
-    
-    <a class="list-group-item " href="/security/ssl-testing-and-sha-1-sunsetting.html">SSL Testing and SHA-1 Sunsetting</a>
-    
-    <a class="list-group-item " href="/atop-quick-start-an-introduction-to-atop-snapshotting.html">Atop Quick Start: An Introduction to Atop Snapshotting</a>
     
   </div>
 </section>

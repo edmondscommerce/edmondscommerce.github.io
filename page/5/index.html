@@ -128,6 +128,201 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-13T17:18:55+00:00" pubdate data-updated="true">Jan 13<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/bash/bash-find-files-and-echo-filename-and-contents.html">Bash Find Files and Echo Filename and Contents</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I thought this one would be easy but actually its taken a bit of messing about.</p>
+
+<p>The goal was to find files matching a pattern, in this case a file name, and then echo out the full path to the file and also the file contents.</p>
+
+<p>If you are interested, the reason I was doing this was to understand the <em>interesting</em> approach that the ORO Platform has taken to setting up the AppKernel bundles in Symfony2.</p>
+
+<p>The command is here:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> find . -type f -iwholename '*bundles.yml' | xargs -I % bash -c "echo ''; echo '----------------------'; echo %; cat %; echo '';"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I have added in some extra echos to make it format nicely but the main thing is that I am using xargs to handle the results from find.</p>
+
+<p>The individual result is assigned to the % character. Then a sub shell is instantiated to manage a specific command that both echos % itself and then uses cat to echo the contents of %.</p>
+
+<p>This gave me an output like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>----------------------
+</span><span class='line'>./vendor/oro/platform/src/Oro/Bundle/ImportExportBundle/Resources/config/oro/bundles.yml
+</span><span class='line'>bundles:
+</span><span class='line'>    - Oro\Bundle\ImportExportBundle\OroImportExportBundle
+</span><span class='line'>
+</span><span class='line'>----------------------
+</span><span class='line'>./vendor/oro/platform/src/Oro/Bundle/PlatformBundle/Resources/config/oro/bundles.yml
+</span><span class='line'>bundles:
+</span><span class='line'>    - { name: Symfony\Bundle\FrameworkBundle\FrameworkBundle, priority: -255 }
+</span><span class='line'>    - { name: Symfony\Bundle\SecurityBundle\SecurityBundle, priority: -250 }
+</span><span class='line'>    - { name: Symfony\Bundle\TwigBundle\TwigBundle, priority: -245 }
+</span><span class='line'>    - { name: Symfony\Bundle\MonologBundle\MonologBundle, priority: -240 }
+</span><span class='line'>    - { name: Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle, priority: -235 }
+</span><span class='line'>    - { name: Symfony\Bundle\AsseticBundle\AsseticBundle, priority: -230 }
+</span><span class='line'>    - { name: Doctrine\Bundle\DoctrineBundle\DoctrineBundle, priority: -225 }
+</span><span class='line'>    - { name: Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle, priority: -220 }
+</span><span class='line'>    - { name: Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle, priority: -215 }
+</span><span class='line'>    - { name: JMS\SerializerBundle\JMSSerializerBundle, kernel: true, priority: -210 }
+</span><span class='line'>    - { name: Knp\Bundle\PaginatorBundle\KnpPaginatorBundle, priority: -205 }
+</span><span class='line'>    - { name: Knp\Bundle\MenuBundle\KnpMenuBundle, priority: -200 }
+</span><span class='line'>    - { name: FOS\RestBundle\FOSRestBundle, priority: -195 }
+</span><span class='line'>    - { name: FOS\JsRoutingBundle\FOSJsRoutingBundle, priority: -190 }
+</span><span class='line'>    - { name: Nelmio\ApiDocBundle\NelmioApiDocBundle, priority: -185 }
+</span><span class='line'>    - { name: BeSimple\SoapBundle\BeSimpleSoapBundle, priority: -180 }
+</span><span class='line'>    - { name: Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle, priority: -175 }
+</span><span class='line'>    - { name: Escape\WSSEAuthenticationBundle\EscapeWSSEAuthenticationBundle, priority: -170 }
+</span><span class='line'>    - { name: Liip\ImagineBundle\LiipImagineBundle, priority: -165 }
+</span><span class='line'>    - { name: Genemu\Bundle\FormBundle\GenemuFormBundle, priority: -155 }
+</span><span class='line'>    - { name: A2lix\TranslationFormBundle\A2lixTranslationFormBundle, priority: -150 }
+</span><span class='line'>    - { name: Lexik\Bundle\MaintenanceBundle\LexikMaintenanceBundle, priority: -145 }
+</span><span class='line'>    - Oro\Bundle\PlatformBundle\OroPlatformBundle</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And you can see that the bundle file I was looking for is in the Platform Bundle.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-03T19:32:48+00:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html">Upgrading From Fedora 19 to 20 Using FedUp</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I decided to upgrade to the latest version because why not, its the first Friday of the year.</p>
+
+<p>The first thing to do is head over to <a href="https://fedoraproject.org/wiki/FedUp">this page</a> which explains how to use the tool.</p>
+
+<p>I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y --enablerepo=updates-testing install fedup</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once that is all done then you need to run the fedup command itself:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo yum -y update fedup fedora-release
+</span><span class='line'>sudo fedup --network 20</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:</em></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
+</span><span class='line'>sudo fedup --network 20</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
+It takes a while, make a brew or something.</p>
+
+<p>Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
+<a href="https://extensions.gnome.org/local/">https://extensions.gnome.org/local/</a> and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
+When that&rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.</p>
+
+<p>For me the only one I&rsquo;m really going to miss is the <a href="https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/">Quick Close in Overview</a> which is really handy, hopefully will be updated soon.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-01-02T10:42:59+00:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
         
       </p>
@@ -654,163 +849,6 @@ to be true but are no longer that it really has become a bit of a minefield.</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-03T12:40:04+00:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>When you have a result set in MySQL that you need to order in a specific way you might think that it is not possible and instead you are going to have to read all
-of your results into your application domain (eg PHP) and manage the sorting from there. On a large results set that could be seriously inefficient.</p>
-
-<p>The truth is that you don&rsquo;t have to do that. You can specify any kind of sort order including sorting by string values as you see fit.</p>
-
-<p>The way to do this is to use the magic of <a href="http://dev.mysql.com/doc/refman/5.0/en/string-functions.html#function_find-in-set">FIND_IN_SET</a> combined with ORDER BY.</p>
-
-<p>For a full example see this query that is pulling out product images from a data repository in descending image size as described in one of the columns as a string.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span>
-</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">prodID</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">dc</span><span class="p">.</span><span class="n">url</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span> <span class="k">AS</span> <span class="n">resolution</span>
-</span><span class='line'><span class="k">FROM</span> <span class="n">cds_DigContent</span> <span class="n">dc</span>
-</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Links</span> <span class="n">dcl</span>
-</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta</span> <span class="n">dcm</span>
-</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcm</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span>
-</span><span class='line'>        <span class="k">AND</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaAtrId</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta_ValVoc</span> <span class="n">dcmv</span>
-</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueId</span> <span class="o">=</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaValueId</span><span class="p">)</span>
-</span><span class='line'><span class="k">WHERE</span> <span class="n">dc</span><span class="p">.</span><span class="n">mediaTypeId</span> <span class="o">=</span> <span class="mi">15</span>
-</span><span class='line'>      <span class="k">AND</span> <span class="n">dcl</span><span class="p">.</span><span class="n">prodId</span> <span class="o">=</span> <span class="s1">&#39;{$this-&gt;getCnetProdID()}&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">ORDER</span> <span class="k">BY</span>
-</span><span class='line'>  <span class="nf">FIND_IN_SET</span><span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span><span class="p">,</span> <span class="s1">&#39;2400 x 1800,1200 x 900,1024 x 768,800 x 600,640 x 480,400 x 300,200 x 150,75 x 75&#39;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">LIMIT</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-02T20:43:49+00:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/symfony2/faker-symfony2-integration.html">Faker Symfony2 Integration</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Generating test data is a crucial part of properly testing your code. If you have to hard code your test data or fixtures then you might be tempted to use only a small number of test entities.</p>
-
-<p>To help with this you can use the brilliant <a href="https://github.com/fzaninotto/Faker">Faker</a> library to generate your test data. The Faker library is designed purely to generate test data and has a range of providers for all kinds of data.</p>
-
-<p>As if that wasn&rsquo;t good enough, you can leverage all the power of this library in your Symfony2 development by simply installing this Symfony2 bundle, <a href="https://github.com/willdurand/BazingaFakerBundle/blob/master/Resources/doc/index.md">BazingaFakerBundle</a>.</p>
-
-<p>Installation is a breeze with Composer and then simply reference your entities in the configuration and run the command</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>app/console faker:populate</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To generate your entities programmatically rather than as a command line action (perhaps as part of a unit or functional test) you can use this code:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">//Faker load test data</span>
-</span><span class='line'><span class="nv">$populator</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getContainer</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">&#39;faker.populator&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$insertedPks</span> <span class="o">=</span> <span class="nv">$populator</span><span class="o">-&gt;</span><span class="na">execute</span><span class="p">();</span>
-</span><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$insertedPks</span> <span class="k">as</span> <span class="nv">$class</span> <span class="o">=&gt;</span> <span class="nv">$pks</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nv">$reflClass</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">\ReflectionClass</span><span class="p">(</span><span class="nv">$class</span><span class="p">);</span>
-</span><span class='line'>    <span class="nv">$shortClassName</span> <span class="o">=</span> <span class="nv">$reflClass</span><span class="o">-&gt;</span><span class="na">getShortName</span><span class="p">();</span>
-</span><span class='line'>    <span class="nb">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Faker: Inserted %s new %s objects</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$pks</span><span class="p">),</span> <span class="nv">$shortClassName</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -834,15 +872,15 @@ of your results into your application domain (eg PHP) and manage the sorting fro
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    
+    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    
     <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
     
     <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
     
     <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
-    
-    <a class="list-group-item " href="/security/ssl-testing-and-sha-1-sunsetting.html">SSL Testing and SHA-1 Sunsetting</a>
-    
-    <a class="list-group-item " href="/atop-quick-start-an-introduction-to-atop-snapshotting.html">Atop Quick Start: An Introduction to Atop Snapshotting</a>
     
   </div>
 </section>
