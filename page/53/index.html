@@ -128,241 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-05-05T09:19:39+01:00" pubdate data-updated="true">May 5<span>th</span>, 2010</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ubuntu/ubuntu-restore-panels-script.html">Ubuntu Restore Gnome Panels Script</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>If your ubuntu panels go wonky check out this little script courtesy of <a href="http://bithacker.posterous.com:">http://bithacker.posterous.com:</a></p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>#!/bin/sh
-</span><span class='line'>#
-</span><span class='line'># GNOME Panel Save / Restore
-</span><span class='line'># Writen by PhrankDaChicken
-</span><span class='line'>#
-</span><span class='line'># http://ubuntu.online02.com
-</span><span class='line'>#
-</span><span class='line'>#
-</span><span class='line'># Updated to add restore defaults by jimjimovich
-</span><span class='line'># http://www.starryhope.com
-</span><span class='line'>#
-</span><span class='line'>#
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>DIR=$(pwd)
-</span><span class='line'>TITLE="PanelRestore"
-</span><span class='line'>
-</span><span class='line'>Main () {
-</span><span class='line'>  CHOICE=$(zenity --list --title "$TITLE" --hide-column 1 --text "What do you want to do?" --column "" --column "" \
-</span><span class='line'>"0" "Save Panel Settings" \
-</span><span class='line'>"1" "Restore Panel Settings" \
-</span><span class='line'>"2" "Restore Default Panel Settings")
-</span><span class='line'>  if [ $CHOICE = 0 ]; then
-</span><span class='line'>      Panel_Save
-</span><span class='line'>  fi
-</span><span class='line'>  if [ $CHOICE = 1 ]; then
-</span><span class='line'>      Panel_Restore
-</span><span class='line'>  fi
-</span><span class='line'>  if [ $CHOICE = 2 ]; then
-</span><span class='line'>      Panel_Defaults
-</span><span class='line'>  fi  
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>Panel_Restore () {
-</span><span class='line'>  FILE=$(zenity --title "$TITLE: Open File" --file-selection --file-filter "*.xml" )
-</span><span class='line'>  if [ -n "$FILE" ]; then 
-</span><span class='line'>      gconftool-2 --load "$FILE"
-</span><span class='line'>      killall gnome-panel
-</span><span class='line'>  fi
-</span><span class='line'>  Main
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>Panel_Save () {
-</span><span class='line'>  FILE=$(zenity --title "$TITLE: Save File" --file-selection --save --confirm-overwrite --filename "Gnome_Panel.xml" --file-filter "*.xml" )
-</span><span class='line'>  if [ -n "$FILE" ]; then 
-</span><span class='line'>      EXT=$(echo "$FILE" | grep "xml")
-</span><span class='line'>      if [ "$EXT" = "" ]; then
-</span><span class='line'>          FILE="$FILE.xml"
-</span><span class='line'>      fi
-</span><span class='line'>      gconftool-2 --dump /apps/panel &gt; $FILE
-</span><span class='line'>      zenity --info --title "$TITLE: File Saved" --text "File saved as: \n $FILE"
-</span><span class='line'>  fi
-</span><span class='line'>  Main
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>Panel_Defaults () {
-</span><span class='line'>  zenity --question --text="Are you sure you want to restore the default top and bottom panels?"
-</span><span class='line'>  gconftool-2 --recursive-unset /apps/panel
-</span><span class='line'>  rm -rf ~/.gconf/apps/panel
-</span><span class='line'>  pkill gnome-panel
-</span><span class='line'>  exit
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>Main
-</span><span class='line'>
-</span><span class='line'># END OF Script
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>create a file called PanelRestore.sh, paste these contents into it and save and then make the file executable and run it.</p>
-
-<p>life saver!</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-05-04T09:37:54+01:00" pubdate data-updated="true">May 4<span>th</span>, 2010</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/chrome/chrome-handy-extensions.html">Chrome Handy Extensions</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>If you use Google Chrome then you might like this list of 10 decent Chrome extensions</p>
-
-<p><a href="http://webdesignledger.com/tools/10-time-saving-google-chrome-extensions"><a href="http://webdesignledger.com/tools/10-time-saving-google-chrome-extensions">http://webdesignledger.com/tools/10-time-saving-google-chrome-extensions</a></a></p>
-
-<p>It will be interesting to see if Chrome goes the way of Firefox with an over abundance of plugins gradually eroding the performance of the browser.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-04-27T19:40:51+01:00" pubdate data-updated="true">Apr 27<span>th</span>, 2010</time>
         
       </p>
@@ -735,6 +500,104 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-04-09T10:47:29+01:00" pubdate data-updated="true">Apr 9<span>th</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mac/osx-external-hard-drive-spinning-down-all-the-time.html">OSX External Hard Drive Spinning Down All the Time?</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you use an external drive on your Mac and find yourself looking at the spinning colour wheel all the time waiting for the drive to spin up again, then this tip is for you.</p>
+
+<p>Just go into system preferences and then energy saving and untick the box that says &ldquo;put the hard drives to sleep when possible&rdquo;.</p>
+
+<p>There are more elegant solutions allowing you to control spin down timeouts, but this is the quick fix.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2010-04-09T09:34:12+01:00" pubdate data-updated="true">Apr 9<span>th</span>, 2010</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/firefox/firefox-duplicate-tab.html">Firefox Duplicate Tab</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Firefox used to have an addon called duplicate tab. It was great, did exactly what it said on the tin. However it is no longer developed and so we are stuck without any duplicate tab functionality &ndash; damn.</p>
+
+<p>Until that is I discovered tabberwocky. Not the most descriptive name which is probably why it didn&rsquo;t come up in my Google searches. However I have now found it and among other things it allows us to duplicate tabs easily.</p>
+
+<p>Hopefully this post will be more optimised for <strong>firefox duplicate tab</strong>. If that&rsquo;s what you are looking for, then you are looking for <a href="https://addons.mozilla.org/en-US/firefox/addon/14439">Tabberwocky</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -758,15 +621,15 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
-    
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
-    
     <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
     
     <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
     
     <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    
+    <a class="list-group-item " href="/security/ssl-testing-and-sha-1-sunsetting.html">SSL Testing and SHA-1 Sunsetting</a>
+    
+    <a class="list-group-item " href="/atop-quick-start-an-introduction-to-atop-snapshotting.html">Atop Quick Start: An Introduction to Atop Snapshotting</a>
     
   </div>
 </section>
