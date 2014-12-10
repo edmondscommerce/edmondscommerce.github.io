@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-12-08T12:55:04+00:00</updated>
+  <updated>2014-12-10T17:27:37+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,13 +14,18 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Bash Script to Kill Sleeping MySQL Processes]]></title>
-    <link href="http://edmondscommerce.github.io/bash/bash-script-to-kill-sleeping-mysql-processes.html"/>
-    <updated>2014-12-08T12:52:03+00:00</updated>
-    <id>http://edmondscommerce.github.io/bash/bash-script-to-kill-sleeping-mysql-processes</id>
-    <content type="html"><![CDATA[<p>Pretty much what is says on the tin, if for some reason you have a large amount of sleeping MySQL processes and you want to quickly clear them all out, this little BASH script will do the job.</p>
+    <title type="html"><![CDATA[Combined CSV]]></title>
+    <link href="http://edmondscommerce.github.io/bash/combined-csv.html"/>
+    <updated>2014-12-10T17:23:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/combined-csv</id>
+    <content type="html"><![CDATA[<p>Here is a quick BASH one liner to combine a folder of csv or similar files into one combined file with a header.</p>
 
-<p>I leave it to you to decide how to handle the DBUSER and DBPASS variables</p>
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">h</span><span class="o">=</span>0; <span class="k">for </span>f in *; <span class="k">do if</span> <span class="o">[[</span> 0 !<span class="o">=</span> <span class="nv">$h</span> <span class="o">]]</span>; <span class="k">then </span>tail -n +2 <span class="nv">$f</span> &gt;&gt; combined.txt; <span class="k">else </span>cat <span class="nv">$f</span> &gt; combined.txt; <span class="nv">h</span><span class="o">=</span>1; <span class="k">fi done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>More readably, you can see it like this:</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -39,27 +44,27 @@
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
-</span><span class='line'>mysql -u <span class="nv">$DBUSER</span> -p<span class="nv">$DBPASS</span> -e <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">select </span>
-</span><span class='line'><span class="s2">-- * </span>
-</span><span class='line'><span class="s2">id</span>
-</span><span class='line'><span class="s2">from information_schema.processlist </span>
-</span><span class='line'><span class="s2">where command = &#39;Sleep&#39; </span>
-</span><span class='line'><span class="s2">and time &gt; 1 </span>
-</span><span class='line'><span class="s2">and host =&#39;localhost&#39;</span>
-</span><span class='line'><span class="s2">&quot;</span> | <span class="k">while </span><span class="nb">read </span>id;
-</span><span class='line'><span class="k">do </span>
-</span><span class='line'><span class="k">    if</span> <span class="o">[[</span> <span class="s2">&quot;id&quot;</span> <span class="o">==</span> <span class="s2">&quot;$id&quot;</span> <span class="o">]]</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># has header been set, starts as no</span>
+</span><span class='line'><span class="nv">h</span><span class="o">=</span>0;
+</span><span class='line'><span class="c"># foreach file in current directory</span>
+</span><span class='line'><span class="k">for </span>f in *
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'>    <span class="c"># if header has been set</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> 0 !<span class="o">=</span> <span class="nv">$h</span> <span class="o">]]</span>
 </span><span class='line'>    <span class="k">then</span>
-</span><span class='line'><span class="k">        continue</span>
-</span><span class='line'><span class="k">    fi</span>
-</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;kill $id&quot;</span>;
-</span><span class='line'>    mysql -u <span class="nv">$DBUSER</span> -p<span class="nv">$DBPASS</span> -e <span class="s2">&quot;kill $id&quot;</span>;
+</span><span class='line'>        <span class="c"># append the contents of the file starting from line 2 into the combined file</span>
+</span><span class='line'>        tail -n +2 <span class="nv">$f</span> &gt;&gt; combined.txt
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>        <span class="c"># overwrite the combined file with the contents of the file, including header</span>
+</span><span class='line'>        cat <span class="nv">$f</span> &gt; combined.txt
+</span><span class='line'>        <span class="c"># and mark the header as having been set</span>
+</span><span class='line'>        <span class="nv">h</span><span class="o">=</span>1
+</span><span class='line'>    <span class="k">fi </span>
 </span><span class='line'><span class="k">done</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p>That&rsquo;s it, pretty easy really</p>
 ]]></content>
   </entry>
   
