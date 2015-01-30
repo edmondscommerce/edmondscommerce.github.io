@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: apache | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/apache/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-01-23T15:55:45+00:00</updated>
+  <updated>2015-01-30T16:42:48+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,42 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PageSpeed and issue with images on Safari]]></title>
+    <link href="http://edmondscommerce.github.io/PageSpeed/pagespeed-and-issue-with-images-on-safari.html"/>
+    <updated>2015-01-30T16:15:13+00:00</updated>
+    <id>http://edmondscommerce.github.io/PageSpeed/pagespeed-and-issue-with-images-on-safari</id>
+    <content type="html"><![CDATA[<p>Had an issue on a client site where the images were working in all major browser with the exception of safari. The client had page speed installed with the &lsquo;rewrite_images&rsquo; filter enabled.
+So it would work with older versions of Safari there are two options:</p>
+
+<p>For the first option we can disable the &lsquo;convert_jpeg_to_webp&rsquo; and &lsquo;convert_to_webp_lossless&rsquo; filters in nginx by using the following after the &lsquo;rewrite_images&rsquo; and &lsquo;resize_rendered_image_dimensions&rsquo; filters:</p>
+
+<pre><code>pagespeed EnableFilters rewrite_images;
+pagespeed EnableFilters resize_rendered_image_dimensions;
+pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
+</code></pre>
+
+<p>In Apache use the following:</p>
+
+<pre><code>ModPagespeedDisableFilters convert_jpeg_to_webp,convert_to_webp_lossless
+</code></pre>
+
+<p>Please not that the diable option must be specified after the enable lines for &lsquo;rewrite_images&rsquo; and &lsquo;resize_rendered_image_dimensions&rsquo; filters.</p>
+
+<p>In versions of PageSpeed that are 1.8.31.2 and above there is a new option which is &lsquo;ServeRewrittenWebpUrlsToAnyAgent&rsquo; which will check to see if the client can support webp files on any webp urls that are accessed.</p>
+
+<p>In Nginx to enable this option:</p>
+
+<pre><code>pagespeed ServeRewrittenWebpUrlsToAnyAgent off;
+</code></pre>
+
+<p>Alternatively in apache the setting is:</p>
+
+<pre><code>ModPagespeedServeRewrittenWebpUrlsToAnyAgent off
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Blocking Direct IP Access in Apache]]></title>
@@ -118,33 +154,6 @@ And then you should be able to run your sites from any folder you like without h
 <p>```php</p>
 
 <p>RewriteRule ^(.<em>)search/(.</em>)$ advanced_search_result.php?keywords=$2 [L,B]</p>
-
-<p>```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Mod Rewrite Escaped Slashes Problem + Solution]]></title>
-    <link href="http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html"/>
-    <updated>2013-04-11T11:05:20+01:00</updated>
-    <id>http://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution</id>
-    <content type="html"><![CDATA[<p>As part of our Magento SEO service, the first thing we do is to make sure there are no issues with the crawlability and general health of the clients web site.</p>
-
-<p>Whilst working on the Google Webmaster Tools crawl errors for a client I noticed one specific and intruiging problem for which I couldn&rsquo;t immediately see the reason, everything looked to be set up perfectly.</p>
-
-<p>Certain URLs were getting 404 responses. The URL was being parsed by mod_rewrite but everything looked fine so why was apache giving a 404?</p>
-
-<p>The problem turns out to be that the URLs contain escaped slashes (eg search/KTA-mb667k2%2F2g),</p>
-
-<p>The problem is that Apache actually handles the escaped slash and helpfully converts it to a real slash. That then means that it is trying to look in a sub folder that does not exist and hence the 404.</p>
-
-<p>Chances are you don&rsquo;t want escaped slashes to really be thought of as real directory separating slashes, especially if you are using mod_rewrite.</p>
-
-<p>The answer is a simple one liner to be added to your vhost.conf or httpd.conf.</p>
-
-<p>```</p>
-
-<p>AllowEncodedSlashes On</p>
 
 <p>```</p>
 ]]></content>
