@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-01-30T16:42:11+00:00</updated>
+  <updated>2015-02-03T12:45:51+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,38 +14,87 @@
 
   
   <entry>
-    <title type="html"><![CDATA[PageSpeed and issue with images on Safari]]></title>
-    <link href="http://edmondscommerce.github.io/PageSpeed/pagespeed-and-issue-with-images-on-safari.html"/>
-    <updated>2015-01-30T16:15:13+00:00</updated>
-    <id>http://edmondscommerce.github.io/PageSpeed/pagespeed-and-issue-with-images-on-safari</id>
-    <content type="html"><![CDATA[<p>Had an issue on a client site where the images were working in all major browser with the exception of safari. The client had page speed installed with the &lsquo;rewrite_images&rsquo; filter enabled.
-So it would work with older versions of Safari there are two options:</p>
+    <title type="html"><![CDATA[Multiple Behat and Mink profiles for testing multiple browsers]]></title>
+    <link href="http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html"/>
+    <updated>2015-02-03T12:20:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers</id>
+    <content type="html"><![CDATA[<p>Behat makes it easy to write and run automated testing in browser and in most cases where functionality is not javascript driven then testing in a single browser is fine.</p>
 
-<p>For the first option we can disable the &lsquo;convert_jpeg_to_webp&rsquo; and &lsquo;convert_to_webp_lossless&rsquo; filters in nginx by using the following after the &lsquo;rewrite_images&rsquo; and &lsquo;resize_rendered_image_dimensions&rsquo; filters:</p>
+<p>However if you are testing Javascript driven functionality then it is best to have multiple profiles for multiple browsers. Luckily behat support defination of multiple profiles which inherit from a single default profile for all your browser needs. You simply need to set up your bhat yaml config file like so:</p>
 
-<pre><code>pagespeed EnableFilters rewrite_images;
-pagespeed EnableFilters resize_rendered_image_dimensions;
-pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
-</code></pre>
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">default</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">base_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://someurl.com&quot;</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">sessions</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">goutte_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">guzzle_parameters</span><span class="p-Indicator">:</span>
+</span><span class='line'>              <span class="l-Scalar-Plain">ssl.certificate_authority</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">false</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_chrome_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">chrome</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_firefox_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">firefox</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">suites</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">my_suite</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">contexts</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">FeatureContext</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Behat\MinkExtension\Context\MinkContext</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">chrome</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_chrome_session</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">firefox</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>In Apache use the following:</p>
 
-<pre><code>ModPagespeedDisableFilters convert_jpeg_to_webp,convert_to_webp_lossless
-</code></pre>
+<p>The to run the crome profile for example use the -p option flag on the behat command as show:</p>
 
-<p>Please not that the diable option must be specified after the enable lines for &lsquo;rewrite_images&rsquo; and &lsquo;resize_rendered_image_dimensions&rsquo; filters.</p>
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>bin/behat -p chrome
+</span></code></pre></td></tr></table></div></figure>
 
-<p>In versions of PageSpeed that are 1.8.31.2 and above there is a new option which is &lsquo;ServeRewrittenWebpUrlsToAnyAgent&rsquo; which will check to see if the client can support webp files on any webp urls that are accessed.</p>
-
-<p>In Nginx to enable this option:</p>
-
-<pre><code>pagespeed ServeRewrittenWebpUrlsToAnyAgent off;
-</code></pre>
-
-<p>Alternatively in apache the setting is:</p>
-
-<pre><code>ModPagespeedServeRewrittenWebpUrlsToAnyAgent off
-</code></pre>
 ]]></content>
   </entry>
   
