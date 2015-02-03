@@ -128,6 +128,85 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-05T19:53:16+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I am really enjoying using Composer with a Symfony2 project that I am currently working on.</p>
+
+<p>Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
+JMS/SerializerBundle to handle the actual encoding into JSON.</p>
+
+<p>The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&rsquo;t want that. I want my property and entity names to be the same across formats.</p>
+
+<p>A bit of digging and I found <a href="https://github.com/passkey1510/JMSSerializerBundle">this fork</a> which features a fix for exactly this problem, brilliant!</p>
+
+<p>However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
+the minimum version requirements of the FOSRest bundle. Problem.</p>
+
+<p>The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
+</span><span class='line'>git merge remote/passkey1510/master
+</span><span class='line'>git push</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.</p>
+
+<p>I can now reference my fork in my composer.json file like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"repositories": [
+</span><span class='line'>        {
+</span><span class='line'>            "url": "https://github.com/edmondscommerce/JMSSerializerBundle.git",
+</span><span class='line'>            "type": "vcs"
+</span><span class='line'>        },
+</span><span class='line'>],</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now running a <code>composer update --dev</code> and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.</p>
+
+<p>And that is it, problem solved :)</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-05T12:16:17+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2013</time>
         
       </p>
@@ -698,72 +777,6 @@ and can simply run</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-10-17T10:53:15+01:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I&rsquo;ve recently been working with an old project that uses a combination of different coding styles.</p>
-
-<p>One of the more trivial annoyances with this is that the variables used through the project are a combination of $camelCase and $snake_case which throws of the coding standards tools that I use.</p>
-
-<p>To get round this I have put a little script together that will convert $snake_case to $camelCase automatically.</p>
-
-<p>Obviously, you will need to check the results of this to make sure that there are not variables that should not be changed, but it has saved me a lot of time doing this manually.</p>
-
-<p>I&rsquo;ve added this to my .bash_allias file, though it could easily be turned into a standalone script if required</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#Fix legacy code</span>
-</span><span class='line'> cammelCase<span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>   vim -E -s <span class="nv">$@</span> <span class="s">&lt;&lt;-EOF</span>
-</span><span class='line'><span class="s">   :%s#\%($\%(\k\+\)\)\@&lt;=_\(\k\)#\u\1#g</span>
-</span><span class='line'><span class="s">   :update</span>
-</span><span class='line'><span class="s">   :quit</span>
-</span><span class='line'><span class="s">EOF</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -787,6 +800,8 @@ and can simply run</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
+    
     <a class="list-group-item " href="/PageSpeed/pagespeed-and-issue-with-images-on-safari.html">PageSpeed and Issue With Images on Safari</a>
     
     <a class="list-group-item " href="/nginx/varnish/varnish-and-nginx-redirecting-to-port-8080.html">Varnish and Nginx Redirecting to Port 8080</a>
@@ -794,8 +809,6 @@ and can simply run</p>
     <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
     
     <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
-    
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
     
   </div>
 </section>

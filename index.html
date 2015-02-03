@@ -128,6 +128,119 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-02-03T12:20:36+00:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2015</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Behat makes it easy to write and run automated testing in browser and in most cases where functionality is not javascript driven then testing in a single browser is fine.</p>
+
+<p>However if you are testing Javascript driven functionality then it is best to have multiple profiles for multiple browsers without having to write the scenario multiple times with different tagsi for different sessions. Luckily behat support defination of multiple profiles which inherit from a single default profile for all your browser needs. You simply need to set up your bhat yaml config file like so:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">default</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">base_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://someurl.com&quot;</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">sessions</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">goutte_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">guzzle_parameters</span><span class="p-Indicator">:</span>
+</span><span class='line'>              <span class="l-Scalar-Plain">ssl.certificate_authority</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">false</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_chrome_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">chrome</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_firefox_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">firefox</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">suites</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">my_suite</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">contexts</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">FeatureContext</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Behat\MinkExtension\Context\MinkContext</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">chrome</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_chrome_session</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">firefox</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The to run the crome profile for example use the -p option flag on the behat command as show:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>bin/behat -p chrome
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-01-30T16:15:13+00:00" pubdate data-updated="true">Jan 30<span>th</span>, 2015</time>
         
       </p>
@@ -808,287 +921,6 @@ pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-11T14:06:37+00:00" pubdate data-updated="true">Nov 11<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html">Compile NGINX With PageSpeed and ModSecurity on CentOS</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>ModSecurity is a brilliant addition to web servers to block any nefarious requests before they hit your application.
-This improves security and reduces load if your server comes under attack as the requests are killed very quickly.</p>
-
-<p>PageSpeed is a module provided by Google to automatically improve the performance of your web pages in the browser. In a stroke it can offer a much more responsive front end with just a few configuration options.</p>
-
-<p>Nginx is a very fast and lightweight web server ideal for using with back end servers such as PHP-FPM.</p>
-
-<p>Here is a script that will download and compile Nginx with the two modules and also apply the correct ModSecurity configuration.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Please run as root&quot;</span>
-</span><span class='line'>yum install gcc-c++ pcre-dev pcre-devel zlib-devel make unzip
-</span><span class='line'>
-</span><span class='line'><span class="nv">NPS_VERSION</span><span class="o">=</span>1.9.32.2;
-</span><span class='line'>
-</span><span class='line'><span class="nv">NGINX_VERSION</span><span class="o">=</span>1.7.7;
-</span><span class='line'>
-</span><span class='line'><span class="nv">MODSEC_VERSION</span><span class="o">=</span>2.8.0
-</span><span class='line'>
-</span><span class='line'><span class="nv">NGINX_EXTRA_MODULES</span><span class="o">=</span><span class="s2">&quot; --with-http_realip_module --with-http_ssl_module &quot;</span>;
-</span><span class='line'>
-</span><span class='line'><span class="nv">NGINX_ADD_MODULES</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">WORKING_DIRECTORY</span><span class="o">=</span>/opt/nginx_with_pagespeed_and_mod_security
-</span><span class='line'>
-</span><span class='line'>mkdir -p <span class="nv">$WORKING_DIRECTORY</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">===============================================================================</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">Mod Security</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">Installing dependencies, grabbing the repo, checking out the tag for our version and building it</span>
-</span><span class='line'><span class="s2">------------&quot;</span>
-</span><span class='line'><span class="nb">cd</span> <span class="nv">$WORKING_DIRECTORY</span>
-</span><span class='line'>yum install libtool httpd-devel libxml2 libxml2-devel
-</span><span class='line'>git clone https://github.com/SpiderLabs/ModSecurity.git
-</span><span class='line'><span class="nb">cd </span>ModSecurity
-</span><span class='line'>git checkout tags/v<span class="k">${</span><span class="nv">MODSEC_VERSION</span><span class="k">}</span>
-</span><span class='line'>./autogen.sh
-</span><span class='line'>./configure --enable-standalone-module --disable-mlogc
-</span><span class='line'>make
-</span><span class='line'>make install
-</span><span class='line'><span class="nv">NGINX_ADD_MODULES</span><span class="o">=</span><span class="s2">&quot;$NGINX_ADD_MODULES --add-module=$WORKING_DIRECTORY/ModSecurity/nginx/modsecurity &quot;</span>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">Mod Security Config and Rules</span>
-</span><span class='line'><span class="s2">-----------------------------</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">For nginx, we have to get all the config and cat it all into one single config file</span>
-</span><span class='line'><span class="s2">&quot;</span>
-</span><span class='line'>wget https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended
-</span><span class='line'>cat modsecurity.conf-recommended  &gt; /etc/nginx/modsecurity.conf
-</span><span class='line'>wget https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master -O owasp-modsecurity-crs.tar.gz
-</span><span class='line'>tar -xvzf owasp-modsecurity-crs.tar.gz
-</span><span class='line'><span class="nv">CRS_DIR</span><span class="o">=</span><span class="k">$(</span>find . -type d -name SpiderLabs-owasp-modsecurity-crs*<span class="k">)</span>
-</span><span class='line'>cat <span class="k">${</span><span class="nv">CRS_DIR</span><span class="k">}</span>/modsecurity_crs_10_setup.conf.example &gt;&gt; /etc/nginx/modsecurity.conf
-</span><span class='line'>cat <span class="k">${</span><span class="nv">CRS_DIR</span><span class="k">}</span>/base_rules/modsecurity_*.conf &gt;&gt; /etc/nginx/modsecurity.conf
-</span><span class='line'><span class="k">for </span>f in <span class="k">$(</span>find <span class="nv">$CRS_DIR</span> -type f -name *.data<span class="k">)</span>
-</span><span class='line'><span class="k">do</span>
-</span><span class='line'><span class="k">    </span><span class="nv">FILE</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$f</span><span class="k">)</span>
-</span><span class='line'>    <span class="nv">CMD</span><span class="o">=</span><span class="s2">&quot;cp $f /etc/nginx/$FILE&quot;</span>
-</span><span class='line'>    <span class="nb">echo</span> <span class="k">${</span><span class="nv">CMD</span><span class="k">}</span>
-</span><span class='line'>    <span class="k">${</span><span class="nv">CMD</span><span class="k">}</span>
-</span><span class='line'><span class="k">done</span>
-</span><span class='line'>cp ModSecurity/unicode.mapping /etc/nginx/unicode.mapping
-</span><span class='line'>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">===============================================================================</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">Page Speed</span>
-</span><span class='line'><span class="s2">----------</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">Downlading the pagespeed version and building this</span>
-</span><span class='line'><span class="s2">&quot;</span>
-</span><span class='line'><span class="nb">cd</span> <span class="nv">$WORKING_DIRECTORY</span>
-</span><span class='line'>wget https://github.com/pagespeed/ngx_pagespeed/archive/release-<span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>-beta.zip
-</span><span class='line'>unzip release-<span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>-beta.zip
-</span><span class='line'><span class="nb">cd </span>ngx_pagespeed-release-<span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>-beta/
-</span><span class='line'>wget https://dl.google.com/dl/page-speed/psol/<span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>.tar.gz
-</span><span class='line'>tar -xzvf <span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>.tar.gz  <span class="c"># extracts to psol/</span>
-</span><span class='line'><span class="nv">NGINX_ADD_MODULES</span><span class="o">=</span><span class="s2">&quot;$NGINX_ADD_MODULES --add-module=$WORKING_DIRECTORY/ngx_pagespeed-release-${NPS_VERSION}-beta &quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">===============================================================================</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">Nginx</span>
-</span><span class='line'><span class="s2">-----</span>
-</span><span class='line'><span class="s2">Finally, compiling Nginx with our extra modules and the added modules and installing it</span>
-</span><span class='line'><span class="s2">&quot;</span>
-</span><span class='line'><span class="nb">cd</span> <span class="nv">$WORKING_DIRECTORY</span>
-</span><span class='line'>wget http://nginx.org/download/nginx-<span class="k">${</span><span class="nv">NGINX_VERSION</span><span class="k">}</span>.tar.gz
-</span><span class='line'>tar -xvzf nginx-<span class="k">${</span><span class="nv">NGINX_VERSION</span><span class="k">}</span>.tar.gz
-</span><span class='line'><span class="nb">cd </span>nginx-<span class="k">${</span><span class="nv">NGINX_VERSION</span><span class="k">}</span>/
-</span><span class='line'>./configure <span class="nv">$NGINX_ADD_MODULES</span> <span class="nv">$NGINX_EXTRA_MODULES</span>
-</span><span class='line'>make
-</span><span class='line'>sudo make install
-</span><span class='line'>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">===============================================================================</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">COMPLETED INSTALL - CHECKING</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">checking the nginx version now, should be $NGINX_VERSION and you should see our modules</span>
-</span><span class='line'><span class="s2">&quot;</span>
-</span><span class='line'>nginx -V
-</span><span class='line'>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">And now doing a config test&quot;</span>
-</span><span class='line'>/etc/init.d/nginx configtest
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
-</span><span class='line'><span class="s2">===============================================================================</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">SCRIPT COMPLETED</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">However, you are not there yet</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">You need to go and look at the /etc/nginx/modsecurity.conf file and change settings there as appropriate</span>
-</span><span class='line'>
-</span><span class='line'><span class="s2">Also you need to modify your nginx vhost config - see:</span>
-</span><span class='line'><span class="s2">https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps</span>
-</span><span class='line'><span class="s2">&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1112,6 +944,8 @@ This improves security and reduces load if your server comes under attack as the
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
+    
     <a class="list-group-item " href="/PageSpeed/pagespeed-and-issue-with-images-on-safari.html">PageSpeed and Issue With Images on Safari</a>
     
     <a class="list-group-item " href="/nginx/varnish/varnish-and-nginx-redirecting-to-port-8080.html">Varnish and Nginx Redirecting to Port 8080</a>
@@ -1119,8 +953,6 @@ This improves security and reduces load if your server comes under attack as the
     <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
     
     <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
-    
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
     
   </div>
 </section>

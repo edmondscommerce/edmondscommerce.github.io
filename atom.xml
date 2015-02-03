@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-01-30T16:42:48+00:00</updated>
+  <updated>2015-02-03T12:50:33+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,91 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Multiple Behat and Mink profiles for testing multiple browsers]]></title>
+    <link href="http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html"/>
+    <updated>2015-02-03T12:20:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers</id>
+    <content type="html"><![CDATA[<p>Behat makes it easy to write and run automated testing in browser and in most cases where functionality is not javascript driven then testing in a single browser is fine.</p>
+
+<p>However if you are testing Javascript driven functionality then it is best to have multiple profiles for multiple browsers without having to write the scenario multiple times with different tagsi for different sessions. Luckily behat support defination of multiple profiles which inherit from a single default profile for all your browser needs. You simply need to set up your bhat yaml config file like so:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">default</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">base_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://someurl.com&quot;</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">sessions</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">goutte_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">guzzle_parameters</span><span class="p-Indicator">:</span>
+</span><span class='line'>              <span class="l-Scalar-Plain">ssl.certificate_authority</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">false</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_chrome_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">chrome</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_firefox_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">firefox</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">suites</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">my_suite</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">contexts</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">FeatureContext</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Behat\MinkExtension\Context\MinkContext</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">chrome</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_chrome_session</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">firefox</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The to run the crome profile for example use the -p option flag on the behat command as show:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>bin/behat -p chrome
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[PageSpeed and issue with images on Safari]]></title>
@@ -967,25 +1052,6 @@ on the background image which is pretty slick I think.</p>
 
 
 <p>And that&rsquo;s it</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Mute Chrome/Chromium in Gnome Shell]]></title>
-    <link href="http://edmondscommerce.github.io/linux/mute-chrome-slash-chromium-in-gnome-shell.html"/>
-    <updated>2014-08-04T10:09:42+01:00</updated>
-    <id>http://edmondscommerce.github.io/linux/mute-chrome-slash-chromium-in-gnome-shell</id>
-    <content type="html"><![CDATA[<p>You might not be aware that in Gnome Shell and likely anything else using Linux you can easily block sound from entire applications.</p>
-
-<p>For me this means blocking annoying auto playing videos with sound that are cropping up as I&rsquo;m trying to listen to some nice tunes whilst I work.</p>
-
-<p>To block the sound is very easy, simply go to the sound control panel which in Gnome Shell is access via the top right panel.</p>
-
-<p>Once into the sound section, go to the right most tab where you can control sounds on an application by application basis. Simply turn off the annoying onces.</p>
-
-<p><img src="http://edmondscommerce.github.io/assets/mute-chromium.png"></p>
-
-<p>Beautiful :)</p>
 ]]></content>
   </entry>
   
