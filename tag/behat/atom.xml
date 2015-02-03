@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: behat | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/behat/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-02-03T12:50:33+00:00</updated>
+  <updated>2015-02-03T13:16:23+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,80 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Behat and emulating mobile browsers using chrome]]></title>
+    <link href="http://edmondscommerce.github.io/Behat/behat-and-emulating-mobile-browsers-using-chrome.html"/>
+    <updated>2015-02-03T13:00:25+00:00</updated>
+    <id>http://edmondscommerce.github.io/Behat/behat-and-emulating-mobile-browsers-using-chrome</id>
+    <content type="html"><![CDATA[<p>Lets admit it not all mobile sites are responsive as they were created when responsive sites were in their infancy or just did not exist. Along with that and even if a site is responsive some elements, images, styles and javascript maybe exclusive to mobile user agents or excluded all together due to file size concerns.</p>
+
+<p>It would be useful to test a site when it is dealing with a mobile user agent. However you don not always need a actual mobile browser thanks to chromes mobile device emulation. Although it is not useful it can at lest be used to do some testing when site responds to specific user agents. Chromes mobile emulation can be driven with behat using the following example:
+``` yaml
+default:
+  extensions:</p>
+
+<pre><code>Behat\MinkExtension: 
+  base_url: "http://urltotest.com/"
+  default_session: selenium_firefox_session
+  goutte: ~
+  sessions: 
+    goutte_session: 
+      goutte: 
+        guzzle_parameters: 
+          ssl.certificate_authority: false
+    selenium_chrome_mobile_session: 
+      selenium2: 
+        browser: chrome
+        capabilities: 
+          extra_capabilities: 
+            chromeOptions: 
+              mobileEmulation: 
+                deviceName: "Google Nexus 5"
+    selenium_chrome_session: 
+      selenium2: 
+        browser: chrome
+        capabilities: 
+          extra_capabilities: 
+            chromeOptions: 
+              args: 
+                - "--start-maximized"
+                - "--test-type"
+    selenium_firefox_session: 
+      selenium2: 
+        browser: firefox
+</code></pre>
+
+<p>  suites:</p>
+
+<pre><code>my_suite: 
+  contexts: 
+    - FeatureContext
+    - Behat\MinkExtension\Context\MinkContext
+</code></pre>
+
+<p>chrome_mobile:
+  extensions:</p>
+
+<pre><code>Behat\MinkExtension: 
+  default_session: selenium_chrome_mobile_session
+</code></pre>
+
+<p>```</p>
+
+<p>With Behat and Mink we are able to pass extra parameters to the chrome selnium driver using the extra_capabilities options. In the above example we enable mobile emulation using the &ldquo;Google Nexus 5&rdquo; profile. To drive tests using this we have two options.</p>
+
+<p>Specify the profile at run time using:
+<code>bash
+bin/behat -p chrome
+</code></p>
+
+<p>Alternative you can tag specific scenarios to use a given profile by using the following tag above the scenario you want to affect:
+<code>bash
+@mink:selenium_chrome_mobile_session
+</code></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Multiple Behat and Mink profiles for testing multiple browsers]]></title>

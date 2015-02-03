@@ -128,6 +128,61 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-09-10T17:38:09+01:00" pubdate data-updated="true">Sep 10<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/Fedora/fedora-live-usb-key-creation.html">Fedora Live USB Key Creation</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I have had continual problems getting most of my USB keys to work as liveusb drives.</p>
+
+<p>This is pretty awkward however it looks like I have now found a solution that works. Instead of using the official Fedora live USB creator, we are going to use something called livecd-iso-to-disk</p>
+
+<p>First of all install it:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo yum -y install livecd-tools
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then this is your command to create the liveusb. Note you need to set the sdX to whichever your USB key is using, and of course make sure the path to the iso file is correct</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo livecd-iso-to-disk --format --msdos --reset-mbr --overlay-size-mb 512 --home-size-mb 512 ~/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso /dev/sdc
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-08-04T10:09:42+01:00" pubdate data-updated="true">Aug 4<span>th</span>, 2014</time>
         
       </p>
@@ -632,76 +687,6 @@ It features a GUI which is ideal for creating your tests, then a command line ve
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-24T19:17:35+01:00" pubdate data-updated="true">Apr 24<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html">SagePay, OneStepCheckout, &#8216;Transaction Could Not Be Cancelled and Order Was Not Created, Cart Was Modified While Customer on Payment Pages&#8217;</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I spent this morning dealing with a Magento sit that was unable to process Credit Card payments when they were placed with SagePay.</p>
-
-<p>When a customer tried to place an order they were able to enter that card details, but were then presented with an alert with the following message</p>
-
-<blockquote><p>Your order could not be completed, please try again. Thanks.</p></blockquote>
-
-<p>They were using the <a href="https://github.com/ebizmarts/sage-pay-suite-ce">EbizMarts SagePay CE Module</a>, so I had a look around to see if the error was known</p>
-
-<p>It appears that a recent release of the SagePay Module introduces some additional checks before creating the order and the current release of the <a href="http://www.onestepcheckout.com/">OneStepCheckout</a> is not compatible with this.</p>
-
-<p>If you look straight at the SagePay Logs you may also see the following errors, which may indicate the same problem.</p>
-
-<ul>
-<li>DEBUG: 4028 : The related transaction cannot be found.</li>
-<li>DEBUG: Your order could not be completed, please try again. Thanks.</li>
-<li>CRIT: Transaction XXXXXXXXX-XXXX-XX-XX-XX-XX-XX could not be cancelled and order was not created, cart was modified while customer on payment pages.</li>
-</ul>
-
-
-<p>Thankfully there is a simple fix for this. In the <strong>app/code/local/Idev/OneStepCheckout/controllers/IndexController.php</strong> file you need to add the following line to the indexAction method</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;checkout/session&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">setCartWasUpdated</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Just before</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">loadLayout</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and then everything will work correctly.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -725,6 +710,8 @@ It features a GUI which is ideal for creating your tests, then a command line ve
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
+    
     <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
     <a class="list-group-item " href="/PageSpeed/pagespeed-and-issue-with-images-on-safari.html">PageSpeed and Issue With Images on Safari</a>
@@ -732,8 +719,6 @@ It features a GUI which is ideal for creating your tests, then a command line ve
     <a class="list-group-item " href="/nginx/varnish/varnish-and-nginx-redirecting-to-port-8080.html">Varnish and Nginx Redirecting to Port 8080</a>
     
     <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
-    
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
     
   </div>
 </section>
