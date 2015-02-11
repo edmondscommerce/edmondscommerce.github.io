@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: magento | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/magento/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-02-03T13:16:23+00:00</updated>
+  <updated>2015-02-11T11:25:01+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,45 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[SUPEE-3941 - A new patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14]]></title>
+    <link href="http://edmondscommerce.github.io/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html"/>
+    <updated>2015-02-11T10:54:06+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14</id>
+    <content type="html"><![CDATA[<p>Magento has become aware of a vulnerability requiring patching as soon as possible. The vulnerability allows an attacker to send a specially crafted request to a Magento store and allow it to run Magento code as though it were on the live server. Magento aren&rsquo;t aware of this having been used in the wild, but now that the vulnerability is public, attackers may use it against existing stores.</p>
+
+<p>This vulnerability affects all versions of Magento, and Magento have released patches for versions Community Edition 1.6 to 1.9, and Enterprise 1.11 to 1.14.</p>
+
+<p>The fix is to apply some stricter IP address checks to requests.</p>
+
+<h3>Patching your Magento store</h3>
+
+<p>To get the patch:</p>
+
+<p><em>Note: at time of writing, the Downloads of the CE edition seems to under heavy load and is currently presenting a white page instead of the shell file</em></p>
+
+<ul>
+<li><strong>Community Edition</strong> users should go to the <a href="http://www.magentocommerce.com/download">Magento downloads page</a> and scroll to the &ldquo;Magento Community Edition Patches&rdquo; section. From there, select your version of Magento and click Download</li>
+<li><strong>Enterprise Edition</strong> users should log into their Magento account Magento Support Portal</li>
+</ul>
+
+
+<p>You&rsquo;ll be presented with a shell file which will make the necessary changes to your store. Upload this patch to your server in the Magento root and run it against your store.</p>
+
+<p>The patch changes core files, and it&rsquo;s always recommended to test changes on a development copy before the live site, especially if you have modifications to your core code. Also keep in mind that any upgrades pre-1.9.0.1 will remove these changes, and the patch will have to be re-run.</p>
+
+<ol>
+<li><code>cd /your/magento/root/</code> &ndash; Navigate to the root of Magento</li>
+<li><code>./sh PATCH_SUPEE-5344_CE_1.8.0.0_v1.sh</code> &ndash; Run the patches</li>
+<li><code>rm PATCH_SUPEE-5344_CE_1.8.0.0_v1.sh</code> &ndash; Delete the patch file, so that it can&rsquo;t be re-run by the public</li>
+<li><code>rm -rf var/cache/*</code> &ndash; Clear Magento&rsquo;s cache</li>
+</ol>
+
+
+<p>Reload a page and the patch will have taken effect.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Intermittent PayPal IPN failure in Magento]]></title>
@@ -125,62 +164,6 @@ class EdmondsCommerce_LogoutRedirect_AccountController extends Mage_Customer_Acc
 </code></pre>
 
 <p>```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[cPanel Download Site Files and Database]]></title>
-    <link href="http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database.html"/>
-    <updated>2014-02-10T18:03:36+00:00</updated>
-    <id>http://edmondscommerce.github.io/cpanel/cpanel-download-site-files-and-database</id>
-    <content type="html"><![CDATA[<p>Often a client won&rsquo;t have access to SSH, or won&rsquo;t be able to provide you with some of the more specifics such as FTP, PHPMyAdmin etc. All they know to give you is access to their cPanel. Through this there&rsquo;s various tools at your disposal.</p>
-
-<h2>Try SSH</h2>
-
-<p>Your cPanel login is actually a Linux user login, which cPanel&rsquo;s FTP hooks into. The first step is to navigate in your cPanel to FTP Accounts and click Configure FTP client on a user. These are SFTP details and can very often provide you with SSH shell access, unless the host has disabled this.</p>
-
-<p>Simply try <code>ssh user@host -p 1234</code>, where the user, host and password are your cPanel login, and the port displayed on the FTP Accounts page.</p>
-
-<p>From here you&rsquo;re free to use <code>tar</code>, <code>gzip</code>, <code>mysqldump</code> etc to acquire the files and database.</p>
-
-<h2>If SSH isn&rsquo;t enabled</h2>
-
-<p>Sometimes the host disables SSH access, only allowing its use for SFTP. There are still many ways to acquire the site&rsquo;s files and database:</p>
-
-<h3>Getting hold of the files</h3>
-
-<ul>
-<li><strong>Plain old FTP</strong> &ndash; You can just use an FTP client such as Filezilla to access and download the site&rsquo;s files using FTP or SFTP. This is the simplest way, but can take a long time because of the amount of files involved</li>
-<li><strong>File Manager Web UI</strong> &ndash; compressing the site&rsquo;s files obviously shrinks the download size, but also vastly reduces the amount of connections you need to make, leading to a faster download speed.
-
-<ol>
-<li> Navigate to the File Manager section (remember to tick &ldquo;Show hidden files&rdquo; to pick up .htaccess files)</li>
-<li>Browse to the web root folder, select all the files and folders you want using Ctrl+Click. Remember to exclude unnecessary large files such as sql dumps, media folders and the var folder</li>
-<li>Click Compress from the toolbar</li>
-</ol>
-</li>
-</ul>
-
-
-<h3>Getting hold of the database</h3>
-
-<ul>
-<li><strong>PHPMyAdmin</strong> &ndash; PHPMyAdmin offers an array of options for dumping your database. You should start by checking the database&rsquo;s size and considering excluding the dump of tables such as <code>log_url</code>, <code>log_url_info</code>, <code>log_visitor</code>, <code>log_visitor_info</code>, <code>report_viewed_product_index</code>
-
-<ol>
-<li> Navigate to the PHPMyAdmin area of cPanel and locate the database in use (check your <code>app/etc/local.xml</code> if you&rsquo;re not sure which</li>
-<li>Click the Export tab</li>
-<li>Select Custom: here&rsquo;s where you can selectively export information</li>
-<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; to &lsquo;structure&rsquo;. This will have PHPMyAdmin set up only the tables' columns but no data (we&rsquo;ll get to that)</li>
-<li>Click Go</li>
-<li>Once this is complete, navigate back to the Export page and click Custom again.</li>
-<li>Deselect (ctrl+click) any tables which are unnecessary</li>
-<li>Tick &lsquo;Disable foreign key checks&rsquo; and set &lsquo;Dump table&rsquo; this time to &lsquo;data&rsquo;</li>
-<li>This will provide you with two files representing the database. Import first the Structure one, and then the Data one (or concatenate the two together)</li>
-</ol>
-</li>
-</ul>
-
 ]]></content>
   </entry>
   

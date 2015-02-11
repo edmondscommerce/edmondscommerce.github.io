@@ -128,6 +128,266 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-03T17:54:30+00:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/crawl-an-xml-sitemap-quality-check-301-and-404.html">Crawl an Xml Sitemap Quality Check 301 and 404</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>On occasion, google and other tools will tell you there&rsquo;s errors with your sitemap.xml file and not give you the information of what exactly is wrong, so we wrote this little tool to crawl the sitemap and check for 301 redirections and 404 errors.</p>
+
+<p>It is a noddy file and should have much more error handling etc but here&rsquo;s the basic flow :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="nv">$screenwidth</span> <span class="o">=</span> <span class="mi">80</span><span class="p">;</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">trimstr</span><span class="p">(</span><span class="nv">$str</span><span class="p">,</span> <span class="nv">$maxlength</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nv">$middle</span> <span class="o">=</span> <span class="s1">&#39;...&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$screenwidth</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$maxlength</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nv">$maxlength</span> <span class="o">=</span> <span class="nv">$screenwidth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nv">$str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nv">$maxlength</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nv">$partlength</span> <span class="o">=</span> <span class="nx">round</span><span class="p">(</span><span class="nv">$maxlength</span> <span class="o">-</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$middle</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'>      <span class="nv">$leftpart</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$str</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">$partlength</span><span class="p">);</span>
+</span><span class='line'>      <span class="nv">$rightpart</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$str</span><span class="p">,</span> <span class="mi">0</span><span class="o">-</span><span class="nv">$partlength</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nv">$leftpart</span> <span class="o">.</span> <span class="nv">$middle</span> <span class="o">.</span> <span class="nv">$rightpart</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nv">$str</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// First we load the sitemap xml</span>
+</span><span class='line'><span class="nv">$xml</span> <span class="o">=</span> <span class="nb">simplexml_load_file</span><span class="p">(</span><span class="nv">$argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'><span class="nv">$counter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$threadcount</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$multihandle</span> <span class="o">=</span> <span class="nb">curl_multi_init</span><span class="p">();</span>
+</span><span class='line'><span class="nv">$fourohfours</span> <span class="o">=</span> <span class="nv">$threeohones</span> <span class="o">=</span> <span class="nv">$twohundreds</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$xml</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;urlset&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">die</span><span class="p">(</span><span class="s2">&quot;Doesn&#39;t look like a valid sitemap!&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nv">$total_urls</span> <span class="o">=</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$xml</span><span class="o">-&gt;</span><span class="na">children</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Then we iterate over it</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$xml</span><span class="o">-&gt;</span><span class="na">children</span><span class="p">()</span> <span class="k">as</span> <span class="nv">$child</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$child</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;url&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">foreach</span> <span class="p">(</span><span class="nv">$child</span><span class="o">-&gt;</span><span class="na">children</span><span class="p">()</span> <span class="k">as</span> <span class="nv">$subchild</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="nv">$subchild</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;loc&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">echo</span> <span class="s2">&quot;Fetching : &quot;</span><span class="o">.</span><span class="nx">trimstr</span><span class="p">(</span><span class="nv">$subchild</span><span class="p">,</span> <span class="nv">$screenwidth</span> <span class="o">-</span> <span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="nv">$counter</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>              <span class="nx">addurltostack</span><span class="p">(</span><span class="nv">$subchild</span><span class="p">);</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="nv">$counter</span><span class="o">%</span><span class="nv">$threadcount</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="nv">$counter</span> <span class="o">==</span> <span class="nv">$total_urls</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>                      <span class="nb">curl_multi_exec</span><span class="p">(</span><span class="nv">$multihandle</span><span class="p">,</span> <span class="nv">$running</span><span class="p">);</span>
+</span><span class='line'>                  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="nv">$running</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>                  <span class="nx">processresults</span><span class="p">();</span>
+</span><span class='line'>                  <span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="nv">$counter</span><span class="o">.</span><span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="nv">$total_urls</span><span class="o">.</span><span class="s1">&#39; urls checked - &#39;</span><span class="o">.</span><span class="nv">$twohundreds</span><span class="o">.</span><span class="s1">&#39; 200s; &#39;</span><span class="o">.</span><span class="nv">$threeohones</span><span class="o">.</span><span class="s1">&#39; 301s; &#39;</span><span class="o">.</span><span class="nv">$fourohfours</span><span class="o">.</span><span class="s1">&#39; 404s.&#39;</span><span class="o">.</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$fourohfours</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">echo</span> <span class="s2">&quot;The following urls were 404 returns :- </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">foreach</span> <span class="p">(</span><span class="nv">$fourohfoururls</span> <span class="k">as</span> <span class="nv">$url</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">echo</span> <span class="nv">$url</span><span class="o">.</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$threeohones</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">echo</span> <span class="s2">&quot;The following urls were 301 returns :- </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">foreach</span> <span class="p">(</span><span class="nv">$threeohoneurls</span> <span class="k">as</span> <span class="nv">$url</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">echo</span> <span class="nv">$url</span><span class="o">.</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">addurltostack</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$curls</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$multihandle</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$ch</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">();</span>
+</span><span class='line'>  <span class="nv">$curls</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$ch</span><span class="p">;</span>
+</span><span class='line'>  <span class="c1">// Set the url path we want to call</span>
+</span><span class='line'>  <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>  <span class="c1">// Make it so the data coming back is put into a string</span>
+</span><span class='line'>  <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>  <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_HEADER</span><span class="p">,</span> <span class="k">TRUE</span><span class="p">);</span>
+</span><span class='line'>  <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_NOBODY</span><span class="p">,</span> <span class="k">TRUE</span><span class="p">);</span> <span class="c1">// remove body </span>
+</span><span class='line'>  <span class="nb">curl_multi_add_handle</span><span class="p">(</span><span class="nv">$multihandle</span><span class="p">,</span> <span class="nv">$ch</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nf">processresults</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$curls</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$multihandle</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$fourohfours</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$fourohfoururls</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$threeohones</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$threeohoneurls</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$twohundreds</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">global</span> <span class="nv">$multihandle</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">foreach</span> <span class="p">(</span><span class="nv">$curls</span> <span class="k">as</span> <span class="nv">$ch</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nv">$httpCode</span> <span class="o">=</span> <span class="nb">curl_getinfo</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLINFO_HTTP_CODE</span><span class="p">);</span>
+</span><span class='line'>      <span class="nv">$url</span> <span class="o">=</span> <span class="nb">curl_getinfo</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLINFO_EFFECTIVE_URL</span><span class="p">);</span>
+</span><span class='line'>      <span class="c1">// Free up the resources $ch is using</span>
+</span><span class='line'>      <span class="nb">curl_multi_remove_handle</span><span class="p">(</span><span class="nv">$multihandle</span><span class="p">,</span><span class="nv">$ch</span><span class="p">);</span>
+</span><span class='line'>      <span class="nb">curl_close</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">switch</span><span class="p">(</span><span class="nv">$httpCode</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">case</span> <span class="mi">400</span> <span class="o">:</span>
+</span><span class='line'>              <span class="nv">$fourohfours</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>              <span class="nv">$fourohfoururls</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$url</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">case</span> <span class="mi">301</span> <span class="o">:</span>
+</span><span class='line'>              <span class="nv">$threeohones</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>              <span class="nv">$threeohoneurls</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$url</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">case</span> <span class="mi">200</span> <span class="o">:</span> <span class="nv">$twohundreds</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nb">curl_multi_close</span><span class="p">(</span><span class="nv">$multihandle</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$multihandle</span> <span class="o">=</span> <span class="nb">curl_multi_init</span><span class="p">();</span>
+</span><span class='line'>  <span class="nv">$curls</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above takes about &frac34; hour for an approximately 3000 link sitemap.  This script utilises curl_multi so it runs 5 requests at a time to the server.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-03T17:32:27+00:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2012</time>
         
       </p>
@@ -573,57 +833,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-12-12T10:21:55+00:00" pubdate data-updated="true">Dec 12<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-virtual-machine-hiphop-by-facebook.html">PHP Virtual Machine - HipHop by Facebook</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>We told you about <a href="http://www.edmondscommerce.co.uk/php/php-into-compiled-c-hip-hop-by-facebook/">HipHop</a> a while back and we were pretty excited about it.</p>
-
-<p>Now Facebook have decided to develop a virtual machine to allow dynamic translation and faster results than their previous interpreter based approach. This is paving the way for further performance improvements and ease of development.</p>
-
-<p>You can read the full story <a href="http://www.facebook.com/note.php?note_id=10150415177928920">here</a>.</p>
-
-<p>We suspect it is still some way before this kind of thing will be more widely adopted but its certainly a good thing for PHP.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -647,6 +856,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
+    
     <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
     <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
@@ -654,8 +865,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/PageSpeed/pagespeed-and-issue-with-images-on-safari.html">PageSpeed and Issue With Images on Safari</a>
     
     <a class="list-group-item " href="/nginx/varnish/varnish-and-nginx-redirecting-to-port-8080.html">Varnish and Nginx Redirecting to Port 8080</a>
-    
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
     
   </div>
 </section>

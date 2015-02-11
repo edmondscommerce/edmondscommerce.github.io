@@ -4,7 +4,7 @@
   <title><![CDATA[Category: magento | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/category/magento/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-02-03T13:16:23+00:00</updated>
+  <updated>2015-02-11T11:25:01+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,45 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[SUPEE-3941 - A new patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14]]></title>
+    <link href="http://edmondscommerce.github.io/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html"/>
+    <updated>2015-02-11T10:54:06+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14</id>
+    <content type="html"><![CDATA[<p>Magento has become aware of a vulnerability requiring patching as soon as possible. The vulnerability allows an attacker to send a specially crafted request to a Magento store and allow it to run Magento code as though it were on the live server. Magento aren&rsquo;t aware of this having been used in the wild, but now that the vulnerability is public, attackers may use it against existing stores.</p>
+
+<p>This vulnerability affects all versions of Magento, and Magento have released patches for versions Community Edition 1.6 to 1.9, and Enterprise 1.11 to 1.14.</p>
+
+<p>The fix is to apply some stricter IP address checks to requests.</p>
+
+<h3>Patching your Magento store</h3>
+
+<p>To get the patch:</p>
+
+<p><em>Note: at time of writing, the Downloads of the CE edition seems to under heavy load and is currently presenting a white page instead of the shell file</em></p>
+
+<ul>
+<li><strong>Community Edition</strong> users should go to the <a href="http://www.magentocommerce.com/download">Magento downloads page</a> and scroll to the &ldquo;Magento Community Edition Patches&rdquo; section. From there, select your version of Magento and click Download</li>
+<li><strong>Enterprise Edition</strong> users should log into their Magento account Magento Support Portal</li>
+</ul>
+
+
+<p>You&rsquo;ll be presented with a shell file which will make the necessary changes to your store. Upload this patch to your server in the Magento root and run it against your store.</p>
+
+<p>The patch changes core files, and it&rsquo;s always recommended to test changes on a development copy before the live site, especially if you have modifications to your core code. Also keep in mind that any upgrades pre-1.9.0.1 will remove these changes, and the patch will have to be re-run.</p>
+
+<ol>
+<li><code>cd /your/magento/root/</code> &ndash; Navigate to the root of Magento</li>
+<li><code>./sh PATCH_SUPEE-5344_CE_1.8.0.0_v1.sh</code> &ndash; Run the patches</li>
+<li><code>rm PATCH_SUPEE-5344_CE_1.8.0.0_v1.sh</code> &ndash; Delete the patch file, so that it can&rsquo;t be re-run by the public</li>
+<li><code>rm -rf var/cache/*</code> &ndash; Clear Magento&rsquo;s cache</li>
+</ol>
+
+
+<p>Reload a page and the patch will have taken effect.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Intermittent PayPal IPN failure in Magento]]></title>
@@ -146,115 +185,6 @@ class EdmondsCommerce_LogoutRedirect_AccountController extends Mage_Customer_Acc
 </code></pre>
 
 <p>```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Preorders in Magento Using Attribute Value]]></title>
-    <link href="http://edmondscommerce.github.io/magento/preorders-in-magento-using-attribute-value.html"/>
-    <updated>2014-01-23T15:52:41+00:00</updated>
-    <id>http://edmondscommerce.github.io/magento/preorders-in-magento-using-attribute-value</id>
-    <content type="html"><![CDATA[<p>Magento doesn&rsquo;t come built with the ability to place preorders: the closest match is in the form of back orders, but there&rsquo;s a crucial difference between the two. Backorders are orders placed when stock isn&rsquo;t present and are shipped as soon as stock becomes available. Preorders however usually have a predefined point at which they will be shipped.</p>
-
-<p>The excellent <a href="http://www.aitoc.com/en/magentomods_pre_order.html">Aitoc Prorders</a> extension provides a drop-in ability to accept preorders including button text changes, checkout customisation and different order statuses for preorders.</p>
-
-<p>One aspect I had to work around is that the way to define a preorder is by using the extra &ldquo;Pre-Orders&rdquo; value of the Magento &ldquo;Backorders&rdquo; Inventory field. In my case I wanted to define a preorder to be a product with a Release Date set in the future. Fortunately the Aitc Preorders module has a very discrete function where it holds the definition of a Preorder. Changing this is a simple case of overriding that method</p>
-
-<h3>Creating a new extension</h3>
-
-<p>You need to create a new standard Magento extension, creating the usual boilerplate files:</p>
-
-<ul>
-<li>/app/etc/modules/Namespace_Module.xml</li>
-<li>/app/code/local/Namespace/Module/etc/config.xml</li>
-</ul>
-
-
-<h3>Rewrite the Aitoc module&rsquo;s Product model</h3>
-
-<p>In /app/code/local/Namespace/Module/etc/config.xml, set up your XML:</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="ni">&amp;lt;</span>?xml version=<span class="ni">&amp;ldquo;</span>1.0<span class="ni">&amp;rdquo;</span>?&gt;
-</span><span class='line'><span class="nt">&lt;config&gt;&lt;/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>modules<span class="ni">&amp;gt;</span>
-</span><span class='line'>    <span class="ni">&amp;lt;</span>Namespace_Module<span class="ni">&amp;gt;</span>
-</span><span class='line'>        <span class="ni">&amp;lt;</span>version<span class="ni">&amp;gt;</span>0.1.0<span class="ni">&amp;lt;</span>/version<span class="ni">&amp;gt;</span>
-</span><span class='line'>    <span class="ni">&amp;lt;</span>/Namespace_Module<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="ni">&amp;lt;</span>/modules<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="ni">&amp;lt;</span>global<span class="ni">&amp;gt;</span>
-</span><span class='line'>    <span class="ni">&amp;lt;</span>models<span class="ni">&amp;gt;</span>
-</span><span class='line'>        <span class="ni">&amp;lt;</span>catalog<span class="ni">&amp;gt;</span>
-</span><span class='line'>            <span class="ni">&amp;lt;</span>rewrite<span class="ni">&amp;gt;</span>
-</span><span class='line'>                <span class="ni">&amp;lt;</span>product<span class="ni">&amp;gt;</span>Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct<span class="ni">&amp;lt;</span>/product<span class="ni">&amp;gt;</span>
-</span><span class='line'>            <span class="ni">&amp;lt;</span>/rewrite<span class="ni">&amp;gt;</span>
-</span><span class='line'>        <span class="ni">&amp;lt;</span>/catalog<span class="ni">&amp;gt;</span>
-</span><span class='line'>    <span class="ni">&amp;lt;</span>/models<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="ni">&amp;lt;</span>/global<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;p&gt;&lt;/config&gt;</span> <span class="nt">&lt;br/&gt;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<h3>Create the class and override the function</h3>
-
-<p>Create the file /app/code/local/Namespace/Module/Model/Aitpreorder/Rewrite/CatalogProduct.php</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;&amp;</span><span class="nx">lt</span><span class="p">;</span><span class="o">?</span><span class="nx">php</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="k">class</span> <span class="nc">Namespace_Module_Model_Aitpreorder_Rewrite_CatalogProduct</span> <span class="k">extends</span> <span class="nx">Aitoc_Aitpreorder_Model_Rewrite_CatalogProduct</span> <span class="p">{</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="k">public</span> <span class="k">function</span> <span class="nf">getPreorder</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="c1">// Add whatever logic you like here and return it as a boolean</span>
-</span><span class='line'>    <span class="nv">$releaseDate</span> <span class="o">=</span> <span class="nx">DateTime</span><span class="o">::</span><span class="na">createFromFormat</span><span class="p">(</span><span class="s1">&#39;Y-m-d H:i:s&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&amp;</span><span class="nx">gt</span><span class="p">;</span><span class="nx">getReleaseDate</span><span class="p">());</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$releaseDate</span> <span class="o">&amp;</span><span class="nx">gt</span><span class="p">;</span> <span class="k">new</span> <span class="nx">DateTime</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="nx">code</span><span class="o">&gt;&lt;/</span><span class="nx">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="nx">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 ]]></content>
   </entry>
   

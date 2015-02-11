@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Tag: pagespeed | Edmonds Commerce Dev Blog]]></title>
+  <title><![CDATA[Tag: PageSpeed | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/pagespeed/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-02-03T13:16:23+00:00</updated>
+  <updated>2015-02-11T11:25:01+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,133 +14,38 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Compile NGINX with PageSpeed and ModSecurity on CentOS]]></title>
-    <link href="http://edmondscommerce.github.io/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html"/>
-    <updated>2014-11-11T14:06:37+00:00</updated>
-    <id>http://edmondscommerce.github.io/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos</id>
-    <content type="html"><![CDATA[<p>ModSecurity is a brilliant addition to web servers to block any nefarious requests before they hit your application.
-This improves security and reduces load if your server comes under attack as the requests are killed very quickly.</p>
+    <title type="html"><![CDATA[PageSpeed and issue with images on Safari]]></title>
+    <link href="http://edmondscommerce.github.io/PageSpeed/pagespeed-and-issue-with-images-on-safari.html"/>
+    <updated>2015-01-30T16:15:13+00:00</updated>
+    <id>http://edmondscommerce.github.io/PageSpeed/pagespeed-and-issue-with-images-on-safari</id>
+    <content type="html"><![CDATA[<p>Had an issue on a client site where the images were working in all major browser with the exception of safari. The client had page speed installed with the &lsquo;rewrite_images&rsquo; filter enabled.
+So it would work with older versions of Safari there are two options:</p>
 
-<p>PageSpeed is a module provided by Google to automatically improve the performance of your web pages in the browser. In a stroke it can offer a much more responsive front end with just a few configuration options.</p>
+<p>For the first option we can disable the &lsquo;convert_jpeg_to_webp&rsquo; and &lsquo;convert_to_webp_lossless&rsquo; filters in nginx by using the following after the &lsquo;rewrite_images&rsquo; and &lsquo;resize_rendered_image_dimensions&rsquo; filters:</p>
 
-<p>Nginx is a very fast and lightweight web server ideal for using with back end servers such as PHP-FPM.</p>
-
-<p>Here is a script that will download and compile Nginx with the two modules and also apply the correct ModSecurity configuration.</p>
-
-<p>``` bash</p>
-
-<h1>!/bin/bash</h1>
-
-<p>echo &ldquo;Please run as root&rdquo;
-yum install gcc-c++ pcre-dev pcre-devel zlib-devel make unzip</p>
-
-<p>NPS_VERSION=1.9.32.2;</p>
-
-<p>NGINX_VERSION=1.7.7;</p>
-
-<p>MODSEC_VERSION=2.8.0</p>
-
-<p>NGINX_EXTRA_MODULES=&ldquo; &mdash;with-http_realip_module &mdash;with-http_ssl_module &rdquo;;</p>
-
-<p>NGINX_ADD_MODULES=&lsquo;&rsquo;</p>
-
-<p>WORKING_DIRECTORY=/opt/nginx_with_pagespeed_and_mod_security</p>
-
-<p>mkdir -p $WORKING_DIRECTORY</p>
-
-<h1>echo "</h1>
-
-<p>Mod Security</p>
-
-<p>Installing dependencies, grabbing the repo, checking out the tag for our version and building it
-&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ldquo;
-cd $WORKING_DIRECTORY
-yum install libtool httpd-devel libxml2 libxml2-devel
-git clone <a href="https://github.com/SpiderLabs/ModSecurity.git">https://github.com/SpiderLabs/ModSecurity.git</a>
-cd ModSecurity
-git checkout tags/v${MODSEC_VERSION}
-./autogen.sh
-./configure &mdash;enable-standalone-module &mdash;disable-mlogc
-make
-make install
-NGINX_ADD_MODULES=&rdquo;$NGINX_ADD_MODULES &mdash;add-module=$WORKING_DIRECTORY/ModSecurity/nginx/modsecurity &ldquo;
-echo &rdquo;</p>
-
-<h2>Mod Security Config and Rules</h2>
-
-<p>For nginx, we have to get all the config and cat it all into one single config file
-&ldquo;
-wget <a href="https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended">https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended</a>
-cat modsecurity.conf-recommended  > /etc/nginx/modsecurity.conf
-wget <a href="https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master">https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master</a> -O owasp-modsecurity-crs.tar.gz
-tar -xvzf owasp-modsecurity-crs.tar.gz
-CRS_DIR=$(find . -type d -name SpiderLabs-owasp-modsecurity-crs<em>)
-cat ${CRS_DIR}/modsecurity_crs_10_setup.conf.example >> /etc/nginx/modsecurity.conf
-cat ${CRS_DIR}/base_rules/modsecurity_</em>.conf >> /etc/nginx/modsecurity.conf
-for f in $(find $CRS_DIR -type f -name *.data)
-do</p>
-
-<pre><code>FILE=$(basename $f)
-CMD="cp $f /etc/nginx/$FILE"
-echo ${CMD}
-${CMD}
+<pre><code>pagespeed EnableFilters rewrite_images;
+pagespeed EnableFilters resize_rendered_image_dimensions;
+pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
 </code></pre>
 
-<p>done
-cp ModSecurity/unicode.mapping /etc/nginx/unicode.mapping</p>
+<p>In Apache use the following:</p>
 
-<h1>echo "</h1>
+<pre><code>ModPagespeedDisableFilters convert_jpeg_to_webp,convert_to_webp_lossless
+</code></pre>
 
-<h2>Page Speed</h2>
+<p>Please not that the diable option must be specified after the enable lines for &lsquo;rewrite_images&rsquo; and &lsquo;resize_rendered_image_dimensions&rsquo; filters.</p>
 
-<p>Downlading the pagespeed version and building this
-&ldquo;
-cd $WORKING_DIRECTORY
-wget <a href="https://github.com/pagespeed/ngx_pagespeed/archive/release-$">https://github.com/pagespeed/ngx_pagespeed/archive/release-$</a>{NPS_VERSION}-beta.zip
-unzip release-${NPS_VERSION}-beta.zip
-cd ngx_pagespeed-release-${NPS_VERSION}-beta/
-wget <a href="https://dl.google.com/dl/page-speed/psol/$">https://dl.google.com/dl/page-speed/psol/$</a>{NPS_VERSION}.tar.gz
-tar -xzvf ${NPS_VERSION}.tar.gz  # extracts to psol/
-NGINX_ADD_MODULES=&rdquo;$NGINX_ADD_MODULES &mdash;add-module=$WORKING_DIRECTORY/ngx_pagespeed-release-${NPS_VERSION}-beta "</p>
+<p>In versions of PageSpeed that are 1.8.31.2 and above there is a new option which is &lsquo;ServeRewrittenWebpUrlsToAnyAgent&rsquo; which will check to see if the client can support webp files on any webp urls that are accessed.</p>
 
-<h1>echo "</h1>
+<p>In Nginx to enable this option:</p>
 
-<h2>Nginx</h2>
+<pre><code>pagespeed ServeRewrittenWebpUrlsToAnyAgent off;
+</code></pre>
 
-<p>Finally, compiling Nginx with our extra modules and the added modules and installing it
-&ldquo;
-cd $WORKING_DIRECTORY
-wget <a href="http://nginx.org/download/nginx-$">http://nginx.org/download/nginx-$</a>{NGINX_VERSION}.tar.gz
-tar -xvzf nginx-${NGINX_VERSION}.tar.gz
-cd nginx-${NGINX_VERSION}/
-./configure $NGINX_ADD_MODULES $NGINX_EXTRA_MODULES
-make
-sudo make install</p>
+<p>Alternatively in apache the setting is:</p>
 
-<h1>echo "</h1>
-
-<p>COMPLETED INSTALL &ndash; CHECKING</p>
-
-<p>checking the nginx version now, should be $NGINX_VERSION and you should see our modules
-&ldquo;
-nginx -V</p>
-
-<p>echo &ldquo;
-And now doing a config test&rdquo;
-/etc/init.d/nginx configtest</p>
-
-<h1>echo "</h1>
-
-<p>SCRIPT COMPLETED</p>
-
-<p>However, you are not there yet</p>
-
-<p>You need to go and look at the /etc/nginx/modsecurity.conf file and change settings there as appropriate</p>
-
-<p>Also you need to modify your nginx vhost config &ndash; see:
-<a href="https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps">https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps</a>
-&ldquo;
-```</p>
+<pre><code>ModPagespeedServeRewrittenWebpUrlsToAnyAgent off
+</code></pre>
 ]]></content>
   </entry>
   
