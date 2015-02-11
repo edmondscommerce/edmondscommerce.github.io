@@ -128,6 +128,77 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-09T18:43:03+00:00" pubdate data-updated="true">Dec 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I just hit an interesting issue with a nice and easy solution once you understand what is going on.
+On a current project I making heavy use of the <a href="https://github.com/sensiolabs/SensioGeneratorBundle">SensioGeneratorBundle</a> to generate CRUD etc. So far its working really nicely.</p>
+
+<p>However I started to see an issue with one of my entities that Twig was not handling a DateTime column properly but others were being handled fine.</p>
+
+<p>Looking through the Twig template I noticed this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html+jinja'><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp">{%</span>- <span class="k">for</span> <span class="nv">field</span><span class="o">,</span> <span class="nv">metadata</span> <span class="k">in</span> <span class="nv">fields</span> <span class="cp">%}</span>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">if</span> <span class="nb">loop</span><span class="nv">.first</span> <span class="k">and</span> <span class="o">(</span><span class="s1">&#39;show&#39;</span> <span class="k">in</span> <span class="nv">actions</span><span class="o">)</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="s2">&quot;{{ path(&#39;&quot;</span> <span class="o">~</span> <span class="nv">route_name_prefix</span> <span class="o">~</span> <span class="s2">&quot;_show&#39;, { &#39;id&#39;: entity.id }) }}&quot;</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; }}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">elseif</span> <span class="nv">metadata.type</span> <span class="k">in</span> <span class="o">[</span><span class="s1">&#39;date&#39;</span><span class="o">,</span> <span class="s1">&#39;datetime&#39;</span><span class="o">]</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{% if entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; %}{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39;|date(\&#39;Y-m-d H:i:s\&#39;) }}{% endif %}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/td&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What this means is that the first entity will never have the DateTime handling. Of course you probably don&rsquo;t want a DateTime to be the first entity so I think this is reasonable.</p>
+
+<p>To fix this, all you need to do is make sure that your Doctrine class does not declare the first property as a DateTime.</p>
+
+<p>If you have a primary key or unique reference property then try to get this as the first declared property in your Doctrine entity class and then rebuild the CRUD and the problem goes away.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-06T18:49:19+00:00" pubdate data-updated="true">Dec 6<span>th</span>, 2013</time>
         
       </p>
@@ -726,59 +797,6 @@ There are a few things to be aware of such as getting the right code style set u
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-11-29T13:53:12+00:00" pubdate data-updated="true">Nov 29<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Still learning some of the various things that can be done with Octopress and
-came across this Octopress syntax highlighting package that makes it even nicer
-to write blog posts (such as this one) using Vim.</p>
-
-<p>You can see the package <a href="https://github.com/tangledhelix/vim-octopress">here</a>.</p>
-
-<p>If you have already installed the SPF13 Vim then you are already running the required bundles
-and can simply run</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> ~/.vim/bundle
-</span><span class='line'>git clone https://github.com/tangledhelix/vim-octopress.git octopress
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It isn&rsquo;t a groundbreaking improvement but it is worth throwing in there.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -802,6 +820,8 @@ and can simply run</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
+    
     <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
     <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
@@ -809,8 +829,6 @@ and can simply run</p>
     <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
     <a class="list-group-item " href="/PageSpeed/pagespeed-and-issue-with-images-on-safari.html">PageSpeed and Issue With Images on Safari</a>
-    
-    <a class="list-group-item " href="/nginx/varnish/varnish-and-nginx-redirecting-to-port-8080.html">Varnish and Nginx Redirecting to Port 8080</a>
     
   </div>
 </section>

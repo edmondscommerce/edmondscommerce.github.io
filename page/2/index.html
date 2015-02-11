@@ -128,6 +128,138 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-14T13:34:08+00:00" pubdate data-updated="true">Nov 14<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>At first it seems like a simple one &ndash; just use the <code>parse_url</code> function already built into PHP.</p>
+
+<p>Unfortunately though, this just gives you the host &ndash; which is usually a combination of a subdomain &ndash; such as www &ndash; and the domain itself.</p>
+
+<p>To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.</p>
+
+<p>Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.</p>
+
+<p>Here is the code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getDomain</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$host</span> <span class="o">=</span> <span class="nb">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nx">PHP_URL_HOST</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$sanity</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$host</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$sanity</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">ErrorException</span><span class="p">(</span><span class="s2">&quot;No headers when sanity checking full host: </span><span class="si">$host</span><span class="s2"> in &quot;</span> <span class="o">.</span> <span class="nx">__METHOD__</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$elems</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$host</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$subdomains</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$domain</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nv">$domain</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$check</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
+</span><span class='line'>            <span class="nv">$headers</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$check</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$headers</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$subdomains</span><span class="p">[]</span> <span class="o">=</span> <span class="nb">array_shift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nb">array_unshift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">,</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$subdomains</span><span class="p">));</span>
+</span><span class='line'>                <span class="nv">$domain</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span> <span class="o">=</span> <span class="nv">$domain</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getHeadersForUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nv">$followOnLocation</span> <span class="o">=</span> <span class="k">true</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nv">$ch</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">();</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_HEADER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_NOBODY</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_FOLLOWLOCATION</span><span class="p">,</span> <span class="nv">$followOnLocation</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_MAXREDIRS</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYPEER</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYHOST</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nv">$data</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$data</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-12T13:03:36+00:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
         
       </p>
@@ -838,105 +970,6 @@ but you should have this done already&hellip;</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-02T09:11:11+01:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/nice-gnome-shell-theme-elegance-colours.html">Nice Gnome Shell Theme - Elegance Colours</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>One of the nice features of Gnome Shell is that, with the help of the <a href="https://extensions.gnome.org/extension/19/user-themes/">User Theme</a> extension, you can really customise
-your desktop experience to be something personalised.</p>
-
-<p>For me, the first thing is to set my desktop background to be a nice picture &ndash; something with wide open spaces, mountains and lots of sky.</p>
-
-<p>The next thing though is to set up a user theme. I like transparency and themes that allow my well chosen background image to shine through.</p>
-
-<p>For this reason I chose the <a href="https://github.com/satya164/elegance-colors">Elegance Colors</a> theme as it has a &ldquo;clear&rdquo; preset which also includes functionality to set the colour scheme based
-on the background image which is pretty slick I think.</p>
-
-<p>For installation instructions, please see the <a href="https://github.com/satya164/elegance-colors/blob/master/README.md">README on Github</a></p>
-
-<h2>Quick Fedora instructions are here:</h2>
-
-<h3>Create Repo</h3>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo sh -c <span class="s2">&quot; echo &#39;[home_satya164_elegance-colors]</span>
-</span><span class='line'><span class="s2">name=Elegance Colors Gnome Shell theme (Fedora_20)</span>
-</span><span class='line'><span class="s2">type=rpm-md</span>
-</span><span class='line'><span class="s2">baseurl=http://download.opensuse.org/repositories/home:/satya164:/elegance-colors/Fedora_20/</span>
-</span><span class='line'><span class="s2">gpgcheck=1</span>
-</span><span class='line'><span class="s2">gpgkey=http://download.opensuse.org/repositories/home:/satya164:/elegance-colors/Fedora_20/repodata/repomd.xml.key</span>
-</span><span class='line'><span class="s2">enabled=1&#39; &gt; /etc/yum.repos.d/elegance-colors.repo&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Install Theme</h3>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo yum install gnome-shell-theme-elegance-colors
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Run the Setup</h3>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>elegance-colors
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Switch to the Theme</h3>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>gsettings <span class="nb">set </span>org.gnome.shell.extensions.user-theme name <span class="s1">&#39;elegance-colors&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Now run the GUI and set it up</h3>
-
-<p>For this you can hit simply search for &lsquo;Elegance Colors&rsquo; from the dash to load the GUI.</p>
-
-<p>In the GUI you have presets and if you want transparency just choose the clear one. After that of course you can customise as you see fit</p>
-
-<h2>Fonts</h2>
-
-<p>To make the most of Fedora, its well worth following <a href="http://worldofgnome.org/how-to-greatly-improve-font-rendering-under-fedora-20/">these instructions</a> to improve font rendering.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -960,6 +993,8 @@ on the background image which is pretty slick I think.</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
+    
     <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
     <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
@@ -967,8 +1002,6 @@ on the background image which is pretty slick I think.</p>
     <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
     <a class="list-group-item " href="/PageSpeed/pagespeed-and-issue-with-images-on-safari.html">PageSpeed and Issue With Images on Safari</a>
-    
-    <a class="list-group-item " href="/nginx/varnish/varnish-and-nginx-redirecting-to-port-8080.html">Varnish and Nginx Redirecting to Port 8080</a>
     
   </div>
 </section>
