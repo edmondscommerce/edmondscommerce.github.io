@@ -23,6 +23,8 @@ The fix is to apply some stricter IP address checks to requests.
 
 To get the patch:
 
+*Note: at time of writing, the Downloads of the CE edition seems to under heavy load and is currently presenting a white page instead of the shell file*
+
 - **Community Edition** users should go to the [Magento downloads page](http://www.magentocommerce.com/download) and scroll to the "Magento Community Edition Patches" section. From there, select your version of Magento and click Download
 - **Enterprise Edition** users should log into their Magento account Magento Support Portal
 
