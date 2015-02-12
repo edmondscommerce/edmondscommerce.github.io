@@ -128,6 +128,118 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-07-25T15:05:08+01:00" pubdate data-updated="true">Jul 25<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-base64-decode-if-encoded-otherwise-leave-intact.html">PHP Base64 Decode if Encoded Otherwise Leave Intact</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).</p>
+
+<p>However to really make things interesting, they didn&rsquo;t always do this so you couldn&rsquo;t just go and decode everything.</p>
+
+<p>Here is the solution I came up with:</p>
+
+<p>First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">preg_replace_callback</span><span class="p">(</span><span class="s1">&#39;%&gt;([^&lt;]+?)&lt;%&#39;</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span><span class="nv">$this</span><span class="p">,</span> <span class="s1">&#39;_decode&#39;</span><span class="p">),</span> <span class="nv">$response</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then the callback function is a method on the same object hence the use of array($this, &lsquo;_decode&rsquo;)</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Decode from bas64 if it actually is base64 encoded in the first place</span>
+</span><span class='line'><span class="sd">     *</span>
+</span><span class='line'><span class="sd">     * If not return the raw string</span>
+</span><span class='line'><span class="sd">     *</span>
+</span><span class='line'><span class="sd">     * @param $matches</span>
+</span><span class='line'><span class="sd">     * @return string</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">protected</span> <span class="k">function</span> <span class="nf">_decode</span><span class="p">(</span><span class="nv">$matches</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$raw</span><span class="o">=</span><span class="nv">$matches</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>        <span class="nv">$decoded</span> <span class="o">=</span> <span class="nb">base64_decode</span><span class="p">(</span><span class="nv">$raw</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$return</span><span class="o">=</span><span class="nv">$decoded</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="k">false</span> <span class="o">===</span> <span class="nv">$decoded</span><span class="p">){</span>
+</span><span class='line'>            <span class="nv">$return</span><span class="o">=</span><span class="nv">$raw</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span><span class="k">elseif</span><span class="p">(</span><span class="nb">base64_encode</span><span class="p">(</span><span class="nv">$decoded</span><span class="p">)</span> <span class="o">!=</span> <span class="nv">$raw</span><span class="p">){</span>
+</span><span class='line'>            <span class="nv">$return</span><span class="o">=</span><span class="nv">$raw</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s1">&#39;&gt;&lt;![CDATA[&#39;</span> <span class="o">.</span> <span class="nv">$return</span> <span class="o">.</span> <span class="s1">&#39;]]&gt;&lt;&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.</p>
+
+<p>If it doesn&rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.</p>
+
+<p>By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.</p>
+
+<p>Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.</p>
+
+<p>However &ndash; one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&rsquo;t mind compromising the data a little which I didn&rsquo;t for my purposes) then you can do the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">//have to utf8 encode it to fix the fact its not properly encoded at their end</span>
+</span><span class='line'><span class="nv">$xml</span> <span class="o">=</span> <span class="nb">simplexml_load_string</span><span class="p">(</span><span class="nx">utf8_encode</span><span class="p">(</span><span class="nv">$response</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it, another crazy API defeated and bent to my will!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-07-23T13:48:47+01:00" pubdate data-updated="true">Jul 23<span>rd</span>, 2013</time>
         
       </p>
@@ -1004,59 +1116,6 @@ The goals are the same &ndash; to increase the bottom line of your ecommerce bus
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-06-03T15:33:27+01:00" pubdate data-updated="true">Jun 3<span>rd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Mobile%20optimisation/easily-test-mobile-version-of-your-site-with-chrome.html">Easily Test Mobile Version of Your Site With Chrome</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you have opted to have a customised mobile theme displayed for mobile users of your web site then it can be useful to be able to test this theme from the desktop. This is quite simple to do and there are plugins for most browsers. These days though Chrome users have this functionality built in, and quite nicely as well.</p>
-
-<p>To access a mobile version of a site simply open Chrome and navigate to the site you would like to view in mobile version.</p>
-
-<p>Then hit F12 to bring up the developer tools. Alternatively you can go to the right hand menu and select developer tools under the tools menu. This should bring up a screen looking similar to this:</p>
-
-<p><img src="/assets/Screenshot-from-2013-06-03-162921-600x475.png"></p>
-
-<p>In the bottom right hand corner of this screen you will see a little cog icon, please click that:</p>
-
-<p><img src="/assets/Screenshot-from-2013-06-03-162956.png"></p>
-
-<p>This gives you the overrides menu where you can select the phone you want to emulate. You can also tick the device metrics box so that the displayable area corresponds to that of the phone giving you a good emultation of the phone experience.<img src="/assets/Screenshot-from-2013-06-03-163013-600x354.png"></p>
-
-<p>Tick the box next to User Agent and choose a phone.</p>
-
-<p>Once you have selected the phone you want to emulate under the &ldquo;user agent&rdquo; section and also optionally ticked the box next to &ldquo;Device metrics&rdquo; then you can reload the page (hit [ctrl] + [f5]) and the page will be reloaded and should show you the mobile version of your site.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1080,6 +1139,8 @@ The goals are the same &ndash; to increase the bottom line of your ecommerce bus
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
+    
     <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
     <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
@@ -1087,8 +1148,6 @@ The goals are the same &ndash; to increase the bottom line of your ecommerce bus
     <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
     <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
-    
-    <a class="list-group-item " href="/PageSpeed/pagespeed-and-issue-with-images-on-safari.html">PageSpeed and Issue With Images on Safari</a>
     
   </div>
 </section>
