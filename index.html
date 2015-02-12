@@ -128,55 +128,6 @@
 
 
 
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-02-12T14:01:24+00:00" pubdate data-updated="true">Feb 12<span>th</span>, 2015</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>We&rsquo;ve decided on sticking with Selenium to run our Behat based testing as it allows us to do proper browser testing and it&rsquo;s also actually quite nice to be able to watch the tests as they progress and easily spot anything that might be wrong.</p>
-
-<p>Getting Selenium running and ensuring everyone is using the same version is another challenge.</p>
-
-<p>To make that easier, and also to allow us to easily update as we go, we have now released a Composer package so that it can easily be added to project dependencies.</p>
-
-<p>For full details, we suggest you head over to the Repo and read the information there as that will be kept up to date.</p>
-
-<p><a href="https://github.com/edmondscommerce/selenium-server">https://github.com/edmondscommerce/selenium-server</a></p>
-
-<p>You can also find this on Packagist here:</p>
-
-<p><a href="https://packagist.org/packages/edmondscommerce/selenium-server">https://packagist.org/packages/edmondscommerce/selenium-server</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-02-11T15:53:28+00:00" pubdate data-updated="true">Feb 11<span>th</span>, 2015</time>
         
       </p>
@@ -850,6 +801,86 @@ pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
 
         </article>
       
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-25T09:18:18+00:00" pubdate data-updated="true">Nov 25<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I thought I would post up this little snippet of BASH script that I tend to use with projects that use composer.</p>
+
+<p>It combines an install/update mechanism for composer itself and then runs through the composer install process and dumps the optimised autoloader.</p>
+
+<p>Hope you find it useful:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nv">DIR</span><span class="o">=</span><span class="s2">&quot;$( cd &quot;</span><span class="k">$(</span> dirname <span class="s2">&quot;${BASH_SOURCE[0]}&quot;</span> <span class="k">)</span><span class="s2">&quot; &amp;&amp; pwd )&quot;</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Checking for Composer&quot;</span>
+</span><span class='line'><span class="nv">COMPOSER_CMD</span><span class="o">=</span><span class="k">$(</span>which composer<span class="k">)</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> <span class="s2">&quot;&quot;</span> <span class="o">==</span> <span class="s2">&quot;$COMPOSER_CMD&quot;</span> <span class="o">]]</span>
+</span><span class='line'><span class="k">then</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Installing Composer&quot;</span>
+</span><span class='line'>    curl -sS https://getcomposer.org/installer | php -- --install-dir<span class="o">=</span>bin
+</span><span class='line'>    <span class="nv">COMPOSER_CMD</span><span class="o">=</span><span class="k">$(</span>which composer<span class="k">)</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Updating Composer&quot;</span>
+</span><span class='line'>    <span class="nv">$COMPOSER_CMD</span> selfupdate
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Running Composer&quot;</span>
+</span><span class='line'><span class="nb">cd</span> <span class="nv">$DIR</span>
+</span><span class='line'><span class="nv">$COMPOSER_CMD</span> update
+</span><span class='line'><span class="nv">$COMPOSER_CMD</span> dumpautoload -o
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Done..&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
     </div>
 
     <ul class="pager">
@@ -873,8 +904,6 @@ pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
-    
     <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
     <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
@@ -882,6 +911,8 @@ pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
     <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
     <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
+    
+    <a class="list-group-item " href="/PageSpeed/pagespeed-and-issue-with-images-on-safari.html">PageSpeed and Issue With Images on Safari</a>
     
   </div>
 </section>
