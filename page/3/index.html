@@ -128,6 +128,443 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-04T12:19:52+01:00" pubdate data-updated="true">Oct 4<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/selinux-configuration-for-alternative-document-root.html">SELinux Configuration for Alternative Document Root</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.</p>
+
+<p>By default SELinux is configured expecting Apache to be using /var/www as its document root.</p>
+
+<p>If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.</p>
+
+<p>If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.</p>
+
+<p>First of all you should double check what types http has:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -l | grep http
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We specifically need read/write access so lets grep for that:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -l | grep http | grep rw
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For me that shows the type: httpd_sys_rw_content_t</p>
+
+<p>We now need to add this to our custom document root:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects<span class="o">(</span>/.*<span class="o">)</span>?’
+</span><span class='line'>restorecon -R -v /opt/Projects/
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-02T09:11:11+01:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/nice-gnome-shell-theme-elegance-colours.html">Nice Gnome Shell Theme - Elegance Colours</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>One of the nice features of Gnome Shell is that, with the help of the <a href="https://extensions.gnome.org/extension/19/user-themes/">User Theme</a> extension, you can really customise
+your desktop experience to be something personalised.</p>
+
+<p>For me, the first thing is to set my desktop background to be a nice picture &ndash; something with wide open spaces, mountains and lots of sky.</p>
+
+<p>The next thing though is to set up a user theme. I like transparency and themes that allow my well chosen background image to shine through.</p>
+
+<p>For this reason I chose the <a href="https://github.com/satya164/elegance-colors">Elegance Colors</a> theme as it has a &ldquo;clear&rdquo; preset which also includes functionality to set the colour scheme based
+on the background image which is pretty slick I think.</p>
+
+<p>For installation instructions, please see the <a href="https://github.com/satya164/elegance-colors/blob/master/README.md">README on Github</a></p>
+
+<h2>Quick Fedora instructions are here:</h2>
+
+<h3>Create Repo</h3>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo sh -c <span class="s2">&quot; echo &#39;[home_satya164_elegance-colors]</span>
+</span><span class='line'><span class="s2">name=Elegance Colors Gnome Shell theme (Fedora_20)</span>
+</span><span class='line'><span class="s2">type=rpm-md</span>
+</span><span class='line'><span class="s2">baseurl=http://download.opensuse.org/repositories/home:/satya164:/elegance-colors/Fedora_20/</span>
+</span><span class='line'><span class="s2">gpgcheck=1</span>
+</span><span class='line'><span class="s2">gpgkey=http://download.opensuse.org/repositories/home:/satya164:/elegance-colors/Fedora_20/repodata/repomd.xml.key</span>
+</span><span class='line'><span class="s2">enabled=1&#39; &gt; /etc/yum.repos.d/elegance-colors.repo&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Install Theme</h3>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo yum install gnome-shell-theme-elegance-colors
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Run the Setup</h3>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>elegance-colors
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Switch to the Theme</h3>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>gsettings <span class="nb">set </span>org.gnome.shell.extensions.user-theme name <span class="s1">&#39;elegance-colors&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Now run the GUI and set it up</h3>
+
+<p>For this you can hit simply search for &lsquo;Elegance Colors&rsquo; from the dash to load the GUI.</p>
+
+<p>In the GUI you have presets and if you want transparency just choose the clear one. After that of course you can customise as you see fit</p>
+
+<h2>Fonts</h2>
+
+<p>To make the most of Fedora, its well worth following <a href="http://worldofgnome.org/how-to-greatly-improve-font-rendering-under-fedora-20/">these instructions</a> to improve font rendering.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-09-25T15:18:14+01:00" pubdate data-updated="true">Sep 25<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/security/urgent-update-bash-big-security-issue.html">URGENT Update BASH - Big Security Issue</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Shell Shock is a BASH exploit that can allow the running of arbitrary commands on Linux servers.</p>
+
+<p>This is a newly discovered bug and affects a very large number of servers.</p>
+
+<p>There is a patch, you should ensure that your server&rsquo;s BASH version is updated ASAP.</p>
+
+<h3>Centos, Redhat etc</h3>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>yum clean all; yum -y update bash</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Ubuntu, Debian etc</h3>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>apt-get install --only-upgrade bash</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To check if you are vulnerable, you can run this code:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>env X="() { :;} ; echo VULNERABLE" /bin/sh -c "echo completed"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you see VULNERABLE then you need to update BASH.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-09-10T17:38:09+01:00" pubdate data-updated="true">Sep 10<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/Fedora/fedora-live-usb-key-creation.html">Fedora Live USB Key Creation</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I have had continual problems getting most of my USB keys to work as liveusb drives.</p>
+
+<p>This is pretty awkward however it looks like I have now found a solution that works. Instead of using the official Fedora live USB creator, we are going to use something called livecd-iso-to-disk</p>
+
+<p>First of all install it:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo yum -y install livecd-tools
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then this is your command to create the liveusb. Note you need to set the sdX to whichever your USB key is using, and of course make sure the path to the iso file is correct</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo livecd-iso-to-disk --format --msdos --reset-mbr --overlay-size-mb 512 --home-size-mb 512 ~/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso /dev/sdc
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-08-04T10:09:42+01:00" pubdate data-updated="true">Aug 4<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/mute-chrome-slash-chromium-in-gnome-shell.html">Mute Chrome/Chromium in Gnome Shell</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>You might not be aware that in Gnome Shell and likely anything else using Linux you can easily block sound from entire applications.</p>
+
+<p>For me this means blocking annoying auto playing videos with sound that are cropping up as I&rsquo;m trying to listen to some nice tunes whilst I work.</p>
+
+<p>To block the sound is very easy, simply go to the sound control panel which in Gnome Shell is access via the top right panel.</p>
+
+<p>Once into the sound section, go to the right most tab where you can control sounds on an application by application basis. Simply turn off the annoying onces.</p>
+
+<p><img src="/assets/mute-chromium.png"></p>
+
+<p>Beautiful :)</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-07-30T17:50:40+01:00" pubdate data-updated="true">Jul 30<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Came across an interesting Github project today &ndash; a command line text editor that is designed to look and feel and largely behave like a GUI text editor such as Sublime.</p>
+
+<p>Meet <a href="https://github.com/slap-editor/slap">Slap</a></p>
+
+<p>Installation is trivial assuming you already have node installed:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>npm -g install slap</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once its installed you can open any file as you would with any other cli text editor</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>slap my-file.php</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Immediate impressions are quite positive. A familiar feeling file browser in the left column is coupled with a text editing pane on the right that responds well to mouse clicks and familiar key presses.
+The text highlighting is very nice and things like brace matching are also included.</p>
+
+<p>Unfortunately for me it seems that mouse usage often lead to garbage characters being inserted into the text which render it unusable for the moment though this could be an issue specific to my machine.</p>
+
+<p>Definitely a project to keep an eye on though if you like trying new CLI text editors. That said I&rsquo;m writing this post in SPF13 Vim which I&rsquo;m pretty happy with :)</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-07-07T10:53:29+01:00" pubdate data-updated="true">Jul 7<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p><img src="/assets/gpsbabel-initial.png"></p>
+
+<p>GPSBabel was created to enable conversion between the multitude of location file formats, such as GPX and KML, as well as the many formats used by different GPS devices.</p>
+
+<p>Its strength lies in the way it imports data from the source in a format-agnostic way which allows it to make changes to the data using Filters. Notable filters include the ability to use only records from a specific time range, within a specific radius of a specified point, minimise the amount of points in a track and generate tracks from waypoints.</p>
+
+<p><img src="/assets/gpsbabel-filters.png"></p>
+
+<p>Other options include the abaility to automnatically generate names, labelled &ldquo;Synthesize short names&rdquo;, in case your export gives long names as Backitude does.</p>
+
+<p>It&rsquo;s available as a CLI application for Windows, Mac and Linux, with each featuring a GUI for easier discovery of its features. It handily displays the command paramters built up in the GUI for easier automating.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-06-12T10:09:16+01:00" pubdate data-updated="true">Jun 12<span>th</span>, 2014</time>
         
       </p>
@@ -270,458 +707,6 @@ It features a GUI which is ideal for creating your tests, then a command line ve
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-21T20:34:06+01:00" pubdate data-updated="true">May 21<span>st</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/security/ebay-security-breach.html">Ebay Security Breach</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>It is being reported that there has been a database breach at eBay leading to the leaking of encrypted passwords</p>
-
-<p>Whilst there has not been any reported access to user accounts it is worth updating your password for eBay and any other site that share the same password</p>
-
-<p>It is considered bad practice to have the same password for multiple site, so to help me keep track of all of them I use <a href="https://lastpass.com">lastpass</a> to make the job simpler</p>
-
-<p>The full statement for ebay is available <a href="http://www.ebayinc.com/in_the_news/story/ebay-inc-ask-ebay-users-change-passwords">here</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-05-14T11:12:02+01:00" pubdate data-updated="true">May 14<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-1-dot-9-and-1-dot-14-released.html">Magento 1.9 &amp; 1.14 Released</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Magento has released the latest version of both CE and EE.</p>
-
-<p>The big changes that are included are as follows</p>
-
-<p><strong>Responsive design included as default</strong></p>
-
-<p>Both editions now come with a responsive theme. This introduces jQuery, SASS, and Compass into native Magento and should allow for easier customisation in the future.</p>
-
-<p><strong>Bill Me Later</strong></p>
-
-<p>The PayPal integration has been upgraded to include the <a href="https://www.paypal.com/webapps/mpp/promotional-financing">Bill Me Later</a> financing option. This allows customer to pay for products over six months whilst the merchant gets paid straight away.</p>
-
-<p><strong>Other security fix and performance fixes</strong></p>
-
-<p>The full list of changes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/new-features-ce19-ee114">here</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-28T13:22:34+01:00" pubdate data-updated="true">Apr 28<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/simple-database-migrations.html">Simple Database Migrations</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.</p>
-
-<p>It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.</p>
-
-<p>Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.</p>
-
-<p>Here is the code:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="nv">$res</span> <span class="o">=</span> <span class="nb">mysql_fetch_assoc</span><span class="p">(</span><span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;select version from db_migrations order by version desc limit 0,1&quot;</span><span class="p">));</span>
-</span><span class='line'><span class="nv">$current_version</span> <span class="o">=</span> <span class="p">(</span><span class="nv">$res</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span> <span class="o">?</span> <span class="nv">$res</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$di</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DirectoryIterator</span><span class="p">(</span><span class="nx">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/migrations&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$torun</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
-</span><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$di</span> <span class="k">as</span> <span class="nv">$f</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="cm">/* @var $f DirectoryIterator */</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$f</span><span class="o">-&gt;</span><span class="na">isDot</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">continue</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;php&#39;</span> <span class="o">==</span> <span class="nb">pathinfo</span><span class="p">(</span><span class="nv">$f</span><span class="o">-&gt;</span><span class="na">getFilename</span><span class="p">(),</span> <span class="nx">PATHINFO_EXTENSION</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$exp</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">));</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="mi">2</span> <span class="o">!=</span> <span class="nb">count</span><span class="p">(</span><span class="nv">$exp</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#1 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nv">$version</span> <span class="o">=</span> <span class="nv">$exp</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_numeric</span><span class="p">(</span><span class="nv">$version</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#2 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nv">$version</span> <span class="o">&gt;</span> <span class="nv">$current_version</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$torun</span><span class="p">[</span><span class="nv">$version</span><span class="p">]</span> <span class="o">=</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s1">&#39;#3 Invalid migration file &#39;</span> <span class="o">.</span> <span class="nb">strval</span><span class="p">(</span><span class="nv">$f</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39; in &#39;</span> <span class="o">.</span> <span class="k">__FILE__</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$torun</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nb">ksort</span><span class="p">(</span><span class="nv">$torun</span><span class="p">,</span> <span class="nx">SORT_NUMERIC</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$torun</span> <span class="k">as</span> <span class="nv">$v</span> <span class="o">=&gt;</span> <span class="nv">$t</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">require</span><span class="p">(</span><span class="nx">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/migrations/&#39;</span> <span class="o">.</span> <span class="nv">$t</span><span class="p">);</span>
-</span><span class='line'>        <span class="nx">h</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Database Migrations - running migration &#39;</span> <span class="o">.</span> <span class="nv">$t</span><span class="p">);</span>
-</span><span class='line'>        <span class="nx">db_query</span><span class="p">(</span><span class="s2">&quot;insert into db_migrations set version = &#39;</span><span class="si">$v</span><span class="s2">&#39; &quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-24T19:17:35+01:00" pubdate data-updated="true">Apr 24<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html">SagePay, OneStepCheckout, &#8216;Transaction Could Not Be Cancelled and Order Was Not Created, Cart Was Modified While Customer on Payment Pages&#8217;</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I spent this morning dealing with a Magento sit that was unable to process Credit Card payments when they were placed with SagePay.</p>
-
-<p>When a customer tried to place an order they were able to enter that card details, but were then presented with an alert with the following message</p>
-
-<blockquote><p>Your order could not be completed, please try again. Thanks.</p></blockquote>
-
-<p>They were using the <a href="https://github.com/ebizmarts/sage-pay-suite-ce">EbizMarts SagePay CE Module</a>, so I had a look around to see if the error was known</p>
-
-<p>It appears that a recent release of the SagePay Module introduces some additional checks before creating the order and the current release of the <a href="http://www.onestepcheckout.com/">OneStepCheckout</a> is not compatible with this.</p>
-
-<p>If you look straight at the SagePay Logs you may also see the following errors, which may indicate the same problem.</p>
-
-<ul>
-<li>DEBUG: 4028 : The related transaction cannot be found.</li>
-<li>DEBUG: Your order could not be completed, please try again. Thanks.</li>
-<li>CRIT: Transaction XXXXXXXXX-XXXX-XX-XX-XX-XX-XX could not be cancelled and order was not created, cart was modified while customer on payment pages.</li>
-</ul>
-
-
-<p>Thankfully there is a simple fix for this. In the <strong>app/code/local/Idev/OneStepCheckout/controllers/IndexController.php</strong> file you need to add the following line to the indexAction method</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;checkout/session&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">setCartWasUpdated</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Just before</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">loadLayout</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and then everything will work correctly.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-24T12:40:27+01:00" pubdate data-updated="true">Apr 24<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html">GoAccess - Nice CLI Access Log Parsing Tool (and How to Install on CentOS)</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Log files are probably the single most useful item on a web server when it comes to debugging. They are packed full of all the information you need to understand what is
-happening on the server and detect any potential issues.</p>
-
-<p>Reading log files by hand is basically imposssible for any meaningful overall monitoring. You can of course do some grepping and other bash tools to gain more insights but some times it&rsquo;s nice to just have a simple tool.</p>
-
-<p>I am a big fan of tools like top, mytop, apachetop and ngxtop. GoAccess is a little bit different though, mainly it just seems a lot more fully featured.</p>
-
-<p>Best thing to do is to try it. Here is how to install it on CentoOS</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install ncurses-devel glib2-devel geoip-devel
-</span><span class='line'>mkdir -p ~/goaccess
-</span><span class='line'><span class="nb">cd</span> ~/goaccess
-</span><span class='line'>wget http://downloads.sourceforge.net/project/goaccess/0.7.1/goaccess-0.7.1.tar.gz
-</span><span class='line'>tar -xzvf goaccess-0.7.1.tar.gz
-</span><span class='line'><span class="nb">cd </span>goaccess-0.7.1/
-</span><span class='line'>./configure --enable-geoip --enable-utf8
-</span><span class='line'>make
-</span><span class='line'>make install
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can read more about GoAccess here:
-<a href="http://goaccess.prosoftcorp.com/">http://goaccess.prosoftcorp.com/</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-04-11T11:23:16+01:00" pubdate data-updated="true">Apr 11<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html">Bash Delete Everything but - Handy Function for Your Bashrc File</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>For me the use case was a cache directory that I wanted to clear out everything apart from one particular file that was expensive
-to create and didn&rsquo;t need to be cleared for my purposes</p>
-
-<p>I decided to add this to my ~/.bashrc file for ease of use in future.</p>
-
-<p>Here is the function</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Remove Everything But</span>
-</span><span class='line'><span class="k">function </span>rmbut<span class="o">(){</span>
-</span><span class='line'>    <span class="nb">local </span><span class="nv">BUT</span><span class="o">=</span><span class="s2">&quot;$@&quot;</span>
-</span><span class='line'>    ls | grep -v *<span class="nv">$BUT</span>* | <span class="k">while </span><span class="nb">read </span>f; <span class="k">do </span>rm -rf <span class="nv">$f</span>; <span class="k">done</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To use the function, simply <code>cd</code> to the directory you want to clear out and then call <code>rmbut MyFileIWantToKeep</code></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-03-26T11:34:50+00:00" pubdate data-updated="true">Mar 26<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/PHPStorm/compare-text-chunks-quickly-in-phpstorm.html">Compare Text Chunks Quickly in PHPStorm</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Some times you just need to compare a few lines from one file to a few lines from somewhere else. Full blown file diffing will give you all kinds of false positive information, actually you just want to compare a few lines.</p>
-
-<p>I had a look around and couldn&rsquo;t see an obvious way to do it but then I saw the &ldquo;Compare with Clipboard&rdquo; option in the right click menu.</p>
-
-<p>To use this is really easy and super handy.</p>
-
-<p>First of all, highlight one of the chunks of text and get it into your clipboard <code>[ctrl]+[c]</code></p>
-
-<p>Now highlight your second chunk of text and simply select the &ldquo;Compare with Clipboard&rdquo; option.</p>
-
-<p>You will now get a standard PHPStorm diff viewer allowing you to compare the text chunks side by side.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -745,15 +730,15 @@ to create and didn&rsquo;t need to be cleared for my purposes</p>
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
+    <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
+    <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
-    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
   </div>
 </section>
@@ -834,7 +819,7 @@ to create and didn&rsquo;t need to be cleared for my purposes</p>
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2015 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

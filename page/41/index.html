@@ -128,6 +128,405 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-24T15:29:39+01:00" pubdate data-updated="true">Jun 24<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-dompdf-bug-page_cache-cls-php-on-line-66-dompdf-solution.html">PHP DomPDF Bug - page_cache.cls.php on Line 66 Dompdf + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you are struggling with a weird bug with DomPDF, something about it trying to connect to a postgres database..</p>
+
+<p>well here is the solution that will get you up and running:</p>
+
+<p>open the file and make the init method just return false</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">class</span> <span class="nc">Page_Cache</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_USER</span> <span class="o">=</span> <span class="s2">&quot;dompdf_page_cache&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_PASS</span> <span class="o">=</span> <span class="s2">&quot;some meaningful password&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_NAME</span> <span class="o">=</span> <span class="s2">&quot;dompdf_page_cache&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">static</span> <span class="k">private</span> <span class="nv">$__connection</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">function</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">is_null</span><span class="p">(</span><span class="nx">self</span><span class="o">::</span><span class="nv">$__connection</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$con_str</span> <span class="o">=</span> <span class="s2">&quot;host=&quot;</span> <span class="o">.</span> <span class="nx">DB_HOST</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; dbname=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_NAME</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; user=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_USER</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; password=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_PASS</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">self</span><span class="o">::</span><span class="nv">$__connection</span> <span class="o">=</span> <span class="nb">pg_connect</span><span class="p">(</span><span class="nv">$con_str</span><span class="p">))</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s2">&quot;Database connection failed.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Not sure really why this is trying to do this, obviously some kind of hard coded postgres caching system but anyway this fixed it.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-17T15:10:02+01:00" pubdate data-updated="true">Jun 17<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/refresh-all-magento-indexes.html">Refresh All Magento Indexes</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>The indexes for your Magento site should be refreshed on a regular basis. To help you do this you can put the below code in a PHP file in the root of your web site and setup a scheduled task to call it periodically.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">require_once</span> <span class="s1">&#39;app/Mage.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$app</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nb">umask</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$process</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;index/process&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$i</span><span class="p">);</span>
+</span><span class='line'>    <span class="nv">$process</span><span class="o">-&gt;</span><span class="na">reindexAll</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-10T10:05:59+01:00" pubdate data-updated="true">Jun 10<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/portfolio/magento-upgrade-for-love-my-frames.html">Magento Upgrade for Love My Frames</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h2>Magento Upgrade with Custom Modules Rewrite</h2>
+
+
+<p>The aim of this project was to upgrade a store from 1.3 to 1.5, without losing the functionality of the site. The old version had had its core files modified, requiring a forensic examination of them in order to find and extract what had been changed.</p>
+
+<h3>Love My Frames</h3>
+
+
+<p>Love My Frames is run by highly trained technicians with over 40 years&#8217; optical experience, offering the kind of personal service you would normally expect from a high street opticians. Offering the best for considerably less, professional service and door-to-door delivery, they give their customers the ultimate shopping experience online plus the opportunity to purchase the <a href=”http://www.lovemyframes.com/” >very latest designs at a great price</a>.</p>
+
+<p><img src="/assets/lovemyframes.jpg"></p>
+
+<p>The project asked for a clean install and then rewrite of the existing store. The biggest part of the project was taking the existing layered navigation and rewriting it to work on all pages with a custom design.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T17:34:21+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/portfolio/abordage-magento-upgrade.html">Abordage - Magento Upgrade</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h2>Abordage – Magento Upgrade and multi language implementation</h2>
+
+
+<p>Abordage required a Magento Upgrade from 1.3 to the latest version. This was to ensure future compatibility with extensions and add new functionality.</p>
+
+<h3>Abordage</h3>
+
+
+<p>Abordage specialises in the production of quality <a href="http://www.abordage.com/">scale wooden ship models</a> and matching display cases.</p>
+
+<p><img src="/assets/abordage-600x432.png"></p>
+
+<p>Implementing multiple languages can be interesting as it has to integrate well with existing site configuration. The implementation used works well.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T17:16:21+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/portfolio/astons-of-london-magento-upgrade.html">Aston&#8217;s of London - Magento Upgrade</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h2>Aston&#8217;s of London – Magento Upgrade</h2>
+
+
+<p>Aston&rsquo;s of London required that their Magento site be upgraded from 1.3 CE to the latest version. This is required so that new functionality can be easily introduced on to the site when required.</p>
+
+<h3>Aston&#8217;s of London</h3>
+
+
+<p>Aston&rsquo;s of London is an eCommerce company specialising in the sale of <a href="http://astonsoflondon.co.uk/">luxury jewellery, comfort items and gifts</a>.</p>
+
+<p><img src="/assets/astonsoflondon1-600x450.png"></p>
+
+<p>This project was a standard upgrade from an older version of Magento to current dealing with issues related to the sites theme and extensions.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T16:57:09+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/portfolio/one-page-magento-store.html">Golferwithin.com - One Page Magento Store</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h2>Single Page Magento Store With Affiliate Program and PayPal Link</h2>
+
+
+<p>The aim of this project was to condense a Magento store into a single page, offering both product information and payment options. The system is to integrate with PayPal and a custom affiliate system.</p>
+
+<h3>Golfer Within</h3>
+
+
+<p>Run by Roseanna Leaton, one of the leading practitioners of self-improvement. A keen 9-handicap golfer, Roseanna combined her knowledge of the game and the mind mechanism to create the acclaimed Golfer Within recordings which enable any player to <a href=”http://www.golferwithin.com/”>lower their handicap</a></p>
+
+<p><img src="/assets/golferwithin.jpg"></p>
+
+<p>This project asked for a one click option method linking Magento to PayPal and then back again, without having to use the normal checkout pages. This required creating custom magento controllers so the method wouldn&rsquo;t interfere with the other stores running off the same back end.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T16:53:49+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/portfolio/grass-seed-store-migration-from-oscommerce.html">Grass Seed Store - Migration From OSCommerce</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<h2>Grass Seed Store – Migration from OSCommerce with Custom Functionality</h2>
+
+
+<p>The Grass Seeds Store wants to migrate away from OSCommerce to Magento in order to improve stock management. They also need to maintain DEFRA compliance and have custom reports generated to do so. The custom reporting was based on the sales of seeds.</p>
+
+<h3>The Grass Seed Store</h3>
+
+
+<p>The Grass Seed Store specialises in the sale of a many different types of <a href="http://www.thegrassseedstore.co.uk/">grass seed, fertiliser and live stock pasture</a>.</p>
+
+<p><img src="/assets/grassseed-300x205.png"></p>
+
+<p>This project is a great example of customising Magento to be compliant with an industry governing body and shows that Magento can be used in almost any for the sale of any type of product. The project is currently a work in progress and the Magento implementation is currently only a wire frame demonstrating the functionality that is ultimately required.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T16:53:04+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
         
       </p>
@@ -275,454 +674,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T14:58:56+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/portfolio/blind-express-free-sample-request.html">Blind Express Free Sample Request</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<h2>Magento Free Sample Request Custom Module</h2>
-
-
-<p>Blind Express required that their customers be able to easily request free samples of their products. This required that a custom extension be created and integrated with the existing system.</p>
-
-<h3>Blind Express</h3>
-
-
-<p>Blind Express specialise in supplying made to measure and custom window <a href="http://www.blindexpress.co.uk">blinds</a>.</p>
-
-<p><img src="/assets/blindexpress-300x206.png"></p>
-
-<p>This project was a good challenge as the extension had to be integrated with previously existing custom product configuration.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T14:25:59+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/portfolio/product-information-scraper.html">Product Information Scraper</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<h2>Bespoke Object-Oriented PHP Automated Scraping System</h2>
-
-
-<p>The aim of this project is to put together an automated price retrial system, capable of running on its own. The system will collect general information for general products as well as more detailed information for named products.</p>
-
-<h3>Discs Like New</h3>
-
-
-<p>Discs Like New  offer a professional, effective and affordable <a href=”http://www.discslikenew.com/”>disc repair service </a>to business customers throughout the UK and Europe.</p>
-
-<p><h3>
-<img src="/assets/code_snippet.jpg">
-The project is interesting as it wants to be run from both a web browser, so it can be set up and product files can be uploaded; and from the command line so it can quietly run in the background. This means that it will have to detect this state and modify what it outputs accordingly.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T14:24:14+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/portfolio/kevin-mayhew.html">Kevin Mayhew</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<h2>Magento Site Upgrade</h2>
-
-
-<p>Kevin Mayhew Ltd. required their Magento site to be upgraded from Enterprise 1.7 to the current release. They are looking to do this because the current site is having problems with some of the functionality which can only be correct by upgrading an extension and the extensions latest version is not compatibility with 1.7. 1.7 is also preventing them from improving the site and adding functionality. This mainly involved updating their site templates to function correctly the the new release as well as resolving issues related to old/new extensions.</p>
-
-<h3>Kevin Mayhew</h3>
-
-
-<p>Kevin Mayhew is a Christian religious product and music retailer, Christian church resource supplier and Christian book publisher.</p>
-
-<p><img src="/assets/kevinmayhew1-300x216.png"></p>
-
-<p>This project went really well with the pushing to live been successful. With the site now running the latest version of Magento the company can look forward toward to expanding the functionality of the site as well as resolving issues the old site was having.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T14:03:15+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/portfolio/dressnimpress-new-magento-based-e-commerce-site-development.html">Dressnimpress - New Magento Based E-commerce Site Development</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>We are now working on developing a new Magento based e-commerce site for a UK based company called Dressnimpress.</p>
-
-<p>Our client specialises in designer clothing for both male and female and will be targeting a world wide marketplace for selling designer clothes covering all the latests and famous brands.</p>
-
-<p>The site will be developed from scratch by implementing designs that have been provided to us by the client. Part of the development process will include building a number of custom extensions to fulfil specific features of the site, customizing specific areas or pages of the site as per design and it will also have to support multiple currencies for the world wide audience.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T12:42:13+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/git/ubuntu-git-install-1-7-4-and-why.html">Ubuntu Git Install 1.7.5 and Why</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>If you use Git a lot, you probably want to run the latest version. Scroll down for some reasons why.</p>
-
-<p>The standard repository version for Ubuntu is 1.7.1, the current latest is 1.7.5 and there are some significant differences.</p>
-
-<h2>How to Upgrade Git</h2>
-
-
-<p>To get 1.7.5 on Ubuntu without too much messing about you can do the following:</p>
-
-<h3>1. Set up this PPA:</h3>
-
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo add-apt-repository ppa:pdoes/ppa/ubuntu
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<h3>2. Now run an aptitude update and upgrade git</h3>
-
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo apt-get update
-</span><span class='line'>sudo aptitude upgrade git
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<h3>3. Now check your git version</h3>
-
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>git --version
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<h3>Full Script for the lazy</h3>
-
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo add-apt-repository ppa:pdoes/ppa/ubuntu && sudo apt-get update && sudo aptitude upgrade && git --version
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<h2>Why Upgrade Git?</h2>
-
-
-<p>We have been having lots of merge hassles casued purely by white space changes. Apparently with 1.7.4 new recursive merge strategies came into play that should alleviate this pain and make merging a lot less hassle.</p>
-
-<h3>Merge Ignore Whitespace</h3>
-
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>git merge -s recursive -Xignore-space-change $BRANCH_NAME
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Less hassle equals more productive and happier developers :)</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T10:25:31+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/job/jobs-in-leeds-php-and-adminsales.html">Jobs in Leeds, PHP and Admin/Sales</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Edmonds Commerce are hiring at the moment.</p>
-
-<h2>PHP Job Leeds</h2>
-
-
-<p>We are always looking to grow our team of Leeds based professional PHP Developers. If you are at or around the Zend Certified Developer level and think you would pass the exam given a little time and preparation then please get in touch.</p>
-
-<h2>Administration Job Leeds</h2>
-
-
-<p>At the moment we are also looking for someone to join the team to help with administration and general customer services requirements. There is the possibility for this role to grow to meet your personal skills and ambitions.</p>
-
-<p>For either role, please visit the <a href="/contact-us/recruitment-contact-form/">Job Application form</a> to apply for a Job in Leeds.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-08T14:40:29+01:00" pubdate data-updated="true">Jun 8<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-cli.html">PHP CLI</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Running PHP on the command line, via cron etc there are a few common problems you can hit and from experience this my recommendations to avoid them.</p>
-
-<p>It seems that (on CentOS at least) PHP does not display errors by default on the command line. You will want it to I assume so you can understand what has gone wrong with the cron task etc.</p>
-
-<p>You can use php.ini files but its not always easy to know exactly which ini file is going to to be used. If certain settings are required, use the -d flag to set specific ini directives directly when you run PHP.</p>
-
-<p>I have just had an issue where a script was running out of memory but no error message was displayed, despite the fact that display errors was turned on. However digging around showed that memory usage was hitting the limit and the script died silently. Increasing the memory limit fixed it.</p>
-
-<p>Here is my standard PHP CLI runner:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>/usr/bin/php -d display_errors -d memory_limit=512M /path/to/php/file.php
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -746,15 +697,15 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
+    <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
+    <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
-    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
   </div>
 </section>
@@ -835,7 +786,7 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2015 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

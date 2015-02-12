@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: testing | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/testing/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2014-12-10T18:11:47+00:00</updated>
+  <updated>2015-02-12T14:05:23+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,140 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Behat and emulating mobile browsers using chrome]]></title>
+    <link href="http://edmondscommerce.github.io/Behat/behat-and-emulating-mobile-browsers-using-chrome.html"/>
+    <updated>2015-02-03T13:00:25+00:00</updated>
+    <id>http://edmondscommerce.github.io/Behat/behat-and-emulating-mobile-browsers-using-chrome</id>
+    <content type="html"><![CDATA[<p>Lets admit it not all mobile sites are responsive as they were created when responsive sites were in their infancy or just did not exist. Along with that and even if a site is responsive some elements, images, styles and javascript maybe exclusive to mobile user agents or excluded all together due to file size concerns.</p>
+
+<p>It would be useful to test a site when it is dealing with a mobile user agent. However you don not always need a actual mobile browser thanks to chromes mobile device emulation. Although it is not useful it can at lest be used to do some testing when site responds to specific user agents. Chromes mobile emulation can be driven with behat using the following example:
+``` yaml
+default:
+  extensions:</p>
+
+<pre><code>Behat\MinkExtension: 
+  base_url: "http://urltotest.com/"
+  default_session: selenium_firefox_session
+  goutte: ~
+  sessions: 
+    goutte_session: 
+      goutte: 
+        guzzle_parameters: 
+          ssl.certificate_authority: false
+    selenium_chrome_mobile_session: 
+      selenium2: 
+        browser: chrome
+        capabilities: 
+          extra_capabilities: 
+            chromeOptions: 
+              mobileEmulation: 
+                deviceName: "Google Nexus 5"
+    selenium_chrome_session: 
+      selenium2: 
+        browser: chrome
+        capabilities: 
+          extra_capabilities: 
+            chromeOptions: 
+              args: 
+                - "--start-maximized"
+                - "--test-type"
+    selenium_firefox_session: 
+      selenium2: 
+        browser: firefox
+</code></pre>
+
+<p>  suites:</p>
+
+<pre><code>my_suite: 
+  contexts: 
+    - FeatureContext
+    - Behat\MinkExtension\Context\MinkContext
+</code></pre>
+
+<p>chrome_mobile:
+  extensions:</p>
+
+<pre><code>Behat\MinkExtension: 
+  default_session: selenium_chrome_mobile_session
+</code></pre>
+
+<p>```</p>
+
+<p>With Behat and Mink we are able to pass extra parameters to the chrome selnium driver using the extra_capabilities options. In the above example we enable mobile emulation using the &ldquo;Google Nexus 5&rdquo; profile. To drive tests using this we have two options.</p>
+
+<p>Specify the profile at run time using:
+<code>bash
+bin/behat -p chrome
+</code></p>
+
+<p>Alternative you can tag specific scenarios to use a given profile by using the following tag above the scenario you want to affect:
+<code>bash
+@mink:selenium_chrome_mobile_session
+</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Multiple Behat and Mink profiles for testing multiple browsers]]></title>
+    <link href="http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html"/>
+    <updated>2015-02-03T12:20:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers</id>
+    <content type="html"><![CDATA[<p>Behat makes it easy to write and run automated testing in browser and in most cases where functionality is not javascript driven then testing in a single browser is fine.</p>
+
+<p>However if you are testing Javascript driven functionality then it is best to have multiple profiles for multiple browsers without having to write the scenario multiple times with different tagsi for different sessions. Luckily behat support defination of multiple profiles which inherit from a single default profile for all your browser needs. You simply need to set up your bhat yaml config file like so:
+``` yaml
+default:
+  extensions:</p>
+
+<pre><code>Behat\MinkExtension: 
+  base_url: "http://someurl.com"
+  default_session: selenium_firefox_session
+  goutte: ~
+  sessions: 
+    goutte_session: 
+      goutte: 
+        guzzle_parameters: 
+          ssl.certificate_authority: false
+    selenium_chrome_session: 
+      selenium2: 
+        browser: chrome
+    selenium_firefox_session: 
+      selenium2: 
+        browser: firefox
+</code></pre>
+
+<p>  suites:</p>
+
+<pre><code>my_suite: 
+  contexts: 
+    - FeatureContext
+    - Behat\MinkExtension\Context\MinkContext
+</code></pre>
+
+<p>chrome:
+  extensions:</p>
+
+<pre><code>Behat\MinkExtension: 
+  default_session: selenium_chrome_session
+</code></pre>
+
+<p>firefox:
+  extensions:</p>
+
+<pre><code>Behat\MinkExtension: 
+  default_session: selenium_firefox_session
+</code></pre>
+
+<p>```</p>
+
+<p>The to run the crome profile for example use the -p option flag on the behat command as show:
+<code>bash
+bin/behat -p chrome
+</code></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using Apache JMeter For Load Testing]]></title>
@@ -60,54 +194,6 @@ It features a GUI which is ideal for creating your tests, then a command line ve
 <p>A nice little extension that I just discovered takes care of this, <a href="https://chrome.google.com/webstore/detail/cbpplldpcdcfejdaldmnfhlodoadjhii" target="_blank">Chrome Form Fuzzer</a>.</p>
 
 <p>You can configure it for simple form filling or with a little creative configuration it could easily be used for security testing and more in depth testing to ensure that input is being sanitised and filtered properly.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[VirtualBox Images For Download of Various Linux and Other Open Source Systems]]></title>
-    <link href="http://edmondscommerce.github.io/virtualbox/virtualbox-images-for-download-of-various-linux-and-other-open-source-systems.html"/>
-    <updated>2012-02-23T12:42:17+00:00</updated>
-    <id>http://edmondscommerce.github.io/virtualbox/virtualbox-images-for-download-of-various-linux-and-other-open-source-systems</id>
-    <content type="html"><![CDATA[<p>Virtualbox is an amazing tool for testing and developing on various systems.</p>
-
-<p>Now it&rsquo;s even easier as there is a nicely organised repository of clean VirtualBox images you can download and get running with in a matter of minutes.</p>
-
-<p><a href="http://virtualboxes.org/"><a href="http://virtualboxes.org/">http://virtualboxes.org/</a></a></p>
-
-<p>We are going to use them for some <a href="http://www.edmondscommerce.co.uk">Magento</a> performance optimisation testing on various platforms as we perfect our <a href="http://www.edmondscommerce.co.uk/magento/magento-optimised-hosting/">Magento Server Optimisation</a> skills and try to benchmark some new ideas.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PHPUnit, LAMP, Magento and Netbeans]]></title>
-    <link href="http://edmondscommerce.github.io/netbeans/phpunit-lamp-magento-and-netbeans.html"/>
-    <updated>2012-01-10T13:11:10+00:00</updated>
-    <id>http://edmondscommerce.github.io/netbeans/phpunit-lamp-magento-and-netbeans</id>
-    <content type="html"><![CDATA[<p>When using PHPUnit with xampp the first the to do is install PHPUnit through pear. You usually need to update pear first, after that you should be able to follow the instructions <a href="http://pear.phpunit.de/">here</a></p>
-
-<p>Getting PHPUnit working with Magento is fairly straight forward. It&rsquo;s just a case of including Mage.php and then calling Mage::app(); in the setup method of your test class:</p>
-
-<p>```php
-&lt;?php</p>
-
-<p>require_once &lsquo;../app/Mage.php&rsquo;;</p>
-
-<p>class TemplateTest extends PHPUnit_Framework_TestCase {</p>
-
-<pre><code>public function setUp() {
-    Mage::app();
-}
-
-public function testExample() {
-    $helper = Mage::helper('core');
-    $this-&gt;assertTrue($helper instanceof Mage_Core_Helper_Data, "Magento isn't running!");
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>If you use NetBeans as your IDE you&rsquo;ll be glad to know that it has support for running your tests directly without having to use a terminal. This does require a bit of configuration. You need to tell NetBeans where the PHPUnit script is under Tools > Options > PHP > Unit Testing. If you are using it with XAMPP it will be located at /opt/lampp/bin/phpunit. To begin running the tests you then go Run > Test Project and NetBeans will ask you where your tests are. After that you will get a &ldquo;Test File&rdquo; source folder in the Projects pane. You can now right click each test file and choose &ldquo;Run file&rdquo; and netbeans will run it. If you have xdebug setup the debug option also works nicely.</p>
 ]]></content>
   </entry>
   

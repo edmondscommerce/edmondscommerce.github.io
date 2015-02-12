@@ -128,6 +128,740 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-25T09:18:18+00:00" pubdate data-updated="true">Nov 25<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I thought I would post up this little snippet of BASH script that I tend to use with projects that use composer.</p>
+
+<p>It combines an install/update mechanism for composer itself and then runs through the composer install process and dumps the optimised autoloader.</p>
+
+<p>Hope you find it useful:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nv">DIR</span><span class="o">=</span><span class="s2">&quot;$( cd &quot;</span><span class="k">$(</span> dirname <span class="s2">&quot;${BASH_SOURCE[0]}&quot;</span> <span class="k">)</span><span class="s2">&quot; &amp;&amp; pwd )&quot;</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Checking for Composer&quot;</span>
+</span><span class='line'><span class="nv">COMPOSER_CMD</span><span class="o">=</span><span class="k">$(</span>which composer<span class="k">)</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> <span class="s2">&quot;&quot;</span> <span class="o">==</span> <span class="s2">&quot;$COMPOSER_CMD&quot;</span> <span class="o">]]</span>
+</span><span class='line'><span class="k">then</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Installing Composer&quot;</span>
+</span><span class='line'>    curl -sS https://getcomposer.org/installer | php -- --install-dir<span class="o">=</span>bin
+</span><span class='line'>    <span class="nv">COMPOSER_CMD</span><span class="o">=</span><span class="k">$(</span>which composer<span class="k">)</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Updating Composer&quot;</span>
+</span><span class='line'>    <span class="nv">$COMPOSER_CMD</span> selfupdate
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Running Composer&quot;</span>
+</span><span class='line'><span class="nb">cd</span> <span class="nv">$DIR</span>
+</span><span class='line'><span class="nv">$COMPOSER_CMD</span> update
+</span><span class='line'><span class="nv">$COMPOSER_CMD</span> dumpautoload -o
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Done..&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-14T13:34:08+00:00" pubdate data-updated="true">Nov 14<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>At first it seems like a simple one &ndash; just use the <code>parse_url</code> function already built into PHP.</p>
+
+<p>Unfortunately though, this just gives you the host &ndash; which is usually a combination of a subdomain &ndash; such as www &ndash; and the domain itself.</p>
+
+<p>To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.</p>
+
+<p>Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.</p>
+
+<p>Here is the code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getDomain</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$host</span> <span class="o">=</span> <span class="nb">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nx">PHP_URL_HOST</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$sanity</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$host</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$sanity</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">ErrorException</span><span class="p">(</span><span class="s2">&quot;No headers when sanity checking full host: </span><span class="si">$host</span><span class="s2"> in &quot;</span> <span class="o">.</span> <span class="nx">__METHOD__</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$elems</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$host</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$subdomains</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'>        <span class="nv">$domain</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nv">$domain</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$check</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
+</span><span class='line'>            <span class="nv">$headers</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$check</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$headers</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$subdomains</span><span class="p">[]</span> <span class="o">=</span> <span class="nb">array_shift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nb">array_unshift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">,</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$subdomains</span><span class="p">));</span>
+</span><span class='line'>                <span class="nv">$domain</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span> <span class="o">=</span> <span class="nv">$domain</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getHeadersForUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nv">$followOnLocation</span> <span class="o">=</span> <span class="k">true</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nv">$ch</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">();</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_HEADER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_NOBODY</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_FOLLOWLOCATION</span><span class="p">,</span> <span class="nv">$followOnLocation</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_MAXREDIRS</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYPEER</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYHOST</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nv">$data</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$data</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-12T13:03:36+00:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/security/ssl-testing-and-sha-1-sunsetting.html">SSL Testing and SHA-1 Sunsetting</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Over last few days we been doing a bit of work on doing some audits for people and one of the things that has come up is ssl. For the purpose of checking the servers ssl implementation we have been using <a href="https://www.ssllabs.com/ssltest/">Qualys SSL Labs</a> which is a excelent tool.</p>
+
+<p>The checker checks for the ssl certificate and tells you if your server setup is vulnerable to attacks such as Poodle and OpenSSL CCS Injection. We will produce a blog post shortly on the best practise setup to prevent these attcks.</p>
+
+<p>For the moment SHA-1 as a certificate signature algorithm is getting depricated in <a href="https://community.qualys.com/blogs/securitylabs/2014/09/09/sha1-deprecation-what-you-need-to-know">chrome</a>. As the cost for collision attcks against SHA-1 will become more <a href="https://www.schneier.com/blog/archives/2012/10/when_will_we_se.html">affordable</a> in the next few years.</p>
+
+<p>Goole have set the cut off for certificates after 2016 but we will be seeing some crosses on the padlock in chrom during the first quater of 2015.</p>
+
+<p>If your certificate expires in 2015 then you will not see any chrome. If your certificate expires in 2016 you will see some minor errors being reported in chrome. However if your certificate expires in 2017 then chrome will treat it as an insecure certificate in 2015.</p>
+
+<p>So our advice is:</p>
+
+<ul>
+<li>If your certificate expires in 2015: When you come to renew make sure you get SHA-256 as the certificate signature</li>
+<li>If your certificate expires in 2016: Think about getting renewed during 2015 or earlier.</li>
+<li>If your certificate expires in 2017: Think about getting a new one issue as soon as possible.</li>
+</ul>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-12T12:35:43+00:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/atop-quick-start-an-introduction-to-atop-snapshotting.html">Atop Quick Start: An Introduction to Atop Snapshotting</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p><a href="http://www.atoptool.nl/"><code>atop</code></a> is a server diagnostic tool to take snapshots of the server&rsquo;s activity at specified intervals, so it&rsquo;s useful for debugging intermitttent issues without watching the server constantly.</p>
+
+<p><code>atop</code> is available to install from the repos with a <code>yum install atop</code> or <code>apt-get install</code> atop depending if you&rsquo;re on a RedHat or Debian-based server. By default atop will take snapshots every 10 minutes.</p>
+
+<p>Omnce it&rsquo;s been left running, you can view its snapshots by running <code>atop -r /var/log/atop/atop_&lt;date&gt;</code> &ndash; you can see the dates that are logged by listing the <code>/var/log/atop</code> directory.</p>
+
+<p>Two key commands to use are <code>b</code> and <code>t</code>. Pressing <code>b</code> will prompt for a time in the format hh:mm. Enter a time and it&rsquo;ll jump to the nearest snapshot. From there <code>t</code> and <code>T</code> (<code>shift-t</code>) will jump you forwards and backwards through the logs respectively</p>
+
+<p>This is an example of atop&rsquo;s output:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>ATOP - ip-10-0-1-22                                                          2014/11/11  00:30:02                                                          -----------                                                           10m0s elapsed
+</span><span class='line'>PRC | sys    5.11s  | user  10.94s |               |              | #proc    104  | #trun      1 |               | #tslpi   149 |  #tslpu     0 |              |  #zombie    0 | clones    37 |               |              |  #exit     46 |
+</span><span class='line'>CPU | sys 1%  | user  2% |               | irq       0% |               | idle    197% |               | wait      0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
+</span><span class='line'>cpu | sys 1%  | user  1% |               | irq       0% |               | idle     98% |               | cpu001 w  0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
+</span><span class='line'>cpu | sys 0%  | user  0% |               | irq       0% |               | idle     99% |               | cpu000 w  0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
+</span><span class='line'>CPL | avg1    0.14  |              | avg5    0.09  |              | avg15   0.07  |              |               | csw   261923 |               | intr  279857 |               |              |               | numcpu     2 |               |
+</span><span class='line'>MEM | tot     7.3G  | free    5.8G | cache 176.1M  | dirty   0.8M | buff   14.2M  | slab   41.4M | slrec  20.1M  | shmem  36.9M |  shrss   0.0M | shswp   0.0M |               | vmbal   0.0M |               | hptot   0.0M |  hpuse   0.0M |
+</span><span class='line'>SWP | tot     0.0M  | free    0.0M |               |              |               |              |               |              |               |              |               |              |  vmcom   2.1G | vmlim   3.6G |               |
+</span><span class='line'>NET | transport     | tcpi   69012 | tcpo   74002  |              | udpi      93  | udpo      97 | tcpao     72  | tcppo    330 |               | tcprs    250 |  tcpie      0 | tcpor     24 |  udpnp      0 |              |  udpie    0 |
+</span><span class='line'>NET | network       | ipi    69105 |               | ipo    74025 | ipfrw      0  |              | deliv  69105  |              |               |              |               |              |  icmpi      0 | icmpo    0 |               |
+</span><span class='line'>NET | eth0    ----  | pcki   68732 |               | pcko   73654 | si  342 Kbps  | so  464 Kbps |               | coll       0 |  mlti       0 |              |  erri       0 | erro       0 |  drpi       0 |              |  drpo     0 |
+</span><span class='line'>NET | lo      ----  | pcki     396 |               | pcko     396 | si   17 Kbps  | so   17 Kbps |               | coll       0 |  mlti       0 |              |  erri       0 | erro       0 |  drpi       0 |              |  drpo     0 |
+</span><span class='line'>Window resized to 238x71...
+</span><span class='line'>  PID          TID         RUID             EUID              THR         SYSCPU         USRCPU          VGROW          RGROW          RDDSK          WRDSK         ST         EXC         S         CPUNR          CPU         CMD        1/3
+</span><span class='line'> 1335            -         root             root                7          2.51s          2.97s             0K             0K             0K             0K         --           -         S             1           1%         glusterfs
+</span><span class='line'>17247            -         apache           apache              1          0.40s          4.34s         46644K         66352K          3340K          3292K         --           -         S             1           1%         httpd
+</span><span class='line'>17274            -         apache           apache              1          0.36s          1.13s         35236K         54628K          1188K          2304K         --           -         S             0           0%         httpd
+</span><span class='line'>17267            -         apache           apache              1          0.24s          0.94s         55204K         83040K          2348K          2760K         --           -         S             1           0%         httpd
+</span><span class='line'>17310            -         apache           apache              1          0.26s          0.49s         961.9M         83508K           548K            12K         N-           -         S             1           0%         httpd
+</span><span class='line'>16708            -         varnish          varnish            19          0.28s          0.08s          4992K          5188K         32588K           448K         --           -         S             0           0%         varnishd
+</span><span class='line'>17248            -         apache           apache              1          0.11s          0.17s          7128K         24120K           364K          1788K         --           -         S             1           0%         httpd
+</span><span class='line'>17187            -         root             root                1          0.18s          0.04s           140K           140K             0K            24K         --           -         R             1           0%         atop
+</span><span class='line'> 1418            -         root             root                7          0.11s          0.10s             0K             0K             0K             0K         --           -         S             1           0%         glusterfs
+</span><span class='line'>17309            -         apache           apache              1          0.06s          0.10s         922.2M         25716K           820K             8K         N-           -         S             0           0%         httpd
+</span><span class='line'> 1460            -         root             root                7          0.07s          0.08s             0K             0K             0K             0K         --           -         S             1           0%         glusterfs
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-11T14:06:37+00:00" pubdate data-updated="true">Nov 11<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html">Compile NGINX With PageSpeed and ModSecurity on CentOS</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>ModSecurity is a brilliant addition to web servers to block any nefarious requests before they hit your application.
+This improves security and reduces load if your server comes under attack as the requests are killed very quickly.</p>
+
+<p>PageSpeed is a module provided by Google to automatically improve the performance of your web pages in the browser. In a stroke it can offer a much more responsive front end with just a few configuration options.</p>
+
+<p>Nginx is a very fast and lightweight web server ideal for using with back end servers such as PHP-FPM.</p>
+
+<p>Here is a script that will download and compile Nginx with the two modules and also apply the correct ModSecurity configuration.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Please run as root&quot;</span>
+</span><span class='line'>yum install gcc-c++ pcre-dev pcre-devel zlib-devel make unzip
+</span><span class='line'>
+</span><span class='line'><span class="nv">NPS_VERSION</span><span class="o">=</span>1.9.32.2;
+</span><span class='line'>
+</span><span class='line'><span class="nv">NGINX_VERSION</span><span class="o">=</span>1.7.7;
+</span><span class='line'>
+</span><span class='line'><span class="nv">MODSEC_VERSION</span><span class="o">=</span>2.8.0
+</span><span class='line'>
+</span><span class='line'><span class="nv">NGINX_EXTRA_MODULES</span><span class="o">=</span><span class="s2">&quot; --with-http_realip_module --with-http_ssl_module &quot;</span>;
+</span><span class='line'>
+</span><span class='line'><span class="nv">NGINX_ADD_MODULES</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">WORKING_DIRECTORY</span><span class="o">=</span>/opt/nginx_with_pagespeed_and_mod_security
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$WORKING_DIRECTORY</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">===============================================================================</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">Mod Security</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">Installing dependencies, grabbing the repo, checking out the tag for our version and building it</span>
+</span><span class='line'><span class="s2">------------&quot;</span>
+</span><span class='line'><span class="nb">cd</span> <span class="nv">$WORKING_DIRECTORY</span>
+</span><span class='line'>yum install libtool httpd-devel libxml2 libxml2-devel
+</span><span class='line'>git clone https://github.com/SpiderLabs/ModSecurity.git
+</span><span class='line'><span class="nb">cd </span>ModSecurity
+</span><span class='line'>git checkout tags/v<span class="k">${</span><span class="nv">MODSEC_VERSION</span><span class="k">}</span>
+</span><span class='line'>./autogen.sh
+</span><span class='line'>./configure --enable-standalone-module --disable-mlogc
+</span><span class='line'>make
+</span><span class='line'>make install
+</span><span class='line'><span class="nv">NGINX_ADD_MODULES</span><span class="o">=</span><span class="s2">&quot;$NGINX_ADD_MODULES --add-module=$WORKING_DIRECTORY/ModSecurity/nginx/modsecurity &quot;</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">Mod Security Config and Rules</span>
+</span><span class='line'><span class="s2">-----------------------------</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">For nginx, we have to get all the config and cat it all into one single config file</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'>wget https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended
+</span><span class='line'>cat modsecurity.conf-recommended  &gt; /etc/nginx/modsecurity.conf
+</span><span class='line'>wget https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master -O owasp-modsecurity-crs.tar.gz
+</span><span class='line'>tar -xvzf owasp-modsecurity-crs.tar.gz
+</span><span class='line'><span class="nv">CRS_DIR</span><span class="o">=</span><span class="k">$(</span>find . -type d -name SpiderLabs-owasp-modsecurity-crs*<span class="k">)</span>
+</span><span class='line'>cat <span class="k">${</span><span class="nv">CRS_DIR</span><span class="k">}</span>/modsecurity_crs_10_setup.conf.example &gt;&gt; /etc/nginx/modsecurity.conf
+</span><span class='line'>cat <span class="k">${</span><span class="nv">CRS_DIR</span><span class="k">}</span>/base_rules/modsecurity_*.conf &gt;&gt; /etc/nginx/modsecurity.conf
+</span><span class='line'><span class="k">for </span>f in <span class="k">$(</span>find <span class="nv">$CRS_DIR</span> -type f -name *.data<span class="k">)</span>
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'><span class="k">    </span><span class="nv">FILE</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$f</span><span class="k">)</span>
+</span><span class='line'>    <span class="nv">CMD</span><span class="o">=</span><span class="s2">&quot;cp $f /etc/nginx/$FILE&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="k">${</span><span class="nv">CMD</span><span class="k">}</span>
+</span><span class='line'>    <span class="k">${</span><span class="nv">CMD</span><span class="k">}</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>cp ModSecurity/unicode.mapping /etc/nginx/unicode.mapping
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">===============================================================================</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">Page Speed</span>
+</span><span class='line'><span class="s2">----------</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">Downlading the pagespeed version and building this</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'><span class="nb">cd</span> <span class="nv">$WORKING_DIRECTORY</span>
+</span><span class='line'>wget https://github.com/pagespeed/ngx_pagespeed/archive/release-<span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>-beta.zip
+</span><span class='line'>unzip release-<span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>-beta.zip
+</span><span class='line'><span class="nb">cd </span>ngx_pagespeed-release-<span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>-beta/
+</span><span class='line'>wget https://dl.google.com/dl/page-speed/psol/<span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>.tar.gz
+</span><span class='line'>tar -xzvf <span class="k">${</span><span class="nv">NPS_VERSION</span><span class="k">}</span>.tar.gz  <span class="c"># extracts to psol/</span>
+</span><span class='line'><span class="nv">NGINX_ADD_MODULES</span><span class="o">=</span><span class="s2">&quot;$NGINX_ADD_MODULES --add-module=$WORKING_DIRECTORY/ngx_pagespeed-release-${NPS_VERSION}-beta &quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">===============================================================================</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">Nginx</span>
+</span><span class='line'><span class="s2">-----</span>
+</span><span class='line'><span class="s2">Finally, compiling Nginx with our extra modules and the added modules and installing it</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'><span class="nb">cd</span> <span class="nv">$WORKING_DIRECTORY</span>
+</span><span class='line'>wget http://nginx.org/download/nginx-<span class="k">${</span><span class="nv">NGINX_VERSION</span><span class="k">}</span>.tar.gz
+</span><span class='line'>tar -xvzf nginx-<span class="k">${</span><span class="nv">NGINX_VERSION</span><span class="k">}</span>.tar.gz
+</span><span class='line'><span class="nb">cd </span>nginx-<span class="k">${</span><span class="nv">NGINX_VERSION</span><span class="k">}</span>/
+</span><span class='line'>./configure <span class="nv">$NGINX_ADD_MODULES</span> <span class="nv">$NGINX_EXTRA_MODULES</span>
+</span><span class='line'>make
+</span><span class='line'>sudo make install
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">===============================================================================</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">COMPLETED INSTALL - CHECKING</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">checking the nginx version now, should be $NGINX_VERSION and you should see our modules</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'>nginx -V
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">And now doing a config test&quot;</span>
+</span><span class='line'>/etc/init.d/nginx configtest
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">===============================================================================</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">SCRIPT COMPLETED</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">However, you are not there yet</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">You need to go and look at the /etc/nginx/modsecurity.conf file and change settings there as appropriate</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">Also you need to modify your nginx vhost config - see:</span>
+</span><span class='line'><span class="s2">https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-11-07T10:53:06+00:00" pubdate data-updated="true">Nov 7<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/se-linux-and-connecting-to-a-mysql-database.html">SELinux and Connecting to Mysql Databases on Red Hat Based Distributions</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>SELinux can be restrictive by defult but prevent alot of security issues. One thing we found while trying it is that by default it will block network connections from being made via the httpd daemon. This is an issue if say on a development system you are running php via the apache module.</p>
+
+<p>To resolve this simply login via root or sudo to root privilige and run the following command:</p>
+
+<pre><code>setsebool -P httpd_can_network_connect on
+</code></pre>
+
+<p>You should now be able to connect to connect to your database. This will also enable things like web api, curl calls and other php that requires network access.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-16T11:27:40+01:00" pubdate data-updated="true">Oct 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/Vim/php-error-checking-in-vim-with-syntastic.html">PHP Error Checking in Vim With Syntastic</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are using Vim for any kind of PHP development work, then you may miss the sanity checking that is included in some IDEs.</p>
+
+<p>However, it possible to add this in using the <a href="https://github.com/scrooloose/syntastic">Syntastic</a>
+plug-in. Installation is quite simple and can be handled by any of the common plug-in managers.</p>
+
+<p>It should be noted that the plug-in just calls external checkers, so you will need to have these setup and configured,
+but you should have this done already&hellip;</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-16T11:16:14+01:00" pubdate data-updated="true">Oct 16<span>th</span>, 2014</time>
         
       </p>
@@ -246,443 +980,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-04T12:19:52+01:00" pubdate data-updated="true">Oct 4<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/selinux-configuration-for-alternative-document-root.html">SELinux Configuration for Alternative Document Root</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.</p>
-
-<p>By default SELinux is configured expecting Apache to be using /var/www as its document root.</p>
-
-<p>If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.</p>
-
-<p>If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.</p>
-
-<p>First of all you should double check what types http has:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -l | grep http
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We specifically need read/write access so lets grep for that:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -l | grep http | grep rw
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For me that shows the type: httpd_sys_rw_content_t</p>
-
-<p>We now need to add this to our custom document root:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects<span class="o">(</span>/.*<span class="o">)</span>?’
-</span><span class='line'>restorecon -R -v /opt/Projects/
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-02T09:11:11+01:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/nice-gnome-shell-theme-elegance-colours.html">Nice Gnome Shell Theme - Elegance Colours</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>One of the nice features of Gnome Shell is that, with the help of the <a href="https://extensions.gnome.org/extension/19/user-themes/">User Theme</a> extension, you can really customise
-your desktop experience to be something personalised.</p>
-
-<p>For me, the first thing is to set my desktop background to be a nice picture &ndash; something with wide open spaces, mountains and lots of sky.</p>
-
-<p>The next thing though is to set up a user theme. I like transparency and themes that allow my well chosen background image to shine through.</p>
-
-<p>For this reason I chose the <a href="https://github.com/satya164/elegance-colors">Elegance Colors</a> theme as it has a &ldquo;clear&rdquo; preset which also includes functionality to set the colour scheme based
-on the background image which is pretty slick I think.</p>
-
-<p>For installation instructions, please see the <a href="https://github.com/satya164/elegance-colors/blob/master/README.md">README on Github</a></p>
-
-<h2>Quick Fedora instructions are here:</h2>
-
-<h3>Create Repo</h3>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo sh -c <span class="s2">&quot; echo &#39;[home_satya164_elegance-colors]</span>
-</span><span class='line'><span class="s2">name=Elegance Colors Gnome Shell theme (Fedora_20)</span>
-</span><span class='line'><span class="s2">type=rpm-md</span>
-</span><span class='line'><span class="s2">baseurl=http://download.opensuse.org/repositories/home:/satya164:/elegance-colors/Fedora_20/</span>
-</span><span class='line'><span class="s2">gpgcheck=1</span>
-</span><span class='line'><span class="s2">gpgkey=http://download.opensuse.org/repositories/home:/satya164:/elegance-colors/Fedora_20/repodata/repomd.xml.key</span>
-</span><span class='line'><span class="s2">enabled=1&#39; &gt; /etc/yum.repos.d/elegance-colors.repo&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Install Theme</h3>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo yum install gnome-shell-theme-elegance-colors
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Run the Setup</h3>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>elegance-colors
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Switch to the Theme</h3>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>gsettings <span class="nb">set </span>org.gnome.shell.extensions.user-theme name <span class="s1">&#39;elegance-colors&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Now run the GUI and set it up</h3>
-
-<p>For this you can hit simply search for &lsquo;Elegance Colors&rsquo; from the dash to load the GUI.</p>
-
-<p>In the GUI you have presets and if you want transparency just choose the clear one. After that of course you can customise as you see fit</p>
-
-<h2>Fonts</h2>
-
-<p>To make the most of Fedora, its well worth following <a href="http://worldofgnome.org/how-to-greatly-improve-font-rendering-under-fedora-20/">these instructions</a> to improve font rendering.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-09-25T15:18:14+01:00" pubdate data-updated="true">Sep 25<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/security/urgent-update-bash-big-security-issue.html">URGENT Update BASH - Big Security Issue</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Shell Shock is a BASH exploit that can allow the running of arbitrary commands on Linux servers.</p>
-
-<p>This is a newly discovered bug and affects a very large number of servers.</p>
-
-<p>There is a patch, you should ensure that your server&rsquo;s BASH version is updated ASAP.</p>
-
-<h3>Centos, Redhat etc</h3>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>yum clean all; yum -y update bash</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Ubuntu, Debian etc</h3>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>apt-get install --only-upgrade bash</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To check if you are vulnerable, you can run this code:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>env X="() { :;} ; echo VULNERABLE" /bin/sh -c "echo completed"</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you see VULNERABLE then you need to update BASH.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-09-10T17:38:09+01:00" pubdate data-updated="true">Sep 10<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Fedora/fedora-live-usb-key-creation.html">Fedora Live USB Key Creation</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I have had continual problems getting most of my USB keys to work as liveusb drives.</p>
-
-<p>This is pretty awkward however it looks like I have now found a solution that works. Instead of using the official Fedora live USB creator, we are going to use something called livecd-iso-to-disk</p>
-
-<p>First of all install it:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo yum -y install livecd-tools
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then this is your command to create the liveusb. Note you need to set the sdX to whichever your USB key is using, and of course make sure the path to the iso file is correct</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo livecd-iso-to-disk --format --msdos --reset-mbr --overlay-size-mb 512 --home-size-mb 512 ~/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso /dev/sdc
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And that&rsquo;s it</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-08-04T10:09:42+01:00" pubdate data-updated="true">Aug 4<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/mute-chrome-slash-chromium-in-gnome-shell.html">Mute Chrome/Chromium in Gnome Shell</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>You might not be aware that in Gnome Shell and likely anything else using Linux you can easily block sound from entire applications.</p>
-
-<p>For me this means blocking annoying auto playing videos with sound that are cropping up as I&rsquo;m trying to listen to some nice tunes whilst I work.</p>
-
-<p>To block the sound is very easy, simply go to the sound control panel which in Gnome Shell is access via the top right panel.</p>
-
-<p>Once into the sound section, go to the right most tab where you can control sounds on an application by application basis. Simply turn off the annoying onces.</p>
-
-<p><img src="/assets/mute-chromium.png"></p>
-
-<p>Beautiful :)</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-07-30T17:50:40+01:00" pubdate data-updated="true">Jul 30<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/gui-editor-alike-terminal-editor.html">GUI Editor Alike Terminal Editor</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Came across an interesting Github project today &ndash; a command line text editor that is designed to look and feel and largely behave like a GUI text editor such as Sublime.</p>
-
-<p>Meet <a href="https://github.com/slap-editor/slap">Slap</a></p>
-
-<p>Installation is trivial assuming you already have node installed:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>npm -g install slap</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once its installed you can open any file as you would with any other cli text editor</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>slap my-file.php</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Immediate impressions are quite positive. A familiar feeling file browser in the left column is coupled with a text editing pane on the right that responds well to mouse clicks and familiar key presses.
-The text highlighting is very nice and things like brace matching are also included.</p>
-
-<p>Unfortunately for me it seems that mouse usage often lead to garbage characters being inserted into the text which render it unusable for the moment though this could be an issue specific to my machine.</p>
-
-<p>Definitely a project to keep an eye on though if you like trying new CLI text editors. That said I&rsquo;m writing this post in SPF13 Vim which I&rsquo;m pretty happy with :)</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-07-07T10:53:29+01:00" pubdate data-updated="true">Jul 7<span>th</span>, 2014</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/converting-and-manipulating-location-files-with-gpsbabel.html">Converting and Manipulating Location Files With GPSBabel</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p><img src="/assets/gpsbabel-initial.png"></p>
-
-<p>GPSBabel was created to enable conversion between the multitude of location file formats, such as GPX and KML, as well as the many formats used by different GPS devices.</p>
-
-<p>Its strength lies in the way it imports data from the source in a format-agnostic way which allows it to make changes to the data using Filters. Notable filters include the ability to use only records from a specific time range, within a specific radius of a specified point, minimise the amount of points in a track and generate tracks from waypoints.</p>
-
-<p><img src="/assets/gpsbabel-filters.png"></p>
-
-<p>Other options include the abaility to automnatically generate names, labelled &ldquo;Synthesize short names&rdquo;, in case your export gives long names as Backitude does.</p>
-
-<p>It&rsquo;s available as a CLI application for Windows, Mac and Linux, with each featuring a GUI for easier discovery of its features. It handily displays the command paramters built up in the GUI for easier automating.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -706,15 +1003,15 @@ The text highlighting is very nice and things like brace matching are also inclu
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
+    <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
+    <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
-    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
   </div>
 </section>
@@ -795,7 +1092,7 @@ The text highlighting is very nice and things like brace matching are also inclu
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2015 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

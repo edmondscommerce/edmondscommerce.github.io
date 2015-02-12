@@ -128,6 +128,493 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:41:09+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-bug-custom-option-values-not-showing-in-backend.html">Magento Bug: Custom Option Values Not Showing in Backend</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>It&rsquo;s a little bit annoying that such a core feature is just broken in many versions of magento &ndash; the headings for the custom options chosen, whilst fully working on the cart; checkout and emails to the customer, only show the heading and no content on the backend order.</p>
+
+<p>There are a couple of fixes :
+in
+  app/code/core/Mage/Adminhtml/Block/Sales/Items/Column/Name.php
+there is no extending, so you can copy it to
+  app/code/local/Mage/Adminhtml/Block/Sales/Items/Column/Name.php
+and add the following class method :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getFormattedOption</span><span class="p">(</span><span class="nv">$value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nv">$_remainder</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$value</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;core/string&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">truncate</span><span class="p">(</span><span class="nv">$value</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$_remainder</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+</span><span class='line'>    <span class="s1">&#39;value&#39;</span> <span class="o">=&gt;</span> <span class="nb">nl2br</span><span class="p">(</span><span class="nv">$value</span><span class="p">),</span>
+</span><span class='line'>    <span class="s1">&#39;remainder&#39;</span> <span class="o">=&gt;</span> <span class="nb">nl2br</span><span class="p">(</span><span class="nv">$_remainder</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nv">$result</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and/or change the admin theme in
+  app/design/adminhtml/default/default/template/sales/items/column/name.phtml
+around about line 44 from :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="nv">$_option</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]);</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_null</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$_option</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="p">}</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then the custom options chosen by customers will happily show in the backend.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T18:29:43+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/scraping/simple-php-scraping-with-jquery-like-selectors-using-simpledom.html">Simple PHP Scraping With jQuery Like Selectors Using Simple HTML Dom</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you need to do some HTML parsing, scraping etc then you generally have the choice of using the DOM approach to parse the HTML or using regex to pull bits out. I quite like both approaches, there are pros and cons to both so having both options available is the best to ensure you use the right tool for the job on a case by case basis.</p>
+
+<p>Recently though I discovered Simple HTML Dom. This makes the DOM based approach almost ridiculously easy, especially if you are comfortable with jQuery like selectors for pulling out specific DOM nodes.</p>
+
+<p>You can read all about it here:
+<a href="http://simplehtmldom.sourceforge.net/manual.htm" title="Simple HTML Dom" target="_blank"><a href="http://simplehtmldom.sourceforge.net/manual.htm">http://simplehtmldom.sourceforge.net/manual.htm</a></a></p>
+
+<p>First impressions are really good, its very easy and the lead in time from installation to using is really fast. I like that, never been much of a fan of having to RTFM for everything!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T17:09:55+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/debugging-output-buffering-being-disabled.html">Debugging Output Buffering Being Disabled</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are confused as to exactly which bit of code is killing your output buffer in PHP then you might love this little trick. Combined with Xdebug it can get you to the root of the problem quickly and easily.</p>
+
+<p>The trick involves using the callback function capability of ob_start.</p>
+
+<p>Firstly you need to make a callback handler, for example:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">ob_callback</span><span class="p">(){</span>
+</span><span class='line'>    <span class="k">echo</span> <span class="s1">&#39;wtf&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in your IDE, set a break point on the echo line. If you aren&rsquo;t using Xdebug, you could do something like this instead:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">ob_callback</span><span class="p">(){</span>
+</span><span class='line'>    <span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;Output Buffer Has Been Killed&lt;/h1&gt;&lt;pre&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="nb">var_dump</span><span class="p">(</span><span class="nb">debug_backtrace</span><span class="p">());</span>
+</span><span class='line'>    <span class="k">die</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then where you are starting your output buffer, simply pass in the function name as a parameter like so:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">ob_start</span><span class="p">(</span><span class="s1">&#39;ob_callback&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T16:50:52+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/xampp-1-8-is-out.html">Xampp 1.8 Is Out!</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>A new version of Xampp has been release which includes PHP 5.4! Remember that instantly jumping to the latest version of PHP is not necessarily a good idea as numerous deprecated features may have been removed and others may now be deprecated and cause issues in your applications. Check the PHP 5.4 release announcement for the major changes: <a href="http://php.net/releases/5_4_0.php">http://php.net/releases/5_4_0.php</a></p>
+
+<p>The Xampp 1.8 release also includes numerous other updates including phpMyAdmin, MySQL and many more of the applications bundled with it.</p>
+
+<p>Grab the new version here <a href="http://sourceforge.net/projects/xampp/files/">http://sourceforge.net/projects/xampp/files/</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T16:31:15+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/xdebug-php-and-command-line-scripts.html">Xdebug PHP and Command Line Scripts</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I had a requirement to use Xdebug to step through a PHP script that is being run on the command line.</p>
+
+<p>Oh no I thought, this is bound to be really complicated to figure out because I normally use the web browser and I have never done this before.</p>
+
+<p>Pleasant surprise, its actually really easy to do this, all you need to do on the command line is run the following command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">XDEBUG_CONFIG</span><span class="o">=</span>&amp;quot;idekey<span class="o">=</span>netbeans-xdebug&amp;quot;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then get your IDE (PHPStorm for me) listening for Xdebug and then run your PHP file on the command line.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>php ./myfile.php
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it, it just works.</p>
+
+<p>One caveat (which I actually quite like) is that it will now ALWAYS get picked up by xdebug which could get in your way. To stop this, simply unset the variable like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">unset </span>XDEBUG_CONFIG
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T13:24:37+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html">Apache Access Logs Find Spiders by Counting Requests to IP Addresses</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'><span class="nv">LOG_FILE</span><span class="o">=</span>/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+</span><span class='line'><span class="nv">OUT_FILE</span><span class="o">=</span>/tmp/spider_analysis
+</span><span class='line'>
+</span><span class='line'><span class="c">#This generates a file with the top 20 IP addresses by number of requests</span>
+</span><span class='line'>cat <span class="nv">$LOG_FILE</span> | awk <span class="s1">&#39;{print $1}&#39;</span> | sort | uniq -c | sort -nr | head -n 20 &gt; <span class="nv">$OUT_FILE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Top 20 IP addresses by number of request&quot;</span>
+</span><span class='line'>cat <span class="nv">$OUT_FILE</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#allow for loop to split on new line</span>
+</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span><span class="nv">$IFS</span>
+</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for </span>i in <span class="sb">`</span>cat <span class="nv">$OUT_FILE</span><span class="sb">`</span>
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'><span class="k">    </span><span class="nv">COUNT</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nv">IP_ADD</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | awk <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;$IP_ADD has made $COUNT requests&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;Whois Information&quot;</span>
+</span><span class='line'>    whois <span class="nv">$IP_ADD</span>
+</span><span class='line'>    <span class="c">#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;---------------------------------&quot;</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># set that back</span>
+</span><span class='line'><span class="nv">IFS</span><span class="o">=</span><span class="nv">$IFS_BAK</span>
+</span><span class='line'><span class="nv">IFS_BAK</span><span class="o">=</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would use this to give you some idea of which IPs are hitting the server a lot.</p>
+
+<p>Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-17T15:57:47+01:00" pubdate data-updated="true">Aug 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-security-update.html">Magento Security Update Testimonials</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you run a Magento store or are otherwise familiar with the world of Magento then you have no doubt seen the urgent security patch that live stores needed to apply quickly.</p>
+
+<p>We opted to offer the security patching service for free to our existing clients and then also to the rest of the world. The process of applying the patch is quick and painless thanks to a nice Bash script we put together so there was really no problem in offering this service. <a href="http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/">You can read all about that offer here</a>. For anyone still not patched, the offer still stands.</p>
+
+<p>Since that time we have had a few nice testimonials which we thought we would share:</p>
+
+<p><b>Chris from Mobile CAD Surveying</b></p>
+
+<blockquote>Thank-you to Edmonds Commerce for highlighting a recent Magento security breach that we were unaware of. Edmonds let us know about this problem and offered to fix it for us at no cost.  We gave them our log in details and within an hour a patch had been installed and everything was working fine.
+Thanks once again to Edmonds for their professional service and for attending to this matter very swiftly.
+</blockquote>
+
+
+<p><a href="http://www.mobilecadsurveying.co.uk/" title="Mobile CAD Surveying" target="_blank">Mobile CAD Surveying Ltd</a></p>
+
+<p><b>Mark Noble, IT Manager at Buckley Jewellery</b></p>
+
+<blockquote>Buckley Jewellery originally approached Edmonds Commerce to take our existing site and develop it onto a Magento platform.
+Since this first project we have used Joseph and his team for a further website and additional work to develop & expand our ecommerce business.
+The offer of installing the Magento patch across our websites was typical of a company who provide an honest and refreshing approach to website design.
+I would not hesitate to recommend Edmonds Commerce for any ecommerce development and advice.</blockquote>
+
+
+<p><a href="http://www.buckley-jewellery.com/" title="Buckley Jewellery" target="_blank">Buckley Jewellery</a></p>
+
+<p><b>Clare from Libertinesque</b></p>
+
+<blockquote>
+I can thoroughly recommend Joseph and his team for such a fantastic service and the security patch which was generously offered as a free service and efficiently applied with a very quick response time. Giving great personal attention every time, I have no hesitation in recommending the team for Magento upgrades and service.
+</blockquote>
+
+
+<p><a href="http://www.libertinesque.com/" target="_blank">Libertinesque</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-17T15:31:32+01:00" pubdate data-updated="true">Aug 17<span>th</span>, 2012</time>
         
       </p>
@@ -320,523 +807,6 @@ Replace catalog_product* for catalog_category to get the values for a category. 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-15T14:16:16+01:00" pubdate data-updated="true">Aug 15<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/jquery/comply-with-the-cookie-law-with-very-little-effort.html">Comply With the Cookie Law With Very Little Effort</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>A lot of concern has been caused by the &ldquo;Cookie Law&rdquo; which says you must tell people that you use cookies if you do, and 99% of sites do!</p>
-
-<p>Well here&rsquo;s a very simple jQuery bolt-on that deals with that, and although visitors need javascript enabled to see it, you have made &ldquo;best efforts&rdquo; to inform them, and on any eCommerce site you&rsquo;re going to have a &ldquo;this site requires javascript message&rdquo; anyway.</p>
-
-<p>The file to download is from github (isn&rsquo;t opensource great?) <a href="https://github.com/carlwoodhouse/jquery.cookieBar" title="jQuery.cookiebar on github">here</a> and is as simple to implement as add the script file to the head and somewhere on the page insert the following :</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text/javascript&quot;</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">$</span><span class="p">.</span><span class="nx">cookieBar</span><span class="p">();</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'><span class="o">&lt;</span><span class="err">/script&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The example page is also on github : <a href="http://carlwoodhouse.github.com/jquery.cookieBar/" title="CookieBar example page"><a href="http://carlwoodhouse.github.com/jquery.cookieBar/">http://carlwoodhouse.github.com/jquery.cookieBar/</a></a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-15T12:58:23+01:00" pubdate data-updated="true">Aug 15<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/mysql-server-gone-away-large-packets-the-issue.html">MySQL Server Gone Away - Large Packets the Issue?</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are scratching your head trying to figure out why you keep getting MySQL server gone away error messages despite the fact you have bumped up all the timeout etc configurations to high values then this could be your solution.</p>
-
-<p>MySQL will also give you this error if you try to send a packet that is larger than the packet size defined. We had an application that was using MariaDB which has a default max allowed packet of 16M by default.</p>
-
-<p>The application in question was sending large amounts of data to be stored and so the solution to the gone away issues was simply to increase the max_allowed_packet configuration in my.cnf, restart the mysql daemon and the problems are sorted.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T17:33:31+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/amazon/centos-sun-java-amazon-amtu-2.html">CentOS + Sun Java + Amazon AMTU 2</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>In a follow up to our popular blog post describing the process of getting AMTU 1 set up on a Centos server, this post describes how to get the latest version 2 of AMTU running.</p>
-
-<p>Things have moved on and thankfully it is a lot easier than it was.</p>
-
-<p>Firstly get Sun Java installed. You will need to get the URL for downloading the RPM from here:
-<a href="http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html">http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html</a></p>
-
-<p>Accept the agreement, download the correct RPM version and then pause it. Copy the download URL and paste it into this command:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /tmp
-</span><span class='line'>wget <span class="o">[</span>paste-url<span class="o">]</span>-here<span class="o">]</span>
-</span><span class='line'>rpm - jre <span class="o">[</span>hit tab to <span class="nb">complete</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now check the correct java version is being used:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>java -version
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You should get something looking like:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">[</span>root@94 tmp<span class="o">]</span><span class="c"># java -version</span>
-</span><span class='line'>java version &amp;quot;1.7.0_05&amp;quot;
-</span><span class='line'>Java<span class="o">(</span>TM<span class="o">)</span> SE Runtime Environment <span class="o">(</span>build 1.7.0_05-b06<span class="o">)</span>
-</span><span class='line'>Java HotSpot<span class="o">(</span>TM<span class="o">)</span> 64-Bit Server VM <span class="o">(</span>build 23.1-b03, mixed mode<span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you can install AMTU</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>wget https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh
-</span><span class='line'>chmod +x AMTU_unix.sh
-</span><span class='line'>./AMTU_unix.sh
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Keep hitting enter to get to the bottom of the terms and then agree, agree to all the other options. That is AMTU installed.</p>
-
-<p>The final step is to configure this using the CLI configure utitlity.</p>
-
-<p>You need to create an xml file for the AMTU configuration. You can see a sample file in /opt/amtu/xml/sample.xml.</p>
-
-<p>Lets copy that file and then edit it accordingly.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /opt/amtu/xml
-</span><span class='line'>cp sample.xml configuration.xml
-</span><span class='line'>vim configuration.xml
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You do need to be signed up for MWS to get some of the keys etc that are required. If not already, go to this page and hit the sign up button.
-<a href="https://developer.amazonservices.co.uk/index.html">https://developer.amazonservices.co.uk/index.html</a></p>
-
-<p>Once you have updated the XML configuration you run this command to apply it:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>/opt/amtu/Utilities/configure SETUP /opt/amtu/xml/configuration.xml
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you get some error messages at this point, edit the configuration and try again. Once you have the configuration set you can start the daemon.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>/opt/AMTU/Utilities/amtu_daemon start
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T16:03:11+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/wondering-what-youre-waiting-for-mytop-tells-all.html">Wondering What You&#8217;re Waiting for? Mytop Tells All</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Mytop is a handy utility which shows what queries are currently being executed on your MySQL server &ndash; useful for those times when you&rsquo;re not quite sure if it&rsquo;s still on the job</p>
-
-<p>Running mytop is easy, just run it from the command line and it&rsquo;ll give you a top-like list of any queries currently being executed on the server
-You need to tell my top how it should connect to your database. You <em>can</em> specify everything as parameters on the command, such as</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>mytop -u<span class="o">=</span>myuser -p<span class="o">=</span>mypassword --db<span class="o">=</span>mydatabase -P<span class="o">=</span>3306
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>But chances are you&rsquo;re not changing your database server <em>that</em> often.</p>
-
-<h3>Setting the default parameters for mytop</h3>
-
-
-<p>If you want to save yourself the effort of repeatedly typing the same details over and over, just tell mytop what you want it to choose if you don&rsquo;t tell it any parameters</p>
-
-<p>All you need to do is let mytop know how to connect to your MySQL database in the form of a config file called .mytop in your home folder, with the following contents (replace as necessary):</p>
-
-<blockquote>
-<code>
-     user=myuser
-         pass=
-         host=my.host.name
-         db=
-         delay=5
-         port=3306
-         socket=
-         batchmode=0
-         header=1
-         color=1
-         idle=1
-</code>
-</blockquote>
-
-
-<p>You can add as many or as few of these as you like for easy configuration, like specifying the db flag if you&rsquo;re primarily accessing only one database. I like to leave the password field blank, and use the &mdash;prompt flag to avoid any awkward leaks!</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T14:05:32+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/running-php-scripts-as-apache-or-a-shell-user.html">Running PHP Scripts as Apache or a Shell User</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you have PHP scripts that need to be able to run via the web server as Apache and also be runnable directly on the command line then you may run into permissions issues, especially if those scripts are doing anything with files.</p>
-
-<p>The scenario is that you run the script via the webserver and all of the files etc that are created are owned by Apache. Then you try to run on the command line and the script cannot run because it does not have permission to access Apache&rsquo;s files. The opposite scenario is also true.</p>
-
-<p>There are a few possible solutions to this but the most elegant and simple is to do the follwing.</p>
-
-<p>Assuming you are running Centos, you first of all need to set Apache to run with a umask of 002. This means that files it creates will have read/write permissions for the Apache group as well as the Apache user.</p>
-
-<p>To do this, simply add a line to the file /etc/sysconfig/httpd. You can do this in one command like this:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">echo</span> <span class="s2">&quot;umask 002&quot;</span> &gt;&gt; /etc/sysconfig/httpd
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then you need to restart Apache to apply this.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>service httpd restart
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You then need to add your shell user to the apache group. To do this you need to do the following:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>vigr
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then find the line with your shell user and at the end add a comma and the word apache. This will add that user to the apache group along with it&rsquo;s own group.</p>
-
-<p>You will get a prompt to also edit etc/shadow. Agree to this and repeat the process.</p>
-
-<p>You will then need to log out and log back in to apply those changes and that should resolve your permissions issues for good.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-14T13:54:17+01:00" pubdate data-updated="true">Aug 14<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/stop-magento-writing-to-tmp.html">Stop Magento Writing to /tmp</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>So some of us disagree when it comes to what should happen when magento cannot write to var/ in the webroot.  Magento itself chooses to try /tmp/magento/ if the var/ folder is not writable.  This can cause many issues and confusion.  Not least of which emptying var/ and making it writable does not make magento start using it, if there&rsquo;s already a /tmp/magento!</p>
-
-<p>One preferable option is to force magento to just stop if it can&rsquo;t write to var/ &ndash; here&rsquo;s a simple way to do this, which is sneaky but really handy :&ndash;</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /tmp
-</span><span class='line'>ln -s abracadabra-dangling-symlink magento
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What that does is create a dangling symlink in /tmp/ called magento, which cannot be overwritten by a directory.  Magento then simply stops.  Stopping because of permissions errors is often preferable to continuing and causing later confusion and problems.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-09T16:24:34+01:00" pubdate data-updated="true">Aug 9<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/creating-rpms.html">Creating RPMs</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>One thing that I often get asked as a package maintainer is how hard is it to make rpms?</p>
-
-<p>Well, here&rsquo;s a little secret, if you have the right tools, it&rsquo;s actually quite easy.</p>
-
-<p>The main tool I use is mezzanine &ndash; one of the people I worked with on the cAos Linux distributions wrote this toolset in perl, and it is installable even on debian-based distros.  His website is experiencing issues at the moment but it is <a href="http://beta.kainx.org/" title="http://beta.kainx.org/"><a href="http://beta.kainx.org/">http://beta.kainx.org/</a></a>.  If it&rsquo;s still down and you want the rpm, rpm.pbone.net can find you an rpm.</p>
-
-<p>The basics are that you need a folder that contains an &ldquo;F&rdquo; &ldquo;P&rdquo; and &ldquo;S&rdquo; directory, and yes, that is all uppercase.  The F folder contains a spec file similar to what&rsquo;s below, the S folder contains the source files and the P directory is a clever little patch making system.</p>
-
-<p>The spec file is almost exactly the same as a normal rpmbuild spec file and looks like this :&ndash;
-<code>
-#</p>
-
-<h1>spec file for safe-rm</h1>
-
-<p>#
-Summary: Don&rsquo;t rm various directorie
-Name: safe-rm
-Version: 0.8
-Release: 1
-License: GPL
-Group: Applications/Utilities
-Source: <a href="https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz">https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz</a>
-URL: <a href="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a>
-Distribution: CentOS
-Packager: Martyn Ranyard <a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#111;&#x3a;&#x69;&#x6e;&#x66;&#111;&#64;&#x65;&#x64;&#109;&#111;&#110;&#100;&#115;&#99;&#111;&#x6d;&#109;&#101;&#114;&#99;&#101;&#46;&#99;&#x6f;&#x2e;&#117;&#x6b;">&#105;&#x6e;&#102;&#111;&#x40;&#101;&#x64;&#109;&#111;&#110;&#x64;&#115;&#99;&#111;&#109;&#109;&#101;&#x72;&#99;&#x65;&#x2e;&#99;&#x6f;&#x2e;&#x75;&#x6b;</a>
-Patch1000: safe-rm-0.8-example-conf.patch
-Requires: perl</p>
-
-<p>%description
-Stop people accidentally removing directories with rm -rf</p>
-
-<p>%changelog
-* Thu Aug 09 2012 Martyn Ranyard <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#x3a;&#105;&#x6e;&#102;&#111;&#64;&#x65;&#x64;&#109;&#111;&#x6e;&#100;&#115;&#x63;&#111;&#109;&#109;&#101;&#x72;&#x63;&#x65;&#46;&#x63;&#111;&#x2e;&#x75;&#107;">&#105;&#x6e;&#102;&#111;&#64;&#x65;&#x64;&#x6d;&#x6f;&#110;&#100;&#115;&#99;&#111;&#x6d;&#x6d;&#x65;&#x72;&#x63;&#x65;&#x2e;&#99;&#x6f;&#x2e;&#x75;&#x6b;</a>
-&ndash; Used the debian example config for the default config</p>
-
-<p>%prep
-rm -rf $RPM_BUILD_ROOT/safe-rm-0.8
-zcat $RPM_SOURCE_DIR/safe-rm-0.8.tar.gz | tar -xvf &ndash;
-cd safe-rm-0.8
-%patch1000 -p1</p>
-
-<p>%build</p>
-
-<p>%install
-mkdir -p $RPM_BUILD_ROOT/usr/bin/
-mkdir -p $RPM_BUILD_ROOT/etc/
-mkdir -p $RPM_BUILD_ROOT/sbin/
-install -m 0755 safe-rm-0.8/safe-rm $RPM_BUILD_ROOT/usr/bin/safe-rm
-install -m 0644 safe-rm-0.8/safe-rm.conf $RPM_BUILD_ROOT/etc/safe-rm.conf
-cd $RPM_BUILD_ROOT/usr/bin/
-ln -s safe-rm rm
-cd &ndash;
-cd $RPM_BUILD_ROOT/sbin/
-ln -s /usr/bin/safe-rm rm
-cd &ndash;</p>
-
-<p>%files
-/etc
-/etc/safe-rm.conf
-/usr
-/usr/bin
-/usr/bin/safe-rm
-/sbin
-/sbin/rm
-</code></p>
-
-<p>You&rsquo;ll notice the patch1000 lines reference a patch file, which mezzanine handily creates for you, first you run mzprep, which creates a work dir, then you add/edit files in there to make whatever you&rsquo;re packaging build and install (to $RPM_BUILD_DIR) and then you run &ldquo;mzpatch mypatchname.patch&rdquo; and it creates the patch ready to be deployed.</p>
-
-<p>To create the rpms, change back to the top level directory (the one containing F P &amp; S) and type mzbuild.</p>
-
-<p>It takes a bit of getting used to and a fair bit of fiddling but the end result is good solid rpms.</p>
-
-<p>Note: it can also make deb files and slackware package files but KainX is the guy to talk to on that front.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -860,15 +830,15 @@ cd &ndash;</p>
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
+    <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
+    <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
-    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
   </div>
 </section>
@@ -949,7 +919,7 @@ cd &ndash;</p>
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2015 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

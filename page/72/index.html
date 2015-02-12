@@ -128,6 +128,871 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-26T10:48:57+00:00" pubdate data-updated="true">Mar 26<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/security/google-checkout-501-error-with-mod-security-solution.html">Google Checkout, 501 Error With Mod Security + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you are pulling your hair out trying to figure out why you are seeing a 501 error in your Google Checkout integration console I may well have the answer and solution for you.</p>
+
+<p>This is the error message you will see in the integration console.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  We encountered an error trying to access your server at https://domain.co.uk/googlecheckout/api/ -- the error we got is Sending failed with HTTP response code: 501. Response body was: &lt;HTML&gt; &lt;HEAD&gt; &lt;TITLE&gt;501 Not Implemented&lt;/TITLE&gt; &lt;/HEAD&gt; &lt;BODY&gt; &lt;H1&gt;Not Implemented&lt;/H1&gt; The page you are looking for cannot be displayed because a header value in the request does not match certain configuration settings on the Web server.&lt;P&gt; &lt;HR&gt; &lt;ADDRESS&gt; Web Server at domain.co.uk &lt;/ADDRESS&gt; &lt;/BODY&gt; &lt;/HTML&gt; &lt;!-- - Unfortunately, Microsoft has added a clever new - "feature" to Internet Explorer. If the text of - an error's message is "too small", specifically - less than 512 bytes, Internet Explorer returns - its own error message. You can turn that off, - but it's pretty tricky to find switch called - "smart error messages". That means, of course, - that short error messages are censored by default. - IIS always returns error messages that are long - enough to make Internet Explorer happy. The - workaround is pretty simple: pad the error - message with a big comment like this to push it - over the five hundred and twelve bytes minimum. - Of course, that's exactly what you're reading - right now. --&gt; 
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first thing to do is log into your server via SSH and examine the error logs.</p>
+
+<p>find the error logs, open the file up in vi using this command:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>vi error_log
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then go to the bottom of the file using the &#8220;`shift
+ + [g] shortcut. Then to search backwards in the log use the following command:</p>
+
+<p>[code]
+?ModSecurity</p>
+
+<p>&#8220;`</p>
+
+<p>If you find something with this error message then you have mod security installed. If you search around you may well find an error message like this:</p>
+
+<blockquote>
+[Thu Mar 26 10:22:11 2009] [error] [client 94.229.166.12] ModSecurity: Access denied with code 501 (phase 2). Match of &#8220;rx (?:^(?:application&#92;/x-www-form-urlencoded(?:;(?:&#92;s?charset&#92;s?=&#92;s?[&#92;w&#92;d&#92;-]{1,18})?)??$|multipart/form-data;)|text/xml)&#8221; against &#8220;REQUEST_HEADERS:Content-Type&#8221; required. [file &#8220;/etc/httpd/modsecurity.d/modsecurity_crs_30_http_policy.conf&#8221;] [line &#8220;71&#8221;] [id &#8220;960010&#8221;] [msg &#8220;Request content type is not allowed by policy&#8221;] [severity &#8220;WARNING&#8221;] [tag &#8220;POLICY/ENCODING_NOT_ALLOWED&#8221;] [hostname &#8220;247electrical.co.uk&#8221;] [uri &#8220;/googlecheckout/api&#8221;] [unique_id &#8220;-UMIen8AAAEAAFsDLH4AAAAB&#8221;]
+</blockquote>
+
+
+<p>This error message tells us which particular rule is causing it to fail. What we need to do now is either edit this rule or disable it altogether. I will first try to edit it so that the request can get through, but the rule is still active. The rule we need to edit is in this rules file:</p>
+
+<p>modsecurity_crs_30_http_policy.conf</p>
+
+<p>and is on line 71.</p>
+
+<p>I&rsquo;m no mod security expert. Having had a quick look through the documentation I am not sure how to edit this rule to allow Google Checkout callbacks through. So for the time being I am going to disable this particular rule altogether by adding a  # in front of lines 70,71 and 72.</p>
+
+<p>If any mod security experts out there read this blog and know a better solution please do post it in the comments.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-25T14:26:50+00:00" pubdate data-updated="true">Mar 25<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/online-ssl-checker-google-checkout.html">Online SSL Checker (Google Checkout)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Google checkout has some exceptionally stringent requirements with regards to SSL which always seem to trip people up and involve lots of messing around getting the cert set up properly.</p>
+
+<p>I have found a nice online cert checker which you can show to your hosting company (or whoever installed your cert) to show them that the cert isn&rsquo;t set up properly.</p>
+
+<p>You can find it here:</p>
+
+<p><a href="http://www.codefromthe70s.org/certcheck.aspx" rel="nofollow">cert check</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-24T13:35:08+00:00" pubdate data-updated="true">Mar 24<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/linux-symlink-chown.html">Linux Symlink Chown</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you create a symlink via SSH then chances are you are logged in as the root user and the symlink will be created as root. Usually though you will want to the symlink to belong to another owner:group.</p>
+
+<p>If you try to use chown it will silently fail to change the ownership of the symlink, though instead it will change the ownership of the file the symlink is pointing to.</p>
+
+<p>If you want to make it actually change the owner:group of the symlink, us the switch -h.</p>
+
+<p>For example:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>chown -h user:group symlink
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-23T16:52:54+00:00" pubdate data-updated="true">Mar 23<span>rd</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/ecommerce/setting-up-amazons-amtu-on-a-linux-server.html">Setting Up Amazon&#8217;s AMTU on a Linux Server</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Amazon helpfully supply a java package called AMTU which does the grunt work of the XML integration for Amazon marketplace. With AMTU you can easily update products, stock levels, prices and also grab order info etc.</p>
+
+<p>Being based on Java, AMTU can run on pretty much any operating system. It uses a &ldquo;hot folder&rdquo; system so integration with client systems is as simple as dropping files into certain folders.</p>
+
+<p>There are some good instructions for setting up AMTU on windows. That&rsquo;s great if you want to run it on your desktop (or a windows server if you are that way inclinded&hellip;. :&ndash;) ). However if you are one of my clients you are running a Linux server and need it setting up on there.</p>
+
+<p>Unfortunately the documentation for AMTU on Linux is pretty lightweight. This blog post aims to help out anyone struggling with getting AMTU working on their server.</p>
+
+<p>Before you start. Open up the README file (just download the package to your local machine). Have a quick read through and then understand that the README is simply wrong. It is a guide at best, but not strict instructions. They definitely haven&rsquo;t made it easy for us.</p>
+
+<p>Speaking to Amazon about this, it is apparent that AMTU was developed by someone who is no longer around to support it. They have released it as open source software and basically left us to it. They are not willing to support it themselves.</p>
+
+<p>Here&rsquo;s my instructions:</p>
+
+<p><strong>1. Log into SSH as root on your server.</strong>
+Using your favourite SSH client. If you use linux you can just use the terminal, definitely my favourite way of handling SSH.</p>
+
+<p><strong>2. Navigate to the root folder that you want to install AMTU to.</strong></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /opt</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>3. Download the AMTU Files</strong></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>mkdir amtu
+</span><span class='line'>
+</span><span class='line'>cd amtu
+</span><span class='line'>
+</span><span class='line'>wget http://freefr.dl.sourceforge.net/sourceforge/amtu/amtu-linux-1.0.9.tar.gz
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>4. Unpack the Archive</strong></p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>tar -xvf amtu-linux-1.0.9.tar.gz
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>5. Edit the config files</strong></p>
+
+<pre><code>&lt;strong&gt;5.1&lt;/strong&gt; Find your JAVA_HOME
+
+This may change depending on what version of Linux you are using. If you are not sure then use the following command to find out:
+
+```
+</code></pre>
+
+<p>cat /etc/issue</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  The following command will show you which Java version you are running. If you are it doesn't work then it looks like you don't have Java installed. Please see &lt;a href="#aa"&gt;&lt;b&gt;Apendix A&lt;/b&gt;&lt;/a&gt; for Java install instructions.
+</span><span class='line'>  
+</span><span class='line'>  ```
+</span><span class='line'> java -version</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>You need to find out the exact path for java. You can use this command:
+
+```
+</code></pre>
+
+<p>find / -name java</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>This will display a few lines. There is usually only one Java folder though with the others being symlinks (shortcuts kind of ) to the Java folder.
+</span><span class='line'>
+</span><span class='line'>&lt;strong&gt;5.2 Edit the Install.sh File&lt;/strong&gt;
+</span><span class='line'>
+</span><span class='line'>First get into the AMTU folder:
+</span><span class='line'>
+</span><span class='line'>```
+</span><span class='line'> cd /opt/amtu/</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>Now make sure you have your path to the JRE noted down somewhere and open up the install.sh for editing. For me the path is /usr/bin/java
+
+```
+</code></pre>
+
+<p> vi install.sh</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(vi is a text editor for linux. If you are not familiar with it simply search for "vi common commands or something like that).
+</span><span class='line'>
+</span><span class='line'>Now go to the top of the file and add a new line. Replace /usr/bin/java with your own path to Java.
+</span><span class='line'>
+</span><span class='line'>```
+</span><span class='line'>
+</span><span class='line'>export JAVA_HOME=/usr/bin/java
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>6. Run the Install Script</strong></p>
+
+<p>First we need to make the install script executable.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> chmod a+x install.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now run the install script.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./install.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>7. Configure AMTU</strong></p>
+
+<p>This is where it gets interesting. AMTU is installed, but you haven&rsquo;t given it any kind of information regarding your Amazon account so how will it be able to connect to your specific account??</p>
+
+<p>You need to use the configure.sh script to do this. For me this wouldn&rsquo;t work until I edited it and ran it manually. There is a configure.sh in the root amtu folder, however all this seems to do is run the configure script in the service folder.</p>
+
+<p>Lets go straight to the service folder and get that one working.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /opt/amtu/service/bin
+</span><span class='line'>
+</span><span class='line'>vi configure.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this file they are mixing up the JAVA_HOME variable and appending /bin/java to it. I&rsquo;m not really sure why they would do this.</p>
+
+<p>First of all try running the script</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>./configure.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you get an error like:</p>
+
+<p>./configure.sh: line 3: /bin/java: No such file or directory</p>
+
+<p>Then you will need to edit the file. For me to get it to work I had to remove the following:</p>
+
+<blockquote>$JAVA_HOME/bin/java</blockquote>
+
+
+<p>and simply replace it with my path to Java which is:</p>
+
+<blockquote>/usr/bin/java</blockquote>
+
+
+<p>Then run the script again and it will ask you a bunch of questions. For most questions the default answers seem fine to me. You will need to know your SMTP details. You will want to log into your seller central account as well so that you can copy relevant details from there.</p>
+
+<p>If it is all successful you should get a message similar to the following:</p>
+
+<blockquote>Please standby while your account details are verified&#8230;
+Ping was successful
+Updating configuration&#8230; done!
+
+To alter this configuration, please use the Configuration Utility in the directory you installed this application.
+
+Exiting Application</blockquote>
+
+
+<p><strong>8. Starting the AMTU and Monitor services</strong>
+To start the amt and amt_monitor services you need to manually start them. You can also check the status of these processes.</p>
+
+<p>First get into the bin folder</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /opt/amtu/service/bin
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>check status</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>./amt status
+</span><span class='line'>
+</span><span class='line'>./amt_monitor status
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If they are not started simply run the start commands</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>./amt start
+</span><span class='line'>
+</span><span class='line'>./amt_monitor start
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Running these two commands should have created some folders in your DocumentTransport folder. To check this out simply go to the folder and check</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /opt/amtu/DocumentTransport
+</span><span class='line'>
+</span><span class='line'>ls
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should see a folder called logs and a folder called production. The production folder contains our Hot Folder for sending files up to Amazon.</p>
+
+<p><strong>7. Set up symlinks</strong>
+Once everything is working nicely, you will probably want to create symlinks from folders accessible by PHP.</p>
+
+<p>Navigate to the place that PHP can access and which you would like to place a symlink to the production/outgoing folder. Then use the following command &ndash; replace the details as necessary</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /home/path/to/php/accessible
+</span><span class='line'>
+</span><span class='line'>ln -s /opt/amtu/DocumentTransport/production/outgoing my_amtu_symlink_folder_name
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>8. Test it Out</strong>
+All you need to do to test it out is to drop a file into the /opt/amtu/DocumentTransport/production/outgoing folder (or the symlink to this folder that you have just created). Then wait 5 minutes (cup of tea time) and come back. Now browse through the production folders. If the file is in the /sent folder then your upload has worked OK. If it is in the /failed folder then something has gone wrong.</p>
+
+<p>If like me it didn&rsquo;t work (surprise surprise) then you need to examine the log files to find out what the problem is. The best log to look in to start with is the audit_log.</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd /opt/amtu/DocumentTransport/logs
+</span><span class='line'>vi amtu_audit.log
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To go to the bottom of the file use the vi shortcut &#8220;`shift
++[g]</p>
+
+<p>As for figuring out exactly why AMTU doesn&rsquo;t like your feed file, I leave that bit to you.</p>
+
+<hr>
+
+
+<p><a name="aa"></a>
+<strong>Appendix</strong></p>
+
+<p><strong>A. Install Java</strong></p>
+
+<p>These are instructions for a CentOS Linux install. Your Linux might be a different flavour. Simply search around for instructions for your specific setup.</p>
+
+<p><strong>A.1 Download JRE</strong></p>
+
+<pre><code>Go &lt;a href="http://java.sun.com/javase/downloads/index.jsp"&gt;to the Java downloads page&lt;/a&gt;
+Find the link to the Linux Java JRE bin. (For CentOS you need the rpm version). Copy the link to your clipboard
+
+[code]
+cd opt
+wget {link from clipboard for JRE download}
+</code></pre>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  This will download the file. However as it is accessed via a script, it will give it a crazy long filename. Lets just rename that first. To rename a file with special characters simply wrap the filename in "" otherwise it won't work.
+</span><span class='line'>
+</span><span class='line'>  ```
+</span><span class='line'>
+</span><span class='line'>  ls
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>now copy the filename to your clipboard
+
+now paste it into this command 
+
+```
+</code></pre>
+
+<p> mv &ldquo;filename from clipboard&rdquo; jre-rpm.bin</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  Now we need to set the file as executable
+</span><span class='line'>
+</span><span class='line'>  ```
+</span><span class='line'> chmod a+x jre-rpm.bin
+</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>Now we install it 
+
+```
+
+./jre-rpm.bin
+</code></pre>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>  This will then flash up a bunch of terms and conditions. Just hold down [return] until you get to the bottom, then type "yes".
+</span><span class='line'>
+</span><span class='line'>  To check its all installed use the command 
+</span><span class='line'>  ```
+</span><span class='line'> java -version</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>You should get something similar to the following:
+
+java version "1.6.0_12"
+Java(TM) SE Runtime Environment (build 1.6.0_12-b04)
+Java HotSpot(TM) Server VM (build 11.2-b01, mixed mode)
+</code></pre>
+
+<p><b>References</b>
+<a href="http://blog.sixsigns.com/2008/02/12/installing-the-latest-jre-6-on-centos-5/" rel="nofollow">installing the latest jre on centos 5</a>
+<a href="http://amtu.sourceforge.net/" rel="nofollow">AMTU Homepage</a>
+<a href="http://sourceforge.net/forum/forum.php?forum_id=405856" rel="nofollow">AMTU Forum &ndash; not much of use in there unfortunately</a></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-17T09:27:02+00:00" pubdate data-updated="true">Mar 17<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/oscommerce/oscommerce-version-3-roadmap.html">osCommerce Version 3 Roadmap</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Harald made a great post on the osCommerce forum that details the roadmap for the project and also includes some great links for developers who want to get involved.</p>
+
+<p>I will definitely be forking the project and seeing what I might be able to contribute.</p>
+
+<p>You can see the full post <a href="http://forums.oscommerce.com/index.php?showtopic=331360&st=0&p=1380487&#entry1380487" rel="nofollow">here</a>.</p>
+
+<p>This is the roadmap and feature list:</p>
+
+<p>New Features</p>
+
+<p>Some of the new features in osCommerce Online Merchant v3.0 Alpha 5 include:</p>
+
+<pre><code>* New object-oriented framework (alpha 1)
+* New installation routine (alpha 1)
+* register_globals and magic_quotes_gpc compatibility (alpha 1)
+* New template structure implementation (alpha 1)
+* Search-engine optimizations (alpha 1)
+* Service modules (alpha 1)
+* Checkout procedure cleanup (alpha 2)
+* New language definitions implementation (alpha 2)
+* Updated payment modules with post-transaction actions (alpha 3)
+* Catalog front-end, administration tool, and installation routine combined (alpha 3)
+* XHTML/CSS based default template layout for the catalog side (alpha 3)
+* Multiple product images implementation (alpha 3)
+* New action modules (alpha 3)
+* Administration Tool access levels (alpha 4)
+* Administrator Log (alpha 4)
+* Administration Tool batch action capabilities (alpha 4)
+* HTML Editor for product descriptions (alpha 4)
+* Full zone entries for most countries (alpha 4; Anders Pamdal)
+* Language injection feature for similar languages (alpha 4)
+* GeoIP Modules for the Administration Tool Who's Online section (alpha 4)
+* Product Attributes and Product Variants implementation (alpha 5)
+* Dynamic Table Listings (Administration Tool) (alpha 5)
+* Live Search (Administration Tool) (alpha 5)
+* Administration Tool sections now self-contained Applications (alpha 5)
+* Error Logging; both PHP and MySQL errors and warnings now logged (forced runtime usage of PHP E_ALL and MySQL STRICT_ALL_TABLES) (alpha5)
+* Stabilized Framework (alpha 5)
+* Usage of JSON for RPC calls (alpha 5)
+* Inclusion of jQuery v1.3.2 and jQuery UI v1.7 (alpha 5)
+</code></pre>
+
+<p>osCommerce Online Merchant v3.0 Roadmap</p>
+
+<p>The roadmap leading up to the final v3.0 release is defined as:</p>
+
+<p>osCommerce Online Merchant v3.0 Beta 1</p>
+
+<pre><code>* HTML E-Mails
+* Purchase Without Account
+* Frozen Framework
+* Updated Frontend/GUI
+* Upgrade from v2.2 and v3.0 Alpha 5
+</code></pre>
+
+<p>osCommerce Online Merchant v3.0</p>
+
+<pre><code>* Finalize Updated Frontend/GUI
+* Documentation
+* Certified Modules
+* Upgrade from v2.2 and v3.0 Beta 1
+</code></pre>
+
+<p>osCommerce Online Merchant v3.1</p>
+
+<pre><code>* Backup/Import/Export Features
+</code></pre>
+
+<p>osCommerce Online Merchant v3.2</p>
+
+<pre><code>* Gift Vouchers and Coupons 
+</code></pre>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-16T09:28:48+00:00" pubdate data-updated="true">Mar 16<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/oscommerce/oscommerce-version-3-system-requirements.html">osCommerce Version 3 System Requirements</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>Harald has released some info about the minimum requirements of osCommerce version 3 alpha on the osCommerce blog <a href="http://blogs.oscommerce.com/2009/03/16/minimum-requirements-for-oscommerce-online-merchant-v30-alpha-5/" rel="nofollow">here</a>.</p>
+
+<p>It requires PHP 5.2 as a minimum (though I would personally recommend avoiding version 5.2.0 and going for the latest version if at all possible.</p>
+
+<p>The major reasons for this are the requirement for the object oriented mysqli interface for PHP and MySQL. It also requires PHP&rsquo;s JSON encode functions.</p>
+
+<p>JSON is a javascript data format a bit like XML or similar. It is used a lot of Web 2.0 style projects with a lot of asynchronous data transfers.</p>
+
+<p>This indicates that we can expect some nice Javascript based asynchronous tools that will hopefully be faster and easier to use than the current osCommerce.</p>
+
+<p>osCommerce is without a doubt one of the most popular open source ecommerce platforms and it is going to be really interesting to see how this new version compares with Magento.</p>
+
+<p>As a long time user, hacker and fan of osCommerce I really wish them all the best of luck.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-13T11:46:27+00:00" pubdate data-updated="true">Mar 13<span>th</span>, 2009</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/cookie-based-302-redirector.html">Cookie Based 302 Redirector</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you have a site that is installed on your live server but for the moment you do not want to go live, this little code snippet will allow you to redirect any visitors who don&rsquo;t have a secret GET variable in the URL to a holding subdomain with a 302 redirect.</p>
+
+<p>A 302 redirect is a temporary redirect. Search engine spiders will see this as a temporary thing and will not remove the original URL from their index.</p>
+
+<p>Just put this at the top of any page you want to protect. For a Magento or any other MVC php site, just putting this on the top of the index.php file will protect the whole system.</p>
+
+<p>Note this isn&rsquo;t real security, its just something to keep the spiders out. Please don&rsquo;t regard it as secure.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;letmein&#39;</span><span class="p">])){</span>
+</span><span class='line'>  <span class="nx">setcookie</span><span class="p">(</span><span class="s1">&#39;letmeinmydomain.com&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_COOKIE</span><span class="p">[</span><span class="s1">&#39;letmeinmydomain.com&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;letmein&#39;</span><span class="p">])){</span>
+</span><span class='line'>  <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;HTTP/1.1 302 Found&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;Location: http://coming-soon.mydomain.com&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">exit</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-12T18:09:02+00:00" pubdate data-updated="true">Mar 12<span>th</span>, 2009</time>
         
       </p>
@@ -315,1001 +1180,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-11T10:41:10+00:00" pubdate data-updated="true">Mar 11<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-500-error-solution.html">Magento 500 Error + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>On a recent clean installation on a 1and1 Linux server for a client, the site was getting 500 errors on every page other than the home page. The fix for this was to add the following line to the .htaccess file in the document root:</p>
-
-<p><b>RewriteBase /</b></p>
-
-<p>Hope this helps someone else out</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>############################################
-</span><span class='line'>## you can put here your magento root folder
-</span><span class='line'>## path relative to web root
-</span><span class='line'>
-</span><span class='line'>    #RewriteBase /magento/
-</span><span class='line'>  RewriteBase /
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-11T08:42:00+00:00" pubdate data-updated="true">Mar 11<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ubuntu/great-desktop-wallpaper-collection.html">Great Desktop Wallpaper Collection</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>I always use this site for my desktop wallpaper..</p>
-
-<p>I love having a nice landscape shot of somewhere beautiful in the background.</p>
-
-<p><a href="http://interfacelift.com/wallpaper_beta/downloads/date/any/" rel="nofollow"><a href="http://interfacelift.com/wallpaper_beta/downloads/date/any/">http://interfacelift.com/wallpaper_beta/downloads/date/any/</a></a></p>
-
-<p>It&rsquo;s great because not only are the pictures really nice, but they are all available in all of the usual desktop resolutions eg 1680x1050.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-10T14:48:16+00:00" pubdate data-updated="true">Mar 10<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-install-problem-solution-sales_flat_quote-already-exists.html">Magento Install Problem + Solution &#8216;Sales_flat_quote&#8217; Already Exists</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Trying to do a clean install of Magento 1.2.1.2 I kept hitting this SQL error.</p>
-
-<p><strong>Base table or view already exists: 1050 Table &lsquo;sales_flat_quote&rsquo; already exists</strong></p>
-
-<p>In the end I opted to manually edit the related install file and add DELETE IF EXISTS statements before each CREATE TABLE statement.</p>
-
-<p>The file in question is located here:</p>
-
-<p><strong>/app/code/core/Mage/Sales/sql/sales_setup</strong></p>
-
-<p>and the problem file is</p>
-
-<p><strong>mysql4-install-0.9.0.php</strong></p>
-
-<p>The solution is to edit the file and add DROP TABLE IF EXISTS statements before each CREATE TABLE statement</p>
-
-<p>eg</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">DROP</span> <span class="nx">TABLE</span> <span class="k">IF</span> <span class="nx">EXISTS</span>  <span class="sb">`{$installer-&gt;getTable(&#39;sales_flat_quote&#39;)}`</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">CREATE</span> <span class="nx">TABLE</span> <span class="sb">`{$installer-&gt;getTable(&#39;sales_flat_quote&#39;)}`</span> <span class="p">(</span><span class="o">.....</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I have created an issue on their bug tracker <a href="http://www.magentocommerce.com/bug-tracking/issue/?issue=5517" rel="nofollow">here</a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-09T10:12:57+00:00" pubdate data-updated="true">Mar 9<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/javascript/neat-lightweight-javascript-table-sorter.html">Neat Lightweight Javascript Table Sorter</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Just came across this link via Twitter &ndash; <a href="http://www.leigeber.com/2009/03/table-sorter/" rel="nofollow">TinyTable</a></p>
-
-<p>A nice simple solution to display table data.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-06T13:26:57+00:00" pubdate data-updated="true">Mar 6<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/zend%20framework/zend-framework-template-renamer-script.html">Zend Framework Template Renamer Script</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Bit hard to describe this one, but if you use Zend Framework along with the MVC functionality, and you also use base classes for your controllers, models etc, you may find that for each controller, model etc the files are pretty much the same apart from the names of the files and the classes.</p>
-
-<p>If this sounds familiar then you might be interested in this little script.</p>
-
-<p>Put the script in a folder that contains a sub folder called TEMPLATE. In the template folder have a skeleton template with controllers, models and views folders. If you wanted to replicate this basic structure x amount of times for each of your controllers, this script will make that procedure a breeze.</p>
-
-<p>There may be other applications for this little utility as well.</p>
-
-<p>(now updated to accepted a # separated list of replacements &ndash; create your entire structure in one move :D)</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-<span class='line-number'>125</span>
-<span class='line-number'>126</span>
-<span class='line-number'>127</span>
-<span class='line-number'>128</span>
-<span class='line-number'>129</span>
-<span class='line-number'>130</span>
-<span class='line-number'>131</span>
-<span class='line-number'>132</span>
-<span class='line-number'>133</span>
-<span class='line-number'>134</span>
-<span class='line-number'>135</span>
-<span class='line-number'>136</span>
-<span class='line-number'>137</span>
-<span class='line-number'>138</span>
-<span class='line-number'>139</span>
-<span class='line-number'>140</span>
-<span class='line-number'>141</span>
-<span class='line-number'>142</span>
-<span class='line-number'>143</span>
-<span class='line-number'>144</span>
-<span class='line-number'>145</span>
-<span class='line-number'>146</span>
-<span class='line-number'>147</span>
-<span class='line-number'>148</span>
-<span class='line-number'>149</span>
-<span class='line-number'>150</span>
-<span class='line-number'>151</span>
-<span class='line-number'>152</span>
-<span class='line-number'>153</span>
-<span class='line-number'>154</span>
-<span class='line-number'>155</span>
-<span class='line-number'>156</span>
-<span class='line-number'>157</span>
-<span class='line-number'>158</span>
-<span class='line-number'>159</span>
-<span class='line-number'>160</span>
-<span class='line-number'>161</span>
-<span class='line-number'>162</span>
-<span class='line-number'>163</span>
-<span class='line-number'>164</span>
-<span class='line-number'>165</span>
-<span class='line-number'>166</span>
-<span class='line-number'>167</span>
-<span class='line-number'>168</span>
-<span class='line-number'>169</span>
-<span class='line-number'>170</span>
-<span class='line-number'>171</span>
-<span class='line-number'>172</span>
-<span class='line-number'>173</span>
-<span class='line-number'>174</span>
-<span class='line-number'>175</span>
-<span class='line-number'>176</span>
-<span class='line-number'>177</span>
-<span class='line-number'>178</span>
-<span class='line-number'>179</span>
-<span class='line-number'>180</span>
-<span class='line-number'>181</span>
-<span class='line-number'>182</span>
-<span class='line-number'>183</span>
-<span class='line-number'>184</span>
-<span class='line-number'>185</span>
-<span class='line-number'>186</span>
-<span class='line-number'>187</span>
-<span class='line-number'>188</span>
-<span class='line-number'>189</span>
-<span class='line-number'>190</span>
-<span class='line-number'>191</span>
-<span class='line-number'>192</span>
-<span class='line-number'>193</span>
-<span class='line-number'>194</span>
-<span class='line-number'>195</span>
-<span class='line-number'>196</span>
-<span class='line-number'>197</span>
-<span class='line-number'>198</span>
-<span class='line-number'>199</span>
-<span class='line-number'>200</span>
-<span class='line-number'>201</span>
-<span class='line-number'>202</span>
-<span class='line-number'>203</span>
-<span class='line-number'>204</span>
-<span class='line-number'>205</span>
-<span class='line-number'>206</span>
-<span class='line-number'>207</span>
-<span class='line-number'>208</span>
-<span class='line-number'>209</span>
-<span class='line-number'>210</span>
-<span class='line-number'>211</span>
-<span class='line-number'>212</span>
-<span class='line-number'>213</span>
-<span class='line-number'>214</span>
-<span class='line-number'>215</span>
-<span class='line-number'>216</span>
-<span class='line-number'>217</span>
-<span class='line-number'>218</span>
-<span class='line-number'>219</span>
-<span class='line-number'>220</span>
-<span class='line-number'>221</span>
-<span class='line-number'>222</span>
-<span class='line-number'>223</span>
-<span class='line-number'>224</span>
-<span class='line-number'>225</span>
-<span class='line-number'>226</span>
-<span class='line-number'>227</span>
-<span class='line-number'>228</span>
-<span class='line-number'>229</span>
-<span class='line-number'>230</span>
-<span class='line-number'>231</span>
-<span class='line-number'>232</span>
-<span class='line-number'>233</span>
-<span class='line-number'>234</span>
-<span class='line-number'>235</span>
-<span class='line-number'>236</span>
-<span class='line-number'>237</span>
-<span class='line-number'>238</span>
-<span class='line-number'>239</span>
-<span class='line-number'>240</span>
-<span class='line-number'>241</span>
-<span class='line-number'>242</span>
-<span class='line-number'>243</span>
-<span class='line-number'>244</span>
-<span class='line-number'>245</span>
-<span class='line-number'>246</span>
-<span class='line-number'>247</span>
-<span class='line-number'>248</span>
-<span class='line-number'>249</span>
-<span class='line-number'>250</span>
-<span class='line-number'>251</span>
-<span class='line-number'>252</span>
-<span class='line-number'>253</span>
-<span class='line-number'>254</span>
-<span class='line-number'>255</span>
-<span class='line-number'>256</span>
-<span class='line-number'>257</span>
-<span class='line-number'>258</span>
-<span class='line-number'>259</span>
-<span class='line-number'>260</span>
-<span class='line-number'>261</span>
-<span class='line-number'>262</span>
-<span class='line-number'>263</span>
-<span class='line-number'>264</span>
-<span class='line-number'>265</span>
-<span class='line-number'>266</span>
-<span class='line-number'>267</span>
-<span class='line-number'>268</span>
-<span class='line-number'>269</span>
-<span class='line-number'>270</span>
-<span class='line-number'>271</span>
-<span class='line-number'>272</span>
-<span class='line-number'>273</span>
-<span class='line-number'>274</span>
-<span class='line-number'>275</span>
-<span class='line-number'>276</span>
-<span class='line-number'>277</span>
-<span class='line-number'>278</span>
-<span class='line-number'>279</span>
-<span class='line-number'>280</span>
-<span class='line-number'>281</span>
-<span class='line-number'>282</span>
-<span class='line-number'>283</span>
-<span class='line-number'>284</span>
-<span class='line-number'>285</span>
-<span class='line-number'>286</span>
-<span class='line-number'>287</span>
-<span class='line-number'>288</span>
-<span class='line-number'>289</span>
-<span class='line-number'>290</span>
-<span class='line-number'>291</span>
-<span class='line-number'>292</span>
-<span class='line-number'>293</span>
-<span class='line-number'>294</span>
-<span class='line-number'>295</span>
-<span class='line-number'>296</span>
-<span class='line-number'>297</span>
-<span class='line-number'>298</span>
-<span class='line-number'>299</span>
-<span class='line-number'>300</span>
-<span class='line-number'>301</span>
-<span class='line-number'>302</span>
-<span class='line-number'>303</span>
-<span class='line-number'>304</span>
-<span class='line-number'>305</span>
-<span class='line-number'>306</span>
-<span class='line-number'>307</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="cm">/* This is a simple script designed to be run in a folder that contains a TEMPLATE folder</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * the template folder shoudl contain  your folder structure for your zend framework app.</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * Normally this will be something like the format:</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * controllers/item.php</span>
-</span><span class='line'><span class="cm"> * models/item.php</span>
-</span><span class='line'><span class="cm"> * models/db_table/item.php</span>
-</span><span class='line'><span class="cm"> * views/scripts/</span>
-</span><span class='line'><span class="cm"> *   blah.php</span>
-</span><span class='line'><span class="cm"> *   yada.php</span>
-</span><span class='line'><span class="cm"> *   etc.php</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * The script will take this template of folders and files and will find and will create a new folder structure in which all the filenames have been changed and within the files, a batch of finds and replaces have been done.</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * The idea is that this then gives you a starting point for your ZF app. This works especially well if each controller, model etc inherits from a custom base_controller or base_model.</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * hope it helps someone out :-)</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * Joseph</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * edmondscommerce.co.uk</span>
-</span><span class='line'><span class="cm"> * </span>
-</span><span class='line'><span class="cm"> * */</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;replaceme&#39;</span><span class="p">])){</span>
-</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">  &lt;form&gt;</span>
-</span><span class='line'><span class="x">&lt;h3&gt;Set Find and Replace - Please Input Upper Cased - lower cased will be automatically replaced as well&lt;/h3&gt;</span>
-</span><span class='line'><span class="x">&lt;b&gt;Find:&lt;/b&gt; &lt;input name=&quot;findme&quot;&gt; &lt;b&gt;Replace:&lt;/b&gt; &lt;input name=&quot;replaceme&quot;&gt; &lt;input type=&quot;submit&quot; value=&quot;go&quot;&gt;&lt;/form&gt;</span>
-</span><span class='line'><span class="x">&lt;h3&gt;To Do A List of Replacemes - use a # separated list&lt;/h3&gt;</span>
-</span><span class='line'><span class="cp">&lt;?php</span>
-</span><span class='line'>  <span class="k">exit</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="nv">$fm</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;findme&#39;</span><span class="p">];</span>
-</span><span class='line'><span class="nv">$rms</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;replaceme&#39;</span><span class="p">]);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">error_reporting</span><span class="p">(</span><span class="k">E_ALL</span> <span class="o">^</span> <span class="nx">E_NOTICE</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$debug</span> <span class="o">=</span> <span class="k">true</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/*</span>
-</span><span class='line'><span class="cm">$fm = &#39;findMe&#39;;</span>
-</span><span class='line'><span class="cm">$rm = &#39;replaceMe&#39;;</span>
-</span><span class='line'><span class="cm">*/</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/*get root current working directory*/</span>
-</span><span class='line'><span class="nv">$cwd</span> <span class="o">=</span> <span class="nb">getcwd</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/*output folder */</span>
-</span><span class='line'><span class="nv">$of</span> <span class="o">=</span> <span class="s1">&#39;OUTPUT&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$of</span><span class="p">)){</span>
-</span><span class='line'>  <span class="nx">delete</span><span class="p">(</span><span class="nv">$of</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="nb">mkdir</span><span class="p">(</span><span class="nv">$of</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$rms</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$rm</span><span class="p">){</span>
-</span><span class='line'>  <span class="k">echo</span> <span class="s1">&#39;&lt;h1&gt;&#39;</span> <span class="o">.</span> <span class="nv">$rm</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h1&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>  <span class="cm">/* First create a sub folder to put our new structure in */</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>  <span class="cm">/*template path */</span>
-</span><span class='line'>  <span class="nv">$template</span> <span class="o">=</span> <span class="nv">$cwd</span> <span class="o">.</span> <span class="s1">&#39;/TEMPLATE/&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="cm">/*copy template to output */</span>
-</span><span class='line'>  <span class="c1">//if($k === 0){</span>
-</span><span class='line'>      <span class="nx">dir_copy</span><span class="p">(</span><span class="s1">&#39;TEMPLATE&#39;</span><span class="p">,</span> <span class="nv">$of</span><span class="p">);</span>
-</span><span class='line'>  <span class="c1">//}</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="cm">/* Now get output structure */</span>
-</span><span class='line'>  <span class="nv">$dirlist</span> <span class="o">=</span> <span class="nx">dir_list</span><span class="p">(</span><span class="nv">$of</span><span class="p">);</span>
-</span><span class='line'>  <span class="nx">dbug</span><span class="p">(</span><span class="nv">$dirlist</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="cm">/*now jump into the output folder */</span>
-</span><span class='line'>  <span class="nb">chdir</span><span class="p">(</span><span class="nv">$of</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="cm">/*Now loop through, rename the file and then find and replace the contents */</span>
-</span><span class='line'>  <span class="nx">replace_rename</span><span class="p">(</span><span class="nv">$dirlist</span><span class="p">,</span> <span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="cm">/* Jump back to the main cwd */</span>
-</span><span class='line'>  <span class="nb">chdir</span><span class="p">(</span><span class="nv">$cwd</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="c1">######## FUNCTIONS #########</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">function</span> <span class="nf">replace_rename</span><span class="p">(</span><span class="nv">$array</span><span class="p">,</span> <span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">){</span>
-</span><span class='line'>  <span class="nv">$chdir</span> <span class="o">=</span> <span class="nb">getcwd</span><span class="p">();</span>
-</span><span class='line'>  <span class="k">foreach</span><span class="p">(</span><span class="nv">$array</span> <span class="k">as</span> <span class="nv">$k</span><span class="o">=&gt;</span><span class="nv">$v</span><span class="p">){</span>
-</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="nb">is_int</span><span class="p">(</span><span class="nv">$k</span><span class="p">)){</span>
-</span><span class='line'>          <span class="c1">//its a file</span>
-</span><span class='line'>          <span class="nv">$newfile</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nx">strtolower</span><span class="p">(</span><span class="nv">$fm</span><span class="p">),</span> <span class="nx">strtolower</span><span class="p">(</span><span class="nv">$rm</span><span class="p">),</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">,</span> <span class="nv">$v</span><span class="p">));</span>
-</span><span class='line'>          <span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Renaming </span><span class="si">$v</span><span class="s2"> to </span><span class="si">$newfile</span><span class="s2">&quot;</span><span class="p">);</span>
-</span><span class='line'>          <span class="nb">rename</span><span class="p">(</span><span class="nv">$v</span><span class="p">,</span> <span class="nv">$newfile</span><span class="p">);</span>
-</span><span class='line'>          <span class="nx">done</span><span class="p">();</span>
-</span><span class='line'>          <span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Replacing Contents of </span><span class="si">$newfile</span><span class="s2">&quot;</span><span class="p">);</span>
-</span><span class='line'>          <span class="nv">$fc</span> <span class="o">=</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$newfile</span><span class="p">);</span>
-</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$fc</span><span class="p">)){</span>
-</span><span class='line'>              <span class="nx">err</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">$newfile</span><span class="s2"> empty&quot;</span><span class="p">);</span>
-</span><span class='line'>              <span class="k">exit</span><span class="p">;</span>
-</span><span class='line'>          <span class="p">}</span>
-</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">stristr</span><span class="p">(</span><span class="nv">$fc</span><span class="p">,</span> <span class="nv">$fm</span><span class="p">)){</span>
-</span><span class='line'>              <span class="nx">err</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">$fm</span><span class="s2"> not found in this file... should it have been?&quot;</span><span class="p">);</span>
-</span><span class='line'>          <span class="p">}</span>
-</span><span class='line'>          <span class="nv">$newcontents</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nx">strtolower</span><span class="p">(</span><span class="nv">$fm</span><span class="p">),</span> <span class="nx">strtolower</span><span class="p">(</span><span class="nv">$rm</span><span class="p">),</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">,</span> <span class="nv">$fc</span><span class="p">));</span>
-</span><span class='line'>          <span class="nb">file_put_contents</span><span class="p">(</span><span class="nv">$newfile</span><span class="p">,</span> <span class="nv">$newcontents</span><span class="p">);</span>     
-</span><span class='line'>          <span class="nx">done</span><span class="p">();</span>  
-</span><span class='line'>      <span class="p">}</span><span class="k">else</span><span class="p">{</span>
-</span><span class='line'>          <span class="nv">$newfolder</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nx">strtolower</span><span class="p">(</span><span class="nv">$fm</span><span class="p">),</span> <span class="nx">strtolower</span><span class="p">(</span><span class="nv">$rm</span><span class="p">),</span> <span class="nb">str_replace</span><span class="p">(</span><span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">,</span> <span class="nv">$k</span><span class="p">));</span>
-</span><span class='line'>          <span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Renaming </span><span class="si">$k</span><span class="s2"> to </span><span class="si">$newfile</span><span class="s2">&quot;</span><span class="p">);</span>
-</span><span class='line'>          <span class="nb">rename</span><span class="p">(</span><span class="nv">$k</span><span class="p">,</span> <span class="nv">$newfolder</span><span class="p">);</span>
-</span><span class='line'>          <span class="nx">done</span><span class="p">();</span>
-</span><span class='line'>          <span class="nv">$jumpin</span> <span class="o">=</span> <span class="nv">$chdir</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$newfolder</span><span class="p">;</span>
-</span><span class='line'>          <span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Jumping to </span><span class="si">$jumpin</span><span class="s2">&quot;</span><span class="p">);</span>
-</span><span class='line'>          <span class="nb">chdir</span><span class="p">(</span><span class="nv">$jumpin</span><span class="p">);</span>
-</span><span class='line'>          <span class="nx">done</span><span class="p">();</span>
-</span><span class='line'>          <span class="c1">//its a folder</span>
-</span><span class='line'>          <span class="nx">h3</span><span class="p">(</span><span class="s2">&quot;Now Recursing into </span><span class="si">$k</span><span class="s2">&quot;</span><span class="p">);</span>
-</span><span class='line'>          <span class="k">echo</span> <span class="s1">&#39;&lt;blockquote&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>          <span class="nx">replace_rename</span><span class="p">(</span><span class="nv">$v</span><span class="p">,</span> <span class="nv">$fm</span><span class="p">,</span> <span class="nv">$rm</span><span class="p">);</span>
-</span><span class='line'>          <span class="k">echo</span> <span class="s1">&#39;&lt;/blockquote&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>          <span class="nx">done</span><span class="p">();</span>
-</span><span class='line'>          <span class="nb">chdir</span><span class="p">(</span><span class="nv">$chdir</span><span class="p">);</span>
-</span><span class='line'>      <span class="p">}</span>    
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="nb">chdir</span><span class="p">(</span><span class="nv">$chdir</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// http://uk3.php.net/copy</span>
-</span><span class='line'><span class="k">function</span> <span class="nf">dir_copy</span><span class="p">(</span><span class="nv">$srcdir</span><span class="p">,</span> <span class="nv">$dstdir</span><span class="p">,</span> <span class="nv">$offset</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$verbose</span> <span class="o">=</span> <span class="k">true</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="c1">// A function to copy files from one directory to another one, including subdirectories and</span>
-</span><span class='line'>    <span class="c1">// nonexisting or newer files. Function returns number of files copied.</span>
-</span><span class='line'>    <span class="c1">// This function is PHP implementation of Windows xcopy  A:\dir1\* B:\dir2 /D /E /F /H /R /Y</span>
-</span><span class='line'>    <span class="c1">// Syntaxis: [$returnstring =] dircopy($sourcedirectory, $destinationdirectory [, $offset] [, $verbose]);</span>
-</span><span class='line'>    <span class="c1">// Example: $num = dircopy(&#39;A:\dir1&#39;, &#39;B:\dir2&#39;, 1);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Original by SkyEye.  Remake by AngelKiha.</span>
-</span><span class='line'>    <span class="c1">// Linux compatibility by marajax.</span>
-</span><span class='line'>    <span class="c1">// ([danbrown AT php DOT net): *NIX-compatibility noted by Belandi.]</span>
-</span><span class='line'>    <span class="c1">// Offset count added for the possibilty that it somehow miscounts your files.  This is NOT required.</span>
-</span><span class='line'>    <span class="c1">// Remake returns an explodable string with comma differentiables, in the order of:</span>
-</span><span class='line'>    <span class="c1">// Number copied files, Number of files which failed to copy, Total size (in bytes) of the copied files,</span>
-</span><span class='line'>    <span class="c1">// and the files which fail to copy.  Example: 5,2,150000,\SOMEPATH\SOMEFILE.EXT|\SOMEPATH\SOMEOTHERFILE.EXT</span>
-</span><span class='line'>    <span class="c1">// If you feel adventurous, or have an error reporting system that can log the failed copy files, they can be</span>
-</span><span class='line'>    <span class="c1">// exploded using the | differentiable, after exploding the result string.</span>
-</span><span class='line'>    <span class="c1">//</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$offset</span><span class="p">))</span> <span class="nv">$offset</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="nv">$num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="nv">$fail</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="nv">$sizetotal</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="nv">$fifail</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$dstdir</span><span class="p">))</span> <span class="nb">mkdir</span><span class="p">(</span><span class="nv">$dstdir</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$curdir</span> <span class="o">=</span> <span class="nb">opendir</span><span class="p">(</span><span class="nv">$srcdir</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">while</span><span class="p">(</span><span class="nv">$file</span> <span class="o">=</span> <span class="nb">readdir</span><span class="p">(</span><span class="nv">$curdir</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span><span class="p">(</span><span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;..&#39;</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="c1">//                $srcfile = $srcdir . &#39;\\&#39; . $file;    # deleted by marajax</span>
-</span><span class='line'><span class="c1">//                $dstfile = $dstdir . &#39;\\&#39; . $file;    # deleted by marajax</span>
-</span><span class='line'>                <span class="nv">$srcfile</span> <span class="o">=</span> <span class="nv">$srcdir</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">;</span>    <span class="c1"># added by marajax</span>
-</span><span class='line'>                <span class="nv">$dstfile</span> <span class="o">=</span> <span class="nv">$dstdir</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">;</span>    <span class="c1"># added by marajax</span>
-</span><span class='line'>                <span class="k">if</span><span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="k">if</span><span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">))</span> <span class="nv">$ow</span> <span class="o">=</span> <span class="nb">filemtime</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">)</span> <span class="o">-</span> <span class="nb">filemtime</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">);</span> <span class="k">else</span> <span class="nv">$ow</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>                    <span class="k">if</span><span class="p">(</span><span class="nv">$ow</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                        <span class="k">if</span><span class="p">(</span><span class="nv">$verbose</span><span class="p">)</span> <span class="k">echo</span> <span class="s2">&quot;Copying &#39;</span><span class="si">$srcfile</span><span class="s2">&#39; to &#39;</span><span class="si">$dstfile</span><span class="s2">&#39;...&lt;br /&gt;&quot;</span><span class="p">;</span>
-</span><span class='line'>                        <span class="k">if</span><span class="p">(</span><span class="nb">copy</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">,</span> <span class="nv">$dstfile</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>                            <span class="nb">touch</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">,</span> <span class="nb">filemtime</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">));</span> <span class="nv">$num</span><span class="o">++</span><span class="p">;</span>
-</span><span class='line'>                            <span class="nb">chmod</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">,</span> <span class="mo">0777</span><span class="p">);</span>    <span class="c1"># added by marajax</span>
-</span><span class='line'>                            <span class="nv">$sizetotal</span> <span class="o">=</span> <span class="p">(</span><span class="nv">$sizetotal</span> <span class="o">+</span> <span class="nb">filesize</span><span class="p">(</span><span class="nv">$dstfile</span><span class="p">));</span>
-</span><span class='line'>                            <span class="k">if</span><span class="p">(</span><span class="nv">$verbose</span><span class="p">)</span> <span class="k">echo</span> <span class="s2">&quot;OK</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
-</span><span class='line'>                        <span class="p">}</span>
-</span><span class='line'>                        <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>                            <span class="k">echo</span> <span class="s2">&quot;Error: File &#39;</span><span class="si">$srcfile</span><span class="s2">&#39; could not be copied!&lt;br /&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
-</span><span class='line'>                            <span class="nv">$fail</span><span class="o">++</span><span class="p">;</span>
-</span><span class='line'>                            <span class="nv">$fifail</span> <span class="o">=</span> <span class="nv">$fifail</span><span class="o">.</span><span class="nv">$srcfile</span><span class="o">.</span><span class="s1">&#39;|&#39;</span><span class="p">;</span>
-</span><span class='line'>                        <span class="p">}</span>
-</span><span class='line'>                    <span class="p">}</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="nv">$res</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="nv">$ret</span><span class="p">);</span>
-</span><span class='line'><span class="c1">//                    $ret = dircopy($srcfile, $dstfile, $verbose); # deleted by patrick</span>
-</span><span class='line'>                    <span class="nv">$ret</span> <span class="o">=</span> <span class="nx">dir_copy</span><span class="p">(</span><span class="nv">$srcfile</span><span class="p">,</span> <span class="nv">$dstfile</span><span class="p">,</span> <span class="nv">$verbose</span><span class="p">);</span> <span class="c1"># added by patrick</span>
-</span><span class='line'>                    <span class="nv">$mod</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="nv">$ret</span><span class="p">);</span>
-</span><span class='line'>                    <span class="nv">$imp</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="nv">$res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nv">$mod</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nv">$mod</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nv">$res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nv">$mod</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="nv">$res</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="nv">$mod</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="nv">$res</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
-</span><span class='line'>                    <span class="nv">$ret</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="nv">$imp</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nb">closedir</span><span class="p">(</span><span class="nv">$curdir</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="nv">$red</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="nv">$ret</span><span class="p">);</span>
-</span><span class='line'>    <span class="nv">$ret</span> <span class="o">=</span> <span class="p">(</span><span class="nv">$num</span> <span class="o">+</span> <span class="nv">$red</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="p">((</span><span class="nv">$fail</span><span class="o">-</span><span class="nv">$offset</span><span class="p">)</span> <span class="o">+</span> <span class="nv">$red</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="p">(</span><span class="nv">$sizetotal</span> <span class="o">+</span> <span class="nv">$red</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="nv">$fifail</span><span class="o">.</span><span class="nv">$red</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$ret</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">function</span> <span class="nf">dir_list</span><span class="p">(</span><span class="nv">$directory</span><span class="p">){</span>
-</span><span class='line'>  <span class="c1">//echo $directory;</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nv">$handle</span> <span class="o">=</span> <span class="nb">opendir</span><span class="p">(</span><span class="nv">$directory</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">while</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="p">(</span><span class="nv">$file</span> <span class="o">=</span> <span class="nb">readdir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">)))</span> <span class="p">{</span>
-</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$file</span> <span class="o">!=</span> <span class="s1">&#39;..&#39;</span><span class="p">){</span>
-</span><span class='line'>              <span class="k">if</span><span class="p">(</span><span class="nb">is_dir</span><span class="p">(</span><span class="nv">$directory</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$file</span><span class="p">)){</span>
-</span><span class='line'>                  <span class="nv">$return</span><span class="p">[</span><span class="nv">$file</span><span class="p">]</span><span class="o">=</span><span class="nx">dir_list</span><span class="p">(</span><span class="nv">$directory</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span> <span class="o">.</span> <span class="nv">$file</span> <span class="o">.</span> <span class="s1">&#39;/&#39;</span><span class="p">);</span>
-</span><span class='line'>              <span class="p">}</span><span class="k">else</span><span class="p">{</span>
-</span><span class='line'>                  <span class="nv">$return</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$file</span><span class="p">;</span>
-</span><span class='line'>              <span class="p">}</span>
-</span><span class='line'>          <span class="p">}</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>      <span class="nb">closedir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">);</span>
-</span><span class='line'>      <span class="k">return</span> <span class="nv">$return</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span><span class="k">else</span><span class="p">{</span>     
-</span><span class='line'>      <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//recursive delete file/folder</span>
-</span><span class='line'><span class="k">function</span> <span class="nf">delete</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">,</span> <span class="nv">$folder_empty</span> <span class="o">=</span> <span class="s1">&#39;delete&#39;</span><span class="p">){</span>
-</span><span class='line'>  <span class="c1">// Sanity check</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">echo</span> <span class="s1">&#39;&lt;h3 style=&quot;color: red;&quot;&gt;File &#39;</span> <span class="o">.</span> <span class="nv">$dirname</span> <span class="o">.</span> <span class="s1">&#39; does not exist&lt;/h3&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>      <span class="c1">//bottom();</span>
-</span><span class='line'>      <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// Simple delete for a file</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="nb">unlink</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// Loop through the folder</span>
-</span><span class='line'>  <span class="nv">$dir</span> <span class="o">=</span> <span class="nx">dir</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">while</span> <span class="p">(</span><span class="k">false</span> <span class="o">!==</span> <span class="nv">$entry</span> <span class="o">=</span> <span class="nv">$dir</span><span class="o">-&gt;</span><span class="na">read</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>      <span class="c1">// Skip pointers</span>
-</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nv">$entry</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span> <span class="o">||</span> <span class="nv">$entry</span> <span class="o">==</span> <span class="s1">&#39;..&#39;</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>          <span class="k">continue</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>      <span class="c1">// Recurse</span>
-</span><span class='line'>      <span class="nx">delete</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">$dirname</span><span class="s2">/</span><span class="si">$entry</span><span class="s2">&quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span><span class="c1">// end while looping</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// Clean up</span>
-</span><span class='line'>  <span class="nv">$dir</span><span class="o">-&gt;</span><span class="na">close</span><span class="p">();</span>
-</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="nv">$folder_empty</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">){</span>
-</span><span class='line'>      <span class="k">return</span> <span class="nb">rmdir</span><span class="p">(</span><span class="nv">$dirname</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span><span class="k">else</span><span class="p">{</span>
-</span><span class='line'>      <span class="c1">//just empty the folder, don&#39;t actually delete it</span>
-</span><span class='line'>      <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//DEbug Functions</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//convert tabs to spaces</span>
-</span><span class='line'><span class="k">function</span> <span class="nf">tab2space</span><span class="p">(</span><span class="nv">$text</span><span class="p">,</span> <span class="nv">$spaces</span> <span class="o">=</span> <span class="mi">4</span><span class="p">){</span>
-</span><span class='line'>  <span class="nv">$text</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="s1">&#39;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&#39;</span><span class="p">,</span> <span class="nv">$text</span><span class="p">);</span>
-</span><span class='line'>  <span class="nv">$text</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s1">&#39;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&#39;</span><span class="p">,</span> <span class="nv">$text</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nv">$text</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//return name of variable passed by reference</span>
-</span><span class='line'><span class="k">function</span> <span class="nf">vname</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$var</span><span class="p">,</span> <span class="nv">$scope</span><span class="o">=</span><span class="k">false</span><span class="p">){</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$scope</span><span class="p">)</span> <span class="nv">$vals</span> <span class="o">=</span> <span class="nv">$scope</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">else</span>      <span class="nv">$vals</span> <span class="o">=</span> <span class="nv">$GLOBALS</span><span class="p">;</span>
-</span><span class='line'>    <span class="nv">$old</span> <span class="o">=</span> <span class="nv">$var</span><span class="p">;</span>
-</span><span class='line'>  <span class="nv">$new</span> <span class="o">=</span> <span class="s1">&#39;THISONE&#39;</span><span class="p">;</span>
-</span><span class='line'>  <span class="nv">$var</span> <span class="o">=</span> <span class="nv">$new</span><span class="p">;</span>
-</span><span class='line'>  <span class="nv">$vname</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">foreach</span><span class="p">(</span><span class="nv">$vals</span> <span class="k">as</span> <span class="nv">$key</span> <span class="o">=&gt;</span> <span class="nv">$val</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="nv">$val</span> <span class="o">!==</span><span class="s1">&#39;var&#39;</span><span class="p">){</span>
-</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nv">$val</span> <span class="o">===</span> <span class="nv">$new</span><span class="p">)</span> <span class="nv">$vname</span> <span class="o">=</span> <span class="nv">$key</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="nv">$var</span> <span class="o">=</span> <span class="nv">$old</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$vname</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">function</span> <span class="nf">dbug</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$item</span><span class="p">,</span> <span class="nv">$scope</span><span class="o">=</span><span class="k">false</span><span class="p">){</span>
-</span><span class='line'>  <span class="k">global</span> <span class="nv">$debug</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nv">$debug</span><span class="p">){</span>
-</span><span class='line'>      <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="nv">$vname</span> <span class="o">=</span> <span class="nx">vname</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$item</span><span class="p">,</span><span class="nv">$scope</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">echo</span> <span class="s1">&#39;&lt;hr&gt;&lt;h3&gt;Debug Info: $&#39;</span> <span class="o">.</span> <span class="nv">$vname</span>  <span class="o">.</span> <span class="s1">&#39;&lt;/h3&gt;&#39;</span> <span class="o">.</span> <span class="nx">tab2space</span><span class="p">(</span><span class="nb">nl2br</span><span class="p">(</span><span class="nb">htmlentities</span><span class="p">(</span><span class="nb">var_export</span><span class="p">(</span><span class="nv">$item</span><span class="p">,</span> <span class="k">true</span><span class="p">))))</span> <span class="o">.</span> <span class="s1">&#39;&lt;hr&gt;&#39;</span><span class="p">;</span> 
-</span><span class='line'>  <span class="nb">flush</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">function</span> <span class="nf">done</span><span class="p">(){</span>
-</span><span class='line'>  <span class="k">echo</span> <span class="s1">&#39;&lt;h3 style=&quot;color: green;&quot;&gt;Done..&lt;/h3&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">function</span> <span class="nf">h3</span><span class="p">(</span><span class="nv">$text</span><span class="p">){</span>
-</span><span class='line'>  <span class="k">echo</span> <span class="s1">&#39;&lt;h3&gt;&#39;</span> <span class="o">.</span> <span class="nv">$text</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h3&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>  <span class="nb">flush</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">function</span> <span class="nf">err</span><span class="p">(</span><span class="nv">$text</span><span class="p">){</span>
-</span><span class='line'>  <span class="k">echo</span> <span class="s1">&#39;&lt;h3 style=&quot;color: red;&quot;&gt;&#39;</span> <span class="o">.</span> <span class="nv">$text</span> <span class="o">.</span> <span class="s1">&#39;&lt;/h3&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-06T09:51:24+00:00" pubdate data-updated="true">Mar 6<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ubuntu/hardware-information-in-ubuntu.html">Hardware Information in Ubuntu</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Need to know your RAM clock speed, or some other bit of hardware info&hellip;</p>
-
-<p>This simple command will give you all the info you need:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>sudo lshw
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Thanks to the friendly people on the Ubuntu IRC channel on freenode for the tip :&ndash;)</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2009-03-04T17:07:19+00:00" pubdate data-updated="true">Mar 4<span>th</span>, 2009</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-class-for-facebook.html">PHP Class for Facebook</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Just came across this <a href="http://www.stylephp.com/2009/02/28/a-php-class-for-facebook-application-developer/" rel="nofollow">blog post featuring a PHP helper class for Facebook application developers</a>. Not something I am planning on getting into for the moment but its bound to come up at some point..</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1333,15 +1203,15 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
+    <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
+    <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
-    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
   </div>
 </section>
@@ -1422,7 +1292,7 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2015 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

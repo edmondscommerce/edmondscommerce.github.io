@@ -128,6 +128,681 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-12T11:25:16+00:00" pubdate data-updated="true">Nov 12<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/geany/geany-text-editor-remove-hash-comments.html">Geany Text Editor Remove Hash Comments</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I recently needed to quickly remove some commented lines from a .htaccess file using Geany (a really nice lightweight IDE or feature rich text editor depending on your point of view).</p>
+
+<p>Geany has some powerful regex replace functionality in there but I found that it was overly aggressive so removed lines that had more than one hash and were in fact title sections that needed to stay intact.</p>
+
+<p>The working formula was:</p>
+
+<p>Search for:
+<code>
+^<a href="[^#]">#</a>
+</code></p>
+
+<p>And replace with:</p>
+
+<p><code>\1</code></p>
+
+<p>And of course tick the regex box.</p>
+
+<p><img src="/assets/geany.png"></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-09T17:34:45+00:00" pubdate data-updated="true">Nov 9<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/setting-up-database-testing-in-phpunit.html">Setting Up Database Testing in PHPUnit</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I have recently been trying to write unit tests for a piece of code that reads and writes to a database.</p>
+
+<p>As I have spent far too much time trying to get this to work, this is here to act as an <em>aide-mémoire </em>for the next time that I have to do this.</p>
+
+<p>This is the actual class that is used</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="k">require_once</span> <span class="nx">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/DataPump.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="sd">/**</span>
+</span><span class='line'><span class="sd"> * These are required to ensure that the PDO object in the class is able to work correctly</span>
+</span><span class='line'><span class="sd"> * @backupGlobals disabled</span>
+</span><span class='line'><span class="sd"> * @backupStaticAttributes disabled</span>
+</span><span class='line'><span class="sd"> */</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">DataPumpTest</span> <span class="k">extends</span> <span class="nx">PHPUnit_Extensions_Database_TestCase</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * This is the object that will be tested</span>
+</span><span class='line'><span class="sd">     * @var DataPump</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="k">protected</span> <span class="nv">$object</span><span class="p">;</span>
+</span><span class='line'><span class="err"> </span> <span class="err">  </span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * only instantiate pdo once for test clean-up/fixture load</span>
+</span><span class='line'><span class="sd">     * @var PDO</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="k">static</span> <span class="k">private</span> <span class="nv">$pdo</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test</span>
+</span><span class='line'><span class="sd">     * @var type </span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="k">private</span> <span class="nv">$conn</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Sets up the fixture, for example, opens a network connection.</span>
+</span><span class='line'><span class="sd">     * This method is called before a test is executed.</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="k">protected</span> <span class="k">function</span> <span class="nf">setUp</span><span class="p">()</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">{</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">object</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DataPump</span><span class="p">;</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Tears down the fixture, for example, closes a network connection.</span>
+</span><span class='line'><span class="sd">     * This method is called after a test is executed.</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="k">protected</span> <span class="k">function</span> <span class="nf">tearDown</span><span class="p">()</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">{</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err">  </span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">}</span>
+</span><span class='line'><span class="err"> </span> <span class="err">  </span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="k">protected</span> <span class="k">function</span> <span class="nf">getConnection</span><span class="p">()</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">{</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">conn</span> <span class="o">===</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="k">if</span> <span class="p">(</span><span class="nx">self</span><span class="o">::</span><span class="nv">$pdo</span> <span class="o">==</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nx">self</span><span class="o">::</span><span class="nv">$pdo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PDO</span><span class="p">(</span><span class="s1">&#39;mysql:dbname=testing_database;host=localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;dbUserName&#39;</span><span class="p">,</span> <span class="s1">&#39;dbPassword&#39;</span><span class="p">);;</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="p">}</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">conn</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">createDefaultDBConnection</span><span class="p">(</span><span class="nx">self</span><span class="o">::</span><span class="nv">$pdo</span><span class="p">,</span> <span class="s1">&#39;ross_testing&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="p">}</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">conn</span><span class="p">;</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="k">protected</span> <span class="k">function</span> <span class="nf">getDataSet</span><span class="p">()</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">{</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">createMySQLXMLDataSet</span><span class="p">(</span><span class="nx">__DIR__</span> <span class="o">.</span> <span class="s1">&#39;/datapump.xml&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * This is here to ensure that the database is working correctly</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="k">public</span> <span class="k">function</span> <span class="nf">testDataBaseConnection</span><span class="p">()</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">{</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err">  </span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getConnection</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">createDataSet</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">&#39;products&#39;</span><span class="p">));</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nv">$prod</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getDataSet</span><span class="p">();</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nv">$queryTable</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getConnection</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">createQueryTable</span><span class="p">(</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="s1">&#39;products&#39;</span><span class="p">,</span> <span class="s1">&#39;SELECT * FROM products&#39;</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="p">);</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nv">$expectedTable</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getDataSet</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getTable</span><span class="p">(</span><span class="s1">&#39;products&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="c1">//Here we check that the table in the database matches the data in the XML file</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">assertTablesEqual</span><span class="p">(</span><span class="nv">$expectedTable</span><span class="p">,</span> <span class="nv">$queryTable</span><span class="p">);</span>
+</span><span class='line'><span class="err"> </span> <span class="err"> </span> <span class="p">}</span>
+</span><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * This is where you can put your actual tests</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The following steps need to be taken to get everything here to work.</p>
+
+<p>You need to create the testing database and tables before you can do anything else. This includes the tables that you will be reading from and the tables that you will eventually write to.</p>
+
+<p>You then need to create an XML file for the data that you are expecting. I suggest checking that the data from the read table is included in this, so you can confirm that you are working with the correct data.</p>
+
+<p>You can generate the data that is already in the database using the following command
+<code>
+mysqldump &mdash;xml -t -u username -p testing_database products > datapump.xml
+</code>
+Which will give you a file like this</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;mysqldump</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;database</span> <span class="na">name=</span><span class="s">&quot;testing_database&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;table_data</span> <span class="na">name=</span><span class="s">&quot;products&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;row&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;products_id&quot;</span><span class="nt">&gt;</span>1000001<span class="nt">&lt;/field&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;products_quantity&quot;</span><span class="nt">&gt;</span>31<span class="nt">&lt;/field&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;products_model&quot;</span><span class="nt">&gt;</span>example1<span class="nt">&lt;/field&gt;</span>
+</span><span class='line'>                <span class="c">&lt;!-- ... --&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/row&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;row&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;products_id&quot;</span><span class="nt">&gt;</span>1000002<span class="nt">&lt;/field&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;products_quantity&quot;</span><span class="nt">&gt;</span>15<span class="nt">&lt;/field&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;products_model&quot;</span><span class="nt">&gt;</span>example2<span class="nt">&lt;/field&gt;</span>
+</span><span class='line'>                <span class="c">&lt;!-- ... --&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/row&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/table_data&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/database&gt;</span>
+</span><span class='line'><span class="nt">&lt;/mysqldump&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The two variables in the assertTablesEqual methods are just strings, which means if after you have set everything up and the test is failing, it is possible to export them to check where the differences are.</p>
+
+<p>The big problem I had was that some export methods escaped ampersands, whilst others did not. Correcting this allowed the test to path.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-09T16:42:34+00:00" pubdate data-updated="true">Nov 9<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/opera/useful-features-of-the-opera-browser-for-web-developers.html">5 Useful Features of the Opera Browser for Web Developers</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><h2>1. Remotely debugging mobile websites using your Android phone</h2>
+
+
+<p><img src="/assets/remotedebug-600x352.png"></p>
+
+<p>
+Dragonfly, Opera&#8217;s answer to Firebug and Chrome&#8217;s Developer Tools has a killer feature: it&#8217;s able to let you use your local desktop to debug a page on another instance of Opera - including Opera Mobile
+</p>
+
+
+<p>
+What this means is that all the benefits you get from inspecting elements on your desktop can be done on your Android phone. You can have the full array of debugging: inspecting specific elements, checking the CSS being applied to elements, changing the CSS in real time, and editing the HTML. You can even tap specific elements on your phone and they&#8217;ll be selected in your desktop&#8217;s Dragonfly instance.
+</p>
+
+
+<ol>
+<li>1. Connect your phone to the same wifi network as your desktop/laptop</li>
+<img src="/assets/RemoteConnect.png">
+<li>3. On your phone open Opera Mobile and go to opera:debug in your URL bar</li>
+<li>4. Enter your desktop&#8217;s IP address or hostname and tap Connect</li>
+<img src="/assets/tabselect.png">
+</ol>
+
+
+
+
+<h2>2. Separating and grouping local, staging and live tabs for the site</h2>
+
+
+<p><img src="/assets/tabstackingannotated2-600x191.png"></p>
+
+<p>
+You know the situation - you have three different versions of the site in your tabs - some for local, some on staging and maybe some for the live site too. Keeping track of which is which can be difficult with them having the same favicon, title etc
+</p>
+
+
+<p>
+Tab Stacking is a way of grouping your tabs in various ways, including grouping all your local, staging and live tabs into their own respective groups - avoiding the confusion of which tab belongs to which instance
+</p>
+
+
+
+
+<h2>3. Validating Local Web Pages In 2 Clicks</h2>
+
+
+<p><img src="/assets/validate2.png"></p>
+
+<p>
+The W3C validator is the standard place to validate your web pages, but of course you can&#8217;t pass in your local URL to the validator. The only option you have is to right-click > view source, select all and copy, open a new tab for the validator, select Direct Input and press Validate - phew!
+</p>
+
+
+<p>
+There are of course extensions for this in Chrome and Firefox, but I&#8217;m not aware of any which allow you to use the official W3C validator
+</p>
+
+
+<p>
+Opera&#8217;s right-click context menu allows you to simply right-click any page and click Validate. Opera will then automatically post the rendered HTML to the Validator and give you instant results
+</p>
+
+
+
+
+<h2>4. Site-Specific Preferences</h2>
+
+
+<p><img src="/assets/Site-specific-preferences-600x466.png"></p>
+
+<p>
+Sometimes you&#8217;ll want to have different settings for websites you&#8217;re currently working on - maybe you want to enable a more liberal cookie policy, or you want to show Flash content automatically only on sites you&#8217;re developing.
+</p>
+
+
+<p>
+For other browsers this means multiple instances of the browser, or installing addons. In Opera you can set up a whole array of configurations on a per-site basis by simnply right-clicking the page and selecting Edit Site Preferences
+</p>
+
+
+
+
+<h2>5. Cross Browser Testing made easy</h2>
+
+
+<p><img src="/assets/OpenWith-600x79.png"></p>
+
+<p>
+Cross-browser testing is important. When developing a specific page it&#8217;s often useful to open the page in an array of browsers to check that it&#8217;s consistent across the board.
+</p>
+
+
+<p>
+Opera automatically looks for other browsers installed on your system and gives you quick access to opening the current URL in them. Simply right-click your page, select Open With and then pick your browser. Opera will then launch an instance of the selected browser already landed on the right page.
+</p>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-09T15:22:41+00:00" pubdate data-updated="true">Nov 9<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/percona/installing-percona-db-on-a-clean-centos.html">Installing Percona DB on a Clean CentOS</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Percona is a performance optimised fork of MySQL that has gained a lot of traction in the Magento-sphere as webmasters and sysadmins alike look to squeeze the most performance out of their hardware.</p>
+
+<p>If you read the <a href="/platforms/magento">Magento</a> performance whitepaper then you will see they mention Percona DB there.</p>
+
+<p>To install Percona on a standard CentOS release 6.2 (Final) server you would need to run the following commands:</p>
+
+<p>First set up the repo:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>rpm -Uhv http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This should give you output like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Retrieving http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+</span><span class='line'>Preparing...                <span class="c">########################################### [100%]</span>
+</span><span class='line'>   1:percona-release        <span class="c">########################################### [100%]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then installing should be a simple case of running:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install Percona-Server-client-55 Percona-Server-server-55
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However I found that this generated the following error:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Error: Percona-XtraDB-Cluster-client conflicts with Percona-Server-client-55
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem is because MySQL is already installed and needs to be removed. You can do this with this command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum remove mysql*
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At which point running the install should work smoothly.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-08T18:26:28+00:00" pubdate data-updated="true">Nov 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/phpstorm/tip-phpstorm-select-in-projects-easier-version.html">Tip: PhpStorm &#8220;Select in Projects&#8221; - Easier Version</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Followers of this blog will remember the <a title="Replicate Netbeans “Select in project” in phpstorm" href="http://www.edmondscommerce.co.uk/phpstorm/replicate-netbeans-select-in-project-in-phpstorm/">Replicate Netbeans “Select in project” in phpstorm</a> post which gave a handy key combo to select the current file in the project window.</p>
+
+<p>It has been brought to our attention that there&rsquo;s also a button to do this with the mouse in one click!  At the top of the Project window, there&rsquo;s a cross-hair/target icon labelled a rather cryptic &ldquo;Scroll from Source&rdquo;.  Click that and it does what netbeans users will be looking for as &ldquo;Select in Projects&rdquo;</p>
+
+<p>So there you have it, &ldquo;Scroll from Source&rdquo;, is the magic words that you want.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-07T16:53:02+00:00" pubdate data-updated="true">Nov 7<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/linux/tip-have-git-branch-displayed-in-bash-prompt.html">Tip: Have Git Branch Displayed in Bash Prompt</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>This is a very small tip, but one that can really save accidents in the long term.</p>
+
+<p>To display the current branch in git simply add the following to your .bashrc in your home directory :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>__git_ps1 <span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">b</span><span class="o">=</span><span class="s2">&quot;$(git symbolic-ref HEAD 2&gt;/dev/null)&quot;</span>;
+</span><span class='line'>    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&quot;$b&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">printf</span> <span class="s2">&quot; (%s)&quot;</span> <span class="s2">&quot;${b##refs/heads/}&quot;</span>;
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\$( __git_ps1 ) \$\[\033[00m\] &quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is based on the Linux Mint prompt so is nicely coloured as well.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-07T10:22:34+00:00" pubdate data-updated="true">Nov 7<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/security/google-apps-and-two-factor-authentication.html">Google Apps and Two Factor Authentication</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are using Google apps and have two factor authentication turned on then you are probably using the convenient &ldquo;Remember this PC for 30 days&rdquo; feature.</p>
+
+<p>If you like your browser to forget every thing except a very select set of data (bookmarks, etc.) but keep the convenience of the 30 day authentication then you only need to keep the cookie called &ldquo;SMSV&rdquo; for the domain &ldquo;www.google.com&rdquo; with path &ldquo;/a&rdquo;.</p>
+
+<p>There is a variety of ways you can keep this cookie. You could, for example, export it then import it when ever (and where ever) you need it.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-05T16:48:08+00:00" pubdate data-updated="true">Nov 5<span>th</span>, 2012</time>
         
       </p>
@@ -346,698 +1021,6 @@ e  It allows to chose alternative remote shell program for communication.</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-02T17:42:15+00:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/web%20design/responsive-web-design-for-mobile-and-tablet-optimised-web-sites.html">Responsive Web Design for Mobile and Tablet Optimised Web Sites</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are at all involved or exposed to the world of web design and web development then you have no doubt heard of the phrase &ldquo;responsive&rdquo; web design. If you browse the popular theme sites for themes for platforms like WordPress and Magento then you can see responsive themes becoming more popular.</p>
-
-<p>So what does it mean and how does it work?</p>
-
-<h3>What does Responsive Web Design Mean?</h3>
-
-
-<p>Responsive designs change the layout and visible content on a page depending on the width, height and other factors of the device or window rendering the page. You can generally test out responsive designs by simply unmaximising a browser window and then resizing it down to smaller sizes such as 320 pixels wide. On a normal design you would be quite lucky if the site still rendered in a readable way at that width. More than likely you will only be able to see a fraction of the page and would have to sideways scroll to see the rest of it.</p>
-
-<p>On a responsively designed site, the layout would change as the screen width gets smaller. It might hide certain elements such as side columns and may make things rearrange in a more vertical way to allow them to be displayed without the need for side scrolling.</p>
-
-<p>In a nutshell, this is what responsive web design means.</p>
-
-<h3>How Does Responsive Web Design Work?</h3>
-
-
-<p>Responsive web design works by using a CSS3 technique called <a href="http://www.w3.org/TR/css3-mediaqueries/" title="W3C Media Queries Information" target="_blank">Media Queries</a>.</p>
-
-<p>CSS has had the concept of media specific style sheets for quite some time. Traditionally though this was limited to print and screen, allowing for example to remove background images from a page when printing and perhaps adjust font family and size for better printing results.</p>
-
-<p>The media queries functionality extends this concept significantly, allowing custom style rules to be applied based upon a range of differnt media options. The most commonly used of these for responsive web design are width and height.</p>
-
-<p>The full list of properties that can be utilised with media queries include:</p>
-
-<blockquote>width
-height
-device-width
-device-height
-orientation
-aspect-ratio
-device-aspect-ratio
-color
-color-index
-monochrome
-resolution
-scan
-grid</blockquote>
-
-
-
-
-<h3>Get Your Web Site Working Responsively</h3>
-
-
-<p>If you want to upgrade your web site to use responsive design techniques to better support the wide range of internet devices in use today then <strong><a href="/contact-us">get in touch</a></strong> with Edmonds Commerce today to discuss how we can help you.</p>
-
-<h3>Some Useful and Interesting Links</h3>
-
-
-<p><a href="http://www.w3.org/TR/css3-mediaqueries/ " target="_blank"><a href="http://www.w3.org/TR/css3-mediaqueries/">http://www.w3.org/TR/css3-mediaqueries/</a></a>
-<a href="http://johnpolacek.github.com/scrolldeck.js/decks/responsive/" target="_blank"><a href="http://johnpolacek.github.com/scrolldeck.js/decks/responsive/">http://johnpolacek.github.com/scrolldeck.js/decks/responsive/</a></a>
-<a href="http://reference.sitepoint.com/css/mediaqueries" target="_blank"><a href="http://reference.sitepoint.com/css/mediaqueries">http://reference.sitepoint.com/css/mediaqueries</a></a>
-<a href="http://mediaqueri.es/" target="_blank"><a href="http://mediaqueri.es/">http://mediaqueri.es/</a></a>
-<a href="http://mac-blog.org.ua/css-3-media-queries-cheat-sheet/" target="_blank"><a href="http://mac-blog.org.ua/css-3-media-queries-cheat-sheet/">http://mac-blog.org.ua/css-3-media-queries-cheat-sheet/</a></a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-02T16:09:03+00:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/javascript/php/magento/jquery/boost-your-magento-stores-image-display-with-magiczoom.html">Boost Your Magento Store&#8217;s Image Display With MagicZoom</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Magento&rsquo;s product images come with a workable, although somewhat unusual image zoom functionality. But many users want a lightbox which lets users click an image and see a large version. Of course, you can use just about any jQuery plugin in your templates &ndash; <a href="http://www.magictoolbox.com/magiczoom/" target="_blank">Magic Zoom</a> being one such perfect example.</p>
-
-<p>But instead of manually installing and configuring the Javascript yourself, <a href="http://www.magictoolbox.com/magiczoom/modules/magento/" target="_blank">MagicZoom has its own Magento MagicZoom extension</a> which can be dropped straight in and integrates beautifully with Magento</p>
-
-<p><img src="/assets/MagicZoomMagento1.png"></p>
-
-<h2>Some highlights MagicZoom&#8217;s Magento extension</h2>
-
-
-<ul>
-    <li>Automatically inserts the product title onto the zoomed box</li>
-    <li>Automatically linking main image and thumbnails for navigation when zoomed</li>
-    <li>Visible on pretty much any area of the site, not just the product view page</li>
-    <li>Per-theme customisation</li>
-    <li>An insane amount of user-configurable options without touching a line of code (see below)</li>
-</ul>
-
-
-<p><img src="/assets/MagentoMagicZoomConfig.png"></p>
-
-<h2>Installation</h2>
-
-
-<p>MagicZoom&rsquo;s extension comes with its own installer, although for me it was perfectly sufficient to simply drop in the files</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-11-01T12:30:21+00:00" pubdate data-updated="true">Nov 1<span>st</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/phpunit-and-pdoexception-solution.html">PHPUnit and PDOException + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I recently needed to run a test suite against a couple of classes that were making use of PDO.</p>
-
-<p>When I tried to run the I got the following errors in the output for every test</p>
-
-<p>PDOException: You cannot serialize or unserialize PDO instances</p>
-
-<p>There is a quick way around this you just need to add the following lines to the class level doc block</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
-</span><span class='line'><span class="sd"> *</span>
-</span><span class='line'><span class="sd"> * @backupGlobals disabled</span>
-</span><span class='line'><span class="sd"> * @backupStaticAttributes disabled</span>
-</span><span class='line'><span class="sd"> */</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>A full explanation of these, and other annotations can be found <a title="PHP Unit Appendix B. Annotations" href="http://www.phpunit.de/manual/current/en/appendixes.annotations.html">here</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-30T14:08:10+00:00" pubdate data-updated="true">Oct 30<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-warning-header-may-not-contain-more-than-a-single-header-new-line-detected-solution.html">Magento Warning: Header May Not Contain More Than a Single Header, New Line Detected + Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are puzzled by the error message:</p>
-
-<p><code>
-Warning: Header may not contain more than a single header, new line detected
-</code>
-When dealing with a Magento migration, you might want to double check you have not accidentally added a new line character to the end of your base_url field when you were updating the core_config_data table.</p>
-
-<p>I just did this using phpMyadmin&rsquo;s nifty ajax editing feature however I must have hit return by accident. Simply editing them again and making sure there is absolutely no white space at the end of the URL and the problem is solved.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-22T16:40:10+01:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/reduce-catalog-url-rewrites-time-in-magento.html">Reduce Catalog URL Rewrites Time in Magento</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I recently had a client that wanted to remove the category structure from their product urls.</p>
-
-<p>There is a option to do this in the admin, but they wanted to redirect all of the existing urls to the shorter one.</p>
-
-<p>The way that I wanted to do this was to truncate the current core_url_rewrite table and regenerate the urls with the &ldquo;Use Categories Path for Product URLs&rdquo; set to no, and then override the 404 controller to redirect to the correct url.</p>
-
-<p>However, after the urls were generated, I found that all of the urls including the category path were still included, which meant that the override would not work.</p>
-
-<p>After spending quite a bit of time looking for a way to get round this, I put together a simple override to prevent the category path urls from getting generated.</p>
-
-<p>This had the added benefit of reducing the number of entries in the core_url_rewite table from ~2k entries to under 500, which cut the amount of time that was needed to generate it.</p>
-
-<p>The code is below for anyone else that needs to use this in the future. There are three files in total, set up like this</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">EdmondsCommerce</span><span class="o">/</span>
-</span><span class='line'><span class="sb">`-- Redirects</span>
-</span><span class='line'><span class="sb">    |-- controllers</span>
-</span><span class='line'><span class="sb">    |   `</span><span class="o">--</span> <span class="nx">Cms</span>
-</span><span class='line'>    <span class="o">|</span>       <span class="sb">`-- IndexController.php</span>
-</span><span class='line'><span class="sb">    |-- etc</span>
-</span><span class='line'><span class="sb">    |   `</span><span class="o">--</span> <span class="nx">config</span><span class="o">.</span><span class="nx">xml</span>
-</span><span class='line'>    <span class="sb">`-- Model</span>
-</span><span class='line'><span class="sb">        `</span><span class="o">--</span> <span class="nx">Catalog</span>
-</span><span class='line'>            <span class="err">`</span><span class="o">--</span> <span class="nx">Url</span><span class="o">.</span><span class="nx">php</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is the code for the Model</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_Redirects_Model_Catalog_Url</span>
-</span><span class='line'>  <span class="k">extends</span> <span class="nx">Mage_Catalog_Model_Url</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="sd">/**</span>
-</span><span class='line'><span class="sd">     * This method is called each time that a url </span>
-</span><span class='line'><span class="sd">     * is generated for a product. It is called for the </span>
-</span><span class='line'><span class="sd">     * root category and each category that the product is in.</span>
-</span><span class='line'><span class="sd">     * </span>
-</span><span class='line'><span class="sd">     * This code checks to see if the category passed to it is</span>
-</span><span class='line'><span class="sd">     * the root category. If it is it will </span>
-</span><span class='line'><span class="sd">     * add the url rewrite as normal. If not it does nothing</span>
-</span><span class='line'><span class="sd">     * </span>
-</span><span class='line'><span class="sd">     * @param Varien_Object $product</span>
-</span><span class='line'><span class="sd">     * @param Varien_Object $category</span>
-</span><span class='line'><span class="sd">     */</span>
-</span><span class='line'>    <span class="k">protected</span> <span class="k">function</span> <span class="nf">_refreshProductRewrite</span><span class="p">(</span><span class="nx">Varien_Object</span> <span class="nv">$product</span><span class="p">,</span> <span class="nx">Varien_Object</span> <span class="nv">$category</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$rootCategory</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getStoreRootCategory</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getStoreId</span><span class="p">());</span>
-</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nv">$category</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">()</span> <span class="o">==</span> <span class="nv">$rootCategory</span><span class="o">-&gt;</span><span class="na">getId</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">parent</span><span class="o">::</span><span class="na">_refreshProductRewrite</span><span class="p">(</span><span class="nv">$product</span><span class="p">,</span> <span class="nv">$category</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you want to redirect from the existing urls to the new ones, you will need to use the following controller</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">include_once</span><span class="p">(</span><span class="s1">&#39;Mage/Cms/controllers/IndexController.php&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">EdmondsCommerce_Redirects_Cms_IndexController</span>
-</span><span class='line'><span class="k">extends</span> <span class="nx">Mage_Cms_IndexController</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="sd">/**</span>
-</span><span class='line'><span class="sd">     * This checks to see if the site can redirect</span>
-</span><span class='line'><span class="sd">     * before displaying a 404</span>
-</span><span class='line'><span class="sd">     * @param type $coreRoute</span>
-</span><span class='line'><span class="sd">     */</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">noRouteAction</span><span class="p">(</span><span class="nv">$coreRoute</span> <span class="o">=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Get the request</span>
-</span><span class='line'>        <span class="nv">$request</span> <span class="o">=</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REQUEST_URI&#39;</span><span class="p">];</span>
-</span><span class='line'>        <span class="c1">// Strip off get params if there are any</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">)</span> <span class="o">!==</span> <span class="k">FALSE</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$request</span> <span class="o">=</span> <span class="nx">substr</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">strpos</span><span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">));</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="sd">/**</span>
-</span><span class='line'><span class="sd">         *  This makes sure that no part of the request is included</span>
-</span><span class='line'><span class="sd">         *  in the base url. This should help</span>
-</span><span class='line'><span class="sd">         *  the system work if it is running from a sub folder</span>
-</span><span class='line'><span class="sd">         */</span>
-</span><span class='line'>        <span class="nv">$parts</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">());</span>
-</span><span class='line'>        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$parts</span> <span class="k">AS</span> <span class="nv">$part</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$request</span> <span class="o">=</span> <span class="nb">str_replace</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="nv">$part</span><span class="p">,</span> <span class="s1">&#39;//&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$request</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="cm">/*</span>
-</span><span class='line'><span class="cm">         * Combine the request with the base path to get the full url</span>
-</span><span class='line'><span class="cm">         * and remove any trailing slashes</span>
-</span><span class='line'><span class="cm">         */</span>
-</span><span class='line'>        <span class="nv">$path</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;http:/&#39;</span><span class="p">,</span> <span class="s1">&#39;http://&#39;</span><span class="p">,</span> <span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">()</span> <span class="o">.</span> <span class="nv">$request</span><span class="p">)),</span> <span class="s1">&#39;/&#39;</span><span class="p">);</span>
-</span><span class='line'>        <span class="c1">//Get the last section which should be the product title</span>
-</span><span class='line'>        <span class="nv">$cleanedPath</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$path</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$key</span> <span class="o">=</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$cleanedPath</span><span class="p">);</span>
-</span><span class='line'>        <span class="c1">//Here we find url keys like the title</span>
-</span><span class='line'>        <span class="nv">$collection</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/product&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getCollection</span><span class="p">();</span>
-</span><span class='line'>        <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">addAttributeToSelect</span><span class="p">(</span><span class="s1">&#39;url_key&#39;</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">addFieldToFilter</span><span class="p">(</span><span class="k">array</span><span class="p">(</span>
-</span><span class='line'>            <span class="k">array</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;url_key&#39;</span><span class="p">,</span> <span class="s1">&#39;like&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="si">$key</span><span class="s2">&quot;</span><span class="p">)));</span>
-</span><span class='line'>        <span class="nv">$products</span> <span class="o">=</span> <span class="nv">$collection</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">();</span>
-</span><span class='line'>        <span class="cm">/*</span>
-</span><span class='line'><span class="cm">         * Proceed if there is only 1 result, if there are more we</span>
-</span><span class='line'><span class="cm">         * don&#39;t know which one is correct</span>
-</span><span class='line'><span class="cm">         */</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">count</span><span class="p">(</span><span class="nv">$products</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">foreach</span> <span class="p">(</span><span class="nv">$products</span> <span class="k">AS</span> <span class="nv">$product</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nv">$url</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseUrl</span><span class="p">(</span><span class="nx">Mage_Core_Model_Store</span><span class="o">::</span><span class="na">URL_TYPE_WEB</span><span class="p">)</span> <span class="o">.</span> <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">getUrlKey</span><span class="p">();</span>
-</span><span class='line'>                <span class="c1">//Check to make sure the url is not the same as the path, should prevent infinite redirects</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="nv">$path</span> <span class="o">!=</span> <span class="nv">$url</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;HTTP/1.1 301 Moved Permanently&#39;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="nx">header</span><span class="p">(</span><span class="s1">&#39;Location: &#39;</span> <span class="o">.</span> <span class="nv">$url</span><span class="p">);</span>
-</span><span class='line'>                    <span class="k">die</span><span class="p">();</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="c1">// Could not find a suitable url carry out the 404</span>
-</span><span class='line'>        <span class="k">parent</span><span class="o">::</span><span class="na">noRouteAction</span><span class="p">(</span><span class="nv">$coreRoute</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then use the following xml file</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
-</span><span class='line'><span class="nt">&lt;config&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;modules&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;EdmondsCommerce_Redirects&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;depends&gt;&lt;/depends&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/EdmondsCommerce_Redirects&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/modules&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;global&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;models&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;redirects&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;class&gt;</span>EdmondsCommerce_Redirects_Model<span class="nt">&lt;/class&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/redirects&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;catalog&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;rewrite&gt;</span>
-</span><span class='line'>                    <span class="nt">&lt;url&gt;</span>EdmondsCommerce_Redirects_Model_Catalog_Url<span class="nt">&lt;/url&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;/rewrite&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/catalog&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/models&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/global&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;frontend&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;routers&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;cms&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;args&gt;</span>
-</span><span class='line'>                    <span class="nt">&lt;modules&gt;</span>
-</span><span class='line'>                        <span class="nt">&lt;EdmondsCommerce_Redirects</span> <span class="na">before=</span><span class="s">&quot;Mage_Cms&quot;</span><span class="nt">&gt;</span>EdmondsCommerce_Redirects_Cms<span class="nt">&lt;/EdmondsCommerce_Redirects&gt;</span>
-</span><span class='line'>                    <span class="nt">&lt;/modules&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;/args&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/cms&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/routers&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/frontend&gt;</span>
-</span><span class='line'><span class="nt">&lt;/config&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-16T13:56:19+01:00" pubdate data-updated="true">Oct 16<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-multi-store-websites-and-storeviews-explained.html">Magento Multi Store, Websites and Storeviews Explained</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>One of the most exciting features of Magento for many merchants is the ability to run multiple front end websites with a single administration area. For those of you who have managed multiple separate installations of a cart system to power many websites, perhaps selling the same products, then this on its own can make a huge difference in terms of ease of management.</p>
-
-<p>Magento has had multi store functionality designed in from the ground up. This results in a multistore implementation that feels solid and intuitive and also very powerful. This is in contrast to other carts&#8217; multi store systems which can often feel like a bit of a bolt on after thought that isn&rsquo;t as clearly embedded into the system.</p>
-
-<h2>Magento Scopes</h2>
-
-
-<p>Magento has a hierarchical system of stores with 4 levels.</p>
-
-<h3>Global Scope</h3>
-
-
-<p>The top of the hierarchy is the global scope. This scope defines the default values for the various attributes that products and categories contain. You can not see the global scope as a store front but in the admin side the global scope is the one you work in by default and is likely to be where you spend most of your admin time.</p>
-
-<h3>Website Scope</h3>
-
-
-<p>Magento has the concept of websites. You can think of a website as a domain name (though this is perhaps an over simplification). A website can contain one or more stores.</p>
-
-<h3>Store Scope</h3>
-
-
-<p>A store is the item that contains products and categories. A category structure is built from a &ldquo;root&rdquo; category. The root category is not displayed on the front end, its children categories become the top level categories for the store when viewed in the front end. A store can have it&rsquo;s own root category and structure or can share the same one used by other stores.</p>
-
-<h3>Store View</h3>
-
-
-<p>Every store contains at least one store view. You can generally think of store views as translations of a store (though this is not the only use case). The category structure will be the same for the various store views and this scope is generally used to store alternative values for textual content such as product names, descriptions etc.</p>
-
-<h2>Editing Values on a Per Scope Basis</h2>
-
-
-<p>When you are editing products, categories or configuration in your Magento admin you will have a drop down in the top left of the screen that determines which scope you are currently working in. As a best practice always try to be as close to the global scope as possible when making your edits, only descending into the lower scopes as required.</p>
-
-<h2>Possibilites</h2>
-
-
-<p>The possibilities of these various scopes are almost limitless, you can manage a large and diverse range of store fronts that may or may not be clearly related to each other from the customers point of view from a single Magento administration. Like many things in Magento, this powerful system can become complex and we really strongly advise that you plan out your store structure before you start actually adding things so that you ensure you are building a nice logical system that is going to scale up as you grow.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-10-15T14:44:29+01:00" pubdate data-updated="true">Oct 15<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/magento-upgrade-to-1-7-fix-for-sales-order-tab-contents-in-left-sidebar.html">Magento Upgrade to 1.7, Fix for Sales Order Tab Contents in Left Sidebar</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If following an upgrade to Magento 1.7 you&rsquo;re having a problem that the Sales Order View tab contents are stuck in the sidebar (see below) you&rsquo;re likely ripping your hair out as to why this is happening
-<img src="/assets/Sales-Order-View-Problem-502x600.png"></p>
-
-<p>In the page you&rsquo;ll find a line of Javascript:
-<code>sales_order_view_tabsJsTabs = new varienTabs(&lsquo;sales_order_view_tabs&rsquo;, &lsquo;sales_order_view&rsquo;, &lsquo;sales_order_view_tabs_order_info&rsquo;, []);</code></p>
-
-<h2>The problem</h2>
-
-
-<p>This is the javascript which renders the tabs on the page, moving the tab contents to the main content area once the page has loaded. The second parameter here is the destination element. The issue I was having was that the element with the id &lsquo;sales_order_view&rsquo; wasn&rsquo;t in the HTML. This div is contained in app/design/adminhtml/default/default/template/sales/order/view/form.phtml, but this wasn&rsquo;t being loaded.</p>
-
-<h3>The solution</h3>
-
-
-<p>In my case this was a code/local overridden core class Mage_Sales_Model_Order. In Magento 1.7 the method canReorder() has been renamed to canReorderIgnoreSalable(). Renaming the overridden method fixed my problem</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1061,15 +1044,15 @@ When dealing with a Magento migration, you might want to double check you have n
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
+    <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
+    <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
-    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
   </div>
 </section>
@@ -1150,7 +1133,7 @@ When dealing with a Magento migration, you might want to double check you have n
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2015 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

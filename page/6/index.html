@@ -128,6 +128,492 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-09T18:57:42+00:00" pubdate data-updated="true">Dec 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/octopress/code-blocks-with-liquid-or-twig-tags-using-octopress.html">Code Blocks With Liquid or Twig Tags Using Octopress</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Here is a quicky I figured out when posting my previous story that included a snippet of Twig code.</p>
+
+<p>If you put Twig code into codeblocks, it doesn&rsquo;t work, instead of regarding anything inside the code block as escaped code, it tries to parse it.</p>
+
+<p>The solution is simply to wrap your code in a raw tag like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{% codeblock %}
+</span><span class='line'>{% raw %}
+</span><span class='line'>   // your code here
+</span><span class='line'>{% end[REMOVE_THIS_BIT]raw %}
+</span><span class='line'>{% endcodeblock %}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In fact I had to do that to get this post to work as well</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-09T18:43:03+00:00" pubdate data-updated="true">Dec 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html">Symfony2 Twig &#8216;DateTime Could Not Be Converted to String&#8217;</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I just hit an interesting issue with a nice and easy solution once you understand what is going on.
+On a current project I making heavy use of the <a href="https://github.com/sensiolabs/SensioGeneratorBundle">SensioGeneratorBundle</a> to generate CRUD etc. So far its working really nicely.</p>
+
+<p>However I started to see an issue with one of my entities that Twig was not handling a DateTime column properly but others were being handled fine.</p>
+
+<p>Looking through the Twig template I noticed this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html+jinja'><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp">{%</span>- <span class="k">for</span> <span class="nv">field</span><span class="o">,</span> <span class="nv">metadata</span> <span class="k">in</span> <span class="nv">fields</span> <span class="cp">%}</span>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">if</span> <span class="nb">loop</span><span class="nv">.first</span> <span class="k">and</span> <span class="o">(</span><span class="s1">&#39;show&#39;</span> <span class="k">in</span> <span class="nv">actions</span><span class="o">)</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="s2">&quot;{{ path(&#39;&quot;</span> <span class="o">~</span> <span class="nv">route_name_prefix</span> <span class="o">~</span> <span class="s2">&quot;_show&#39;, { &#39;id&#39;: entity.id }) }}&quot;</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; }}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="cp">{%</span>- <span class="k">elseif</span> <span class="nv">metadata.type</span> <span class="k">in</span> <span class="o">[</span><span class="s1">&#39;date&#39;</span><span class="o">,</span> <span class="s1">&#39;datetime&#39;</span><span class="o">]</span> <span class="cp">%}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="nt">&lt;td&gt;</span><span class="cp">{{</span> <span class="s1">&#39;{% if entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39; %}{{ entity.&#39;</span> <span class="o">~</span> <span class="nv">field</span><span class="o">|</span><span class="nf">replace</span><span class="o">({</span><span class="s1">&#39;_&#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="o">})</span> <span class="o">~</span> <span class="s1">&#39;|date(\&#39;Y-m-d H:i:s\&#39;) }}{% endif %}&#39;</span> <span class="cp">}}</span><span class="nt">&lt;/td&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What this means is that the first entity will never have the DateTime handling. Of course you probably don&rsquo;t want a DateTime to be the first entity so I think this is reasonable.</p>
+
+<p>To fix this, all you need to do is make sure that your Doctrine class does not declare the first property as a DateTime.</p>
+
+<p>If you have a primary key or unique reference property then try to get this as the first declared property in your Doctrine entity class and then rebuild the CRUD and the problem goes away.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-06T18:49:19+00:00" pubdate data-updated="true">Dec 6<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/browsers/browsers-currently-supported-by-google.html">Browsers Currently Supported by Google</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Google Apps, such as Gmail, Calendar, Docs etc lean heavily on Javascript to create fluid web applications. Naturally this requires up to date browsers to take advantage of functionality and technologies.</p>
+
+<p>Google&rsquo;s policy on browser support is quite strict, especially where Internet Explorer is concerned. <strong>For Chrome only the latest version is supported because of its auto-update policy. Internet Explorer, Firefox and Safari are supported in the most recent, and previous version.</strong> The third most recent browser is no longer supported as soon as a new one is released. No official support is offered for Opera.</p>
+
+<p>This is particularly strict for Internet Explorer, since its versioning is vastly different from that of Chrome and Firefox, with the latter incrementing the version for much smaller changes, and being more frequent. Another effect is that ruling out what is currently IE9 rules out both Windows XP and Windows Vista &ndash; both OSs currently supported by Microsoft.</p>
+
+<p>Naturally this doesn&rsquo;t mean that the products won&rsquo;t work, anjd in many cases they were developed before support was dropped for specific versions. In some cases however it does enforce a more simplistic UI, such as redirecting very old browsers to a Basic HTML view for Gmail</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-06T11:35:58+00:00" pubdate data-updated="true">Dec 6<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/phpstorm/wrapping-a-list-in-quotes-in-phpstorm.html">Wrapping a List in Quotes in PHPStorm</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Some times you might find your self with a list of values you want to copy and paste from somewhere into your PHP code as an array of strings.</p>
+
+<p>For example, take this list of carrier names that I need to use:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Blue Package, USPS, UPS, UPSMI, FedEx, DHL, DHL Global Mail, Fastway, UPS Mail Innovations, Lasership, Royal Mail, FedEx SmartPost, OSM, OnTrac, Streamlite, Newgistics, Canada Post, City Link, GLS, GO!, Hermes Logistik Gruppe, Parcelforce, TNT, Target, SagawaExpress, NipponExpress, YamatoTransport, Other</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I really don&rsquo;t fancy wrapping each element of this list with quotes one by one, there must be a better way!</p>
+
+<p>There is, you can use the regex replace functionality of PHPStorm to do this for you quickly and easily.</p>
+
+<p>First of all paste the string into your PHPStorm editor and highlight it. Then hit <code>[ctrl]+[r]</code> to start your find and replace.</p>
+
+<p>The &ldquo;In Selection&rdquo; tick box should be ticked already, you also need to tick the regex box.</p>
+
+<p>Then in the find section, use this regex:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>( |)([^,]+),</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And in your replace box, put this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>\n'$2',</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This gets you nearly all the way there, you might just need to tidy up a bit you should now have something looking like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>'Blue Package',
+</span><span class='line'>'USPS',
+</span><span class='line'>'UPS',
+</span><span class='line'>'UPSMI',
+</span><span class='line'>'FedEx',
+</span><span class='line'>'DHL',
+</span><span class='line'>'DHL Global Mail',
+</span><span class='line'>'Fastway',
+</span><span class='line'>'UPS Mail Innovations',
+</span><span class='line'>'Lasership',
+</span><span class='line'>'Royal Mail',
+</span><span class='line'>'FedEx SmartPost',
+</span><span class='line'>'OSM',
+</span><span class='line'>'OnTrac',
+</span><span class='line'>'Streamlite',
+</span><span class='line'>'Newgistics',
+</span><span class='line'>'Canada Post',
+</span><span class='line'>'City Link',
+</span><span class='line'>'GLS',
+</span><span class='line'>'GO!',
+</span><span class='line'>'Hermes Logistik Gruppe',
+</span><span class='line'>'Parcelforce',
+</span><span class='line'>'TNT',
+</span><span class='line'>'Target',
+</span><span class='line'>'SagawaExpress',
+</span><span class='line'>'NipponExpress',
+</span><span class='line'>'YamatoTransport', Other</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>Other</code> on the end has not been converted has it doesn&rsquo;t have a trailing comma. You could mess about with yoru regex trying to get this to also be converted, or you could say good enough and move on.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-05T19:53:16+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/composer/merging-forks-for-composer.html">Merging Forks for Composer</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I am really enjoying using Composer with a Symfony2 project that I am currently working on.</p>
+
+<p>Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
+JMS/SerializerBundle to handle the actual encoding into JSON.</p>
+
+<p>The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&rsquo;t want that. I want my property and entity names to be the same across formats.</p>
+
+<p>A bit of digging and I found <a href="https://github.com/passkey1510/JMSSerializerBundle">this fork</a> which features a fix for exactly this problem, brilliant!</p>
+
+<p>However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
+the minimum version requirements of the FOSRest bundle. Problem.</p>
+
+<p>The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
+</span><span class='line'>git merge remote/passkey1510/master
+</span><span class='line'>git push</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.</p>
+
+<p>I can now reference my fork in my composer.json file like this:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"repositories": [
+</span><span class='line'>        {
+</span><span class='line'>            "url": "https://github.com/edmondscommerce/JMSSerializerBundle.git",
+</span><span class='line'>            "type": "vcs"
+</span><span class='line'>        },
+</span><span class='line'>],</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now running a <code>composer update --dev</code> and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.</p>
+
+<p>And that is it, problem solved :)</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-05T12:16:17+00:00" pubdate data-updated="true">Dec 5<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/SEO/the-first-thing-you-should-read-on-seo.html">The First Thing You Should Read on SEO</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>There is so much information about SEO out there and so many things that used
+to be true but are no longer that it really has become a bit of a minefield.</p>
+
+<p>For the average web master who simply wants to rank reasonably well and make sure that they are doign all of the basic things required to do so then this is the document you should read.</p>
+
+<p>It is written by the company that are almost synonymous with the word search engine. In fact their company name has now become a verb meaning &lsquo;to use a search engine&rsquo;. It is of course Google.</p>
+
+<p>You can read the official google SEO guidelines <a href="http://static.googleusercontent.com/media/www.google.co.uk/en/uk/webmasters/docs/search-engine-optimization-starter-guide.pdf">here</a></p>
+
+<p>It is not a huge document and should be well within the technical understanding of the average webmaster.</p>
+
+<p>I suggest you read it today!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-03T17:47:30+00:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/Octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html">Octopress Auto Building the Site Locally for One Blog Post</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Setting up a blog post using Octopress involves writing up your Markdown content, building the site, and previewing it.</p>
+
+<p>This can be time-consuming when writing posts, having to run several commands repeatedly. Here&rsquo;s a few lines you can put into a bash script and run once each time:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">PATHTOLATEST</span><span class="o">=</span><span class="sb">`</span>ls -t <span class="nb">source</span>/_posts | head -1<span class="sb">`</span>;
+</span><span class='line'><span class="nb">echo</span> <span class="nv">$PATHTOLATEST</span>
+</span><span class='line'>bundle <span class="nb">exec </span>rake isolate<span class="o">[</span><span class="nv">$PATHTOLATEST</span><span class="o">]</span>;
+</span><span class='line'>bundle <span class="nb">exec </span>rake generate;
+</span><span class='line'>bundle <span class="nb">exec </span>rake preview;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>The PATHTOLATEST variable finds the latest post</li>
+<li>echo the variable for debugging purposes</li>
+<li>rake isolate instructs octopress to build the site with only the latest blog post</li>
+<li>rake generate builds the site</li>
+<li>rake preview initialises the web server</li>
+</ol>
+
+
+<p>From then you can make changes to your post, and the site will be automatically regenerated. This uses a file watcher so it&rsquo;s helpful to keep the terminal open to watch for it building, or having errors</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-03T12:40:04+00:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
         
       </p>
@@ -318,427 +804,6 @@ However, in a scenario where perhaps you want to authenticate as a different use
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-02T19:01:51+00:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Symonfy2/symonfy2-phpstorm-project-setup.html">Symonfy2 PHPStorm Project Setup</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I was going to write a nice summary of how to set up PHPStorm with a Symfony2 project.
-There are a few things to be aware of such as getting the right code style set up so that your code follows the Symonfy2 coding standards.</p>
-
-<p>As it happens though a quick google found that there is already an excellent summary <a href="http://www.kevwebdev.com/blog/setting-up-a-symfony2-project-in-phpstorm.html">here</a> which I suggest you have a read of.</p>
-
-<p>The only thing I would add to this are that you should probably install these PHPStorm plugins to get the best out of it:</p>
-
-<p><a href="http://plugins.jetbrains.com/plugin?pr=&amp;pluginId=7219">Symfony2</a></p>
-
-<p>and <a href="http://plugins.jetbrains.com/plugin/7320">PHP Annotations</a></p>
-
-<p>If you do all of this then you should have a really nice PHPStorm set up for working on your Symfony2 projects, enjoy!</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-11-29T13:53:12+00:00" pubdate data-updated="true">Nov 29<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/vim/octopress-syntax-highlighting-for-vim.html">Octopress Syntax Highlighting for Vim</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Still learning some of the various things that can be done with Octopress and
-came across this Octopress syntax highlighting package that makes it even nicer
-to write blog posts (such as this one) using Vim.</p>
-
-<p>You can see the package <a href="https://github.com/tangledhelix/vim-octopress">here</a>.</p>
-
-<p>If you have already installed the SPF13 Vim then you are already running the required bundles
-and can simply run</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> ~/.vim/bundle
-</span><span class='line'>git clone https://github.com/tangledhelix/vim-octopress.git octopress
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It isn&rsquo;t a groundbreaking improvement but it is worth throwing in there.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-11-28T10:30:12+00:00" pubdate data-updated="true">Nov 28<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/phpstorm/ruby/ruby-syntax-highlighting-with-phpstorm.html">Ruby Syntax Highlighting With PHPStorm</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>PHPStorm is my IDE of choice for PHP development of course and also as many other languages as I can get it to support. One of my favourite plugins for PHPStorm is BASH Support which makes it into a fully featured BASH IDE with function support and syntax highlighting and some code inspections.</p>
-
-<p>As we are now moving to Octopress for blogging functionality I wanted a way to get Ruby syntax highlighting. There is a full blown IntelliJ based Ruby IDE but that is overkill for my needs. I had a look at Netbeans however it has now stopped supporting Ruby though there is a community supported plugin apparently.</p>
-
-<p>My best IDE solution so far is simply Vim, perhaps the <a href="http://vim.spf13.com/">spf13 flavour</a>.</p>
-
-<p>After a bit of Googling good old Stack Overflow came through for me with <a href="http://stackoverflow.com/questions/16451359/is-it-possible-to-get-ruby-syntax-highlighting-in-phpstorm">this post</a> that explains how to leverage PHPStorm&rsquo;s TextMate bundle support to get Ruby syntax highlighting. This works a treat though on my colour scheme (a slightly modified Darcula) it was unreadable. The final thing to do is to change the settings under Settings > TextMate Bundles and in the grid at the bottom next to my theme I switched the TextMate colour scheme from Mac Classic to RailsCasts and now it looks good.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-10-31T10:25:52+00:00" pubdate data-updated="true">Oct 31<span>st</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/fedora/setting-up-a-fedora-19-based-php-development-installation.html">Setting Up a Fedora 19 Based PHP Development Installation</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I have decided to switch from Debian/Ubuntu/Mint which has served me very well over the last few years and move towards more of a RedHat based distribution as it seems that servers these days are more commonly CentOS or RedHat based and I always like to keep my development environment as close as I can to the server environment for all kinds of reason.</p>
-
-<p>Also, I have decided that I really quite like Gnome Shell and it makes sense to pick a distribution that is properly bundled with Gnome Shell rather than bolting it into a distro after installation.</p>
-
-<h3>1. Install Apache and PHP 5.5</h3>
-
-
-<p>You need to become root first, stay as root for the rest of the steps.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>su
-</span><span class='line'>rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm
-</span><span class='line'>rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm
-</span><span class='line'>rpm -Uvh http://rpms.famillecollet.com/remi-release-19.rpm
-</span><span class='line'>yum --enablerepo<span class="o">=</span>remi install httpd php php-common
-</span><span class='line'>yum --enablerepo<span class="o">=</span>remi install php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<h3>2. Set that to start up automatically (you are going to be developing none stop right?)</h3>
-
-
-
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>service httpd start
-</span><span class='line'>systemctl <span class="nb">enable </span>httpd.service
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<h3>3. Create a test PHP file to confirm thats all working</h3>
-
-
-<p>Extra bit here, install <a href="http://vim.spf13.com/" target="_blank">this version of Vim</a>, its quite tasty:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl http://j.mp/spf13-vim3 -L -o - | sh
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now create your PHP file:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>vim /var/www/html/test.php
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>May as well just throw a phpinfo() in there</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
-</span><span class='line'><span class="nb">phpinfo</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And now check it: <a href="http://localhost/test.php"><a href="http://localhost/test.php">http://localhost/test.php</a></a></p>
-
-<h3>4. Finally lets get a MySQL version installed. Lets choose MariaDB</h3>
-
-
-<p>I tried Percona but it does not have a proper Fedora version. Then I discovered that Fedora have adopted MariaDB which is fine by me, lets go with the flow:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yum install mariadb mariadb-server
-</span><span class='line'>systemctl start mysqld.service
-</span><span class='line'>systemctl <span class="nb">enable </span>mysqld.service
-</span><span class='line'>/usr/bin/mysql_secure_installation
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And that&rsquo;s it, next up is getting Java and PhpStorm installed and also phpMyAdmin</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-10-17T10:53:15+01:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/bash/automatically-convert-old-php-file-to-camelcase.html">Automatically Convert Old PHP File to camelCase</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I&rsquo;ve recently been working with an old project that uses a combination of different coding styles.</p>
-
-<p>One of the more trivial annoyances with this is that the variables used through the project are a combination of $camelCase and $snake_case which throws of the coding standards tools that I use.</p>
-
-<p>To get round this I have put a little script together that will convert $snake_case to $camelCase automatically.</p>
-
-<p>Obviously, you will need to check the results of this to make sure that there are not variables that should not be changed, but it has saved me a lot of time doing this manually.</p>
-
-<p>I&rsquo;ve added this to my .bash_allias file, though it could easily be turned into a standalone script if required</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#Fix legacy code</span>
-</span><span class='line'> cammelCase<span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>   vim -E -s <span class="nv">$@</span> <span class="s">&lt;&lt;-EOF</span>
-</span><span class='line'><span class="s">   :%s#\%($\%(\k\+\)\)\@&lt;=_\(\k\)#\u\1#g</span>
-</span><span class='line'><span class="s">   :update</span>
-</span><span class='line'><span class="s">   :quit</span>
-</span><span class='line'><span class="s">EOF</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-10-04T10:33:41+01:00" pubdate data-updated="true">Oct 4<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html">Vim Locking Up, Always When You Are Ready to Save? Solution</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are constantly frustated by Vim freezing up on you are editing a file on a server then this is quite possibly your problem, and your solution.</p>
-
-<p>The issue is that most text editors and IDEs have [ctrl]+[s] mapped to save. If you do a lot of file editing then you probably bash the [ctrl]+[s] combo all the time, without even thinking about it&hellip;</p>
-
-<p>Now back to Vim. As it is running in the terminal then it can be frozen by using the [ctrl]+[s] combination. You probably weren&rsquo;t aware of that feature.</p>
-
-<p>To bring things back to life, just hit the [ctrl]+[q] combo. There are ways to permanently disable this which you can try.</p>
-
-<p>For full information on this, check out this great <a href="http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal" target="_blank">stack exchange page</a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-09-30T10:01:28+01:00" pubdate data-updated="true">Sep 30<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-1-8-released.html">Magento 1.8 Released</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Today I got a notification through that Magento 1.8 had finally been released.</p>
-
-<p>This has been in beta since alpha since April, and contains server fixes that a lot of people have been waiting for.</p>
-
-<p>The most important one for UK vendors is that the rounding issue in tax calculations has been fixed.</p>
-
-<p>There are also improvements to caching and database performance. The full release notes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/ce-18-later-release-notes">here</a></p>
-
-<p>These are issues that have affected merchants since that change in the VAT rate, so we would recommend upgrading for everyone at this time.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -762,15 +827,15 @@ and can simply run</p>
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/bash/combined-csv.html">Combined CSV</a>
+    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
-    <a class="list-group-item " href="/bash/bash-script-to-kill-sleeping-mysql-processes.html">Bash Script to Kill Sleeping MySQL Processes</a>
+    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/apache/blocking-direct-ip-access-in-apache.html">Blocking Direct IP Access in Apache</a>
+    <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
-    <a class="list-group-item " href="/composer/composer-run-utility-bash-script.html">Composer Run Utility BASH Script</a>
+    <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
     
-    <a class="list-group-item " href="/php/getting-sub-domains-and-domain-from-a-url.html">Getting Sub Domains and Domain From a Url</a>
+    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
   </div>
 </section>
@@ -851,7 +916,7 @@ and can simply run</p>
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2014 - EdmondsCommerce Development Team<br>
+  Copyright &copy; 2015 - EdmondsCommerce Development Team<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
