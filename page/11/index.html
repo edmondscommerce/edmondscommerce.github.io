@@ -128,6 +128,60 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-04-22T13:57:49+01:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html">Apache Mod Rewrite and Escaped Hashes (and Other Characters)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are having issues with mod rewrite apparently abandoning sections of variables after encoded hashes then this could be your solution.</p>
+
+<p>The use case is particularly clear when using mod_rewrite in front of a search engine (such as Solr which I am really enjoying working with at the moment).</p>
+
+<p>Imagine someone search for a partcode ABC#123</p>
+
+<p>This gets encoded to search/abc%23123</p>
+
+<p>Your rewritten search term will then be mangled by Apache and your search script will only actually see ABC. That is of course a problem and the solution is not really clear.</p>
+
+<p>After a bit of searching around I found the solution is to add a B flag to your mod_rewrite rule so that mod_rewrite will escape these characters so that they are cleanly passed through.</p>
+
+<p>For example:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">RewriteRule</span> <span class="o">^</span><span class="p">(</span><span class="o">.*</span><span class="p">)</span><span class="nx">search</span><span class="o">/</span><span class="p">(</span><span class="o">.*</span><span class="p">)</span><span class="err">$</span> <span class="nx">advanced_search_result</span><span class="o">.</span><span class="nx">php</span><span class="o">?</span><span class="nx">keywords</span><span class="o">=</span><span class="err">$</span><span class="mi">2</span> <span class="p">[</span><span class="nx">L</span><span class="p">,</span><span class="nx">B</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-04-11T11:05:20+01:00" pubdate data-updated="true">Apr 11<span>th</span>, 2013</time>
         
       </p>
@@ -613,56 +667,6 @@ Done, the module will appear in the module list but do nothing. You can look at 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-03-18T12:13:21+00:00" pubdate data-updated="true">Mar 18<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/setting-a-magento-store-design-programatically-in-installer-using-php.html">Setting a Magento Store Design Programatically in Installer Using PHP</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I needed to set up a design change for a new store which I was programatically creating. One aspect which I was still doing manually was the design change. Lots of tutorials on the web suggest how to accomplish this in the Admin, but this wasn&rsquo;t what I was after.</p>
-
-<p>I&rsquo;ve done this by updating the store&rsquo;s config as shown below. Hope it helps someone out there too</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$config</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Mage_Core_Model_Config</span><span class="p">();</span>
-</span><span class='line'><span class="nv">$config</span><span class="o">-&gt;</span><span class="na">saveConfig</span><span class="p">(</span><span class="s1">&#39;design/theme/template&#39;</span><span class="p">,</span> <span class="o">&lt;</span><span class="nx">store</span> <span class="nx">name</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;websites&#39;</span><span class="p">,</span> <span class="nx">storeId</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$config</span><span class="o">-&gt;</span><span class="na">saveConfig</span><span class="p">(</span><span class="s1">&#39;design/theme/layout&#39;</span><span class="p">,</span> <span class="o">&lt;</span><span class="nx">store</span> <span class="nx">name</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;websites&#39;</span><span class="p">,</span> <span class="nx">storeId</span><span class="p">);</span>
-</span><span class='line'><span class="nv">$config</span><span class="o">-&gt;</span><span class="na">saveConfig</span><span class="p">(</span><span class="s1">&#39;design/theme/skin&#39;</span><span class="p">,</span> <span class="o">&lt;</span><span class="nx">store</span> <span class="nx">name</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;websites&#39;</span><span class="p">,</span> <span class="nx">storeId</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -686,6 +690,8 @@ Done, the module will appear in the module list but do nothing. You can look at 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/behat/behat-selenium-arguments-0-is-undefined-problem-plus-solution.html">Behat Selenium Arguments[0] Is Undefined Problem + Solution</a>
+    
     <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
     <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
@@ -693,8 +699,6 @@ Done, the module will appear in the module list but do nothing. You can look at 
     <a class="list-group-item " href="/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-3941 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
     <a class="list-group-item " href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a>
-    
-    <a class="list-group-item " href="/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html">Multiple Behat and Mink Profiles for Testing Multiple Browsers</a>
     
   </div>
 </section>
