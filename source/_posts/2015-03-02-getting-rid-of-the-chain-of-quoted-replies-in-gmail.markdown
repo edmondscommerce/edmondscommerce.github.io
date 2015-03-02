@@ -43,10 +43,10 @@ Here's a snippet of CSS that will hide the needless quoted replies, with the abi
   display:block;
 }
 
-// Allow these to be expended when hovered
+// Allow these to be expanded when hovered
 .im:hover,
 .gmail_extra:hover
-      {
+{
   height:auto;
   max-height:250px;
   width:auto;
@@ -87,7 +87,10 @@ What was previously a big mess of nested quotes and signatures
 
 Becomes a small "Hover to expand" box
 
-
 {% img /assets/2015-03-02-GmailQuote2.png %}
+
+Viewing it in the scrollable box
+
+{% img /assets/2015-03-02-GmailQuote3.png %}
 
 These styles work at the date of publication, but obviously Google might change the classes used for these.
