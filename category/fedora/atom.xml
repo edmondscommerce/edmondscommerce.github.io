@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Fedora | Edmonds Commerce Dev Blog]]></title>
+  <title><![CDATA[Category: fedora | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/category/fedora/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-03-02T19:41:27+00:00</updated>
+  <updated>2015-03-10T14:18:28+00:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,161 +14,80 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Fedora Live USB Key Creation]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/fedora-live-usb-key-creation.html"/>
-    <updated>2014-09-10T17:38:09+01:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/fedora-live-usb-key-creation</id>
-    <content type="html"><![CDATA[<p>I have had continual problems getting most of my USB keys to work as liveusb drives.</p>
+    <title type="html"><![CDATA[Setting up a Fedora 19 based PHP Development Installation]]></title>
+    <link href="http://edmondscommerce.github.io/fedora/setting-up-a-fedora-19-based-php-development-installation.html"/>
+    <updated>2013-10-31T10:25:52+00:00</updated>
+    <id>http://edmondscommerce.github.io/fedora/setting-up-a-fedora-19-based-php-development-installation</id>
+    <content type="html"><![CDATA[<p>I have decided to switch from Debian/Ubuntu/Mint which has served me very well over the last few years and move towards more of a RedHat based distribution as it seems that servers these days are more commonly CentOS or RedHat based and I always like to keep my development environment as close as I can to the server environment for all kinds of reason.</p>
 
-<p>This is pretty awkward however it looks like I have now found a solution that works. Instead of using the official Fedora live USB creator, we are going to use something called livecd-iso-to-disk</p>
+<p>Also, I have decided that I really quite like Gnome Shell and it makes sense to pick a distribution that is properly bundled with Gnome Shell rather than bolting it into a distro after installation.</p>
 
-<p>First of all install it:</p>
+<h3>1. Install Apache and PHP 5.5</h3>
 
-<p><code>bash
-sudo yum -y install livecd-tools
-</code></p>
 
-<p>Then this is your command to create the liveusb. Note you need to set the sdX to whichever your USB key is using, and of course make sure the path to the iso file is correct</p>
+<p>You need to become root first, stay as root for the rest of the steps.</p>
 
-<p><code>bash
-sudo livecd-iso-to-disk --format --msdos --reset-mbr --overlay-size-mb 512 --home-size-mb 512 ~/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso /dev/sdc
-</code></p>
+<p>```bash</p>
 
-<p>And that&rsquo;s it</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Getting Skype Working on Fedora 20]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20.html"/>
-    <updated>2014-01-17T14:45:29+00:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20</id>
-    <content type="html"><![CDATA[<p>I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&rsquo;t completely smooth, there were a few hoops I had to jump through.</p>
+<p>su
+rpm -Uvh <a href="http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm">http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm</a>
+rpm -Uvh <a href="http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm">http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm</a>
+rpm -Uvh <a href="http://rpms.famillecollet.com/remi-release-19.rpm">http://rpms.famillecollet.com/remi-release-19.rpm</a>
+yum &mdash;enablerepo=remi install httpd php php-common
+yum &mdash;enablerepo=remi install php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml</p>
 
-<p>I am making a note of these here for my own future reference and to help out any one else hitting problems like these.</p>
+<p>```</p>
 
-<p>To install Skype on Fedora 20 64bit, the first thing you need to do is download the <a href="http://www.skype.com/en/download-skype/skype-for-linux/">Fedora 32bit RPM from Skype</a>.</p>
+<h3>2. Set that to start up automatically (you are going to be developing none stop right?)</h3>
 
-<p>To install this you should use Yum so that dependancies are handled properly:</p>
 
-<p><code>
-sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
-</code></p>
+<p>```bash</p>
 
-<p>However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
-After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
-One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.</p>
+<p>service httpd start
+systemctl enable httpd.service</p>
 
-<p>Here is the process in commands:</p>
+<p>```</p>
 
-<p>Firstly remove the package and install the i686 version
-<code>
-yum remove libvpx.x86_64
-yum install libvpx.i686
-</code></p>
+<h3>3. Create a test PHP file to confirm thats all working</h3>
 
-<p>Then install Skype
-<code>
- yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
-</code></p>
 
-<p>Then reinstall the 64 bit version of libvpx
-<code>
- yum install libvpx.x86_64
-</code></p>
+<p>Extra bit here, install <a href="http://vim.spf13.com/" target="_blank">this version of Vim</a>, its quite tasty:
+```bash</p>
 
-<p>Then reinstall the programs that were removed when I removed libvpx
-<code>
- yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64
-</code></p>
+<p>curl <a href="http://j.mp/spf13-vim3">http://j.mp/spf13-vim3</a> -L -o &ndash; | sh</p>
 
-<p>That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:</p>
+<p>```</p>
+
+<p>Now create your PHP file:
+```bash</p>
+
+<p>vim /var/www/html/test.php</p>
 
 <p><code>
-sudo gnome-open /usr/share/applications/skype.desktop
-</code></p>
+May as well just throw a phpinfo() in there
+</code>php</p>
 
-<p>Change the line that reads <strong>Exec=skype %U</strong> to the following:</p>
+<p>&lt;?php
+phpinfo();</p>
 
-<p><strong>Exec=env PULSE_LATENCY_MSEC=30 skype %U</strong></p>
+<p>```
+And now check it: <a href="http://localhost/test.php"><a href="http://localhost/test.php">http://localhost/test.php</a></a></p>
 
-<p>Restart Skype and the audio issues should be resolved.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Upgrading from Fedora 19 to 20 using FedUp]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html"/>
-    <updated>2014-01-03T19:32:48+00:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup</id>
-    <content type="html"><![CDATA[<p>I decided to upgrade to the latest version because why not, its the first Friday of the year.</p>
+<h3>4. Finally lets get a MySQL version installed. Lets choose MariaDB</h3>
 
-<p>The first thing to do is head over to <a href="https://fedoraproject.org/wiki/FedUp">this page</a> which explains how to use the tool.</p>
 
-<p>I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:</p>
+<p>I tried Percona but it does not have a proper Fedora version. Then I discovered that Fedora have adopted MariaDB which is fine by me, lets go with the flow:</p>
 
-<p><code>
-sudo yum -y --enablerepo=updates-testing install fedup
-</code></p>
+<p>```bash</p>
 
-<p>You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.</p>
+<p>yum install mariadb mariadb-server
+systemctl start mysqld.service
+systemctl enable mysqld.service
+/usr/bin/mysql_secure_installation</p>
 
-<p><code>
-sudo yum -y update
-</code></p>
+<p>```</p>
 
-<p>Once that is all done then you need to run the fedup command itself:</p>
-
-<p><code>
-sudo yum -y update fedup fedora-release
-sudo fedup --network 20
-</code></p>
-
-<p><em>I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:</em>
-<code>
-sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
-sudo fedup --network 20
-</code></p>
-
-<p>Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
-It takes a while, make a brew or something.</p>
-
-<p>Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
-<a href="https://extensions.gnome.org/local/">https://extensions.gnome.org/local/</a> and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
-When that&rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.</p>
-
-<p>For me the only one I&rsquo;m really going to miss is the <a href="https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/">Quick Close in Overview</a> which is really handy, hopefully will be updated soon.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fedora Yum Update Failing - RPMFusion + Solution]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html"/>
-    <updated>2014-01-02T10:42:59+00:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/fedora-yum-update-failing-rpmfusion-plus-solution</id>
-    <content type="html"><![CDATA[<p>I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.</p>
-
-<p>To see what was really going on I ran yum update from the command line</p>
-
-<p><code>
-sudo yum -y update
-</code></p>
-
-<p>This died with the following error message:</p>
-
-<p><code>
-Couldn't open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19
-</code></p>
-
-<p>It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.</p>
-
-<p>To do that you can run this simple command (again in the command line):</p>
-
-<p><code>
-su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
-</code></p>
-
-<p>I did this and then ran the yum update command again and everything is fixed.</p>
+<p>And that&rsquo;s it, next up is getting Java and PhpStorm installed and also phpMyAdmin</p>
 ]]></content>
   </entry>
   
