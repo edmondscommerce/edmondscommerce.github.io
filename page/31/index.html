@@ -128,6 +128,126 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-02-01T17:25:50+00:00" pubdate data-updated="true">Feb 1<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/yii-setting-up-authorisation-the-missing-manual.html">Yii Setting Up Authorisation - the Missing Manual</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Reading the generally very clear and concise Yii documentation you can quickly get started with the framework.</p>
+
+<p>However one issue that I struggled to be clear on is setting up the database driven authorisation system.</p>
+
+<p>I recommend reading <a href="http://danaluther.blogspot.com/2010/03/yii-authentication-via-database.html">this blog post</a> which finally helped me to understand wth I was supposed to do. The official documentation is <a href="http://www.yiiframework.com/doc/guide/1.1/en/topics.auth#defining-authorization-hierarchy">here</a> which you should also read.</p>
+
+<p>There are a few key points that are not really clear but are important.</p>
+
+<p><strong>1. You need to create the tables.
+</strong>
+There is a file: yii/framework/web/auth/schema-mysql.sql</p>
+
+<p>You need to run this on your database to build the necessary tables#</p>
+
+<p><strong>2. Creating the rules &ndash; use the Yii Shell
+</strong>
+You will see examples of PHP code that defines rules etc. You may wonder where the hell you are supposed to put this code and also is it really a good idea to run this kind of code on every page load, seems odd.</p>
+
+<p>Well the answer is you are only meant to run it once and you can either make a PHP script that runs it or even nicer is to use the Yii interactive shell and paste the lines in one at a time to execute them.</p>
+
+<p><strong>Using the Yii Shell</strong></p>
+
+<p>Go to your web root on the command line (I&rsquo;m using Linux, good luck if you aren&rsquo;t)</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cd ~/Projects/yii-projects/public
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now run the yiic tool from the web root with the shell flag</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>protected/yiic shell
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You now have an interactive PHP shell with the Yii framework available. You can create models, crud etc as you might have done in Gii, but you can also run PHP code directly, including working with Yii objects &ndash; such as the authManager</p>
+
+<p>Try this:</p>
+
+<p>Paste this line into your Yii shell and hit return</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>$auth=Yii:app()-&gt;authManager;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then this line and hit return</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>var_dump($auth);
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should see a var dump of the CDbAuthManager object</p>
+
+<p>Now when you see examples such as this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$auth</span><span class="o">=</span><span class="nx">Yii</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">authManager</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$auth</span><span class="o">-&gt;</span><span class="na">createOperation</span><span class="p">(</span><span class="s1">&#39;createPost&#39;</span><span class="p">,</span><span class="s1">&#39;create a post&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$auth</span><span class="o">-&gt;</span><span class="na">createOperation</span><span class="p">(</span><span class="s1">&#39;readPost&#39;</span><span class="p">,</span><span class="s1">&#39;read a post&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$auth</span><span class="o">-&gt;</span><span class="na">createOperation</span><span class="p">(</span><span class="s1">&#39;updatePost&#39;</span><span class="p">,</span><span class="s1">&#39;update a post&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nv">$auth</span><span class="o">-&gt;</span><span class="na">createOperation</span><span class="p">(</span><span class="s1">&#39;deletePost&#39;</span><span class="p">,</span><span class="s1">&#39;delete a post&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You realise that this is something you can do ONCE to set up these roles, and a great way to do that is via the Yii Shell.</p>
+
+<p>Have fun ;)</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-31T14:51:37+00:00" pubdate data-updated="true">Jan 31<span>st</span>, 2012</time>
         
       </p>
@@ -1026,47 +1146,6 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-01-19T16:15:47+00:00" pubdate data-updated="true">Jan 19<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/job/php-job-bradford.html">PHP Job Bradford</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are a PHP developer looking for a job in the Bradford area then please do get in touch with Edmonds Commerce.</p>
-
-<p>We are a team of PHP developers who focus on e-commerce based on open source packages such as <a href="http://www.edmondscommerce.co.uk">Magento</a>, osCommerce, Prestashop, OpenCart and others. We also do a fair bit of Wordpress, Drupal, Zend Framework etc as well. We even do bespoke PHP development.</p>
-
-<p>If you are a skilled PHP developer and would like to join a team of enthusiastic developers in a friendly flexible environment with a focus on productivity, personal skills development and fun then get in touch with us today.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1092,13 +1171,13 @@ app/design/frontend/&lt;package_name>/default/template/persistent/customer/form/
     
     <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
     
+    <a class="list-group-item " href="/gnome-shell/cron-script-to-change-gnome-shell-wallpaper.html">Cron Script to Change Gnome Shell Wallpaper</a>
+    
     <a class="list-group-item " href="/gmail/getting-rid-of-the-chain-of-quoted-replies-in-gmail.html">Getting Rid of the Chain of Quoted Replies in Gmail</a>
     
     <a class="list-group-item " href="/behat/behat-selenium-arguments-0-is-undefined-problem-plus-solution.html">Behat Selenium Arguments[0] Is Undefined Problem + Solution</a>
     
     <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
-    
-    <a class="list-group-item " href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a>
     
   </div>
 </section>
