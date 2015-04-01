@@ -1,0 +1,34 @@
+---
+layout: post
+title: "Behat"
+date: 2015-04-01 12:04:12 +0100
+comments: true
+author: joseph
+categories: 
+- behat
+tags: 
+- behat
+- testing
+- BDD
+description: "An easy way to allow you to have Behat die on the first failed scenario"
+---
+I love Behat. One of the great things about it is that it has been built to be very extensible, so if it doesn't do exactly what you need then it's really quite easy to to customise the way it works without having to do any hacking on the core code. This is because it makes extensive use of an Observer Pattern like Hooks system.
+
+If you want to have your Behat tests fail as soon as a scenario fails - ideal when you are running a large suite of tests and trying to fix issues - then simply add in this method into a Context class.
+
+``` php
+   
+    /** @AfterScenario */
+    public function dieOnFailedScenario(Behat\Behat\Hook\Scope\AfterScenarioScope $scope)
+    {
+        if (99 === $scope->getTestResult()->getResultCode()) {
+            if (isset($_SERVER['BEHAT_DIE_ON_FAILURE'])) {
+                die("\n\nBEHAT_DIE_ON_FAILURE is defined\n\nKilling Full Process\n\n\n\n");
+            } else {
+                echo "\n\nTo die on failure, please run:\nexport BEHAT_DIE_ON_FAILURE=true;\n\n";
+            }
+        }
+    }
+```
+
+Then in your terminal, simply export BEHAT_DIE_ON_FAILURE=true and then the next time you run your tests, the process will die and you can go and fix the problems.
