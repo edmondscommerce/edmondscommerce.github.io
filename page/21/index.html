@@ -128,6 +128,87 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-07T14:35:37+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-stack-traces-you-can-click-on-in-phpstorm.html">PHP Stack Traces You Can Click on! (in PhpStorm)</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Having a stack trace is very handy at times but wouldn&rsquo;t it be nice if you could click on the filename in the stack trace in your browser and your IDE take you to the file and line that it&rsquo;s talking about?</p>
+
+<p>Well, with PhpStorm and kint, you can!  Using a plugin called Remote Call, the PhpStorm IDE can listen on a port and go to files and line numbers via an ajax call.</p>
+
+<p>To configure this, grab the latest version of kint, and copy it&rsquo;s sample config to an actual config file, and edit the section about pathDisplayCallback to look like this :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$_kintSettings</span><span class="p">[</span><span class="s1">&#39;pathDisplayCallback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;_kintLine&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">_kintLine</span><span class="p">(</span> <span class="nv">$file</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">=</span> <span class="k">NULL</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nv">$line</span> <span class="p">)</span> <span class="p">{</span> <span class="c1">// means this is called from resource type dump</span>
+</span><span class='line'>                <span class="k">return</span> <span class="nv">$file</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s2">&quot;&lt;u&gt;&lt;a class=</span><span class="se">\&quot;</span><span class="s2">kint-ide-link</span><span class="se">\&quot;</span><span class="s2"> href=</span><span class="se">\&quot;</span><span class="s2">http://localhost:8091/?message=</span><span class="si">{</span><span class="nv">$file</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">.</span> <span class="nv">$file</span> <span class="o">.</span> <span class="s2">&quot;&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can even be clever with regex to make the filenames be relative &ndash; for instance, we run our projects from a directory below one called, oddly enough &ldquo;projects&rdquo; and our function looks like this :&ndash;</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">_kintLine</span><span class="p">(</span> <span class="nv">$file</span><span class="p">,</span> <span class="nv">$line</span> <span class="o">=</span> <span class="k">NULL</span> <span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>        <span class="nv">$shortname</span> <span class="o">=</span> <span class="nb">preg_replace</span><span class="p">(</span><span class="s1">&#39;#.*/[Pp]rojects/[^/]*/#&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nv">$line</span> <span class="p">)</span> <span class="p">{</span> <span class="c1">// means this is called from resource type dump</span>
+</span><span class='line'>                <span class="k">return</span> <span class="nv">$shortname</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s2">&quot;&lt;u&gt;&lt;a class=</span><span class="se">\&quot;</span><span class="s2">kint-ide-link</span><span class="se">\&quot;</span><span class="s2"> href=</span><span class="se">\&quot;</span><span class="s2">http://localhost:8091/?message=</span><span class="si">{</span><span class="nv">$file</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">.</span> <span class="nv">$shortname</span> <span class="o">.</span> <span class="s2">&quot;&lt;/a&gt;&lt;/u&gt; line &lt;i&gt;</span><span class="si">{</span><span class="nv">$line</span><span class="si">}</span><span class="s2">&lt;/i&gt;&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, if you call Kint::trace(); from your file that you&rsquo;ve included Kint.class.php from, you get a clickable stacktrace!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-09-07T12:49:46+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
         
       </p>
@@ -635,58 +716,6 @@ Set your panel&rsquo;s workspace switcher to Number of Workspaces: 1</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-24T13:51:04+01:00" pubdate data-updated="true">Aug 24<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/increase-the-stabilty-of-your-magento-cron.html">Increase the Stabilty of Your Magento Cron</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Sometimes when your cron process in Magento seems to not be working it is worth doubling up the ways it gets executed.</p>
-
-<p>One reason for this is various extensions (notably EERP from boostmyshop) set up an override to ensure that the same cron task is not run a second time if it&rsquo;s still running when the first run happens.</p>
-
-<p>Often the cli setup for php is not configured with the same timeouts etc. that the web setup is.  Therefore one thing that can make your cron more &ldquo;stable&rdquo; is to use wget or curl to fetch the cron.php file rather than (or as well as) running the cron.sh script.</p>
-
-<p>Here&rsquo;s what to add to the server&rsquo;s crontab (/etc/crontab or crontab -e) to use wget to fire off the cron :</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>* * * * * /usr/bin/wget -O- www.mycoolsite.com/cron.php &gt; /dev/null 2&gt; /dev/null
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That of course needs the url changing to match your domain.  It&rsquo;s worth noting that having output and stderror piped to /dev/null in a crontab is probably not the best practice but given that any module can create cron tasks that output stuff, your sysadmin might dislike getting that emailed to them!</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -710,6 +739,8 @@ Set your panel&rsquo;s workspace switcher to Number of Workspaces: 1</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/behat/behat.html">Behat</a>
+    
     <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
     
     <a class="list-group-item " href="/gnome-shell/cron-script-to-change-gnome-shell-wallpaper.html">Cron Script to Change Gnome Shell Wallpaper</a>
@@ -717,8 +748,6 @@ Set your panel&rsquo;s workspace switcher to Number of Workspaces: 1</p>
     <a class="list-group-item " href="/gmail/getting-rid-of-the-chain-of-quoted-replies-in-gmail.html">Getting Rid of the Chain of Quoted Replies in Gmail</a>
     
     <a class="list-group-item " href="/behat/behat-selenium-arguments-0-is-undefined-problem-plus-solution.html">Behat Selenium Arguments[0] Is Undefined Problem + Solution</a>
-    
-    <a class="list-group-item " href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a>
     
   </div>
 </section>
