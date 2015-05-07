@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-05-07T14:56:57+01:00</updated>
+  <updated>2015-05-07T15:20:44+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -45,6 +45,78 @@
 
 
 <p>This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Repeating Behat Scenarios when Testing Magento with SmartStep]]></title>
+    <link href="http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html"/>
+    <updated>2015-04-15T12:02:28+01:00</updated>
+    <id>http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep</id>
+    <content type="html"><![CDATA[<p>When behat testing Magento I found myself repeating the same Homepage > Category > Product > Add-to-cart > Cart page scenario for a variety of tests &ndash; checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.</p>
+
+<p>I didn&rsquo;t want to copy-paste the whole procedure because if I changed, say the <code>.product-list</code> class, I&rsquo;d have to update each of the Scenarios. Bit of a kick in the face to <a href="http://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>.</p>
+
+<p>The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step <code>Given I have added to cart</code> or similar, but this defeats the object of using Gherkin to write the tests.</p>
+
+<p>Fortunately KnpLabs have soled this problem with <a href="https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md">SmartSteps</a>. This allows you to create a Scanerio that you want to be repeatable by tagging it as a <code>@smartStep</code>. Once it&rsquo;s tagged, you can easily embed that scenario into a new one by having a step <code>Given [scenario name]</code></p>
+
+<h3>Adding SmartSteps to your behat tests</h3>
+
+<ul>
+<li>In <code>composer.json</code>, add a new dependency</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"knplabs/friendly-contexts": "dev-master"</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>In <code>behat.yml</code></li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default:
+</span><span class='line'>    extensions:
+</span><span class='line'>        Knp\FriendlyContexts\Extension:
+</span><span class='line'>            smartTag: smartStep
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Tag your scenario</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  @smartStep
+</span><span class='line'>  Scenario: I arrive on the site and add a product to cart
+</span><span class='line'>    When I am on "/"
+</span><span class='line'>    Then I follow "My category"
+</span><span class='line'>    Then I follow "My product"
+</span><span class='line'>    Then I press "Add to Cart"
+</span><span class='line'>    And I should see "was added to your shopping cart"</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>And then use the Scenario in any other scenarios with</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Given I arrive on the site and add a product to cart</span></code></pre></td></tr></table></div></figure>
+
 ]]></content>
   </entry>
   
@@ -920,78 +992,6 @@ pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
 <li>If your certificate expires in 2016: Think about getting renewed during 2015 or earlier.</li>
 <li>If your certificate expires in 2017: Think about getting a new one issue as soon as possible.</li>
 </ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[atop quick start: an introduction to atop snapshotting]]></title>
-    <link href="http://edmondscommerce.github.io/atop-quick-start-an-introduction-to-atop-snapshotting.html"/>
-    <updated>2014-11-12T12:35:43+00:00</updated>
-    <id>http://edmondscommerce.github.io/atop-quick-start-an-introduction-to-atop-snapshotting</id>
-    <content type="html"><![CDATA[<p><a href="http://www.atoptool.nl/"><code>atop</code></a> is a server diagnostic tool to take snapshots of the server&rsquo;s activity at specified intervals, so it&rsquo;s useful for debugging intermitttent issues without watching the server constantly.</p>
-
-<p><code>atop</code> is available to install from the repos with a <code>yum install atop</code> or <code>apt-get install</code> atop depending if you&rsquo;re on a RedHat or Debian-based server. By default atop will take snapshots every 10 minutes.</p>
-
-<p>Omnce it&rsquo;s been left running, you can view its snapshots by running <code>atop -r /var/log/atop/atop_&lt;date&gt;</code> &ndash; you can see the dates that are logged by listing the <code>/var/log/atop</code> directory.</p>
-
-<p>Two key commands to use are <code>b</code> and <code>t</code>. Pressing <code>b</code> will prompt for a time in the format hh:mm. Enter a time and it&rsquo;ll jump to the nearest snapshot. From there <code>t</code> and <code>T</code> (<code>shift-t</code>) will jump you forwards and backwards through the logs respectively</p>
-
-<p>This is an example of atop&rsquo;s output:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>ATOP - ip-10-0-1-22                                                          2014/11/11  00:30:02                                                          -----------                                                           10m0s elapsed
-</span><span class='line'>PRC | sys    5.11s  | user  10.94s |               |              | #proc    104  | #trun      1 |               | #tslpi   149 |  #tslpu     0 |              |  #zombie    0 | clones    37 |               |              |  #exit     46 |
-</span><span class='line'>CPU | sys 1%  | user  2% |               | irq       0% |               | idle    197% |               | wait      0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
-</span><span class='line'>cpu | sys 1%  | user  1% |               | irq       0% |               | idle     98% |               | cpu001 w  0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
-</span><span class='line'>cpu | sys 0%  | user  0% |               | irq       0% |               | idle     99% |               | cpu000 w  0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
-</span><span class='line'>CPL | avg1    0.14  |              | avg5    0.09  |              | avg15   0.07  |              |               | csw   261923 |               | intr  279857 |               |              |               | numcpu     2 |               |
-</span><span class='line'>MEM | tot     7.3G  | free    5.8G | cache 176.1M  | dirty   0.8M | buff   14.2M  | slab   41.4M | slrec  20.1M  | shmem  36.9M |  shrss   0.0M | shswp   0.0M |               | vmbal   0.0M |               | hptot   0.0M |  hpuse   0.0M |
-</span><span class='line'>SWP | tot     0.0M  | free    0.0M |               |              |               |              |               |              |               |              |               |              |  vmcom   2.1G | vmlim   3.6G |               |
-</span><span class='line'>NET | transport     | tcpi   69012 | tcpo   74002  |              | udpi      93  | udpo      97 | tcpao     72  | tcppo    330 |               | tcprs    250 |  tcpie      0 | tcpor     24 |  udpnp      0 |              |  udpie    0 |
-</span><span class='line'>NET | network       | ipi    69105 |               | ipo    74025 | ipfrw      0  |              | deliv  69105  |              |               |              |               |              |  icmpi      0 | icmpo    0 |               |
-</span><span class='line'>NET | eth0    ----  | pcki   68732 |               | pcko   73654 | si  342 Kbps  | so  464 Kbps |               | coll       0 |  mlti       0 |              |  erri       0 | erro       0 |  drpi       0 |              |  drpo     0 |
-</span><span class='line'>NET | lo      ----  | pcki     396 |               | pcko     396 | si   17 Kbps  | so   17 Kbps |               | coll       0 |  mlti       0 |              |  erri       0 | erro       0 |  drpi       0 |              |  drpo     0 |
-</span><span class='line'>Window resized to 238x71...
-</span><span class='line'>  PID          TID         RUID             EUID              THR         SYSCPU         USRCPU          VGROW          RGROW          RDDSK          WRDSK         ST         EXC         S         CPUNR          CPU         CMD        1/3
-</span><span class='line'> 1335            -         root             root                7          2.51s          2.97s             0K             0K             0K             0K         --           -         S             1           1%         glusterfs
-</span><span class='line'>17247            -         apache           apache              1          0.40s          4.34s         46644K         66352K          3340K          3292K         --           -         S             1           1%         httpd
-</span><span class='line'>17274            -         apache           apache              1          0.36s          1.13s         35236K         54628K          1188K          2304K         --           -         S             0           0%         httpd
-</span><span class='line'>17267            -         apache           apache              1          0.24s          0.94s         55204K         83040K          2348K          2760K         --           -         S             1           0%         httpd
-</span><span class='line'>17310            -         apache           apache              1          0.26s          0.49s         961.9M         83508K           548K            12K         N-           -         S             1           0%         httpd
-</span><span class='line'>16708            -         varnish          varnish            19          0.28s          0.08s          4992K          5188K         32588K           448K         --           -         S             0           0%         varnishd
-</span><span class='line'>17248            -         apache           apache              1          0.11s          0.17s          7128K         24120K           364K          1788K         --           -         S             1           0%         httpd
-</span><span class='line'>17187            -         root             root                1          0.18s          0.04s           140K           140K             0K            24K         --           -         R             1           0%         atop
-</span><span class='line'> 1418            -         root             root                7          0.11s          0.10s             0K             0K             0K             0K         --           -         S             1           0%         glusterfs
-</span><span class='line'>17309            -         apache           apache              1          0.06s          0.10s         922.2M         25716K           820K             8K         N-           -         S             0           0%         httpd
-</span><span class='line'> 1460            -         root             root                7          0.07s          0.08s             0K             0K             0K             0K         --           -         S             1           0%         glusterfs
-</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>

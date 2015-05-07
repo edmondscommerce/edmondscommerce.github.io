@@ -191,6 +191,106 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-15T12:02:28+01:00" pubdate data-updated="true">Apr 15<span>th</span>, 2015</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>When behat testing Magento I found myself repeating the same Homepage > Category > Product > Add-to-cart > Cart page scenario for a variety of tests &ndash; checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.</p>
+
+<p>I didn&rsquo;t want to copy-paste the whole procedure because if I changed, say the <code>.product-list</code> class, I&rsquo;d have to update each of the Scenarios. Bit of a kick in the face to <a href="http://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>.</p>
+
+<p>The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step <code>Given I have added to cart</code> or similar, but this defeats the object of using Gherkin to write the tests.</p>
+
+<p>Fortunately KnpLabs have soled this problem with <a href="https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md">SmartSteps</a>. This allows you to create a Scanerio that you want to be repeatable by tagging it as a <code>@smartStep</code>. Once it&rsquo;s tagged, you can easily embed that scenario into a new one by having a step <code>Given [scenario name]</code></p>
+
+<h3>Adding SmartSteps to your behat tests</h3>
+
+<ul>
+<li>In <code>composer.json</code>, add a new dependency</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"knplabs/friendly-contexts": "dev-master"</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>In <code>behat.yml</code></li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default:
+</span><span class='line'>    extensions:
+</span><span class='line'>        Knp\FriendlyContexts\Extension:
+</span><span class='line'>            smartTag: smartStep
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Tag your scenario</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  @smartStep
+</span><span class='line'>  Scenario: I arrive on the site and add a product to cart
+</span><span class='line'>    When I am on "/"
+</span><span class='line'>    Then I follow "My category"
+</span><span class='line'>    Then I follow "My product"
+</span><span class='line'>    Then I press "Add to Cart"
+</span><span class='line'>    And I should see "was added to your shopping cart"</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>And then use the Scenario in any other scenarios with</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Given I arrive on the site and add a product to cart</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-01T12:04:12+01:00" pubdate data-updated="true">Apr 1<span>st</span>, 2015</time>
         
       </p>
@@ -698,148 +798,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-02-03T13:00:25+00:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2015</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Behat/behat-and-emulating-mobile-browsers-using-chrome.html">Behat and Emulating Mobile Browsers Using Chrome</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Lets admit it not all mobile sites are responsive as they were created when responsive sites were in their infancy or just did not exist. Along with that and even if a site is responsive some elements, images, styles and javascript maybe exclusive to mobile user agents or excluded all together due to file size concerns.</p>
-
-<p>It would be useful to test a site when it is dealing with a mobile user agent. However you don not always need a actual mobile browser thanks to chromes mobile device emulation. Although it is not useful it can at lest be used to do some testing when site responds to specific user agents. Chromes mobile emulation can be driven with behat using the following example:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">default</span><span class="p-Indicator">:</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">base_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://urltotest.com/&quot;</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">sessions</span><span class="p-Indicator">:</span>
-</span><span class='line'>        <span class="l-Scalar-Plain">goutte_session</span><span class="p-Indicator">:</span>
-</span><span class='line'>          <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span>
-</span><span class='line'>            <span class="l-Scalar-Plain">guzzle_parameters</span><span class="p-Indicator">:</span>
-</span><span class='line'>              <span class="l-Scalar-Plain">ssl.certificate_authority</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">false</span>
-</span><span class='line'>        <span class="l-Scalar-Plain">selenium_chrome_mobile_session</span><span class="p-Indicator">:</span>
-</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
-</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">chrome</span>
-</span><span class='line'>            <span class="l-Scalar-Plain">capabilities</span><span class="p-Indicator">:</span>
-</span><span class='line'>              <span class="l-Scalar-Plain">extra_capabilities</span><span class="p-Indicator">:</span>
-</span><span class='line'>                <span class="l-Scalar-Plain">chromeOptions</span><span class="p-Indicator">:</span>
-</span><span class='line'>                  <span class="l-Scalar-Plain">mobileEmulation</span><span class="p-Indicator">:</span>
-</span><span class='line'>                    <span class="l-Scalar-Plain">deviceName</span><span class="p-Indicator">:</span> <span class="s">&quot;Google</span><span class="nv"> </span><span class="s">Nexus</span><span class="nv"> </span><span class="s">5&quot;</span>
-</span><span class='line'>        <span class="l-Scalar-Plain">selenium_chrome_session</span><span class="p-Indicator">:</span>
-</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
-</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">chrome</span>
-</span><span class='line'>            <span class="l-Scalar-Plain">capabilities</span><span class="p-Indicator">:</span>
-</span><span class='line'>              <span class="l-Scalar-Plain">extra_capabilities</span><span class="p-Indicator">:</span>
-</span><span class='line'>                <span class="l-Scalar-Plain">chromeOptions</span><span class="p-Indicator">:</span>
-</span><span class='line'>                  <span class="l-Scalar-Plain">args</span><span class="p-Indicator">:</span>
-</span><span class='line'>                    <span class="p-Indicator">-</span> <span class="s">&quot;--start-maximized&quot;</span>
-</span><span class='line'>                    <span class="p-Indicator">-</span> <span class="s">&quot;--test-type&quot;</span>
-</span><span class='line'>        <span class="l-Scalar-Plain">selenium_firefox_session</span><span class="p-Indicator">:</span>
-</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
-</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">firefox</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">suites</span><span class="p-Indicator">:</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">my_suite</span><span class="p-Indicator">:</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">contexts</span><span class="p-Indicator">:</span>
-</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">FeatureContext</span>
-</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Behat\MinkExtension\Context\MinkContext</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">chrome_mobile</span><span class="p-Indicator">:</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_chrome_mobile_session</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>With Behat and Mink we are able to pass extra parameters to the chrome selnium driver using the extra_capabilities options. In the above example we enable mobile emulation using the &ldquo;Google Nexus 5&rdquo; profile. To drive tests using this we have two options.</p>
-
-<p>Specify the profile at run time using:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>bin/behat -p chrome
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Alternative you can tag specific scenarios to use a given profile by using the following tag above the scenario you want to affect:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>@mink:selenium_chrome_mobile_session
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -865,13 +823,13 @@
     
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
+    <a class="list-group-item " href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a>
+    
     <a class="list-group-item " href="/behat/behat.html">Behat</a>
     
     <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
     
     <a class="list-group-item " href="/gnome-shell/cron-script-to-change-gnome-shell-wallpaper.html">Cron Script to Change Gnome Shell Wallpaper</a>
-    
-    <a class="list-group-item " href="/gmail/getting-rid-of-the-chain-of-quoted-replies-in-gmail.html">Getting Rid of the Chain of Quoted Replies in Gmail</a>
     
   </div>
 </section>

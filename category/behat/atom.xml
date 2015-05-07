@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Behat | Edmonds Commerce Dev Blog]]></title>
+  <title><![CDATA[Category: behat | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/category/behat/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-05-07T14:56:57+01:00</updated>
+  <updated>2015-05-07T15:20:44+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,136 +14,123 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Behat and emulating mobile browsers using chrome]]></title>
-    <link href="http://edmondscommerce.github.io/Behat/behat-and-emulating-mobile-browsers-using-chrome.html"/>
-    <updated>2015-02-03T13:00:25+00:00</updated>
-    <id>http://edmondscommerce.github.io/Behat/behat-and-emulating-mobile-browsers-using-chrome</id>
-    <content type="html"><![CDATA[<p>Lets admit it not all mobile sites are responsive as they were created when responsive sites were in their infancy or just did not exist. Along with that and even if a site is responsive some elements, images, styles and javascript maybe exclusive to mobile user agents or excluded all together due to file size concerns.</p>
+    <title type="html"><![CDATA[Repeating Behat Scenarios when Testing Magento with SmartStep]]></title>
+    <link href="http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html"/>
+    <updated>2015-04-15T12:02:28+01:00</updated>
+    <id>http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep</id>
+    <content type="html"><![CDATA[<p>When behat testing Magento I found myself repeating the same Homepage > Category > Product > Add-to-cart > Cart page scenario for a variety of tests &ndash; checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.</p>
 
-<p>It would be useful to test a site when it is dealing with a mobile user agent. However you don not always need a actual mobile browser thanks to chromes mobile device emulation. Although it is not useful it can at lest be used to do some testing when site responds to specific user agents. Chromes mobile emulation can be driven with behat using the following example:
-``` yaml
+<p>I didn&rsquo;t want to copy-paste the whole procedure because if I changed, say the <code>.product-list</code> class, I&rsquo;d have to update each of the Scenarios. Bit of a kick in the face to <a href="http://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>.</p>
+
+<p>The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step <code>Given I have added to cart</code> or similar, but this defeats the object of using Gherkin to write the tests.</p>
+
+<p>Fortunately KnpLabs have soled this problem with <a href="https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md">SmartSteps</a>. This allows you to create a Scanerio that you want to be repeatable by tagging it as a <code>@smartStep</code>. Once it&rsquo;s tagged, you can easily embed that scenario into a new one by having a step <code>Given [scenario name]</code></p>
+
+<h3>Adding SmartSteps to your behat tests</h3>
+
+<ul>
+<li>In <code>composer.json</code>, add a new dependency
+<code>
+"knplabs/friendly-contexts": "dev-master"
+</code></li>
+<li>In <code>behat.yml</code>
+```
 default:
-  extensions:</p>
+  extensions:
+      Knp\FriendlyContexts\Extension:
+          smartTag: smartStep</li>
+</ul>
 
-<pre><code>Behat\MinkExtension: 
-  base_url: "http://urltotest.com/"
-  default_session: selenium_firefox_session
-  goutte: ~
-  sessions: 
-    goutte_session: 
-      goutte: 
-        guzzle_parameters: 
-          ssl.certificate_authority: false
-    selenium_chrome_mobile_session: 
-      selenium2: 
-        browser: chrome
-        capabilities: 
-          extra_capabilities: 
-            chromeOptions: 
-              mobileEmulation: 
-                deviceName: "Google Nexus 5"
-    selenium_chrome_session: 
-      selenium2: 
-        browser: chrome
-        capabilities: 
-          extra_capabilities: 
-            chromeOptions: 
-              args: 
-                - "--start-maximized"
-                - "--test-type"
-    selenium_firefox_session: 
-      selenium2: 
-        browser: firefox
+
+<p>```
+&ndash; Tag your scenario</p>
+
+<p>```
+  @smartStep
+  Scenario: I arrive on the site and add a product to cart</p>
+
+<pre><code>When I am on "/"
+Then I follow "My category"
+Then I follow "My product"
+Then I press "Add to Cart"
+And I should see "was added to your shopping cart"
 </code></pre>
 
-<p>  suites:</p>
-
-<pre><code>my_suite: 
-  contexts: 
-    - FeatureContext
-    - Behat\MinkExtension\Context\MinkContext
-</code></pre>
-
-<p>chrome_mobile:
-  extensions:</p>
-
-<pre><code>Behat\MinkExtension: 
-  default_session: selenium_chrome_mobile_session
-</code></pre>
-
-<p>```</p>
-
-<p>With Behat and Mink we are able to pass extra parameters to the chrome selnium driver using the extra_capabilities options. In the above example we enable mobile emulation using the &ldquo;Google Nexus 5&rdquo; profile. To drive tests using this we have two options.</p>
-
-<p>Specify the profile at run time using:
-<code>bash
-bin/behat -p chrome
-</code></p>
-
-<p>Alternative you can tag specific scenarios to use a given profile by using the following tag above the scenario you want to affect:
-<code>bash
-@mink:selenium_chrome_mobile_session
-</code></p>
+<p><code>
+- And then use the Scenario in any other scenarios with
+</code>
+Given I arrive on the site and add a product to cart
+```</p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Multiple Behat and Mink profiles for testing multiple browsers]]></title>
-    <link href="http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html"/>
-    <updated>2015-02-03T12:20:36+00:00</updated>
-    <id>http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers</id>
-    <content type="html"><![CDATA[<p>Behat makes it easy to write and run automated testing in browser and in most cases where functionality is not javascript driven then testing in a single browser is fine.</p>
+    <title type="html"><![CDATA[Behat]]></title>
+    <link href="http://edmondscommerce.github.io/behat/behat.html"/>
+    <updated>2015-04-01T12:04:12+01:00</updated>
+    <id>http://edmondscommerce.github.io/behat/behat</id>
+    <content type="html"><![CDATA[<p>I love Behat. One of the great things about it is that it has been built to be very extensible, so if it doesn&rsquo;t do exactly what you need then it&rsquo;s really quite easy to to customise the way it works without having to do any hacking on the core code. This is because it makes extensive use of an Observer Pattern like Hooks system.</p>
 
-<p>However if you are testing Javascript driven functionality then it is best to have multiple profiles for multiple browsers without having to write the scenario multiple times with different tagsi for different sessions. Luckily behat support defination of multiple profiles which inherit from a single default profile for all your browser needs. You simply need to set up your bhat yaml config file like so:
-``` yaml
-default:
-  extensions:</p>
+<p>If you want to have your Behat tests fail as soon as a scenario fails &ndash; ideal when you are running a large suite of tests and trying to fix issues &ndash; then simply add in this method into a Context class.</p>
 
-<pre><code>Behat\MinkExtension: 
-  base_url: "http://someurl.com"
-  default_session: selenium_firefox_session
-  goutte: ~
-  sessions: 
-    goutte_session: 
-      goutte: 
-        guzzle_parameters: 
-          ssl.certificate_authority: false
-    selenium_chrome_session: 
-      selenium2: 
-        browser: chrome
-    selenium_firefox_session: 
-      selenium2: 
-        browser: firefox
-</code></pre>
+<p>``` php</p>
 
-<p>  suites:</p>
-
-<pre><code>my_suite: 
-  contexts: 
-    - FeatureContext
-    - Behat\MinkExtension\Context\MinkContext
-</code></pre>
-
-<p>chrome:
-  extensions:</p>
-
-<pre><code>Behat\MinkExtension: 
-  default_session: selenium_chrome_session
-</code></pre>
-
-<p>firefox:
-  extensions:</p>
-
-<pre><code>Behat\MinkExtension: 
-  default_session: selenium_firefox_session
+<pre><code>/** @AfterScenario */
+public function dieOnFailedScenario(Behat\Behat\Hook\Scope\AfterScenarioScope $scope)
+{
+    if (99 === $scope-&gt;getTestResult()-&gt;getResultCode()) {
+        if (isset($_SERVER['BEHAT_DIE_ON_FAILURE'])) {
+            die("\n\nBEHAT_DIE_ON_FAILURE is defined\n\nKilling Full Process\n\n\n\n");
+        } else {
+            echo "\n\nTo die on failure, please run:\nexport BEHAT_DIE_ON_FAILURE=true;\n\n";
+        }
+    }
+}
 </code></pre>
 
 <p>```</p>
 
-<p>The to run the crome profile for example use the -p option flag on the behat command as show:
-<code>bash
-bin/behat -p chrome
-</code></p>
+<p>Then in your terminal, simply export BEHAT_DIE_ON_FAILURE=true and then the next time you run your tests, the process will die and you can go and fix the problems.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Behat Selenium arguments[0] is undefined Problem + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/behat/behat-selenium-arguments-0-is-undefined-problem-plus-solution.html"/>
+    <updated>2015-02-17T12:33:51+00:00</updated>
+    <id>http://edmondscommerce.github.io/behat/behat-selenium-arguments-0-is-undefined-problem-plus-solution</id>
+    <content type="html"><![CDATA[<p>Just spent a good amount of time struggling to see why my perfectly functional looking code was not working.</p>
+
+<p>Tests were failing with the error message:</p>
+
+<p><em>arguments[0] is undefined</em></p>
+
+<p>A little bit of Googling later and I found the issue.</p>
+
+<p>It seems that some Firefox versions will bomb out and give you this error message.</p>
+
+<p>The simple solution, if you can, is to switch to using Chrome and Chromedriver</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Easily Setup and Run Selenium for your Behat Tests]]></title>
+    <link href="http://edmondscommerce.github.io/behat/easily-setup-and-run-selenium-for-your-behat-tests.html"/>
+    <updated>2015-02-12T14:01:24+00:00</updated>
+    <id>http://edmondscommerce.github.io/behat/easily-setup-and-run-selenium-for-your-behat-tests</id>
+    <content type="html"><![CDATA[<p>We&rsquo;ve decided on sticking with Selenium to run our Behat based testing as it allows us to do proper browser testing and it&rsquo;s also actually quite nice to be able to watch the tests as they progress and easily spot anything that might be wrong.</p>
+
+<p>Getting Selenium running and ensuring everyone is using the same version is another challenge.</p>
+
+<p>To make that easier, and also to allow us to easily update as we go, we have now released a Composer package so that it can easily be added to project dependencies.</p>
+
+<p>For full details, we suggest you head over to the Repo and read the information there as that will be kept up to date.</p>
+
+<p><a href="https://github.com/edmondscommerce/selenium-server">https://github.com/edmondscommerce/selenium-server</a></p>
+
+<p>You can also find this on Packagist here:</p>
+
+<p><a href="https://packagist.org/packages/edmondscommerce/selenium-server">https://packagist.org/packages/edmondscommerce/selenium-server</a></p>
 ]]></content>
   </entry>
   

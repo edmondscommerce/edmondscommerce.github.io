@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: behat | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/behat/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-05-07T14:56:57+01:00</updated>
+  <updated>2015-05-07T15:20:44+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,57 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Repeating Behat Scenarios when Testing Magento with SmartStep]]></title>
+    <link href="http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html"/>
+    <updated>2015-04-15T12:02:28+01:00</updated>
+    <id>http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep</id>
+    <content type="html"><![CDATA[<p>When behat testing Magento I found myself repeating the same Homepage > Category > Product > Add-to-cart > Cart page scenario for a variety of tests &ndash; checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.</p>
+
+<p>I didn&rsquo;t want to copy-paste the whole procedure because if I changed, say the <code>.product-list</code> class, I&rsquo;d have to update each of the Scenarios. Bit of a kick in the face to <a href="http://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>.</p>
+
+<p>The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step <code>Given I have added to cart</code> or similar, but this defeats the object of using Gherkin to write the tests.</p>
+
+<p>Fortunately KnpLabs have soled this problem with <a href="https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md">SmartSteps</a>. This allows you to create a Scanerio that you want to be repeatable by tagging it as a <code>@smartStep</code>. Once it&rsquo;s tagged, you can easily embed that scenario into a new one by having a step <code>Given [scenario name]</code></p>
+
+<h3>Adding SmartSteps to your behat tests</h3>
+
+<ul>
+<li>In <code>composer.json</code>, add a new dependency
+<code>
+"knplabs/friendly-contexts": "dev-master"
+</code></li>
+<li>In <code>behat.yml</code>
+```
+default:
+  extensions:
+      Knp\FriendlyContexts\Extension:
+          smartTag: smartStep</li>
+</ul>
+
+
+<p>```
+&ndash; Tag your scenario</p>
+
+<p>```
+  @smartStep
+  Scenario: I arrive on the site and add a product to cart</p>
+
+<pre><code>When I am on "/"
+Then I follow "My category"
+Then I follow "My product"
+Then I press "Add to Cart"
+And I should see "was added to your shopping cart"
+</code></pre>
+
+<p><code>
+- And then use the Scenario in any other scenarios with
+</code>
+Given I arrive on the site and add a product to cart
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Behat]]></title>
@@ -153,66 +204,6 @@ bin/behat -p chrome
 <p>Alternative you can tag specific scenarios to use a given profile by using the following tag above the scenario you want to affect:
 <code>bash
 @mink:selenium_chrome_mobile_session
-</code></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Multiple Behat and Mink profiles for testing multiple browsers]]></title>
-    <link href="http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html"/>
-    <updated>2015-02-03T12:20:36+00:00</updated>
-    <id>http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers</id>
-    <content type="html"><![CDATA[<p>Behat makes it easy to write and run automated testing in browser and in most cases where functionality is not javascript driven then testing in a single browser is fine.</p>
-
-<p>However if you are testing Javascript driven functionality then it is best to have multiple profiles for multiple browsers without having to write the scenario multiple times with different tagsi for different sessions. Luckily behat support defination of multiple profiles which inherit from a single default profile for all your browser needs. You simply need to set up your bhat yaml config file like so:
-``` yaml
-default:
-  extensions:</p>
-
-<pre><code>Behat\MinkExtension: 
-  base_url: "http://someurl.com"
-  default_session: selenium_firefox_session
-  goutte: ~
-  sessions: 
-    goutte_session: 
-      goutte: 
-        guzzle_parameters: 
-          ssl.certificate_authority: false
-    selenium_chrome_session: 
-      selenium2: 
-        browser: chrome
-    selenium_firefox_session: 
-      selenium2: 
-        browser: firefox
-</code></pre>
-
-<p>  suites:</p>
-
-<pre><code>my_suite: 
-  contexts: 
-    - FeatureContext
-    - Behat\MinkExtension\Context\MinkContext
-</code></pre>
-
-<p>chrome:
-  extensions:</p>
-
-<pre><code>Behat\MinkExtension: 
-  default_session: selenium_chrome_session
-</code></pre>
-
-<p>firefox:
-  extensions:</p>
-
-<pre><code>Behat\MinkExtension: 
-  default_session: selenium_firefox_session
-</code></pre>
-
-<p>```</p>
-
-<p>The to run the crome profile for example use the -p option flag on the behat command as show:
-<code>bash
-bin/behat -p chrome
 </code></p>
 ]]></content>
   </entry>
