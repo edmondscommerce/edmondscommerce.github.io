@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-04-01T12:07:33+01:00</updated>
+  <updated>2015-05-07T10:54:31+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,13 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Behat]]></title>
-    <link href="http://edmondscommerce.github.io/behat/behat.html"/>
-    <updated>2015-04-01T12:04:12+01:00</updated>
-    <id>http://edmondscommerce.github.io/behat/behat</id>
-    <content type="html"><![CDATA[<p>I love Behat. One of the great things about it is that it has been built to be very extensible, so if it doesn&rsquo;t do exactly what you need then it&rsquo;s really quite easy to to customise the way it works without having to do any hacking on the core code. This is because it makes extensive use of an Observer Pattern like Hooks system.</p>
-
-<p>If you want to have your Behat tests fail as soon as a scenario fails &ndash; ideal when you are running a large suite of tests and trying to fix issues &ndash; then simply add in this method into a Context class.</p>
+    <title type="html"><![CDATA[Running out of disk space but df shows you have lots of space left]]></title>
+    <link href="http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html"/>
+    <updated>2015-05-07T10:32:04+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left</id>
+    <content type="html"><![CDATA[<p>Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:</p>
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -29,27 +27,24 @@
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'>
-</span><span class='line'>    <span class="sd">/** @AfterScenario */</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">dieOnFailedScenario</span><span class="p">(</span><span class="nx">Behat\Behat\Hook\Scope\AfterScenarioScope</span> <span class="nv">$scope</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="mi">99</span> <span class="o">===</span> <span class="nv">$scope</span><span class="o">-&gt;</span><span class="na">getTestResult</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getResultCode</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;BEHAT_DIE_ON_FAILURE&#39;</span><span class="p">]))</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">die</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">BEHAT_DIE_ON_FAILURE is defined</span><span class="se">\n\n</span><span class="s2">Killing Full Process</span><span class="se">\n\n\n\n</span><span class="s2">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">To die on failure, please run:</span><span class="se">\n</span><span class="s2">export BEHAT_DIE_ON_FAILURE=true;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Filesystem      Inodes   IUsed  IFree IUse% Mounted on
+</span><span class='line'>/dev/xvda1     2621440 2621440      0  100% /
+</span><span class='line'>udev            124879     398 124481    1% /dev
+</span><span class='line'>tmpfs           126892     288 126604    1% /run
+</span><span class='line'>none            126892       4 126888    1% /run/lock
+</span><span class='line'>none            126892       1 126891    1% /run/shm
+</span><span class='line'>none            126892       1 126891    1% /run/user
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Then in your terminal, simply export BEHAT_DIE_ON_FAILURE=true and then the next time you run your tests, the process will die and you can go and fix the problems.</p>
+<p>So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">for </span>i in /var/*; <span class="k">do </span><span class="nb">echo</span> <span class="nv">$i</span>; find <span class="nv">$i</span> | wc -l; <span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.</p>
 ]]></content>
   </entry>
   
