@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Tag: SagePay | Edmonds Commerce Dev Blog]]></title>
+  <title><![CDATA[Tag: sagepay | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/sagepay/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-04-15T12:23:48+01:00</updated>
+  <updated>2015-05-07T10:56:25+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,42 +14,173 @@
 
   
   <entry>
-    <title type="html"><![CDATA[SagePay, OneStepCheckout, 'Transaction could not be cancelled and order was not created, cart was modified while customer on payment pages']]></title>
-    <link href="http://edmondscommerce.github.io/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html"/>
-    <updated>2014-04-24T19:17:35+01:00</updated>
-    <id>http://edmondscommerce.github.io/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages</id>
-    <content type="html"><![CDATA[<p>I spent this morning dealing with a Magento sit that was unable to process Credit Card payments when they were placed with SagePay.</p>
+    <title type="html"><![CDATA[Payment has failed... Magento and SagePay CE Error + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/magento/payment-has-failed-magento-and-sagepay-ce-error-solution.html"/>
+    <updated>2013-05-22T14:58:25+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/payment-has-failed-magento-and-sagepay-ce-error-solution</id>
+    <content type="html"><![CDATA[<p>I recently upgraded a magento store and installed the Sage Pay Suite CE module from EbizMarks.</p>
 
-<p>When a customer tried to place an order they were able to enter that card details, but were then presented with an alert with the following message</p>
+<p>The following error came up twice during the testing of the module, once in the frontend and once in the admin.</p>
 
-<blockquote><p>Your order could not be completed, please try again. Thanks.</p></blockquote>
+<p><strong>Payment has failed, please reload checkout page and try again. Your card has not been charged</strong></p>
 
-<p>They were using the <a href="https://github.com/ebizmarts/sage-pay-suite-ce">EbizMarts SagePay CE Module</a>, so I had a look around to see if the error was known</p>
+<p>The error itself is triggered from the saveAfter method in the Ebizmarts_SagePaySuite_Model_Observer_Sales class and is called every time an order is saved.</p>
 
-<p>It appears that a recent release of the SagePay Module introduces some additional checks before creating the order and the current release of the <a href="http://www.onestepcheckout.com/">OneStepCheckout</a> is not compatible with this.</p>
+<p>The error on the frontend was caused by a javascript error. Adding the following to the top of the sagePaySuite_Checkout.js file corrected it</p>
 
-<p>If you look straight at the SagePay Logs you may also see the following errors, which may indicate the same problem.</p>
+<p>```javascript</p>
 
-<ul>
-<li>DEBUG: 4028 : The related transaction cannot be found.</li>
-<li>DEBUG: Your order could not be completed, please try again. Thanks.</li>
-<li>CRIT: Transaction XXXXXXXXX-XXXX-XX-XX-XX-XX-XX could not be cancelled and order was not created, cart was modified while customer on payment pages.</li>
-</ul>
+<p>if(typeof sagePayIsMobile == &lsquo;undefined&rsquo;) {</p>
+
+<pre><code>var sagePayIsMobile = function() {
+    return (navigator.userAgent.match(/BlackBerry/i) ||
+        navigator.userAgent.match(/webOS/i) ||
+        navigator.userAgent.match(/Android/i) ||
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPod/i) ||
+        navigator.userAgent.match(/iPad/i));
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>The error in the admin was caused by a different extension being called when the order was saved. Normally the extension ensures that the method is not called when it is not needed and this is done by checking the route and the registry. If an extension saves the order these checks are not triggered so you will need to add in your own. To do that you will need add the following code to the action that is saving the error</p>
+
+<p>```php</p>
+
+<p>Mage::register(&lsquo;skipSagePay&rsquo;, TRUE);</p>
+
+<p>```</p>
+
+<p>and then change the following line in the Ebizmarts/SagePaySuite/Model/Observer/Sales.php file</p>
+
+<p>```php</p>
+
+<p>if( (Mage::app()&ndash;>getRequest()&ndash;>getControllerModule() == &lsquo;Mage_Api&rsquo;) || Mage::registry(&lsquo;current_shipment&rsquo;) || Mage::registry(&lsquo;sales_order&rsquo;) || Mage::registry(&lsquo;current_creditmemo&rsquo;) || Mage::registry(&lsquo;current_invoice&rsquo;) || ($order->getPayment()&ndash;>getMethod() == &lsquo;sagepayrepeat&rsquo;) ){</p>
+
+<p>```</p>
+
+<p>to
+```php</p>
+
+<p>if( (Mage::app()&ndash;>getRequest()&ndash;>getControllerModule() == &lsquo;Mage_Api&rsquo;) || Mage::registry(&lsquo;current_shipment&rsquo;) || Mage::registry(&lsquo;sales_order&rsquo;) || Mage::registry(&lsquo;current_creditmemo&rsquo;) || Mage::registry(&lsquo;current_invoice&rsquo;) || ($order->getPayment()&ndash;>getMethod() == &lsquo;sagepayrepeat&rsquo;) || Mage::registry(&lsquo;skipSagePay&rsquo;)){</p>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Release SagePay Form Orders via API]]></title>
+    <link href="http://edmondscommerce.github.io/sagepay/release-sagepay-form-orders-via-api.html"/>
+    <updated>2013-03-19T17:54:16+00:00</updated>
+    <id>http://edmondscommerce.github.io/sagepay/release-sagepay-form-orders-via-api</id>
+    <content type="html"><![CDATA[<p>If you use SagePay Form integration then you might think that it is impossible to release orders created via this integration system via the API.</p>
+
+<p>Historically this was true however thanks to the new admin and reporting API you can now grab all of the details you need to perform the kind of admin side integration previously only possible via Server and Direct integrations.</p>
+
+<p>This does take a bit of work but if you like the fact that Form alleviates PCI compliance issues, allows your customers to use the nice easy to use Form interface and also gives you easy PayPal integration then this is a great solution.</p>
+
+<p>Thanks goes out to SagePay&rsquo;s technical support who have proved really helpful in ironing out the kinks in getting this working.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sage Pay Technical Report]]></title>
+    <link href="http://edmondscommerce.github.io/ecommerce/sage-pay-technical-report.html"/>
+    <updated>2011-03-14T09:55:14+00:00</updated>
+    <id>http://edmondscommerce.github.io/ecommerce/sage-pay-technical-report</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
 
 
-<p>Thankfully there is a simple fix for this. In the <strong>app/code/local/Idev/OneStepCheckout/controllers/IndexController.php</strong> file you need to add the following line to the indexAction method</p>
+<p>After the recent Sage Pay troubles, they offered a technical report which if requested they will send to you.</p>
 
-<p><code>php
-Mage::getSingleton('checkout/session')-&gt;setCartWasUpdated(false);
-</code></p>
+<p>Not sure why they created this extra step to get to this information so I thought I would post it here for general consumption:</p>
 
-<p>Just before</p>
+<blockquote>
+<b>Sage Pay Technical Report — 3 & 4 March 2011
+</b>
+At 01:05 Thursday 3 March 2011 our system monitoring functionality alerted us to a potential issue with the Sage Pay Live gateway.
 
-<p><code>php
-$this-&gt;loadLayout();
-</code></p>
+Our Incident Management team immediately initiated our incident management processes updating the monitor page, activating engineers to further investigate the situation and engaging with senior members of the business.
 
-<p>and then everything will work correctly.</p>
+It was initially unclear as to the extent of the issue — Live transactions were not being processed at this time, but My Sage Pay was available. In total during this time the Live gateway was unavailable for approximately 1 hour 45 minutes. 
+
+Remedial work to re-enable our transaction processing was completed at 04:25am. The nature of this work meant that transactions were not archiving to our warehouse and reporting databases. 
+
+By 07:30am all transactions were able to be processed (including refunds, repeats etc), however at this point they were not appearing in My Sage Pay.
+
+We remained in this state until 11:45am. In order to try and resolve the issues with My Sage Pay, our warehouse and reporting database processes required restarting; this was performed at 11:45 but had a direct impact on our front-end web servers, resulting in a 50% reduction in transaction processing between 11:45 and 11:50. 
+
+Live transaction processing on the gateway continued at a degraded level throughout the afternoon despite our efforts to resolve the issues fully. Between 13:56 – 14:10 the live gateway was unavailable.
+
+At 19:20 normal volumes of transactions through the Live gateway were resumed following the resolution of issues with the warehouse databases. The gateway has since maintained full service with no further service degradation.
+
+My Sage Pay issues continued into Thursday evening and during the day on Friday. We were unable to display real-time transactions, as the reporting databases were not being populated. We took the decision to re-index the reporting database, which began at 23:59 on Thursday in order to ensure improved performance when My Sage Pay was brought back online. Due to the issue on 3 March, this work took three times longer than expected and caused My Sage Pay to remain unavailable until 16:35 on Friday 4 March.  
+
+During Saturday 5 March and Sunday 6 March further work took place to populate fraud results, correct settlement discrepancies and complete the migration of the remaining transactions. 
+
+All work was complete and My Sage Pay was fully up-to-date by midday on Monday 7 March.</blockquote>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Alternative Magento Payment Service Providers]]></title>
+    <link href="http://edmondscommerce.github.io/magento/alternative-magento-payment-service-providers.html"/>
+    <updated>2011-02-11T12:13:49+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/alternative-magento-payment-service-providers</id>
+    <content type="html"><![CDATA[<p>Traditionally Edmonds Commerce have always recommended Sage Pay as a payment service provider however recently the service has been a bit patchy and they have made some mistakes in their general strategy.</p>
+
+<p>Its definitely a good time to evaluate the other available options and here are some that we recommend looking at:</p>
+
+<p><a href="http://www.magentocommerce.com/extension/packages/module/5045/total_web_solutions_payment_gateway_module">Total Web Solutions</a></p>
+
+<p><a href="http://www.magentocommerce.com/magento-connect/Iridium%20Corporation/extension/3764/iridiumcorp_tpg">Iridium</a></p>
+
+<p>Both of these have free Magento connect extensions and offer competitive pricing and general feedback seems to be good so well worth taking a look at.</p>
+
+<p>Edmonds Commerce have a close relationship with both companies and would be happy to help you get set up with them.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SagePay Test Card Details]]></title>
+    <link href="http://edmondscommerce.github.io/ecommerce/sagepay-test-card-details.html"/>
+    <updated>2010-11-01T12:10:22+00:00</updated>
+    <id>http://edmondscommerce.github.io/ecommerce/sagepay-test-card-details</id>
+    <content type="html"><![CDATA[<div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you are testing out your SagePay integration, you need to be able to input some test card details that the test.sagepay.com system will accept.</p>
+
+<p>Here they are:</p>
+
+<p>or testing transactions on the Protx test server, use the following card numbers.</p>
+
+<p>NB: there are NO dummy cards to use on the Live server. Actual Live bank cards must be used.</p>
+
+<table class="ProtocolTables" cellspacing="0" cellpadding="0" border="1"><tbody><tr><td class="protxNames" align="middle" height="27">Card Type</td><td class="protxNames" align="middle" height="27">Protx Card Name</td><td class="protxNames" align="middle" height="27">Card Number</td><td class="protxNames" align="middle" height="27">Issue Number</td></tr><tr><td align="middle" height="27">Visa</td><td align="middle" height="27">VISA</td><td align="middle" height="27">4929000000006</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Visa Delta</td><td align="middle" height="27">DELTA</td><td align="middle" height="27">4462000000000003</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Visa Electron UK Debit</td><td align="middle" height="27">UKE</td><td align="middle" height="27">4917300000000008</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Mastercard</td><td align="middle" height="27">MC</td><td align="middle" height="27">5404000000000001</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">UK Maestro</td><td align="middle" height="27">MAESTRO</td><td align="middle" height="27">5641820000000005</td><td align="middle" height="27">01</td></tr><tr><td align="middle" height="27">International Maestro</td><td align="middle" height="27">MAESTRO</td><td align="middle" height="27">300000000000000004</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Solo</td><td align="middle" height="27">SOLO</td><td align="middle" height="27">6334900000000005</td><td align="middle" height="27">1</td></tr><tr><td align="middle" height="27">American Express</td><td align="middle" height="27">AMEX</td><td align="middle" height="27">374200000000004</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Japan Credit Bureau (JCB)</td><td align="middle" height="27">JCB</td><td align="middle" height="27">3569990000000009</td><td align="middle" height="27">n/a</td></tr><tr><td align="middle" height="27">Diners Club</td><td align="middle" height="27">DC</td><td align="middle" height="27">36000000000008</td><td align="middle" height="27">n/a</td></tr></tbody></table>
+
+
+<p>You&rsquo;ll also need to supply an Expiry Date in the future and the following values for CV2, Billing Address Numbers and Billing Post Code Numbers. These are the only values which will return as Matched. Any other values will return a Not Matched.</p>
+
+<p>CV2: 123
+Billing Address: 88
+Billing PostCode: 412</p>
 ]]></content>
   </entry>
   

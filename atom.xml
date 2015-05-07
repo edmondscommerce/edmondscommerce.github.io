@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-04-15T12:23:48+01:00</updated>
+  <updated>2015-05-07T10:56:25+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,74 +14,37 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Repeating Behat Scenarios when Testing Magento with SmartStep]]></title>
-    <link href="http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html"/>
-    <updated>2015-04-15T12:02:28+01:00</updated>
-    <id>http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep</id>
-    <content type="html"><![CDATA[<p>When behat testing Magento I found myself repeating the same Homepage > Category > Product > Add-to-cart > Cart page scenario for a variety of tests &ndash; checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.</p>
+    <title type="html"><![CDATA[Running out of disk space but df shows you have lots of space left]]></title>
+    <link href="http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html"/>
+    <updated>2015-05-07T10:32:04+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left</id>
+    <content type="html"><![CDATA[<p>Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:</p>
 
-<p>I didn&rsquo;t want to copy-paste the whole procedure because if I changed, say the <code>.product-list</code> class, I&rsquo;d have to update each of the Scenarios. Bit of a kick in the face to <a href="http://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>.</p>
-
-<p>The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step <code>Given I have added to cart</code> or similar, but this defeats the object of using Gherkin to write the tests.</p>
-
-<p>Fortunately KnpLabs have soled this problem with <a href="https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md">SmartSteps</a>. This allows you to create a Scanerio that you want to be repeatable by tagging it as a <code>@smartStep</code>. Once it&rsquo;s tagged, you can easily embed that scenario into a new one by having a step <code>Given [scenario name]</code></p>
-
-<h3>Adding SmartSteps to your behat tests</h3>
-
-<ul>
-<li>In <code>composer.json</code>, add a new dependency</li>
-</ul>
-
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>"knplabs/friendly-contexts": "dev-master"</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>In <code>behat.yml</code></li>
-</ul>
-
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>default:
-</span><span class='line'>    extensions:
-</span><span class='line'>        Knp\FriendlyContexts\Extension:
-</span><span class='line'>            smartTag: smartStep
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Tag your scenario</li>
-</ul>
-
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>  @smartStep
-</span><span class='line'>  Scenario: I arrive on the site and add a product to cart
-</span><span class='line'>    When I am on "/"
-</span><span class='line'>    Then I follow "My category"
-</span><span class='line'>    Then I follow "My product"
-</span><span class='line'>    Then I press "Add to Cart"
-</span><span class='line'>    And I should see "was added to your shopping cart"</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Filesystem      Inodes   IUsed  IFree IUse% Mounted on
+</span><span class='line'>/dev/xvda1     2621440 2621440      0  100% /
+</span><span class='line'>udev            124879     398 124481    1% /dev
+</span><span class='line'>tmpfs           126892     288 126604    1% /run
+</span><span class='line'>none            126892       4 126888    1% /run/lock
+</span><span class='line'>none            126892       1 126891    1% /run/shm
+</span><span class='line'>none            126892       1 126891    1% /run/user
+</span></code></pre></td></tr></table></div></figure>
 
 
-<ul>
-<li>And then use the Scenario in any other scenarios with</li>
-</ul>
+<p>So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">for </span>i in /var/*; <span class="k">do </span><span class="nb">echo</span> <span class="nv">$i</span>; find <span class="nv">$i</span> | wc -l; <span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Given I arrive on the site and add a product to cart</span></code></pre></td></tr></table></div></figure>
-
+<p>This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.</p>
 ]]></content>
   </entry>
   

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: linux | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/category/linux/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-04-15T12:23:48+01:00</updated>
+  <updated>2015-05-07T10:56:25+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,32 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Running out of disk space but df shows you have lots of space left]]></title>
+    <link href="http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html"/>
+    <updated>2015-05-07T10:32:04+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left</id>
+    <content type="html"><![CDATA[<p>Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:</p>
+
+<p><code>bash
+Filesystem      Inodes   IUsed  IFree IUse% Mounted on
+/dev/xvda1     2621440 2621440      0  100% /
+udev            124879     398 124481    1% /dev
+tmpfs           126892     288 126604    1% /run
+none            126892       4 126888    1% /run/lock
+none            126892       1 126891    1% /run/shm
+none            126892       1 126891    1% /run/user
+</code></p>
+
+<p>So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:
+<code>bash
+for i in /var/*; do echo $i; find $i | wc -l; done
+</code></p>
+
+<p>This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Compile NGINX with PageSpeed and ModSecurity on CentOS]]></title>
@@ -257,25 +283,6 @@ gsettings set org.gnome.shell.extensions.user-theme name &lsquo;elegance-colors&
 <h2>Fonts</h2>
 
 <p>To make the most of Fedora, its well worth following <a href="http://worldofgnome.org/how-to-greatly-improve-font-rendering-under-fedora-20/">these instructions</a> to improve font rendering.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Mute Chrome/Chromium in Gnome Shell]]></title>
-    <link href="http://edmondscommerce.github.io/linux/mute-chrome-slash-chromium-in-gnome-shell.html"/>
-    <updated>2014-08-04T10:09:42+01:00</updated>
-    <id>http://edmondscommerce.github.io/linux/mute-chrome-slash-chromium-in-gnome-shell</id>
-    <content type="html"><![CDATA[<p>You might not be aware that in Gnome Shell and likely anything else using Linux you can easily block sound from entire applications.</p>
-
-<p>For me this means blocking annoying auto playing videos with sound that are cropping up as I&rsquo;m trying to listen to some nice tunes whilst I work.</p>
-
-<p>To block the sound is very easy, simply go to the sound control panel which in Gnome Shell is access via the top right panel.</p>
-
-<p>Once into the sound section, go to the right most tab where you can control sounds on an application by application basis. Simply turn off the annoying onces.</p>
-
-<p><img src="/assets/mute-chromium.png"></p>
-
-<p>Beautiful :)</p>
 ]]></content>
   </entry>
   
