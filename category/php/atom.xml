@@ -4,7 +4,7 @@
   <title><![CDATA[Category: php | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/category/php/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-05-07T15:20:44+01:00</updated>
+  <updated>2015-05-13T14:00:16+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,43 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PHP json_encode Failing with No Clear Reason + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html"/>
+    <updated>2015-05-13T13:05:35+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/php-json-encode-failing-with-no-clear-reason-plus-solution</id>
+    <content type="html"><![CDATA[<p>I recently had an issue on a server that has been updated to use PHP 5.6. Code that was using json_encode had stopped working for no apparent reason.</p>
+
+<p>Reading into the issue, it seems that one scenario that this would happen is if the strings in an array were not valid utf8. An obvious solution to this was to encode the strings.</p>
+
+<p>Here is a simple function to process an array ready for use with json_encode. It solved the issue for me, maybe it can help you too?</p>
+
+<p>``` php</p>
+
+<p>/<em>*
+ * Process an array and utf8 encode all leaf elements ready for json encode
+ * @param array &amp;$arr &ndash; reference to an array to process
+ </em>/
+function utf8_array_for_json(array &amp;$arr){</p>
+
+<pre><code>array_walk_recursive($arr, function(&amp;$valByRef){$valByRef = utf8_encode($valByRef);});
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>To use this, simply pass in your array (by reference) before calling json_encode on the array, for example:</p>
+
+<p>``` php</p>
+
+<p>utf8_array_for_json($myArray);
+echo json_encode($myArray);</p>
+
+<p>```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Getting sub domains and domain from a url]]></title>
@@ -206,74 +243,6 @@ php -f script.php getvar1=test getvar2=foo POST:postvar1=bar
 <p>```</p>
 
 <p>And that is it</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PHP Base64 Decode if Encoded Otherwise Leave Intact]]></title>
-    <link href="http://edmondscommerce.github.io/php/php-base64-decode-if-encoded-otherwise-leave-intact.html"/>
-    <updated>2013-07-25T15:05:08+01:00</updated>
-    <id>http://edmondscommerce.github.io/php/php-base64-decode-if-encoded-otherwise-leave-intact</id>
-    <content type="html"><![CDATA[<p>I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).</p>
-
-<p>However to really make things interesting, they didn&rsquo;t always do this so you couldn&rsquo;t just go and decode everything.</p>
-
-<p>Here is the solution I came up with:</p>
-
-<p>First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:</p>
-
-<p>```php</p>
-
-<p>preg_replace_callback(&lsquo;%>([^&lt;]+?)&lt;%&rsquo;, array($this, &lsquo;_decode&rsquo;), $response)</p>
-
-<p>```</p>
-
-<p>Then the callback function is a method on the same object hence the use of array($this, &lsquo;_decode&rsquo;)</p>
-
-<p>```php</p>
-
-<pre><code>/**
- * Decode from bas64 if it actually is base64 encoded in the first place
- *
- * If not return the raw string
- *
- * @param $matches
- * @return string
- */
-protected function _decode($matches)
-{
-    $raw=$matches[1];
-    $decoded = base64_decode($raw, true);
-    $return=$decoded;
-    if(false === $decoded){
-        $return=$raw;
-    }elseif(base64_encode($decoded) != $raw){
-        $return=$raw;
-    }
-    return '&gt;&lt;![CDATA[' . $return . ']]&gt;&lt;';
-}
-</code></pre>
-
-<p>```</p>
-
-<p>What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.</p>
-
-<p>If it doesn&rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.</p>
-
-<p>By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.</p>
-
-<p>Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.</p>
-
-<p>However &ndash; one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&rsquo;t mind compromising the data a little which I didn&rsquo;t for my purposes) then you can do the following:</p>
-
-<p>```php</p>
-
-<p>//have to utf8 encode it to fix the fact its not properly encoded at their end
-$xml = simplexml_load_string(utf8_encode($response));</p>
-
-<p>```</p>
-
-<p>And that&rsquo;s it, another crazy API defeated and bent to my will!</p>
 ]]></content>
   </entry>
   

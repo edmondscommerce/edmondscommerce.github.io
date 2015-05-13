@@ -128,6 +128,89 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-17T16:03:49+00:00" pubdate data-updated="true">Feb 17<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-dataflow-images-not-working-solution.html">Magento Dataflow Images Not Working + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are struggling to understand why Magento is not finding images that are definitely there, the problem may well be that you are not prefixing your image with a slash, i.e for a new image we would put:</p>
+
+<p>/image.jpg</p>
+
+<p>and the image would be in</p>
+
+<p>media/import/image.jpg</p>
+
+<p>Unfortunately whoever wrote the Dataflow product importer though it would be a good idea to silently capture all exceptions on image imports which removes any useful error messages that might occur (such as no image at media/importimage.jpg)</p>
+
+<p>If you would prefer to fix this, you can override Mage_Catalog_Model_Convert_Adapter_Product</p>
+
+<p>Copy the saveRow() method into your overriding class and then change this bit</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$imageData</span> <span class="k">as</span> <span class="nv">$file</span> <span class="o">=&gt;</span> <span class="nv">$fields</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">try</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nv">$filepath</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseDir</span><span class="p">(</span><span class="s1">&#39;media&#39;</span><span class="p">)</span> <span class="o">.</span> <span class="nx">DS</span> <span class="o">.</span> <span class="s1">&#39;import&#39;</span> <span class="o">.</span> <span class="nx">trim</span><span class="p">(</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>                <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">addImageToMediaGallery</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">,</span> <span class="nv">$fields</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">Exception</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To something like this</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="nv">$imageData</span> <span class="k">as</span> <span class="nv">$file</span> <span class="o">=&gt;</span> <span class="nv">$fields</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">//try {</span>
+</span><span class='line'>                <span class="nv">$filepath</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getBaseDir</span><span class="p">(</span><span class="s1">&#39;media&#39;</span><span class="p">)</span> <span class="o">.</span> <span class="nx">DS</span> <span class="o">.</span> <span class="s1">&#39;import&#39;</span> <span class="o">.</span> <span class="nx">trim</span><span class="p">(</span><span class="nv">$file</span><span class="p">);</span>
+</span><span class='line'>                <span class="nv">$product</span><span class="o">-&gt;</span><span class="na">addImageToMediaGallery</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">,</span> <span class="nv">$fields</span><span class="p">);</span>
+</span><span class='line'>           <span class="c1">//} catch (Exception $e) {}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-17T15:28:57+00:00" pubdate data-updated="true">Feb 17<span>th</span>, 2011</time>
         
       </p>
@@ -773,61 +856,6 @@ app/code/local/EdmondsCommerce/CustomModule/sql/custommodule_setup/mysql4-instal
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-20T14:43:37+00:00" pubdate data-updated="true">Jan 20<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/php-jobs-leeds.html">PHP Jobs Leeds</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<p>Looking for PHP Jobs in the Leeds area?</p>
-
-<p>You have come to the right place. Edmonds Commerce are actively recruiting PHP developers in the Leeds area. We have more work on than we can handle and that&rsquo;s only likely to grow even more.</p>
-
-<p>If you would like to work as a PHP Developer with Edmonds Commerce in Leeds then <strong><a href="/contact-us/?about=php-jobs-leeds">get in touch</a></strong> as we have a great job to offer you.</p>
-
-<p>You can read more about our <a href="http://www.edmondscommerce.co.uk/about/job-recruitment-php-developer-leeds/">PHP Jobs</a> in <a href="http://www.edmondscommerce.co.uk/about/job-recruitment-php-developer-leeds/">Leeds</a> by visiting this page:</p>
-
-<p><a href="http://is.gd/phpjobleeds"><a href="http://is.gd/phpjobleeds">http://is.gd/phpjobleeds</a></a></p>
-
-<p>If you are from anywhere in or around Leeds, Bradford, Hunslet, Beeston Hill, Knowsthorpe, Kirkstall, Belle Isle, Farnley, Beeston, Killingbeck, Meanwood, Bramley, Adel, Stanningley, Moortown, Gildersome  and looking for PHP work then get in touch.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -851,6 +879,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html">PHP Json_encode Failing With No Clear Reason + Solution</a>
+    
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
     <a class="list-group-item " href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a>
@@ -858,8 +888,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/behat/behat.html">Behat</a>
     
     <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
-    
-    <a class="list-group-item " href="/gnome-shell/cron-script-to-change-gnome-shell-wallpaper.html">Cron Script to Change Gnome Shell Wallpaper</a>
     
   </div>
 </section>
