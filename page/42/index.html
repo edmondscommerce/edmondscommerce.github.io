@@ -128,6 +128,152 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-24T15:29:39+01:00" pubdate data-updated="true">Jun 24<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-dompdf-bug-page_cache-cls-php-on-line-66-dompdf-solution.html">PHP DomPDF Bug - page_cache.cls.php on Line 66 Dompdf + Solution</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
+<p>
+If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
+or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
+</p>
+</div>
+
+
+<p>If you are struggling with a weird bug with DomPDF, something about it trying to connect to a postgres database..</p>
+
+<p>well here is the solution that will get you up and running:</p>
+
+<p>open the file and make the init method just return false</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">class</span> <span class="nc">Page_Cache</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_USER</span> <span class="o">=</span> <span class="s2">&quot;dompdf_page_cache&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_PASS</span> <span class="o">=</span> <span class="s2">&quot;some meaningful password&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="no">DB_NAME</span> <span class="o">=</span> <span class="s2">&quot;dompdf_page_cache&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">static</span> <span class="k">private</span> <span class="nv">$__connection</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">function</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nb">is_null</span><span class="p">(</span><span class="nx">self</span><span class="o">::</span><span class="nv">$__connection</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nv">$con_str</span> <span class="o">=</span> <span class="s2">&quot;host=&quot;</span> <span class="o">.</span> <span class="nx">DB_HOST</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; dbname=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_NAME</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; user=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_USER</span> <span class="o">.</span>
+</span><span class='line'>                    <span class="s2">&quot; password=&quot;</span> <span class="o">.</span> <span class="nx">self</span><span class="o">::</span><span class="na">DB_PASS</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">self</span><span class="o">::</span><span class="nv">$__connection</span> <span class="o">=</span> <span class="nb">pg_connect</span><span class="p">(</span><span class="nv">$con_str</span><span class="p">))</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s2">&quot;Database connection failed.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Not sure really why this is trying to do this, obviously some kind of hard coded postgres caching system but anyway this fixed it.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-17T15:10:02+01:00" pubdate data-updated="true">Jun 17<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/refresh-all-magento-indexes.html">Refresh All Magento Indexes</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>The indexes for your Magento site should be refreshed on a regular basis. To help you do this you can put the below code in a PHP file in the root of your web site and setup a scheduled task to call it periodically.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">require_once</span> <span class="s1">&#39;app/Mage.php&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$app</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nb">umask</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$process</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;index/process&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">(</span><span class="nv">$i</span><span class="p">);</span>
+</span><span class='line'>    <span class="nv">$process</span><span class="o">-&gt;</span><span class="na">reindexAll</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-10T10:05:59+01:00" pubdate data-updated="true">Jun 10<span>th</span>, 2011</time>
         
       </p>
@@ -528,120 +674,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T14:58:56+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/portfolio/blind-express-free-sample-request.html">Blind Express Free Sample Request</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<h2>Magento Free Sample Request Custom Module</h2>
-
-
-<p>Blind Express required that their customers be able to easily request free samples of their products. This required that a custom extension be created and integrated with the existing system.</p>
-
-<h3>Blind Express</h3>
-
-
-<p>Blind Express specialise in supplying made to measure and custom window <a href="http://www.blindexpress.co.uk">blinds</a>.</p>
-
-<p><img src="/assets/blindexpress-300x206.png"></p>
-
-<p>This project was a good challenge as the extension had to be integrated with previously existing custom product configuration.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-06-09T14:25:59+01:00" pubdate data-updated="true">Jun 9<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/portfolio/product-information-scraper.html">Product Information Scraper</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><div class="oldpost"><h4>This is post is now quite old and the the information it contains may be out of date or innacurate.</h4>
-<p>
-If you find any errors or have any suggestions to update the information <a href="http://edmondscommerce.github.io/contact-us/index.html">please let us know</a>
-or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create a pull request on GitHub</a>
-</p>
-</div>
-
-
-<h2>Bespoke Object-Oriented PHP Automated Scraping System</h2>
-
-
-<p>The aim of this project is to put together an automated price retrial system, capable of running on its own. The system will collect general information for general products as well as more detailed information for named products.</p>
-
-<h3>Discs Like New</h3>
-
-
-<p>Discs Like New  offer a professional, effective and affordable <a href=”http://www.discslikenew.com/”>disc repair service </a>to business customers throughout the UK and Europe.</p>
-
-<p><h3>
-<img src="/assets/code_snippet.jpg">
-The project is interesting as it wants to be run from both a web browser, so it can be set up and product files can be uploaded; and from the command line so it can quietly run in the background. This means that it will have to detect this state and modify what it outputs accordingly.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -665,15 +697,15 @@ The project is interesting as it wants to be run from both a web browser, so it 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
+    
+    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
+    
     <a class="list-group-item " href="/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html">PHP Json_encode Failing With No Clear Reason + Solution</a>
     
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
     <a class="list-group-item " href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a>
-    
-    <a class="list-group-item " href="/behat/behat.html">Behat</a>
-    
-    <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
     
   </div>
 </section>

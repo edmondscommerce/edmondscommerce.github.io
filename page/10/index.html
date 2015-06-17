@@ -128,6 +128,165 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-07-25T15:05:08+01:00" pubdate data-updated="true">Jul 25<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-base64-decode-if-encoded-otherwise-leave-intact.html">PHP Base64 Decode if Encoded Otherwise Leave Intact</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).</p>
+
+<p>However to really make things interesting, they didn&rsquo;t always do this so you couldn&rsquo;t just go and decode everything.</p>
+
+<p>Here is the solution I came up with:</p>
+
+<p>First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nb">preg_replace_callback</span><span class="p">(</span><span class="s1">&#39;%&gt;([^&lt;]+?)&lt;%&#39;</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span><span class="nv">$this</span><span class="p">,</span> <span class="s1">&#39;_decode&#39;</span><span class="p">),</span> <span class="nv">$response</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then the callback function is a method on the same object hence the use of array($this, &lsquo;_decode&rsquo;)</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>    <span class="sd">/**</span>
+</span><span class='line'><span class="sd">     * Decode from bas64 if it actually is base64 encoded in the first place</span>
+</span><span class='line'><span class="sd">     *</span>
+</span><span class='line'><span class="sd">     * If not return the raw string</span>
+</span><span class='line'><span class="sd">     *</span>
+</span><span class='line'><span class="sd">     * @param $matches</span>
+</span><span class='line'><span class="sd">     * @return string</span>
+</span><span class='line'><span class="sd">     */</span>
+</span><span class='line'>    <span class="k">protected</span> <span class="k">function</span> <span class="nf">_decode</span><span class="p">(</span><span class="nv">$matches</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$raw</span><span class="o">=</span><span class="nv">$matches</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>        <span class="nv">$decoded</span> <span class="o">=</span> <span class="nb">base64_decode</span><span class="p">(</span><span class="nv">$raw</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span><span class='line'>        <span class="nv">$return</span><span class="o">=</span><span class="nv">$decoded</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="k">false</span> <span class="o">===</span> <span class="nv">$decoded</span><span class="p">){</span>
+</span><span class='line'>            <span class="nv">$return</span><span class="o">=</span><span class="nv">$raw</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span><span class="k">elseif</span><span class="p">(</span><span class="nb">base64_encode</span><span class="p">(</span><span class="nv">$decoded</span><span class="p">)</span> <span class="o">!=</span> <span class="nv">$raw</span><span class="p">){</span>
+</span><span class='line'>            <span class="nv">$return</span><span class="o">=</span><span class="nv">$raw</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="s1">&#39;&gt;&lt;![CDATA[&#39;</span> <span class="o">.</span> <span class="nv">$return</span> <span class="o">.</span> <span class="s1">&#39;]]&gt;&lt;&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.</p>
+
+<p>If it doesn&rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.</p>
+
+<p>By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.</p>
+
+<p>Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.</p>
+
+<p>However &ndash; one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&rsquo;t mind compromising the data a little which I didn&rsquo;t for my purposes) then you can do the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="c1">//have to utf8 encode it to fix the fact its not properly encoded at their end</span>
+</span><span class='line'><span class="nv">$xml</span> <span class="o">=</span> <span class="nb">simplexml_load_string</span><span class="p">(</span><span class="nx">utf8_encode</span><span class="p">(</span><span class="nv">$response</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it, another crazy API defeated and bent to my will!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-07-23T13:48:47+01:00" pubdate data-updated="true">Jul 23<span>rd</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/sylius-e-commerce-based-on-symfony.html">Sylius E-Commerce Based on Symfony</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>As if there weren&rsquo;t enough!</p>
+
+<p>There is a new contender for the open source e-commerce crown, a platform called <b><a href="http://sylius.com/features" target="_blank">Sylius</a></b>. The thing that makes this one especially interesting is that rather than being built from scratch it is based upon a very well established PHP framework called Symfony. Some would argue that Symfony is the &ldquo;other&rdquo; PHP framework alongside Zend Framework. In fact there are many frameworks however it would be fair to say that Symfony and Zend Framework are the most well established and up to date.</p>
+
+<p>Basing an e-commerce platform upon an existing PHP framework has many advantages including transferrable skills, established best practice structure and also easier access to a wide range of functionality via library components and extensions.</p>
+
+<p>There is another e-commerce platform based upon a PHP framework. It is based upon Zend Framework &ndash; you might have heard of it &ndash; Magento.</p>
+
+<p>It does look very much like Sylius is still quite a new offering and it can not boast the level of maturity and establishment that Magento has achieved. That said, things move quickly in this industry and who knows what will be top dog in the next five years.</p>
+
+<p>If you are considering Sylius for your e-commerce website and would like to find a UK Sylius developer to work with then do get in touch with Edmonds Commerce today.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-07-09T17:25:18+01:00" pubdate data-updated="true">Jul 9<span>th</span>, 2013</time>
         
       </p>
@@ -957,176 +1116,6 @@ The goals are the same &ndash; to increase the bottom line of your ecommerce bus
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-06-03T15:33:27+01:00" pubdate data-updated="true">Jun 3<span>rd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/Mobile%20optimisation/easily-test-mobile-version-of-your-site-with-chrome.html">Easily Test Mobile Version of Your Site With Chrome</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you have opted to have a customised mobile theme displayed for mobile users of your web site then it can be useful to be able to test this theme from the desktop. This is quite simple to do and there are plugins for most browsers. These days though Chrome users have this functionality built in, and quite nicely as well.</p>
-
-<p>To access a mobile version of a site simply open Chrome and navigate to the site you would like to view in mobile version.</p>
-
-<p>Then hit F12 to bring up the developer tools. Alternatively you can go to the right hand menu and select developer tools under the tools menu. This should bring up a screen looking similar to this:</p>
-
-<p><img src="/assets/Screenshot-from-2013-06-03-162921-600x475.png"></p>
-
-<p>In the bottom right hand corner of this screen you will see a little cog icon, please click that:</p>
-
-<p><img src="/assets/Screenshot-from-2013-06-03-162956.png"></p>
-
-<p>This gives you the overrides menu where you can select the phone you want to emulate. You can also tick the device metrics box so that the displayable area corresponds to that of the phone giving you a good emultation of the phone experience.<img src="/assets/Screenshot-from-2013-06-03-163013-600x354.png"></p>
-
-<p>Tick the box next to User Agent and choose a phone.</p>
-
-<p>Once you have selected the phone you want to emulate under the &ldquo;user agent&rdquo; section and also optionally ticked the box next to &ldquo;Device metrics&rdquo; then you can reload the page (hit [ctrl] + [f5]) and the page will be reloaded and should show you the mobile version of your site.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-05-30T11:52:30+01:00" pubdate data-updated="true">May 30<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/ecommerce/13-best-practices-to-highly-effective-newsletter.html">13 Practices for Highly Effective Email Marketing</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Each email email must have specific and measurable goals defined. For example &ndash; to read an article, sell a product or sign up for an event. It&rsquo;s a Call to Action, a short but precise message which tells the recipient exactly what to do &ndash; no more, no less. The Call to Action is one of the most important email email elements; therefore it must be noticeable and inviting. This article will cover best practices on how to create a highly effective email.</p>
-
-<p>If you are not sure on how to create a highly effective email that converts customers in to a successful sales leads, then here are the basic questions you need to ask yourself:</p>
-
-<ul>
-    <li>What I want my recipients to do?</li>
-
-    <li>How will they know how to do it?</li>
-
-    <li>How will they benefit from doing what I want?</li>
-</ul>
-
-
-<p>It sounds dead easy, but it&rsquo;s not that simple, because you don&rsquo;t want to scare away your customers with an overly insisting tone. On the other hand, if you don&rsquo;t give your recipient clear guidance on what to do it is most likely they will not do it.</p>
-
-<p>Here are the core principles on how to create a highly effective email:</p>
-
-<h3>1. The value of the email</h3>
-
-
-<p>Your Call To Action must clearly communicate the benefits that the customer will receive. Benefits must be clearly visible, order them by priority.</p>
-
-<h3>2. Use simple and convincing language</h3>
-
-
-<p>Remember that your recipients are wise and most likely &ndash; very busy people. Therefore make the message as clear and simple as possible. Don&rsquo;t make their lives more complicated by using complex language and long paragraphs. Ease their decision and make the choice simple.</p>
-
-<h3>3. Make the email urgent and limited</h3>
-
-
-<p>When the message is urgent and somehow limited (for first 50 respondents or while product is in stock, etc), people are more motivated to act. Use words like Now, Today, Only, Limited, etc. Say why they must act now, explain the benefits.</p>
-
-<h3>4. Catchy headlines</h3>
-
-
-<p>Web users read by scanning the headlines, therefore they must be short, but catchy. The main point regarding the headline is not to sell the product (if you sell one), but to engage recipient to read the content of the email.</p>
-
-<h3>5. Use numbers and make them meaningful</h3>
-
-
-<p>Numbers deliver a clear message, they create an impression. However, numbers alone are meaningless, use them in context. For example, 4Gb of music storage is meaningless, say how many songs it can carry. Feel free to break it down even further.</p>
-
-<h3>6. Ask questions</h3>
-
-
-<p>Questions are great for attention grabbing. Especially, when you send a targeted email, you most likely know your audience and you know what they need. Make sure you ask. For example &ndash; Is your laptop too heavy? And follow with an immediate solution. Create questions so they are intriguing and recipients want to know more.</p>
-
-<h3>7. Less is more. (Yes)</h3>
-
-
-<p>Don&rsquo;t include too many Call To Actions. Don&rsquo;t over fill the email with products or offers. It is very easy for the recipient to get lost if there are too many adverts.</p>
-
-<h3>8. Call To Action placement</h3>
-
-
-<p>Remember to place your Call To Action in a highly visible location. If you have multiple Calls to Action make sure that the supporting information is clearly grouped. The primary message has to be as close to the top as possible with supporting information or offers taking position below the fold.</p>
-
-<h3>9. Related design and style</h3>
-
-
-<p>Your email email need to use represent your company and branding. Don&rsquo;t try to use different design, colours and overall style in your email. Recipients remember who you are (or at least they should), changing email design will only bring in confusion and most likely dramatically reduce the conversions.</p>
-
-<h3>10. Use a consistent layout</h3>
-
-
-<p>Your email must be well organized and content should be prioritized. Do this by placing elements within the layout. Once your email design is created, stick to it. Don&rsquo;t try to use different sizes and colours, unless you are testing various variations for better conversion rates.</p>
-
-<h3>11. Use white space</h3>
-
-
-<p>White space is good. It&rsquo;s not unused sales place. It actually helps the recipient to focus more on the proposal without distraction.</p>
-
-<h3>12. Send relevant content to the right audience</h3>
-
-
-<p>Emails shouldn&rsquo;t be generic. Most mistakes are made when a proposal is created that is very generic and sent out to everyone &ndash; it can apply to everybody on your list or none at all. Make sure that you know your audience and you send offers that are relevant to them. This can be done by automatically grouping customers by what they&rsquo;ve browsed or bought recently. This is normally called List Segmentation for example only emailing people who have bought a blue widget in the last six months.</p>
-
-<h3>13. Don&#8217;t send for the sake of it</h3>
-
-
-<p>Add value to your emails. Send offers that are really beneficial to the target customer. Make them anticipate your offer. If you send overly frequent and generic emails, you risk simply loosing subscribers.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1150,15 +1139,15 @@ The goals are the same &ndash; to increase the bottom line of your ecommerce bus
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
+    
+    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
+    
     <a class="list-group-item " href="/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html">PHP Json_encode Failing With No Clear Reason + Solution</a>
     
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
     <a class="list-group-item " href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a>
-    
-    <a class="list-group-item " href="/behat/behat.html">Behat</a>
-    
-    <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
     
   </div>
 </section>

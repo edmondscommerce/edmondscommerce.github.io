@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Tag: linux | Edmonds Commerce Dev Blog]]></title>
+  <title><![CDATA[Tag: Linux | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/linux/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-05-13T14:00:16+01:00</updated>
+  <updated>2015-06-17T12:40:40+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,242 +14,33 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Running out of disk space but df shows you have lots of space left]]></title>
-    <link href="http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html"/>
-    <updated>2015-05-07T10:32:04+01:00</updated>
-    <id>http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left</id>
-    <content type="html"><![CDATA[<p>Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:</p>
+    <title type="html"><![CDATA[Preparing Fedora for development with PHP Storm]]></title>
+    <link href="http://edmondscommerce.github.io/php/developer-setup.html"/>
+    <updated>2015-06-15T16:25:22+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/developer-setup</id>
+    <content type="html"><![CDATA[<p>Today I was asked to prepare a workstation system for development with PHP Storm, this was my first time using Fedora over the popular Ubuntu so here&rsquo;s how it went.</p>
 
-<p><code>bash
-Filesystem      Inodes   IUsed  IFree IUse% Mounted on
-/dev/xvda1     2621440 2621440      0  100% /
-udev            124879     398 124481    1% /dev
-tmpfs           126892     288 126604    1% /run
-none            126892       4 126888    1% /run/lock
-none            126892       1 126891    1% /run/shm
-none            126892       1 126891    1% /run/user
-</code></p>
+<p>Starting out, I visited the PHP Storm website hosted by the friendly people over at JetBrains to get a hold of my favourite IDE to develop with.
+The package comes as a compressed tar ball that needs extracting with your favourite decompression software of choice.</p>
 
-<p>So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:
-<code>bash
-for i in /var/*; do echo $i; find $i | wc -l; done
-</code></p>
+<p>After extracting the IDE it is time to do install it, when I attempted this I quickly ran in to a problem with the open source version of Java that comes pre-installed with Fedora.
+To remedy this you need to get the Oracle version of the Java Run Times to install and run PHP Storm successfully.</p>
 
-<p>This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Blocking Direct IP Access in Apache]]></title>
-    <link href="http://edmondscommerce.github.io/apache/blocking-direct-ip-access-in-apache.html"/>
-    <updated>2014-12-03T15:08:37+00:00</updated>
-    <id>http://edmondscommerce.github.io/apache/blocking-direct-ip-access-in-apache</id>
-    <content type="html"><![CDATA[<p>If you are using Name based virtual hosts, you may want to simply block any bots etc that try to access your server by direct IP address. It&rsquo;s unlikely a real user would try to hit your server by using the actual IP address.</p>
+<p>After installing Java it is important that you tell Fedora to use Oracle&rsquo;s version over the pre-installed OpenJDK mentioned before.</p>
 
-<p>To do this, you can use this Virtual Host config:</p>
+<p><code>alternatives --install /usr/bin/java java /usr/java/latest/jre/bin/java 200000</code></p>
 
-<p>```
-<VirtualHost *:80></p>
+<p>This will force Fedora to use this specific version of Java over the default, the procedure is similar to using an alias.</p>
 
-<pre><code>ServerName 123.123.123.123
-Redirect 403 /
-ErrorDocument 403 "No"
-DocumentRoot /dev/null/
-UseCanonicalName Off
-UserDir disabled
+<p>After we have Fedora setup to use the correct version of Java we can happily install and run PHP Storm.
+CD in to your extracted PHP Storm folder we created earlier.</p>
+
+<pre><code>cd bin
+./phpstorm.sh
 </code></pre>
 
-<p></VirtualHost></p>
-
-<p>```</p>
-
-<p>Of course, please change the IP to the real server IP address(es)</p>
-
-<p>And that&rsquo;s it, anyone trying to hit the server by IP address will get a simple 403 error.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Compile NGINX with PageSpeed and ModSecurity on CentOS]]></title>
-    <link href="http://edmondscommerce.github.io/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html"/>
-    <updated>2014-11-11T14:06:37+00:00</updated>
-    <id>http://edmondscommerce.github.io/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos</id>
-    <content type="html"><![CDATA[<p>ModSecurity is a brilliant addition to web servers to block any nefarious requests before they hit your application.
-This improves security and reduces load if your server comes under attack as the requests are killed very quickly.</p>
-
-<p>PageSpeed is a module provided by Google to automatically improve the performance of your web pages in the browser. In a stroke it can offer a much more responsive front end with just a few configuration options.</p>
-
-<p>Nginx is a very fast and lightweight web server ideal for using with back end servers such as PHP-FPM.</p>
-
-<p>Here is a script that will download and compile Nginx with the two modules and also apply the correct ModSecurity configuration.</p>
-
-<p>``` bash</p>
-
-<h1>!/bin/bash</h1>
-
-<p>echo &ldquo;Please run as root&rdquo;
-yum install gcc-c++ pcre-dev pcre-devel zlib-devel make unzip</p>
-
-<p>NPS_VERSION=1.9.32.2;</p>
-
-<p>NGINX_VERSION=1.7.7;</p>
-
-<p>MODSEC_VERSION=2.8.0</p>
-
-<p>NGINX_EXTRA_MODULES=&ldquo; &mdash;with-http_realip_module &mdash;with-http_ssl_module &rdquo;;</p>
-
-<p>NGINX_ADD_MODULES=&lsquo;&rsquo;</p>
-
-<p>WORKING_DIRECTORY=/opt/nginx_with_pagespeed_and_mod_security</p>
-
-<p>mkdir -p $WORKING_DIRECTORY</p>
-
-<h1>echo "</h1>
-
-<p>Mod Security</p>
-
-<p>Installing dependencies, grabbing the repo, checking out the tag for our version and building it
-&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ldquo;
-cd $WORKING_DIRECTORY
-yum install libtool httpd-devel libxml2 libxml2-devel
-git clone <a href="https://github.com/SpiderLabs/ModSecurity.git">https://github.com/SpiderLabs/ModSecurity.git</a>
-cd ModSecurity
-git checkout tags/v${MODSEC_VERSION}
-./autogen.sh
-./configure &mdash;enable-standalone-module &mdash;disable-mlogc
-make
-make install
-NGINX_ADD_MODULES=&rdquo;$NGINX_ADD_MODULES &mdash;add-module=$WORKING_DIRECTORY/ModSecurity/nginx/modsecurity &ldquo;
-echo &rdquo;</p>
-
-<h2>Mod Security Config and Rules</h2>
-
-<p>For nginx, we have to get all the config and cat it all into one single config file
-&ldquo;
-wget <a href="https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended">https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended</a>
-cat modsecurity.conf-recommended  > /etc/nginx/modsecurity.conf
-wget <a href="https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master">https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master</a> -O owasp-modsecurity-crs.tar.gz
-tar -xvzf owasp-modsecurity-crs.tar.gz
-CRS_DIR=$(find . -type d -name SpiderLabs-owasp-modsecurity-crs<em>)
-cat ${CRS_DIR}/modsecurity_crs_10_setup.conf.example >> /etc/nginx/modsecurity.conf
-cat ${CRS_DIR}/base_rules/modsecurity_</em>.conf >> /etc/nginx/modsecurity.conf
-for f in $(find $CRS_DIR -type f -name *.data)
-do</p>
-
-<pre><code>FILE=$(basename $f)
-CMD="cp $f /etc/nginx/$FILE"
-echo ${CMD}
-${CMD}
-</code></pre>
-
-<p>done
-cp ModSecurity/unicode.mapping /etc/nginx/unicode.mapping</p>
-
-<h1>echo "</h1>
-
-<h2>Page Speed</h2>
-
-<p>Downlading the pagespeed version and building this
-&ldquo;
-cd $WORKING_DIRECTORY
-wget <a href="https://github.com/pagespeed/ngx_pagespeed/archive/release-$">https://github.com/pagespeed/ngx_pagespeed/archive/release-$</a>{NPS_VERSION}-beta.zip
-unzip release-${NPS_VERSION}-beta.zip
-cd ngx_pagespeed-release-${NPS_VERSION}-beta/
-wget <a href="https://dl.google.com/dl/page-speed/psol/$">https://dl.google.com/dl/page-speed/psol/$</a>{NPS_VERSION}.tar.gz
-tar -xzvf ${NPS_VERSION}.tar.gz  # extracts to psol/
-NGINX_ADD_MODULES=&rdquo;$NGINX_ADD_MODULES &mdash;add-module=$WORKING_DIRECTORY/ngx_pagespeed-release-${NPS_VERSION}-beta "</p>
-
-<h1>echo "</h1>
-
-<h2>Nginx</h2>
-
-<p>Finally, compiling Nginx with our extra modules and the added modules and installing it
-&ldquo;
-cd $WORKING_DIRECTORY
-wget <a href="http://nginx.org/download/nginx-$">http://nginx.org/download/nginx-$</a>{NGINX_VERSION}.tar.gz
-tar -xvzf nginx-${NGINX_VERSION}.tar.gz
-cd nginx-${NGINX_VERSION}/
-./configure $NGINX_ADD_MODULES $NGINX_EXTRA_MODULES
-make
-sudo make install</p>
-
-<h1>echo "</h1>
-
-<p>COMPLETED INSTALL &ndash; CHECKING</p>
-
-<p>checking the nginx version now, should be $NGINX_VERSION and you should see our modules
-&ldquo;
-nginx -V</p>
-
-<p>echo &ldquo;
-And now doing a config test&rdquo;
-/etc/init.d/nginx configtest</p>
-
-<h1>echo "</h1>
-
-<p>SCRIPT COMPLETED</p>
-
-<p>However, you are not there yet</p>
-
-<p>You need to go and look at the /etc/nginx/modsecurity.conf file and change settings there as appropriate</p>
-
-<p>Also you need to modify your nginx vhost config &ndash; see:
-<a href="https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps">https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps</a>
-&ldquo;
-```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[SELinux and connecting to Mysql databases on Red Hat based distributions]]></title>
-    <link href="http://edmondscommerce.github.io/linux/se-linux-and-connecting-to-a-mysql-database.html"/>
-    <updated>2014-11-07T10:53:06+00:00</updated>
-    <id>http://edmondscommerce.github.io/linux/se-linux-and-connecting-to-a-mysql-database</id>
-    <content type="html"><![CDATA[<p>SELinux can be restrictive by defult but prevent alot of security issues. One thing we found while trying it is that by default it will block network connections from being made via the httpd daemon. This is an issue if say on a development system you are running php via the apache module.</p>
-
-<p>To resolve this simply login via root or sudo to root privilige and run the following command:</p>
-
-<pre><code>setsebool -P httpd_can_network_connect on
-</code></pre>
-
-<p>You should now be able to connect to connect to your database. This will also enable things like web api, curl calls and other php that requires network access.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[SELinux Configuration for Alternative Document Root]]></title>
-    <link href="http://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root.html"/>
-    <updated>2014-10-04T12:19:52+01:00</updated>
-    <id>http://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root</id>
-    <content type="html"><![CDATA[<p>SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.</p>
-
-<p>By default SELinux is configured expecting Apache to be using /var/www as its document root.</p>
-
-<p>If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.</p>
-
-<p>If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.</p>
-
-<p>First of all you should double check what types http has:</p>
-
-<p><code>bash
-semanage fcontext -l | grep http
-</code></p>
-
-<p>We specifically need read/write access so lets grep for that:</p>
-
-<p><code>bash
-semanage fcontext -l | grep http | grep rw
-</code></p>
-
-<p>For me that shows the type: httpd_sys_rw_content_t</p>
-
-<p>We now need to add this to our custom document root:</p>
-
-<p><code>bash
-semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects(/.*)?’
-restorecon -R -v /opt/Projects/
-</code>
-And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux</p>
+<p>During the process you will be given the option to create a shortcut meaning you won&rsquo;t need to use the terminal to launch the IDE.
+With that said, you can now happily use PHP Storm to develop your applications, be wary if you switch your Java version back to open source as it may not be supported.</p>
 ]]></content>
   </entry>
   

@@ -128,6 +128,269 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-01-24T17:40:20+00:00" pubdate data-updated="true">Jan 24<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/git/git-and-sub-module-tips.html">Git and Sub Module Tips</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Using sub modules in git is incredibly useful and allows for easier and more flexible working when working on component based large projects. In a nut shell the use of sub modules (as the name suggests) allows you to include a git repository as a part of another git repository in order to allow you to use the sub modules code without having to duplicate it&rsquo;s content in to your repository.</p>
+
+<h4>Important commands you will need when working with sub modules</h4>
+
+
+<dl>
+<dt><b>git submodule init</b></dt>
+<dd>This tells git to read the modules file and make your local repository aware of any sub modules. When you checkout a repository that uses sub modules nothing is done with them until you do this. You will need to run this at least after cloning a repo but possibly after pulling if new sub modules are added.</dd>
+<dt><b>git submodule update</b></dt>
+<dd>This makes git to update the sub modules to match what the config says it should be. You will probably need this after cloning a repository for the first time or when you pull changes from a remote as some one may have updated the position of the sub module. When running this you should make sure that you don&#8217;t have any uncommitted changes in any submodules other wise you will lose them and find it hard to retrieve them.</dd>
+<dt><b>git submodule add absolute_path/url_to_repo location_of_repo_in_project</b></dt>
+<dd>This command tells git to add the repository at the specified URL/path to the repository. Git will add it to the modules file. After adding it you need to commit. The path to the repo either needs to be the absolute path if you are working locally or the URL that is accessible via the Internet/LAN depending on your environment. It has to be like this so that it doesn&#8217;t matter where the repository that will be cloning the sub module is located</dd>
+<dt><b>git help submodule</b></dt>
+<dd>Gives you the man page for the submodule command, an invaluable resource</dd>
+</dl>
+
+
+
+
+<h4>Key facts when working with sub modules</h4>
+
+
+<h5>Working in sub modules</h5>
+
+
+<p>If you want to modify contents of the sub module, that is make changes and commit them back to the sub modules repository, you can work just as normal. The only thing to watch out off is that when you first do <em>git submodule init; git submodule update;</em> it will checkout what ever commit was specified. This means that the sub module might not be on an actual branch but instead only have a particular commit checkout. Make sure to checkout the relevant branch on the sub module before commencing work.</p>
+
+<h5>Updating a sub modules position on a remote repo</h5>
+
+
+<p>When <em>git submodule update</em> runs it checkouts out the specified commit by the main repository. If there is no commit specified it will checkout the default branch (usually master). If you want it to checkout a specific branch this cannot be done in a literal sense. Instead what you have to do is checkout the top commit of that branch, then commit the changes to the sub module in main repository. This will ensure that the sub module is now at that position when <em>git submodule update</em> is run. You will have to do this every time you want to update it&rsquo;s position.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-01-24T17:39:08+00:00" pubdate data-updated="true">Jan 24<span>th</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/phpstorm/phpstorm-regex-replace-malformed-replacement-string.html">PHPStorm Regex Replace &#8220;Malformed Replacement String&#8221;</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you are struggling using PHPStorm to find and replace code with Regex rules then this is your solution.</p>
+
+<p>The problem is that when using the $ sign in your replacement string it confuses it because PHP Storm uses the $ sign to represent sub pattern replacements.</p>
+
+<p>Take the following example code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$data</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'><span class="nv">$form</span><span class="o">=</span><span class="nv">$page</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;form.edit_product&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//standard inputs</span>
+</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;text&quot;]&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
+</span><span class='line'>    <span class="nv">$data</span><span class="p">[</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//radio inputs</span>
+</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;radio&quot;]&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">checked</span><span class="p">){</span>
+</span><span class='line'>        <span class="nv">$data</span><span class="p">[</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//checkbox inputs</span>
+</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;checkbox&quot;]&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">checked</span><span class="p">){</span>
+</span><span class='line'>        <span class="nv">$data</span><span class="p">[</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//textareas</span>
+</span><span class='line'><span class="nv">$textareas</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;textarea&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$textareas</span> <span class="k">as</span> <span class="nv">$textarea</span><span class="p">){</span>
+</span><span class='line'>    <span class="nv">$data</span><span class="p">[</span><span class="nv">$textarea</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">]</span><span class="o">=</span><span class="nv">$textarea</span><span class="o">-&gt;</span><span class="na">innertext</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And trying to replace the key being used in the data array with a processed one calling a method $this->dataName($key) to generate the following code:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$data</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+</span><span class='line'><span class="nv">$form</span><span class="o">=</span><span class="nv">$page</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;form.edit_product&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//standard inputs</span>
+</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;text&quot;]&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
+</span><span class='line'>    <span class="nv">$data</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//radio inputs</span>
+</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;radio&quot;]&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">checked</span><span class="p">){</span>
+</span><span class='line'>        <span class="nv">$data</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//checkbox inputs</span>
+</span><span class='line'><span class="nv">$inputs</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;checkbox&quot;]&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$inputs</span> <span class="k">as</span> <span class="nv">$input</span><span class="p">){</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">checked</span><span class="p">){</span>
+</span><span class='line'>        <span class="nv">$data</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)]</span><span class="o">=</span><span class="nv">$input</span><span class="o">-&gt;</span><span class="na">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//textareas</span>
+</span><span class='line'><span class="nv">$textareas</span> <span class="o">=</span> <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="s1">&#39;textarea&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="k">foreach</span><span class="p">(</span><span class="nv">$textareas</span> <span class="k">as</span> <span class="nv">$textarea</span><span class="p">){</span>
+</span><span class='line'>    <span class="nv">$data</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nv">$textarea</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)]</span><span class="o">=</span><span class="nv">$textarea</span><span class="o">-&gt;</span><span class="na">innertext</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You might try the find pattern:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">\</span><span class="nv">$data</span><span class="nx">\</span><span class="p">[</span><span class="nx">\</span><span class="err">$</span><span class="p">([</span><span class="o">^-</span><span class="p">]</span><span class="o">+</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">name</span><span class="nx">\</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the replace pattern:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">\</span><span class="nv">$data</span><span class="nx">\</span><span class="p">[</span><span class="nx">\</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nx">\</span><span class="err">$$</span><span class="mi">1</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">)</span><span class="nx">\</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However this will give you the dreaded <b>&ldquo;malformed replacement string&rdquo;</b> Error</p>
+
+<p>The solution is simply to triple escape your dollar signs, so the replacement pattern becomes:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">\\\</span><span class="nv">$data</span><span class="nx">\</span><span class="p">[</span><span class="nx">\\\</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">dataName</span><span class="p">(</span><span class="nx">\\\</span><span class="err">$$</span><span class="mi">1</span><span class="o">-&gt;</span><span class="na">name</span><span class="nx">\</span><span class="p">)</span><span class="nx">\</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And it works, woot!</p>
+
+<p>Also when it does work, PHP Storms replacement preview feature is really quite nice</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-01-17T14:21:20+00:00" pubdate data-updated="true">Jan 17<span>th</span>, 2013</time>
         
       </p>
@@ -574,102 +837,6 @@ Here is the &lsquo;mobile&rsquo; view:<img src="/assets/small-no-tools.png"></p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-01-07T15:12:14+00:00" pubdate data-updated="true">Jan 7<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/linux%20mint/how-to-disabled-the-default-duckduckgo-seach-engine-in-firefox-on-linux-mint.html">How to Disable the Default DuckDuckGo Seach Engine in Firefox on Linux Mint?</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are using Firefox browser on Linux Mint you might have notice that the default search engine is not Google but DuckDuckGo.</p>
-
-<p>DuckDuckGo are presenting themselves as the biggest threat to Google search engine bringing as the main advantage more privacy than what Google currently offer.</p>
-
-<p>If you are happy with it than you are fine but if you feel like me that DuckDuckGo might have some interesting features, it does not bring the same result or way of using internet than Google search engine then you might want to come back to Google then please follow the below step by step procedure:</p>
-
-<pre><code>Type about:config in the location bar and press Enter
-
-Type keyword.URL in filter
-
-Change the keyword.URL value to:
-
-http://www.google.co.uk/search?ie=UTF-8&amp;oe=UTF-8&amp;sourceid=navclient&amp;gfns=1&amp;q=
-</code></pre>
-
-<p>Hope that help.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-01-03T16:37:16+00:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/get-magento-version-on-the-command-line.html">Get Magento Version on the Command Line</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you just want to get the Magento version on the command line quickly try this one liner:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>php -r &amp;quot;require <span class="s1">&#39;app/Mage.php&#39;</span>; <span class="nb">echo </span>Mage::getVersion<span class="o">()</span>; &amp;quot;
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Does exactly what you need</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -693,15 +860,15 @@ http://www.google.co.uk/search?ie=UTF-8&amp;oe=UTF-8&amp;sourceid=navclient&amp;
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
+    
+    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
+    
     <a class="list-group-item " href="/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html">PHP Json_encode Failing With No Clear Reason + Solution</a>
     
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
     <a class="list-group-item " href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a>
-    
-    <a class="list-group-item " href="/behat/behat.html">Behat</a>
-    
-    <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
     
   </div>
 </section>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Tag: fedora | Edmonds Commerce Dev Blog]]></title>
+  <title><![CDATA[Tag: Fedora | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/fedora/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-05-13T14:00:16+01:00</updated>
+  <updated>2015-06-17T12:40:40+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,183 +14,33 @@
 
   
   <entry>
-    <title type="html"><![CDATA[SELinux and connecting to Mysql databases on Red Hat based distributions]]></title>
-    <link href="http://edmondscommerce.github.io/linux/se-linux-and-connecting-to-a-mysql-database.html"/>
-    <updated>2014-11-07T10:53:06+00:00</updated>
-    <id>http://edmondscommerce.github.io/linux/se-linux-and-connecting-to-a-mysql-database</id>
-    <content type="html"><![CDATA[<p>SELinux can be restrictive by defult but prevent alot of security issues. One thing we found while trying it is that by default it will block network connections from being made via the httpd daemon. This is an issue if say on a development system you are running php via the apache module.</p>
+    <title type="html"><![CDATA[Preparing Fedora for development with PHP Storm]]></title>
+    <link href="http://edmondscommerce.github.io/php/developer-setup.html"/>
+    <updated>2015-06-15T16:25:22+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/developer-setup</id>
+    <content type="html"><![CDATA[<p>Today I was asked to prepare a workstation system for development with PHP Storm, this was my first time using Fedora over the popular Ubuntu so here&rsquo;s how it went.</p>
 
-<p>To resolve this simply login via root or sudo to root privilige and run the following command:</p>
+<p>Starting out, I visited the PHP Storm website hosted by the friendly people over at JetBrains to get a hold of my favourite IDE to develop with.
+The package comes as a compressed tar ball that needs extracting with your favourite decompression software of choice.</p>
 
-<pre><code>setsebool -P httpd_can_network_connect on
+<p>After extracting the IDE it is time to do install it, when I attempted this I quickly ran in to a problem with the open source version of Java that comes pre-installed with Fedora.
+To remedy this you need to get the Oracle version of the Java Run Times to install and run PHP Storm successfully.</p>
+
+<p>After installing Java it is important that you tell Fedora to use Oracle&rsquo;s version over the pre-installed OpenJDK mentioned before.</p>
+
+<p><code>alternatives --install /usr/bin/java java /usr/java/latest/jre/bin/java 200000</code></p>
+
+<p>This will force Fedora to use this specific version of Java over the default, the procedure is similar to using an alias.</p>
+
+<p>After we have Fedora setup to use the correct version of Java we can happily install and run PHP Storm.
+CD in to your extracted PHP Storm folder we created earlier.</p>
+
+<pre><code>cd bin
+./phpstorm.sh
 </code></pre>
 
-<p>You should now be able to connect to connect to your database. This will also enable things like web api, curl calls and other php that requires network access.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[SELinux Configuration for Alternative Document Root]]></title>
-    <link href="http://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root.html"/>
-    <updated>2014-10-04T12:19:52+01:00</updated>
-    <id>http://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root</id>
-    <content type="html"><![CDATA[<p>SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.</p>
-
-<p>By default SELinux is configured expecting Apache to be using /var/www as its document root.</p>
-
-<p>If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.</p>
-
-<p>If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.</p>
-
-<p>First of all you should double check what types http has:</p>
-
-<p><code>bash
-semanage fcontext -l | grep http
-</code></p>
-
-<p>We specifically need read/write access so lets grep for that:</p>
-
-<p><code>bash
-semanage fcontext -l | grep http | grep rw
-</code></p>
-
-<p>For me that shows the type: httpd_sys_rw_content_t</p>
-
-<p>We now need to add this to our custom document root:</p>
-
-<p><code>bash
-semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects(/.*)?’
-restorecon -R -v /opt/Projects/
-</code>
-And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fedora Live USB Key Creation]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/fedora-live-usb-key-creation.html"/>
-    <updated>2014-09-10T17:38:09+01:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/fedora-live-usb-key-creation</id>
-    <content type="html"><![CDATA[<p>I have had continual problems getting most of my USB keys to work as liveusb drives.</p>
-
-<p>This is pretty awkward however it looks like I have now found a solution that works. Instead of using the official Fedora live USB creator, we are going to use something called livecd-iso-to-disk</p>
-
-<p>First of all install it:</p>
-
-<p><code>bash
-sudo yum -y install livecd-tools
-</code></p>
-
-<p>Then this is your command to create the liveusb. Note you need to set the sdX to whichever your USB key is using, and of course make sure the path to the iso file is correct</p>
-
-<p><code>bash
-sudo livecd-iso-to-disk --format --msdos --reset-mbr --overlay-size-mb 512 --home-size-mb 512 ~/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso /dev/sdc
-</code></p>
-
-<p>And that&rsquo;s it</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Getting Skype Working on Fedora 20]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20.html"/>
-    <updated>2014-01-17T14:45:29+00:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/getting-skype-working-on-fedora-20</id>
-    <content type="html"><![CDATA[<p>I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&rsquo;t completely smooth, there were a few hoops I had to jump through.</p>
-
-<p>I am making a note of these here for my own future reference and to help out any one else hitting problems like these.</p>
-
-<p>To install Skype on Fedora 20 64bit, the first thing you need to do is download the <a href="http://www.skype.com/en/download-skype/skype-for-linux/">Fedora 32bit RPM from Skype</a>.</p>
-
-<p>To install this you should use Yum so that dependancies are handled properly:</p>
-
-<p><code>
-sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
-</code></p>
-
-<p>However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
-After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
-One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.</p>
-
-<p>Here is the process in commands:</p>
-
-<p>Firstly remove the package and install the i686 version
-<code>
-yum remove libvpx.x86_64
-yum install libvpx.i686
-</code></p>
-
-<p>Then install Skype
-<code>
- yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
-</code></p>
-
-<p>Then reinstall the 64 bit version of libvpx
-<code>
- yum install libvpx.x86_64
-</code></p>
-
-<p>Then reinstall the programs that were removed when I removed libvpx
-<code>
- yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64
-</code></p>
-
-<p>That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:</p>
-
-<p><code>
-sudo gnome-open /usr/share/applications/skype.desktop
-</code></p>
-
-<p>Change the line that reads <strong>Exec=skype %U</strong> to the following:</p>
-
-<p><strong>Exec=env PULSE_LATENCY_MSEC=30 skype %U</strong></p>
-
-<p>Restart Skype and the audio issues should be resolved.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Upgrading from Fedora 19 to 20 using FedUp]]></title>
-    <link href="http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup.html"/>
-    <updated>2014-01-03T19:32:48+00:00</updated>
-    <id>http://edmondscommerce.github.io/Fedora/upgrading-from-fedora-19-to-20-using-fedup</id>
-    <content type="html"><![CDATA[<p>I decided to upgrade to the latest version because why not, its the first Friday of the year.</p>
-
-<p>The first thing to do is head over to <a href="https://fedoraproject.org/wiki/FedUp">this page</a> which explains how to use the tool.</p>
-
-<p>I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:</p>
-
-<p><code>
-sudo yum -y --enablerepo=updates-testing install fedup
-</code></p>
-
-<p>You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.</p>
-
-<p><code>
-sudo yum -y update
-</code></p>
-
-<p>Once that is all done then you need to run the fedup command itself:</p>
-
-<p><code>
-sudo yum -y update fedup fedora-release
-sudo fedup --network 20
-</code></p>
-
-<p><em>I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:</em>
-<code>
-sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
-sudo fedup --network 20
-</code></p>
-
-<p>Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
-It takes a while, make a brew or something.</p>
-
-<p>Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
-<a href="https://extensions.gnome.org/local/">https://extensions.gnome.org/local/</a> and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
-When that&rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.</p>
-
-<p>For me the only one I&rsquo;m really going to miss is the <a href="https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/">Quick Close in Overview</a> which is really handy, hopefully will be updated soon.</p>
+<p>During the process you will be given the option to create a shortcut meaning you won&rsquo;t need to use the terminal to launch the IDE.
+With that said, you can now happily use PHP Storm to develop your applications, be wary if you switch your Java version back to open source as it may not be supported.</p>
 ]]></content>
   </entry>
   

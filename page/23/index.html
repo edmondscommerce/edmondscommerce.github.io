@@ -128,6 +128,137 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-22T10:41:09+01:00" pubdate data-updated="true">Aug 22<span>nd</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-bug-custom-option-values-not-showing-in-backend.html">Magento Bug: Custom Option Values Not Showing in Backend</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>It&rsquo;s a little bit annoying that such a core feature is just broken in many versions of magento &ndash; the headings for the custom options chosen, whilst fully working on the cart; checkout and emails to the customer, only show the heading and no content on the backend order.</p>
+
+<p>There are a couple of fixes :
+in
+  app/code/core/Mage/Adminhtml/Block/Sales/Items/Column/Name.php
+there is no extending, so you can copy it to
+  app/code/local/Mage/Adminhtml/Block/Sales/Items/Column/Name.php
+and add the following class method :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getFormattedOption</span><span class="p">(</span><span class="nv">$value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nv">$_remainder</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'>  <span class="nv">$value</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">helper</span><span class="p">(</span><span class="s1">&#39;core/string&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">truncate</span><span class="p">(</span><span class="nv">$value</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nv">$_remainder</span><span class="p">);</span>
+</span><span class='line'>  <span class="nv">$result</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+</span><span class='line'>    <span class="s1">&#39;value&#39;</span> <span class="o">=&gt;</span> <span class="nb">nl2br</span><span class="p">(</span><span class="nv">$value</span><span class="p">),</span>
+</span><span class='line'>    <span class="s1">&#39;remainder&#39;</span> <span class="o">=&gt;</span> <span class="nb">nl2br</span><span class="p">(</span><span class="nv">$_remainder</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nv">$result</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and/or change the admin theme in
+  app/design/adminhtml/default/default/template/sales/items/column/name.phtml
+around about line 44 from :</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="nv">$_option</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]);</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">is_null</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$_option</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getFormattedOption</span><span class="p">(</span><span class="nv">$_option</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="p">}</span> <span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then the custom options chosen by customers will happily show in the backend.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T18:29:43+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/scraping/simple-php-scraping-with-jquery-like-selectors-using-simpledom.html">Simple PHP Scraping With jQuery Like Selectors Using Simple HTML Dom</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you need to do some HTML parsing, scraping etc then you generally have the choice of using the DOM approach to parse the HTML or using regex to pull bits out. I quite like both approaches, there are pros and cons to both so having both options available is the best to ensure you use the right tool for the job on a case by case basis.</p>
+
+<p>Recently though I discovered Simple HTML Dom. This makes the DOM based approach almost ridiculously easy, especially if you are comfortable with jQuery like selectors for pulling out specific DOM nodes.</p>
+
+<p>You can read all about it here:
+<a href="http://simplehtmldom.sourceforge.net/manual.htm" title="Simple HTML Dom" target="_blank"><a href="http://simplehtmldom.sourceforge.net/manual.htm">http://simplehtmldom.sourceforge.net/manual.htm</a></a></p>
+
+<p>First impressions are really good, its very easy and the lead in time from installation to using is really fast. I like that, never been much of a fan of having to RTFM for everything!</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-21T17:09:55+01:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
         
       </p>
@@ -676,103 +807,6 @@ Replace catalog_product* for catalog_category to get the values for a category. 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-15T14:16:16+01:00" pubdate data-updated="true">Aug 15<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/jquery/comply-with-the-cookie-law-with-very-little-effort.html">Comply With the Cookie Law With Very Little Effort</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>A lot of concern has been caused by the &ldquo;Cookie Law&rdquo; which says you must tell people that you use cookies if you do, and 99% of sites do!</p>
-
-<p>Well here&rsquo;s a very simple jQuery bolt-on that deals with that, and although visitors need javascript enabled to see it, you have made &ldquo;best efforts&rdquo; to inform them, and on any eCommerce site you&rsquo;re going to have a &ldquo;this site requires javascript message&rdquo; anyway.</p>
-
-<p>The file to download is from github (isn&rsquo;t opensource great?) <a href="https://github.com/carlwoodhouse/jquery.cookieBar" title="jQuery.cookiebar on github">here</a> and is as simple to implement as add the script file to the head and somewhere on the page insert the following :</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text/javascript&quot;</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">$</span><span class="p">.</span><span class="nx">cookieBar</span><span class="p">();</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'><span class="o">&lt;</span><span class="err">/script&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The example page is also on github : <a href="http://carlwoodhouse.github.com/jquery.cookieBar/" title="CookieBar example page"><a href="http://carlwoodhouse.github.com/jquery.cookieBar/">http://carlwoodhouse.github.com/jquery.cookieBar/</a></a>.</p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-15T12:58:23+01:00" pubdate data-updated="true">Aug 15<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/mysql/mysql-server-gone-away-large-packets-the-issue.html">MySQL Server Gone Away - Large Packets the Issue?</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are scratching your head trying to figure out why you keep getting MySQL server gone away error messages despite the fact you have bumped up all the timeout etc configurations to high values then this could be your solution.</p>
-
-<p>MySQL will also give you this error if you try to send a packet that is larger than the packet size defined. We had an application that was using MariaDB which has a default max allowed packet of 16M by default.</p>
-
-<p>The application in question was sending large amounts of data to be stored and so the solution to the gone away issues was simply to increase the max_allowed_packet configuration in my.cnf, restart the mysql daemon and the problems are sorted.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -796,15 +830,15 @@ Replace catalog_product* for catalog_category to get the values for a category. 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
+    
+    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
+    
     <a class="list-group-item " href="/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html">PHP Json_encode Failing With No Clear Reason + Solution</a>
     
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
     <a class="list-group-item " href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a>
-    
-    <a class="list-group-item " href="/behat/behat.html">Behat</a>
-    
-    <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
     
   </div>
 </section>

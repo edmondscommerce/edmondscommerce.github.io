@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-05-13T14:00:16+01:00</updated>
+  <updated>2015-06-17T12:40:40+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,62 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Removing untracked files but not git ignored ones]]></title>
+    <link href="http://edmondscommerce.github.io/git/removing-untracked-files-but-not-git-ignored-ones.html"/>
+    <updated>2015-06-17T12:06:25+01:00</updated>
+    <id>http://edmondscommerce.github.io/git/removing-untracked-files-but-not-git-ignored-ones</id>
+    <content type="html"><![CDATA[<p>Quite often you drop a load of files in to a git repo, such as a Magento extension, and then immediately regret it. But now you have a pile of files scattered across the repo and no way to Ctrl+Z out of the situation.</p>
+
+<p>This leaves us with some options:</p>
+
+<ul>
+<li><code>git reset --hard HEAD</code>, but that&rsquo;ll only revert any changes to <em>tracked</em> files. What about the untracked files in <code>git status</code>?</li>
+<li>Manually <code>rm -rf file1 file2 folder1 folder2</code> but that&rsquo;s a lot of copypasting.</li>
+<li><code>git clean -f</code>, but that <em>will remove all untracked files, including your gitignored ones</em>, so we don&rsquo;t want that.</li>
+</ul>
+
+
+<p>The best way is to <strong>automate the <code>rm -rf</code> procedure</strong> mentioned above using the following command</p>
+
+<pre><code>git status --porcelain | sed 's#^...##' | while read f; do rm -rf $f; done
+</code></pre>
+
+<p>The TL;DR of this command is that it outputs <code>git status</code> in a parseable way, and then loops over each file/folder and deletes it. You can see a <a href="http://explainshell.com/explain?cmd=git+status+--porcelain+%7C+sed+%27s%23%5E...%23%23%27+%7C+while+read+f%3B+do+rm+-rf+%24f%3B+done">full command breakdown here</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Preparing Fedora for development with PHP Storm]]></title>
+    <link href="http://edmondscommerce.github.io/php/developer-setup.html"/>
+    <updated>2015-06-15T16:25:22+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/developer-setup</id>
+    <content type="html"><![CDATA[<p>Today I was asked to prepare a workstation system for development with PHP Storm, this was my first time using Fedora over the popular Ubuntu so here&rsquo;s how it went.</p>
+
+<p>Starting out, I visited the PHP Storm website hosted by the friendly people over at JetBrains to get a hold of my favourite IDE to develop with.
+The package comes as a compressed tar ball that needs extracting with your favourite decompression software of choice.</p>
+
+<p>After extracting the IDE it is time to do install it, when I attempted this I quickly ran in to a problem with the open source version of Java that comes pre-installed with Fedora.
+To remedy this you need to get the Oracle version of the Java Run Times to install and run PHP Storm successfully.</p>
+
+<p>After installing Java it is important that you tell Fedora to use Oracle&rsquo;s version over the pre-installed OpenJDK mentioned before.</p>
+
+<p><code>alternatives --install /usr/bin/java java /usr/java/latest/jre/bin/java 200000</code></p>
+
+<p>This will force Fedora to use this specific version of Java over the default, the procedure is similar to using an alias.</p>
+
+<p>After we have Fedora setup to use the correct version of Java we can happily install and run PHP Storm.
+CD in to your extracted PHP Storm folder we created earlier.</p>
+
+<pre><code>cd bin
+./phpstorm.sh
+</code></pre>
+
+<p>During the process you will be given the option to create a shortcut meaning you won&rsquo;t need to use the terminal to launch the IDE.
+With that said, you can now happily use PHP Storm to develop your applications, be wary if you switch your Java version back to open source as it may not be supported.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[PHP json_encode Failing with No Clear Reason + Solution]]></title>
@@ -850,162 +906,6 @@ pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
 <p>Of course, please change the IP to the real server IP address(es)</p>
 
 <p>And that&rsquo;s it, anyone trying to hit the server by IP address will get a simple 403 error.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Composer Run Utility BASH Script]]></title>
-    <link href="http://edmondscommerce.github.io/composer/composer-run-utility-bash-script.html"/>
-    <updated>2014-11-25T09:18:18+00:00</updated>
-    <id>http://edmondscommerce.github.io/composer/composer-run-utility-bash-script</id>
-    <content type="html"><![CDATA[<p>I thought I would post up this little snippet of BASH script that I tend to use with projects that use composer.</p>
-
-<p>It combines an install/update mechanism for composer itself and then runs through the composer install process and dumps the optimised autoloader.</p>
-
-<p>Hope you find it useful:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
-</span><span class='line'><span class="nv">DIR</span><span class="o">=</span><span class="s2">&quot;$( cd &quot;</span><span class="k">$(</span> dirname <span class="s2">&quot;${BASH_SOURCE[0]}&quot;</span> <span class="k">)</span><span class="s2">&quot; &amp;&amp; pwd )&quot;</span>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Checking for Composer&quot;</span>
-</span><span class='line'><span class="nv">COMPOSER_CMD</span><span class="o">=</span><span class="k">$(</span>which composer<span class="k">)</span>
-</span><span class='line'><span class="k">if</span> <span class="o">[[</span> <span class="s2">&quot;&quot;</span> <span class="o">==</span> <span class="s2">&quot;$COMPOSER_CMD&quot;</span> <span class="o">]]</span>
-</span><span class='line'><span class="k">then</span>
-</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Installing Composer&quot;</span>
-</span><span class='line'>    curl -sS https://getcomposer.org/installer | php -- --install-dir<span class="o">=</span>bin
-</span><span class='line'>    <span class="nv">COMPOSER_CMD</span><span class="o">=</span><span class="k">$(</span>which composer<span class="k">)</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Updating Composer&quot;</span>
-</span><span class='line'>    <span class="nv">$COMPOSER_CMD</span> selfupdate
-</span><span class='line'><span class="k">fi</span>
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Running Composer&quot;</span>
-</span><span class='line'><span class="nb">cd</span> <span class="nv">$DIR</span>
-</span><span class='line'><span class="nv">$COMPOSER_CMD</span> update
-</span><span class='line'><span class="nv">$COMPOSER_CMD</span> dumpautoload -o
-</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Done..&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Getting sub domains and domain from a url]]></title>
-    <link href="http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url.html"/>
-    <updated>2014-11-14T13:34:08+00:00</updated>
-    <id>http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url</id>
-    <content type="html"><![CDATA[<p>At first it seems like a simple one &ndash; just use the <code>parse_url</code> function already built into PHP.</p>
-
-<p>Unfortunately though, this just gives you the host &ndash; which is usually a combination of a subdomain &ndash; such as www &ndash; and the domain itself.</p>
-
-<p>To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.</p>
-
-<p>Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.</p>
-
-<p>Here is the code:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getDomain</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$host</span> <span class="o">=</span> <span class="nb">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nx">PHP_URL_HOST</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$sanity</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$host</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$sanity</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">ErrorException</span><span class="p">(</span><span class="s2">&quot;No headers when sanity checking full host: </span><span class="si">$host</span><span class="s2"> in &quot;</span> <span class="o">.</span> <span class="nx">__METHOD__</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nv">$elems</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$host</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$subdomains</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
-</span><span class='line'>        <span class="nv">$domain</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nv">$domain</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$check</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="nv">$headers</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$check</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$headers</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nv">$subdomains</span><span class="p">[]</span> <span class="o">=</span> <span class="nb">array_shift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nb">array_unshift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">,</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$subdomains</span><span class="p">));</span>
-</span><span class='line'>                <span class="nv">$domain</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span> <span class="o">=</span> <span class="nv">$domain</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getHeadersForUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nv">$followOnLocation</span> <span class="o">=</span> <span class="k">true</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="nv">$ch</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">();</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_HEADER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_NOBODY</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_FOLLOWLOCATION</span><span class="p">,</span> <span class="nv">$followOnLocation</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_MAXREDIRS</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYPEER</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYHOST</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nv">$data</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$data</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   

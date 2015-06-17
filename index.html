@@ -128,6 +128,118 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-17T12:06:25+01:00" pubdate data-updated="true">Jun 17<span>th</span>, 2015</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Quite often you drop a load of files in to a git repo, such as a Magento extension, and then immediately regret it. But now you have a pile of files scattered across the repo and no way to Ctrl+Z out of the situation.</p>
+
+<p>This leaves us with some options:</p>
+
+<ul>
+<li><code>git reset --hard HEAD</code>, but that&rsquo;ll only revert any changes to <em>tracked</em> files. What about the untracked files in <code>git status</code>?</li>
+<li>Manually <code>rm -rf file1 file2 folder1 folder2</code> but that&rsquo;s a lot of copypasting.</li>
+<li><code>git clean -f</code>, but that <em>will remove all untracked files, including your gitignored ones</em>, so we don&rsquo;t want that.</li>
+</ul>
+
+
+<p>The best way is to <strong>automate the <code>rm -rf</code> procedure</strong> mentioned above using the following command</p>
+
+<pre><code>git status --porcelain | sed 's#^...##' | while read f; do rm -rf $f; done
+</code></pre>
+
+<p>The TL;DR of this command is that it outputs <code>git status</code> in a parseable way, and then loops over each file/folder and deletes it. You can see a <a href="http://explainshell.com/explain?cmd=git+status+--porcelain+%7C+sed+%27s%23%5E...%23%23%27+%7C+while+read+f%3B+do+rm+-rf+%24f%3B+done">full command breakdown here</a>.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-15T16:25:22+01:00" pubdate data-updated="true">Jun 15<span>th</span>, 2015</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Today I was asked to prepare a workstation system for development with PHP Storm, this was my first time using Fedora over the popular Ubuntu so here&rsquo;s how it went.</p>
+
+<p>Starting out, I visited the PHP Storm website hosted by the friendly people over at JetBrains to get a hold of my favourite IDE to develop with.
+The package comes as a compressed tar ball that needs extracting with your favourite decompression software of choice.</p>
+
+<p>After extracting the IDE it is time to do install it, when I attempted this I quickly ran in to a problem with the open source version of Java that comes pre-installed with Fedora.
+To remedy this you need to get the Oracle version of the Java Run Times to install and run PHP Storm successfully.</p>
+
+<p>After installing Java it is important that you tell Fedora to use Oracle&rsquo;s version over the pre-installed OpenJDK mentioned before.</p>
+
+<p><code>alternatives --install /usr/bin/java java /usr/java/latest/jre/bin/java 200000</code></p>
+
+<p>This will force Fedora to use this specific version of Java over the default, the procedure is similar to using an alias.</p>
+
+<p>After we have Fedora setup to use the correct version of Java we can happily install and run PHP Storm.
+CD in to your extracted PHP Storm folder we created earlier.</p>
+
+<pre><code>cd bin
+./phpstorm.sh
+</code></pre>
+
+<p>During the process you will be given the option to create a shortcut meaning you won&rsquo;t need to use the terminal to launch the IDE.
+With that said, you can now happily use PHP Storm to develop your applications, be wary if you switch your Java version back to open source as it may not be supported.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-13T13:05:35+01:00" pubdate data-updated="true">May 13<span>th</span>, 2015</time>
         
       </p>
@@ -712,122 +824,6 @@
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-02-12T14:01:24+00:00" pubdate data-updated="true">Feb 12<span>th</span>, 2015</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/behat/easily-setup-and-run-selenium-for-your-behat-tests.html">Easily Setup and Run Selenium for Your Behat Tests</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>We&rsquo;ve decided on sticking with Selenium to run our Behat based testing as it allows us to do proper browser testing and it&rsquo;s also actually quite nice to be able to watch the tests as they progress and easily spot anything that might be wrong.</p>
-
-<p>Getting Selenium running and ensuring everyone is using the same version is another challenge.</p>
-
-<p>To make that easier, and also to allow us to easily update as we go, we have now released a Composer package so that it can easily be added to project dependencies.</p>
-
-<p>For full details, we suggest you head over to the Repo and read the information there as that will be kept up to date.</p>
-
-<p><a href="https://github.com/edmondscommerce/selenium-server">https://github.com/edmondscommerce/selenium-server</a></p>
-
-<p>You can also find this on Packagist here:</p>
-
-<p><a href="https://packagist.org/packages/edmondscommerce/selenium-server">https://packagist.org/packages/edmondscommerce/selenium-server</a></p>
-</div>
-  
-  
-
-
-        </article>
-      
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-02-11T15:53:28+00:00" pubdate data-updated="true">Feb 11<span>th</span>, 2015</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Magento has become aware of a vulnerability requiring patching as soon as possible. The vulnerability allows an attacker to send a specially crafted request to a Magento store and allow it to run Magento code as though it were on the live server. Magento aren&rsquo;t aware of this having been used in the wild, but now that the vulnerability is public, attackers may use it against existing stores.</p>
-
-<p>This vulnerability affects all versions of Magento, and Magento have released patches for versions Community Edition 1.6 to 1.9, and Enterprise 1.11 to 1.14.</p>
-
-<p>The fix is to apply some stricter IP address checks to requests.</p>
-
-<h3>Patching your Magento store</h3>
-
-<p>To get the patch:</p>
-
-<p><em>Note: at time of writing, the Downloads of the CE edition seems to under heavy load and is currently presenting a white page instead of the shell file</em></p>
-
-<ul>
-<li><strong>Community Edition</strong> users should go to the <a href="http://www.magentocommerce.com/download">Magento downloads page</a> and scroll to the &ldquo;Magento Community Edition Patches&rdquo; section. From there, select your version of Magento and click Download</li>
-<li><strong>Enterprise Edition</strong> users should log into their Magento account Magento Support Portal</li>
-</ul>
-
-
-<p>You&rsquo;ll be presented with a shell file which will make the necessary changes to your store. Upload this patch to your server in the Magento root and run it against your store.</p>
-
-<p>The patch changes core files, and it&rsquo;s always recommended to test changes on a development copy before the live site, especially if you have modifications to your core code. Also keep in mind that any upgrades pre-1.9.0.1 will remove these changes, and the patch will have to be re-run.</p>
-
-<ol>
-<li><code>cd /your/magento/root/</code> &ndash; Navigate to the root of Magento</li>
-<li><code>./sh PATCH_SUPEE-5344_CE_1.8.0.0_v1.sh</code> &ndash; Run the patches</li>
-<li><code>rm PATCH_SUPEE-5344_CE_1.8.0.0_v1.sh</code> &ndash; Delete the patch file, so that it can&rsquo;t be re-run by the public</li>
-<li><code>rm -rf var/cache/*</code> &ndash; Clear Magento&rsquo;s cache</li>
-</ol>
-
-
-<p>Reload a page and the patch will have taken effect.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -851,15 +847,15 @@
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
+    
+    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
+    
     <a class="list-group-item " href="/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html">PHP Json_encode Failing With No Clear Reason + Solution</a>
     
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
     <a class="list-group-item " href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a>
-    
-    <a class="list-group-item " href="/behat/behat.html">Behat</a>
-    
-    <a class="list-group-item " href="/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html">Resetting Your Forgotten osCommerce Password With MySQL Through PHPMyAdmin</a>
     
   </div>
 </section>
