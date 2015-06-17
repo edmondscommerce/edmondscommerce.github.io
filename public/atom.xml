@@ -4,11 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-<<<<<<< HEAD
-  <updated>2015-04-15T12:23:48+01:00</updated>
-=======
-  <updated>2015-05-07T10:54:31+01:00</updated>
->>>>>>> c94265fea4260df78c743faac6b2f021de6b3f6a
+  <updated>2015-06-17T12:31:03+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -18,7 +14,97 @@
 
   
   <entry>
-<<<<<<< HEAD
+    <title type="html"><![CDATA[Removing untracked files but not git ignored ones]]></title>
+    <link href="http://edmondscommerce.github.io/git/removing-untracked-files-but-not-git-ignored-ones.html"/>
+    <updated>2015-06-17T12:06:25+01:00</updated>
+    <id>http://edmondscommerce.github.io/git/removing-untracked-files-but-not-git-ignored-ones</id>
+    <content type="html"><![CDATA[<p>Quite often you drop a load of files in to a git repo, such as a Magento extension, and then immediately regret it. But now you have a pile of files scattered across the repo and no way to Ctrl+Z out of the situation.</p>
+
+<p>This leaves us with some options:</p>
+
+<ul>
+<li><code>git reset --hard HEAD</code>, but that&rsquo;ll only revert any changes to <em>tracked</em> files. What about the untracked files in <code>git status</code>?</li>
+<li>Manually <code>rm -rf file1 file2 folder1 folder2</code> but that&rsquo;s a lot of copypasting.</li>
+<li><code>git clean -f</code>, but that <em>will remove all untracked files, including your gitignored ones</em>, so we don&rsquo;t want that.</li>
+</ul>
+
+
+<p>The best way is to <strong>automate the <code>rm -rf</code> procedure</strong> mentioned above using the following command</p>
+
+<pre><code>git status --porcelain | sed 's#^...##' | while read f; do rm -rf $f; done
+</code></pre>
+
+<p>The TL;DR of this command is that it outputs <code>git status</code> in a parseable way, and then loops over each file/folder and deletes it. You can see a <a href="http://explainshell.com/explain?cmd=git+status+--porcelain+%7C+sed+%27s%23%5E...%23%23%27+%7C+while+read+f%3B+do+rm+-rf+%24f%3B+done">full command breakdown here</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Preparing Fedora for development with PHP Storm]]></title>
+    <link href="http://edmondscommerce.github.io/php/developer-setup.html"/>
+    <updated>2015-06-15T16:25:22+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/developer-setup</id>
+    <content type="html"><![CDATA[<p>Today I was asked to prepare a workstation system for development with PHP Storm, this was my first time using Fedora over the popular Ubuntu so here&rsquo;s how it went.</p>
+
+<p>Starting out, I visited the PHP Storm website hosted by the friendly people over at JetBrains to get a hold of my favourite IDE to develop with.
+The package comes as a compressed tar ball that needs extracting with your favourite decompression software of choice.</p>
+
+<p>After extracting the IDE it is time to do install it, when I attempted this I quickly ran in to a problem with the open source version of Java that comes pre-installed with Fedora.
+To remedy this you need to get the Oracle version of the Java Run Times to install and run PHP Storm successfully.</p>
+
+<p>After installing Java it is important that you tell Fedora to use Oracle&rsquo;s version over the pre-installed OpenJDK mentioned before.</p>
+
+<p><code>alternatives --install /usr/bin/java java /usr/java/latest/jre/bin/java 200000</code></p>
+
+<p>This will force Fedora to use this specific version of Java over the default, the procedure is similar to using an alias.</p>
+
+<p>After we have Fedora setup to use the correct version of Java we can happily install and run PHP Storm.
+CD in to your extracted PHP Storm folder we created earlier.</p>
+
+<pre><code>cd bin
+./phpstorm.sh
+</code></pre>
+
+<p>During the process you will be given the option to create a shortcut meaning you won&rsquo;t need to use the terminal to launch the IDE.
+With that said, you can now happily use PHP Storm to develop your applications, be wary if you switch your Java version back to open source as it may not be supported.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Running out of disk space but df shows you have lots of space left]]></title>
+    <link href="http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html"/>
+    <updated>2015-05-07T10:32:04+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left</id>
+    <content type="html"><![CDATA[<p>Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Filesystem      Inodes   IUsed  IFree IUse% Mounted on
+</span><span class='line'>/dev/xvda1     2621440 2621440      0  100% /
+</span><span class='line'>udev            124879     398 124481    1% /dev
+</span><span class='line'>tmpfs           126892     288 126604    1% /run
+</span><span class='line'>none            126892       4 126888    1% /run/lock
+</span><span class='line'>none            126892       1 126891    1% /run/shm
+</span><span class='line'>none            126892       1 126891    1% /run/user
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">for </span>i in /var/*; <span class="k">do </span><span class="nb">echo</span> <span class="nv">$i</span>; find <span class="nv">$i</span> | wc -l; <span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Repeating Behat Scenarios when Testing Magento with SmartStep]]></title>
     <link href="http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html"/>
     <updated>2015-04-15T12:02:28+01:00</updated>
@@ -98,13 +184,6 @@
     <content type="html"><![CDATA[<p>I love Behat. One of the great things about it is that it has been built to be very extensible, so if it doesn&rsquo;t do exactly what you need then it&rsquo;s really quite easy to to customise the way it works without having to do any hacking on the core code. This is because it makes extensive use of an Observer Pattern like Hooks system.</p>
 
 <p>If you want to have your Behat tests fail as soon as a scenario fails &ndash; ideal when you are running a large suite of tests and trying to fix issues &ndash; then simply add in this method into a Context class.</p>
-=======
-    <title type="html"><![CDATA[Running out of disk space but df shows you have lots of space left]]></title>
-    <link href="http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html"/>
-    <updated>2015-05-07T10:32:04+01:00</updated>
-    <id>http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left</id>
-    <content type="html"><![CDATA[<p>Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:</p>
->>>>>>> c94265fea4260df78c743faac6b2f021de6b3f6a
 
 <figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -113,24 +192,27 @@
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>Filesystem      Inodes   IUsed  IFree IUse% Mounted on
-</span><span class='line'>/dev/xvda1     2621440 2621440      0  100% /
-</span><span class='line'>udev            124879     398 124481    1% /dev
-</span><span class='line'>tmpfs           126892     288 126604    1% /run
-</span><span class='line'>none            126892       4 126888    1% /run/lock
-</span><span class='line'>none            126892       1 126891    1% /run/shm
-</span><span class='line'>none            126892       1 126891    1% /run/user
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>
+</span><span class='line'>    <span class="sd">/** @AfterScenario */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">dieOnFailedScenario</span><span class="p">(</span><span class="nx">Behat\Behat\Hook\Scope\AfterScenarioScope</span> <span class="nv">$scope</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="mi">99</span> <span class="o">===</span> <span class="nv">$scope</span><span class="o">-&gt;</span><span class="na">getTestResult</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getResultCode</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;BEHAT_DIE_ON_FAILURE&#39;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">die</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">BEHAT_DIE_ON_FAILURE is defined</span><span class="se">\n\n</span><span class="s2">Killing Full Process</span><span class="se">\n\n\n\n</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">To die on failure, please run:</span><span class="se">\n</span><span class="s2">export BEHAT_DIE_ON_FAILURE=true;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">for </span>i in /var/*; <span class="k">do </span><span class="nb">echo</span> <span class="nv">$i</span>; find <span class="nv">$i</span> | wc -l; <span class="k">done</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.</p>
+<p>Then in your terminal, simply export BEHAT_DIE_ON_FAILURE=true and then the next time you run your tests, the process will die and you can go and fix the problems.</p>
 ]]></content>
   </entry>
   
@@ -835,208 +917,6 @@ pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
 </span><span class='line'><span class="nv">$COMPOSER_CMD</span> update
 </span><span class='line'><span class="nv">$COMPOSER_CMD</span> dumpautoload -o
 </span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Done..&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Getting sub domains and domain from a url]]></title>
-    <link href="http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url.html"/>
-    <updated>2014-11-14T13:34:08+00:00</updated>
-    <id>http://edmondscommerce.github.io/php/getting-sub-domains-and-domain-from-a-url</id>
-    <content type="html"><![CDATA[<p>At first it seems like a simple one &ndash; just use the <code>parse_url</code> function already built into PHP.</p>
-
-<p>Unfortunately though, this just gives you the host &ndash; which is usually a combination of a subdomain &ndash; such as www &ndash; and the domain itself.</p>
-
-<p>To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.</p>
-
-<p>Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.</p>
-
-<p>Here is the code:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getDomain</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$host</span> <span class="o">=</span> <span class="nb">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nx">PHP_URL_HOST</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$sanity</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$host</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nv">$sanity</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nx">ErrorException</span><span class="p">(</span><span class="s2">&quot;No headers when sanity checking full host: </span><span class="si">$host</span><span class="s2"> in &quot;</span> <span class="o">.</span> <span class="nx">__METHOD__</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nv">$elems</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$host</span><span class="p">);</span>
-</span><span class='line'>        <span class="nv">$subdomains</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
-</span><span class='line'>        <span class="nv">$domain</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nv">$domain</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nv">$check</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="nv">$headers</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getHeadersForUrl</span><span class="p">(</span><span class="nv">$check</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nv">$headers</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nv">$subdomains</span><span class="p">[]</span> <span class="o">=</span> <span class="nb">array_shift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>                <span class="nb">array_unshift</span><span class="p">(</span><span class="nv">$elems</span><span class="p">,</span> <span class="nb">array_pop</span><span class="p">(</span><span class="nv">$subdomains</span><span class="p">));</span>
-</span><span class='line'>                <span class="nv">$domain</span> <span class="o">=</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="nv">$elems</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span> <span class="o">=</span> <span class="nv">$domain</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_domain</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">public</span> <span class="k">function</span> <span class="nf">getHeadersForUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="nv">$followOnLocation</span> <span class="o">=</span> <span class="k">true</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="nv">$ch</span> <span class="o">=</span> <span class="nb">curl_init</span><span class="p">();</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_URL</span><span class="p">,</span> <span class="nv">$url</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_HEADER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_NOBODY</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_RETURNTRANSFER</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_FOLLOWLOCATION</span><span class="p">,</span> <span class="nv">$followOnLocation</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_MAXREDIRS</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYPEER</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
-</span><span class='line'>    <span class="nb">curl_setopt</span><span class="p">(</span><span class="nv">$ch</span><span class="p">,</span> <span class="nx">CURLOPT_SSL_VERIFYHOST</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nv">$data</span> <span class="o">=</span> <span class="nb">curl_exec</span><span class="p">(</span><span class="nv">$ch</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$data</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[SSL testing and SHA-1 Sunsetting]]></title>
-    <link href="http://edmondscommerce.github.io/security/ssl-testing-and-sha-1-sunsetting.html"/>
-    <updated>2014-11-12T13:03:36+00:00</updated>
-    <id>http://edmondscommerce.github.io/security/ssl-testing-and-sha-1-sunsetting</id>
-    <content type="html"><![CDATA[<p>Over last few days we been doing a bit of work on doing some audits for people and one of the things that has come up is ssl. For the purpose of checking the servers ssl implementation we have been using <a href="https://www.ssllabs.com/ssltest/">Qualys SSL Labs</a> which is a excelent tool.</p>
-
-<p>The checker checks for the ssl certificate and tells you if your server setup is vulnerable to attacks such as Poodle and OpenSSL CCS Injection. We will produce a blog post shortly on the best practise setup to prevent these attcks.</p>
-
-<p>For the moment SHA-1 as a certificate signature algorithm is getting depricated in <a href="https://community.qualys.com/blogs/securitylabs/2014/09/09/sha1-deprecation-what-you-need-to-know">chrome</a>. As the cost for collision attcks against SHA-1 will become more <a href="https://www.schneier.com/blog/archives/2012/10/when_will_we_se.html">affordable</a> in the next few years.</p>
-
-<p>Goole have set the cut off for certificates after 2016 but we will be seeing some crosses on the padlock in chrom during the first quater of 2015.</p>
-
-<p>If your certificate expires in 2015 then you will not see any chrome. If your certificate expires in 2016 you will see some minor errors being reported in chrome. However if your certificate expires in 2017 then chrome will treat it as an insecure certificate in 2015.</p>
-
-<p>So our advice is:</p>
-
-<ul>
-<li>If your certificate expires in 2015: When you come to renew make sure you get SHA-256 as the certificate signature</li>
-<li>If your certificate expires in 2016: Think about getting renewed during 2015 or earlier.</li>
-<li>If your certificate expires in 2017: Think about getting a new one issue as soon as possible.</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[atop quick start: an introduction to atop snapshotting]]></title>
-    <link href="http://edmondscommerce.github.io/atop-quick-start-an-introduction-to-atop-snapshotting.html"/>
-    <updated>2014-11-12T12:35:43+00:00</updated>
-    <id>http://edmondscommerce.github.io/atop-quick-start-an-introduction-to-atop-snapshotting</id>
-    <content type="html"><![CDATA[<p><a href="http://www.atoptool.nl/"><code>atop</code></a> is a server diagnostic tool to take snapshots of the server&rsquo;s activity at specified intervals, so it&rsquo;s useful for debugging intermitttent issues without watching the server constantly.</p>
-
-<p><code>atop</code> is available to install from the repos with a <code>yum install atop</code> or <code>apt-get install</code> atop depending if you&rsquo;re on a RedHat or Debian-based server. By default atop will take snapshots every 10 minutes.</p>
-
-<p>Omnce it&rsquo;s been left running, you can view its snapshots by running <code>atop -r /var/log/atop/atop_&lt;date&gt;</code> &ndash; you can see the dates that are logged by listing the <code>/var/log/atop</code> directory.</p>
-
-<p>Two key commands to use are <code>b</code> and <code>t</code>. Pressing <code>b</code> will prompt for a time in the format hh:mm. Enter a time and it&rsquo;ll jump to the nearest snapshot. From there <code>t</code> and <code>T</code> (<code>shift-t</code>) will jump you forwards and backwards through the logs respectively</p>
-
-<p>This is an example of atop&rsquo;s output:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>ATOP - ip-10-0-1-22                                                          2014/11/11  00:30:02                                                          -----------                                                           10m0s elapsed
-</span><span class='line'>PRC | sys    5.11s  | user  10.94s |               |              | #proc    104  | #trun      1 |               | #tslpi   149 |  #tslpu     0 |              |  #zombie    0 | clones    37 |               |              |  #exit     46 |
-</span><span class='line'>CPU | sys 1%  | user  2% |               | irq       0% |               | idle    197% |               | wait      0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
-</span><span class='line'>cpu | sys 1%  | user  1% |               | irq       0% |               | idle     98% |               | cpu001 w  0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
-</span><span class='line'>cpu | sys 0%  | user  0% |               | irq       0% |               | idle     99% |               | cpu000 w  0% |               |              |  steal     0% | guest     0% |  curf 2.50GHz |              |  curscal   ?% |
-</span><span class='line'>CPL | avg1    0.14  |              | avg5    0.09  |              | avg15   0.07  |              |               | csw   261923 |               | intr  279857 |               |              |               | numcpu     2 |               |
-</span><span class='line'>MEM | tot     7.3G  | free    5.8G | cache 176.1M  | dirty   0.8M | buff   14.2M  | slab   41.4M | slrec  20.1M  | shmem  36.9M |  shrss   0.0M | shswp   0.0M |               | vmbal   0.0M |               | hptot   0.0M |  hpuse   0.0M |
-</span><span class='line'>SWP | tot     0.0M  | free    0.0M |               |              |               |              |               |              |               |              |               |              |  vmcom   2.1G | vmlim   3.6G |               |
-</span><span class='line'>NET | transport     | tcpi   69012 | tcpo   74002  |              | udpi      93  | udpo      97 | tcpao     72  | tcppo    330 |               | tcprs    250 |  tcpie      0 | tcpor     24 |  udpnp      0 |              |  udpie    0 |
-</span><span class='line'>NET | network       | ipi    69105 |               | ipo    74025 | ipfrw      0  |              | deliv  69105  |              |               |              |               |              |  icmpi      0 | icmpo    0 |               |
-</span><span class='line'>NET | eth0    ----  | pcki   68732 |               | pcko   73654 | si  342 Kbps  | so  464 Kbps |               | coll       0 |  mlti       0 |              |  erri       0 | erro       0 |  drpi       0 |              |  drpo     0 |
-</span><span class='line'>NET | lo      ----  | pcki     396 |               | pcko     396 | si   17 Kbps  | so   17 Kbps |               | coll       0 |  mlti       0 |              |  erri       0 | erro       0 |  drpi       0 |              |  drpo     0 |
-</span><span class='line'>Window resized to 238x71...
-</span><span class='line'>  PID          TID         RUID             EUID              THR         SYSCPU         USRCPU          VGROW          RGROW          RDDSK          WRDSK         ST         EXC         S         CPUNR          CPU         CMD        1/3
-</span><span class='line'> 1335            -         root             root                7          2.51s          2.97s             0K             0K             0K             0K         --           -         S             1           1%         glusterfs
-</span><span class='line'>17247            -         apache           apache              1          0.40s          4.34s         46644K         66352K          3340K          3292K         --           -         S             1           1%         httpd
-</span><span class='line'>17274            -         apache           apache              1          0.36s          1.13s         35236K         54628K          1188K          2304K         --           -         S             0           0%         httpd
-</span><span class='line'>17267            -         apache           apache              1          0.24s          0.94s         55204K         83040K          2348K          2760K         --           -         S             1           0%         httpd
-</span><span class='line'>17310            -         apache           apache              1          0.26s          0.49s         961.9M         83508K           548K            12K         N-           -         S             1           0%         httpd
-</span><span class='line'>16708            -         varnish          varnish            19          0.28s          0.08s          4992K          5188K         32588K           448K         --           -         S             0           0%         varnishd
-</span><span class='line'>17248            -         apache           apache              1          0.11s          0.17s          7128K         24120K           364K          1788K         --           -         S             1           0%         httpd
-</span><span class='line'>17187            -         root             root                1          0.18s          0.04s           140K           140K             0K            24K         --           -         R             1           0%         atop
-</span><span class='line'> 1418            -         root             root                7          0.11s          0.10s             0K             0K             0K             0K         --           -         S             1           0%         glusterfs
-</span><span class='line'>17309            -         apache           apache              1          0.06s          0.10s         922.2M         25716K           820K             8K         N-           -         S             0           0%         httpd
-</span><span class='line'> 1460            -         root             root                7          0.07s          0.08s             0K             0K             0K             0K         --           -         S             1           0%         glusterfs
 </span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
