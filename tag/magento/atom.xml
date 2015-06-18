@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: magento | Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/tag/magento/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-06-17T12:40:40+01:00</updated>
+  <updated>2015-06-18T19:29:38+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,79 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Using Magento 1.9.1's Colour Swatches in your custom theme]]></title>
+    <link href="http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html"/>
+    <updated>2015-06-18T18:56:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme</id>
+    <content type="html"><![CDATA[<p>If you&rsquo;ve upgraded to Magento 1.9.1 you might have noticed new functionality in the Admin to add colour swatches to your attributes. These work well but for reasons only known to Magento, these require you to be using the new rwd theme, or a derivitive of it. There&rsquo;s no reference to it in base/default so if your theme isn&rsquo;t a derivitive of rwd you&rsquo;ll need to copy the code across.</p>
+
+<p>If you look in the rwd/default theme, you&rsquo;ll notice there are folders for configurableswatches in layout, template and skin. These are the ones you&rsquo;ll need to copy across. But there&rsquo;s also a bit of customisation needed.</p>
+
+<h3>Step 1: Copy over the colourswatches files and folders</h3>
+
+<p>Copy these files from the rwd theme to the same places in your custom theme</p>
+
+<ul>
+<li><code>app/design/frontend/rwd/default/</code><strong><code>layout/configurableswatches.xml</code></strong></li>
+<li><code>app/design/frontend/rwd/default/</code><strong><code>template/configurableswatches/</code></strong></li>
+<li><code>skin/frontend/rwd/default/</code><strong><code>js/configurableswatches/</code></strong></li>
+</ul>
+
+
+<h3>Step 2: Update your theme&rsquo;s layout</h3>
+
+<p>The layout file <code>configurableswatches.xml</code> expects certain blocks to be present, which are only set in rwd&rsquo;s <code>catalog.xml</code></p>
+
+<p>Add the following lines to your theme&rsquo;s <code>catalog.xml</code>:</p>
+
+<p>```</p>
+
+<pre><code>&lt;PRODUCT_TYPE_configurable&gt;
+    ...
+     &lt;reference name="product.info.options.wrapper"&gt;
+         &lt;block type="catalog/product_view_type_configurable" name="product.info.options.configurable" as="options_configurable" before="-" template="catalog/product/view/type/options/configurable.phtml"&gt;
++             &lt;block type="core/text_list" name="product.info.options.configurable.renderers" as="attr_renderers" /&gt;
++             &lt;block type="core/text_list" name="product.info.options.configurable.after" as="after" /&gt;
+         &lt;/block&gt;
+     &lt;/reference&gt;
+ &lt;/PRODUCT_TYPE_configurable&gt;
+</code></pre>
+
+<p>```</p>
+
+<h3>Step 3: Add your images</h3>
+
+<p>There&rsquo;s two ways you can set the swatch images:</p>
+
+<ul>
+<li>Globally at <code>media/wysiwyg/swatches</code></li>
+<li>On the attribute at > Catalog > Attributes > Manage Attributes > [your attribute] > Manage Label/Options (don&rsquo;t forget to save the attribute after it&rsquo;s uploaded)</li>
+</ul>
+
+
+<h3>Step 4: Enable the swatches</h3>
+
+<p>You&rsquo;ll need to enable the use of swatches at System Configuration > Catalog > Configurable Swatches.</p>
+
+<p>In General Settings, set Enabled to Yes and select your attribures in &ldquo;Product Attributes to Show as Swatches in Product Detail&rdquo;</p>
+
+<h3>Step 5: Apply CSS</h3>
+
+<p>As with everything else the style information is only in rwd&rsquo;s stylesheets. You&rsquo;ll likely need to make some small modifications to make them look acceptable. As a baseline this should suffice:</p>
+
+<pre><code>.product-options .swatch-attr .configurable-swatch-list li {
+    display: inline-block;
+    border:1px solid #CACACA;
+    padding: 1px;
+}
+.product-options .swatch-attr .configurable-swatch-list li.selected {
+    border-color:#0095D3;
+}
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Repeating Behat Scenarios when Testing Magento with SmartStep]]></title>
@@ -144,29 +217,6 @@ $response = trim(end($response));
 <p>```</p>
 
 <p>As the &lsquo;VERIFIED&rsquo; line will always be the last line in the response. Regardless of any extra headers being added. This should resolve the issue but of corse remeber to use the local method and copy the class to the local folder with the correct path before doing the modification.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Magento 1.9 &amp; 1.14 released]]></title>
-    <link href="http://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released.html"/>
-    <updated>2014-05-14T11:12:02+01:00</updated>
-    <id>http://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released</id>
-    <content type="html"><![CDATA[<p>Magento has released the latest version of both CE and EE.</p>
-
-<p>The big changes that are included are as follows</p>
-
-<p><strong>Responsive design included as default</strong></p>
-
-<p>Both editions now come with a responsive theme. This introduces jQuery, SASS, and Compass into native Magento and should allow for easier customisation in the future.</p>
-
-<p><strong>Bill Me Later</strong></p>
-
-<p>The PayPal integration has been upgraded to include the <a href="https://www.paypal.com/webapps/mpp/promotional-financing">Bill Me Later</a> financing option. This allows customer to pay for products over six months whilst the merchant gets paid straight away.</p>
-
-<p><strong>Other security fix and performance fixes</strong></p>
-
-<p>The full list of changes can be seen <a href="http://www.magentocommerce.com/knowledge-base/entry/new-features-ce19-ee114">here</a></p>
 ]]></content>
   </entry>
   

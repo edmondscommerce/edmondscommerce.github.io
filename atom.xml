@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-06-17T12:40:40+01:00</updated>
+  <updated>2015-06-18T19:29:38+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,84 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Using Magento 1.9.1's Colour Swatches in your custom theme]]></title>
+    <link href="http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html"/>
+    <updated>2015-06-18T18:56:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme</id>
+    <content type="html"><![CDATA[<p>If you&rsquo;ve upgraded to Magento 1.9.1 you might have noticed new functionality in the Admin to add colour swatches to your attributes. These work well but for reasons only known to Magento, these require you to be using the new rwd theme, or a derivitive of it. There&rsquo;s no reference to it in base/default so if your theme isn&rsquo;t a derivitive of rwd you&rsquo;ll need to copy the code across.</p>
+
+<p>If you look in the rwd/default theme, you&rsquo;ll notice there are folders for configurableswatches in layout, template and skin. These are the ones you&rsquo;ll need to copy across. But there&rsquo;s also a bit of customisation needed.</p>
+
+<h3>Step 1: Copy over the colourswatches files and folders</h3>
+
+<p>Copy these files from the rwd theme to the same places in your custom theme</p>
+
+<ul>
+<li><code>app/design/frontend/rwd/default/</code><strong><code>layout/configurableswatches.xml</code></strong></li>
+<li><code>app/design/frontend/rwd/default/</code><strong><code>template/configurableswatches/</code></strong></li>
+<li><code>skin/frontend/rwd/default/</code><strong><code>js/configurableswatches/</code></strong></li>
+</ul>
+
+
+<h3>Step 2: Update your theme&rsquo;s layout</h3>
+
+<p>The layout file <code>configurableswatches.xml</code> expects certain blocks to be present, which are only set in rwd&rsquo;s <code>catalog.xml</code></p>
+
+<p>Add the following lines to your theme&rsquo;s <code>catalog.xml</code>:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;PRODUCT_TYPE_configurable&gt;
+</span><span class='line'>    ...
+</span><span class='line'>     &lt;reference name="product.info.options.wrapper"&gt;
+</span><span class='line'>         &lt;block type="catalog/product_view_type_configurable" name="product.info.options.configurable" as="options_configurable" before="-" template="catalog/product/view/type/options/configurable.phtml"&gt;
+</span><span class='line'>+             &lt;block type="core/text_list" name="product.info.options.configurable.renderers" as="attr_renderers" /&gt;
+</span><span class='line'>+             &lt;block type="core/text_list" name="product.info.options.configurable.after" as="after" /&gt;
+</span><span class='line'>         &lt;/block&gt;
+</span><span class='line'>     &lt;/reference&gt;
+</span><span class='line'> &lt;/PRODUCT_TYPE_configurable&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Step 3: Add your images</h3>
+
+<p>There&rsquo;s two ways you can set the swatch images:</p>
+
+<ul>
+<li>Globally at <code>media/wysiwyg/swatches</code></li>
+<li>On the attribute at > Catalog > Attributes > Manage Attributes > [your attribute] > Manage Label/Options (don&rsquo;t forget to save the attribute after it&rsquo;s uploaded)</li>
+</ul>
+
+
+<h3>Step 4: Enable the swatches</h3>
+
+<p>You&rsquo;ll need to enable the use of swatches at System Configuration > Catalog > Configurable Swatches.</p>
+
+<p>In General Settings, set Enabled to Yes and select your attribures in &ldquo;Product Attributes to Show as Swatches in Product Detail&rdquo;</p>
+
+<h3>Step 5: Apply CSS</h3>
+
+<p>As with everything else the style information is only in rwd&rsquo;s stylesheets. You&rsquo;ll likely need to make some small modifications to make them look acceptable. As a baseline this should suffice:</p>
+
+<pre><code>.product-options .swatch-attr .configurable-swatch-list li {
+    display: inline-block;
+    border:1px solid #CACACA;
+    padding: 1px;
+}
+.product-options .swatch-attr .configurable-swatch-list li.selected {
+    border-color:#0095D3;
+}
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Removing untracked files but not git ignored ones]]></title>
@@ -66,45 +144,6 @@ CD in to your extracted PHP Storm folder we created earlier.</p>
 
 <p>During the process you will be given the option to create a shortcut meaning you won&rsquo;t need to use the terminal to launch the IDE.
 With that said, you can now happily use PHP Storm to develop your applications, be wary if you switch your Java version back to open source as it may not be supported.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PHP json_encode Failing with No Clear Reason + Solution]]></title>
-    <link href="http://edmondscommerce.github.io/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html"/>
-    <updated>2015-05-13T13:05:35+01:00</updated>
-    <id>http://edmondscommerce.github.io/php/php-json-encode-failing-with-no-clear-reason-plus-solution</id>
-    <content type="html"><![CDATA[<p>I recently had an issue on a server that has been updated to use PHP 5.6. Code that was using json_encode had stopped working for no apparent reason.</p>
-
-<p>Reading into the issue, it seems that one scenario that this would happen is if the strings in an array were not valid utf8. An obvious solution to this was to encode the strings.</p>
-
-<p>Here is a simple function to process an array ready for use with json_encode. It solved the issue for me, maybe it can help you too?</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="sd">/**</span>
-</span><span class='line'><span class="sd"> * Process an array and utf8 encode all leaf elements ready for json encode</span>
-</span><span class='line'><span class="sd"> * @param array &amp;$arr - reference to an array to process</span>
-</span><span class='line'><span class="sd"> */</span>
-</span><span class='line'><span class="k">function</span> <span class="nf">utf8_array_for_json</span><span class="p">(</span><span class="k">array</span> <span class="o">&amp;</span><span class="nv">$arr</span><span class="p">){</span>
-</span><span class='line'>    <span class="nb">array_walk_recursive</span><span class="p">(</span><span class="nv">$arr</span><span class="p">,</span> <span class="k">function</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$valByRef</span><span class="p">){</span><span class="nv">$valByRef</span> <span class="o">=</span> <span class="nx">utf8_encode</span><span class="p">(</span><span class="nv">$valByRef</span><span class="p">);});</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To use this, simply pass in your array (by reference) before calling json_encode on the array, for example:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nx">utf8_array_for_json</span><span class="p">(</span><span class="nv">$myArray</span><span class="p">);</span>
-</span><span class='line'><span class="k">echo</span> <span class="nb">json_encode</span><span class="p">(</span><span class="nv">$myArray</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   

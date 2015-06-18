@@ -4,10 +4,10 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Tag: php 5.6 - Edmonds Commerce Dev Blog</title>
+  <title>Using Magento 1.9.1's Colour Swatches in your custom theme - Edmonds Commerce Dev Blog</title>
   <meta name="author" content="EdmondsCommerce Development Team">
 
-  <meta name="description" content="Tag: php 5.6">
+  <meta name="description" content="A breakown of what you need to do to use Magento's new colour swatches in your custom theme">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://edmondscommerce.github.iotag/php-5-dot-6">
+  <link rel="canonical" href="http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html">
   <link href="/favicon.png" type="image/png" rel="icon">
   <link href="/atom.xml" rel="alternate" title="Edmonds Commerce Dev Blog" type="application/atom+xml">
 
@@ -55,7 +55,7 @@
 
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li >
+                <li class="active">
                     <a href="/">Blog</a>
                 </li>
                 <li >
@@ -106,81 +106,194 @@
         <div id="content">
           <div class="row">
   <div class="page-content col-md-9">
-    <article role="article">
+    <article class="hentry" role="article">
       
-        <header class="page-header">
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-18T18:56:49+01:00" pubdate data-updated="true">Jun 18<span>th</span>, 2015</time>
+        
+      </p>
+    
+    
+    <h1 class="entry-title">
+        Using Magento 1.9.1's Colour Swatches in Your Custom Theme
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix"><p>If you&rsquo;ve upgraded to Magento 1.9.1 you might have noticed new functionality in the Admin to add colour swatches to your attributes. These work well but for reasons only known to Magento, these require you to be using the new rwd theme, or a derivitive of it. There&rsquo;s no reference to it in base/default so if your theme isn&rsquo;t a derivitive of rwd you&rsquo;ll need to copy the code across.</p>
+
+<p>If you look in the rwd/default theme, you&rsquo;ll notice there are folders for configurableswatches in layout, template and skin. These are the ones you&rsquo;ll need to copy across. But there&rsquo;s also a bit of customisation needed.</p>
+
+<h3>Step 1: Copy over the colourswatches files and folders</h3>
+
+<p>Copy these files from the rwd theme to the same places in your custom theme</p>
+
+<ul>
+<li><code>app/design/frontend/rwd/default/</code><strong><code>layout/configurableswatches.xml</code></strong></li>
+<li><code>app/design/frontend/rwd/default/</code><strong><code>template/configurableswatches/</code></strong></li>
+<li><code>skin/frontend/rwd/default/</code><strong><code>js/configurableswatches/</code></strong></li>
+</ul>
+
+
+<h3>Step 2: Update your theme&rsquo;s layout</h3>
+
+<p>The layout file <code>configurableswatches.xml</code> expects certain blocks to be present, which are only set in rwd&rsquo;s <code>catalog.xml</code></p>
+
+<p>Add the following lines to your theme&rsquo;s <code>catalog.xml</code>:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;PRODUCT_TYPE_configurable&gt;
+</span><span class='line'>    ...
+</span><span class='line'>     &lt;reference name="product.info.options.wrapper"&gt;
+</span><span class='line'>         &lt;block type="catalog/product_view_type_configurable" name="product.info.options.configurable" as="options_configurable" before="-" template="catalog/product/view/type/options/configurable.phtml"&gt;
+</span><span class='line'>+             &lt;block type="core/text_list" name="product.info.options.configurable.renderers" as="attr_renderers" /&gt;
+</span><span class='line'>+             &lt;block type="core/text_list" name="product.info.options.configurable.after" as="after" /&gt;
+</span><span class='line'>         &lt;/block&gt;
+</span><span class='line'>     &lt;/reference&gt;
+</span><span class='line'> &lt;/PRODUCT_TYPE_configurable&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Step 3: Add your images</h3>
+
+<p>There&rsquo;s two ways you can set the swatch images:</p>
+
+<ul>
+<li>Globally at <code>media/wysiwyg/swatches</code></li>
+<li>On the attribute at > Catalog > Attributes > Manage Attributes > [your attribute] > Manage Label/Options (don&rsquo;t forget to save the attribute after it&rsquo;s uploaded)</li>
+</ul>
+
+
+<h3>Step 4: Enable the swatches</h3>
+
+<p>You&rsquo;ll need to enable the use of swatches at System Configuration > Catalog > Configurable Swatches.</p>
+
+<p>In General Settings, set Enabled to Yes and select your attribures in &ldquo;Product Attributes to Show as Swatches in Product Detail&rdquo;</p>
+
+<h3>Step 5: Apply CSS</h3>
+
+<p>As with everything else the style information is only in rwd&rsquo;s stylesheets. You&rsquo;ll likely need to make some small modifications to make them look acceptable. As a baseline this should suffice:</p>
+
+<pre><code>.product-options .swatch-attr .configurable-swatch-list li {
+    display: inline-block;
+    border:1px solid #CACACA;
+    padding: 1px;
+}
+.product-options .swatch-attr .configurable-swatch-list li.selected {
+    border-color:#0095D3;
+}
+</code></pre>
+</div>
+
+
+      <footer>
+        <p class="meta text-muted">
           
+  
+
+<span class="byline author vcard">Posted by <span class="fn">kenneth</span></span></span></span>
+
           
-            <h1 class="entry-title">
-              Tag: Php 5.6
-              
-            </h1>
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-18T18:56:49+01:00" pubdate data-updated="true">Jun 18<span>th</span>, 2015</time>
           
-        </header>
-      
-      <div class="entry-content">
-        <div id="blog-archives" class="tag">
-
-
-
-  
-  <h2>2015</h2>
-
-<article>
-  
-<h1><a href="/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html">PHP json_encode Failing with No Clear Reason + Solution</a></h1>
-<p class="meta text-muted">
-  
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-13T13:05:35+01:00" pubdate data-updated="true">May 13<span>th</span>, 2015</time>
-  
 
 <span class="glyphicon glyphicon-folder-open" title="categories"></span>&nbsp;
 <span class="categories">
   
-    <a class='category label label-primary' href='/category/php/'>php</a>
+    <a class='category label label-primary' href='/category/magento/'>magento</a>
   
 </span>
 
 
-</p>
+          
 
-</article>
+<br/>
+<span class="glyphicon glyphicon-tags" title="tags"></span>&nbsp;
+<span class="tags">
+  
+    <a class='tag' href='/tag/magento/'>magento</a>, <a class='tag' href='/tag/theme/'>theme</a>
+  
+</span>
 
+
+
+        </p>
+        
+          <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html" data-via="" data-counturl="http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
 </div>
 
-      </div>
-      
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/git/removing-untracked-files-but-not-git-ignored-ones.html" title="Previous Post: Removing untracked files but not git ignored ones">&laquo; Removing untracked files but not git ignored ones</a></li>
+            
+            
+          </ul>
+        
+      </footer>
     </article>
     
   </div>
 
   
-    <aside class="sidebar col-md-3">
-      
-        <section class="panel panel-default">
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">Recent Posts</h3>
   </div>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item active" href="/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html">Using Magento 1.9.1's Colour Swatches in Your Custom Theme</a>
+    
     <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
     
     <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
-    
-    <a class="list-group-item " href="/php/php-json-encode-failing-with-no-clear-reason-plus-solution.html">PHP Json_encode Failing With No Clear Reason + Solution</a>
     
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
@@ -255,8 +368,8 @@
     </div>
 </section>
 
-      
-    </aside>
+    
+  </aside>
   
 </div>
 
