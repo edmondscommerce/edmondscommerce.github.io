@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-06-18T19:28:36+01:00</updated>
+  <updated>2015-06-22T10:26:23+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -14,80 +14,36 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Using Magento 1.9.1's Colour Swatches in your custom theme]]></title>
-    <link href="http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html"/>
-    <updated>2015-06-18T18:56:49+01:00</updated>
-    <id>http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme</id>
-    <content type="html"><![CDATA[<p>If you&rsquo;ve upgraded to Magento 1.9.1 you might have noticed new functionality in the Admin to add colour swatches to your attributes. These work well but for reasons only known to Magento, these require you to be using the new rwd theme, or a derivitive of it. There&rsquo;s no reference to it in base/default so if your theme isn&rsquo;t a derivitive of rwd you&rsquo;ll need to copy the code across.</p>
+    <title type="html"><![CDATA[Fixing product breadcrumbs in Magento]]></title>
+    <link href="http://edmondscommerce.github.io/fixing-product-breadcrumbs-in-magento.html"/>
+    <updated>2015-06-22T10:13:57+01:00</updated>
+    <id>http://edmondscommerce.github.io/fixing-product-breadcrumbs-in-magento</id>
+    <content type="html"><![CDATA[<p>Some times Magento has trouble displaying breadcrumbs for products, there is an override you can added that some times fixes this.</p>
 
-<p>If you look in the rwd/default theme, you&rsquo;ll notice there are folders for configurableswatches in layout, template and skin. These are the ones you&rsquo;ll need to copy across. But there&rsquo;s also a bit of customisation needed.</p>
+<p>Firstly, if you haven&rsquo;t already. Create a new module if you don&rsquo;t already have one in either your local or community directories under app/code.</p>
 
-<h3>Step 1: Copy over the colourswatches files and folders</h3>
+<p>Create a new observer and assign it the event <code>catalog_controller_product_init</code>.</p>
 
-<p>Copy these files from the rwd theme to the same places in your custom theme</p>
+<p>With your observer ready to go, assign the event target to your method of choice on your observer and throw in some code</p>
 
-<ul>
-<li><code>app/design/frontend/rwd/default/</code><strong><code>layout/configurableswatches.xml</code></strong></li>
-<li><code>app/design/frontend/rwd/default/</code><strong><code>template/configurableswatches/</code></strong></li>
-<li><code>skin/frontend/rwd/default/</code><strong><code>js/configurableswatches/</code></strong></li>
-</ul>
+<pre><code>public function updateBreadCrumb(Varien_Event_Observer $observer)
+{
+    $current_product = Mage::registry('current_product');
 
-
-<h3>Step 2: Update your theme&rsquo;s layout</h3>
-
-<p>The layout file <code>configurableswatches.xml</code> expects certain blocks to be present, which are only set in rwd&rsquo;s <code>catalog.xml</code></p>
-
-<p>Add the following lines to your theme&rsquo;s <code>catalog.xml</code>:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;PRODUCT_TYPE_configurable&gt;
-</span><span class='line'>    ...
-</span><span class='line'>     &lt;reference name="product.info.options.wrapper"&gt;
-</span><span class='line'>         &lt;block type="catalog/product_view_type_configurable" name="product.info.options.configurable" as="options_configurable" before="-" template="catalog/product/view/type/options/configurable.phtml"&gt;
-</span><span class='line'>+             &lt;block type="core/text_list" name="product.info.options.configurable.renderers" as="attr_renderers" /&gt;
-</span><span class='line'>+             &lt;block type="core/text_list" name="product.info.options.configurable.after" as="after" /&gt;
-</span><span class='line'>         &lt;/block&gt;
-</span><span class='line'>     &lt;/reference&gt;
-</span><span class='line'> &lt;/PRODUCT_TYPE_configurable&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Step 3: Add your images</h3>
-
-<p>There&rsquo;s two ways you can set the swatch images:</p>
-
-<ul>
-<li>Globally at <code>media/wysiwyg/swatches</code></li>
-<li>On the attribute at > Catalog > Attributes > Manage Attributes > [your attribute] > Manage Label/Options (don&rsquo;t forget to save the attribute after it&rsquo;s uploaded)</li>
-</ul>
-
-
-<h3>Step 4: Enable the swatches</h3>
-
-<p>You&rsquo;ll need to enable the use of swatches at System Configuration > Catalog > Configurable Swatches.</p>
-
-<p>In General Settings, set Enabled to Yes and select your attribures in &ldquo;Product Attributes to Show as Swatches in Product Detail&rdquo;</p>
-
-<h3>Step 5: Apply CSS</h3>
-
-<p>As with everything else the style information is only in rwd&rsquo;s stylesheets. You&rsquo;ll likely need to make some small modifications to make them look acceptable. As a baseline this should suffice:</p>
-
-<pre><code>.product-options .swatch-attr .configurable-swatch-list li {
-    display: inline-block;
-    border:1px solid #CACACA;
-    padding: 1px;
-}
-.product-options .swatch-attr .configurable-swatch-list li.selected {
-    border-color:#0095D3;
+    if ($current_product) {
+        $categories = $current_product-&gt;getCategoryCollection()
+                      -&gt;addAttributeToSelect('name')
+                      -&gt;setPageSize(1);
+        foreach ($categories as $category) {
+            Mage::unregister('current_category');
+            Mage::register('current_category', $category);
+        }
+    }
 }
 </code></pre>
+
+<p>As the code removes and readds the registered categories it will force Magento to regenerate the breadcrumbs.
+Unless there is an issue with product categories in the database this should solve the problem.</p>
 ]]></content>
   </entry>
   
