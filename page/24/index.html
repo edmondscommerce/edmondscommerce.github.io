@@ -128,6 +128,129 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-15T14:17:17+01:00" pubdate data-updated="true">Aug 15<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/get-all-product-attributes-for-a-magento-object-using-sql.html">Get All Product Attributes for a Magento Object Using SQL</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>Sometimes you may want to quickly compare all of the attributes that object (category / product) has in magento. The EAV structure of the database makes this difficult to do this simply, so this is a query that will do it for you</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="p">(</span>
+</span><span class='line'>    <span class="k">SELECT</span>
+</span><span class='line'>        <span class="n">ce</span><span class="p">.</span><span class="n">sku</span><span class="p">,</span>
+</span><span class='line'>        <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span><span class="p">,</span>
+</span><span class='line'>        <span class="n">ea</span><span class="p">.</span><span class="n">attribute_code</span><span class="p">,</span>
+</span><span class='line'>        <span class="k">CASE</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span>
+</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;varchar&#39;</span> <span class="k">THEN</span> <span class="n">ce_varchar</span><span class="p">.</span><span class="n">value</span>
+</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;int&#39;</span> <span class="k">THEN</span> <span class="n">ce_int</span><span class="p">.</span><span class="n">value</span>
+</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;text&#39;</span> <span class="k">THEN</span> <span class="n">ce_text</span><span class="p">.</span><span class="n">value</span>
+</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;decimal&#39;</span> <span class="k">THEN</span> <span class="n">ce_decimal</span><span class="p">.</span><span class="n">value</span>
+</span><span class='line'>           <span class="k">WHEN</span> <span class="s1">&#39;datetime&#39;</span> <span class="k">THEN</span> <span class="n">ce_datetime</span><span class="p">.</span><span class="n">value</span>
+</span><span class='line'>           <span class="k">ELSE</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span>
+</span><span class='line'>        <span class="k">END</span> <span class="k">AS</span> <span class="n">value</span><span class="p">,</span>
+</span><span class='line'>        <span class="n">ea</span><span class="p">.</span><span class="n">is_required</span> <span class="k">AS</span> <span class="n">required</span>
+</span><span class='line'>    <span class="k">FROM</span> <span class="n">catalog_product_entity</span> <span class="k">AS</span> <span class="n">ce</span>
+</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">eav_attribute</span> <span class="k">AS</span> <span class="n">ea</span>
+</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_type_id</span> <span class="o">=</span> <span class="n">ea</span><span class="p">.</span><span class="n">entity_type_id</span>
+</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_varchar</span> <span class="k">AS</span> <span class="n">ce_varchar</span>
+</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_varchar</span><span class="p">.</span><span class="n">entity_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_varchar</span><span class="p">.</span><span class="n">attribute_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;varchar&#39;</span>
+</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_int</span> <span class="k">AS</span> <span class="n">ce_int</span>
+</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_int</span><span class="p">.</span><span class="n">entity_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_int</span><span class="p">.</span><span class="n">attribute_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;int&#39;</span>
+</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_text</span> <span class="k">AS</span> <span class="n">ce_text</span>
+</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_text</span><span class="p">.</span><span class="n">entity_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_text</span><span class="p">.</span><span class="n">attribute_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;text&#39;</span>
+</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_decimal</span> <span class="k">AS</span> <span class="n">ce_decimal</span>
+</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_decimal</span><span class="p">.</span><span class="n">entity_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_decimal</span><span class="p">.</span><span class="n">attribute_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;decimal&#39;</span>
+</span><span class='line'>    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">catalog_product_entity_datetime</span> <span class="k">AS</span> <span class="n">ce_datetime</span>
+</span><span class='line'>        <span class="k">ON</span> <span class="n">ce</span><span class="p">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">ce_datetime</span><span class="p">.</span><span class="n">entity_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">attribute_id</span> <span class="o">=</span> <span class="n">ce_datetime</span><span class="p">.</span><span class="n">attribute_id</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">ea</span><span class="p">.</span><span class="n">backend_type</span> <span class="o">=</span> <span class="s1">&#39;datetime&#39;</span>
+</span><span class='line'>    <span class="k">WHERE</span> <span class="n">ce</span><span class="p">.</span><span class="n">sku</span> <span class="o">=</span> <span class="n">YOUR_SKU</span>
+</span><span class='line'>  <span class="p">)</span> <span class="k">AS</span> <span class="n">tab</span>
+</span><span class='line'>  <span class="k">WHERE</span> <span class="n">tab</span><span class="p">.</span><span class="n">value</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">quot</span><span class="p">;</span><span class="o">&amp;</span><span class="n">quot</span><span class="p">;;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This version of the query will only return values that are not blank, but if you only run the sub query it will give you every value.
+Replace catalog_product* for catalog_category to get the values for a category. You will also have to use a different selector than SKU.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-15T14:16:16+01:00" pubdate data-updated="true">Aug 15<span>th</span>, 2012</time>
         
       </p>
@@ -570,7 +693,7 @@ Group: Applications/Utilities
 Source: <a href="https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz">https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz</a>
 URL: <a href="https://launchpad.net/safe-rm">https://launchpad.net/safe-rm</a>
 Distribution: CentOS
-Packager: Martyn Ranyard <a href="&#109;&#97;&#105;&#108;&#116;&#x6f;&#x3a;&#x69;&#x6e;&#102;&#111;&#x40;&#101;&#x64;&#109;&#111;&#110;&#100;&#115;&#99;&#x6f;&#109;&#109;&#101;&#114;&#99;&#101;&#x2e;&#99;&#111;&#x2e;&#117;&#107;">&#x69;&#x6e;&#x66;&#111;&#64;&#101;&#100;&#109;&#111;&#x6e;&#100;&#x73;&#99;&#111;&#109;&#109;&#101;&#114;&#99;&#101;&#x2e;&#99;&#111;&#x2e;&#x75;&#x6b;</a>
+Packager: Martyn Ranyard <a href="&#x6d;&#x61;&#105;&#108;&#x74;&#111;&#x3a;&#105;&#110;&#102;&#111;&#64;&#x65;&#x64;&#x6d;&#111;&#110;&#100;&#115;&#99;&#111;&#109;&#109;&#101;&#114;&#x63;&#x65;&#x2e;&#99;&#111;&#x2e;&#x75;&#107;">&#x69;&#x6e;&#x66;&#111;&#64;&#x65;&#100;&#x6d;&#x6f;&#x6e;&#100;&#115;&#99;&#111;&#109;&#109;&#101;&#x72;&#99;&#101;&#x2e;&#99;&#x6f;&#x2e;&#x75;&#107;</a>
 Patch1000: safe-rm-0.8-example-conf.patch
 Requires: perl</p>
 
@@ -578,7 +701,7 @@ Requires: perl</p>
 Stop people accidentally removing directories with rm -rf</p>
 
 <p>%changelog
-* Thu Aug 09 2012 Martyn Ranyard <a href="&#x6d;&#x61;&#x69;&#108;&#116;&#111;&#x3a;&#x69;&#x6e;&#x66;&#x6f;&#x40;&#x65;&#100;&#109;&#x6f;&#x6e;&#100;&#x73;&#x63;&#x6f;&#x6d;&#109;&#x65;&#114;&#x63;&#x65;&#46;&#99;&#111;&#46;&#x75;&#107;">&#x69;&#x6e;&#102;&#x6f;&#64;&#x65;&#100;&#x6d;&#111;&#x6e;&#100;&#115;&#99;&#x6f;&#109;&#109;&#101;&#x72;&#x63;&#101;&#x2e;&#99;&#111;&#46;&#117;&#107;</a>
+* Thu Aug 09 2012 Martyn Ranyard <a href="&#x6d;&#97;&#x69;&#108;&#116;&#x6f;&#x3a;&#x69;&#x6e;&#x66;&#111;&#x40;&#101;&#x64;&#109;&#111;&#x6e;&#100;&#115;&#99;&#x6f;&#109;&#x6d;&#x65;&#x72;&#99;&#101;&#46;&#x63;&#x6f;&#46;&#117;&#x6b;">&#105;&#110;&#x66;&#x6f;&#x40;&#101;&#100;&#x6d;&#111;&#x6e;&#x64;&#x73;&#99;&#111;&#x6d;&#109;&#101;&#x72;&#x63;&#x65;&#46;&#x63;&#111;&#46;&#x75;&#107;</a>
 &ndash; Used the debian example config for the default config</p>
 
 <p>%prep
@@ -754,91 +877,6 @@ cd &ndash;</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-07T14:48:08+01:00" pubdate data-updated="true">Aug 7<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/git/git-diff-colours-by-default.html">Git Diff Colours by Default</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you want to make git-diff use colours by default, try running this little command:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">echo</span> <span class="s1">&#39;[color]</span>
-</span><span class='line'><span class="s1"> branch = auto</span>
-</span><span class='line'><span class="s1"> diff = auto</span>
-</span><span class='line'><span class="s1"> status = auto</span>
-</span><span class='line'><span class="s1">[color &quot;branch&quot;]</span>
-</span><span class='line'><span class="s1"> current = yellow reverse</span>
-</span><span class='line'><span class="s1"> local = yellow</span>
-</span><span class='line'><span class="s1"> remote = green</span>
-</span><span class='line'><span class="s1">[color &quot;diff&quot;]</span>
-</span><span class='line'><span class="s1"> meta = yellow bold</span>
-</span><span class='line'><span class="s1"> frag = magenta bold</span>
-</span><span class='line'><span class="s1"> old = red</span>
-</span><span class='line'><span class="s1"> new = cyan</span>
-</span><span class='line'><span class="s1">[color &quot;status&quot;]</span>
-</span><span class='line'><span class="s1"> added = yellow</span>
-</span><span class='line'><span class="s1"> changed = green</span>
-</span><span class='line'><span class="s1"> untracked = cyan&#39;</span> &gt;&gt; ~/.gitconfig
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Simply copy and paste the above to your command line and hit return.</p>
-
-<p>Then if you run:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>git diff master..BRANCH
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You will get a nice coloured display</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -862,6 +900,8 @@ cd &ndash;</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/fixing-product-breadcrumbs-in-magento.html">Fixing Product Breadcrumbs in Magento</a>
+    
     <a class="list-group-item " href="/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html">Using Magento 1.9.1&#8217;s Colour Swatches in Your Custom Theme</a>
     
     <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
@@ -869,8 +909,6 @@ cd &ndash;</p>
     <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
     
     <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
-    
-    <a class="list-group-item " href="/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios When Testing Magento With SmartStep</a>
     
   </div>
 </section>
