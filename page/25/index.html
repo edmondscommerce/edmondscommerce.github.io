@@ -128,6 +128,89 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-08T13:43:30+01:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/php/php-realpath-for-none-existant-paths.html">PHP Realpath for None Existant Paths</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you want the functionality of realpath, to take a path containing relative elements such as /../ then this little function is exactly what you are looking for.</p>
+
+<p>PHP&rsquo;s built in realpath function will return false if the file or folder does not exist. Unfortunately when using complex paths then this can make debugging things a little complicated.</p>
+
+<p>To resolve this simply use this function:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="k">function</span> <span class="nf">normalizePath</span><span class="p">(</span><span class="nv">$path</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nb">explode</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nv">$path</span><span class="p">),</span> <span class="nb">create_function</span><span class="p">(</span><span class="s1">&#39;$a, $b&#39;</span><span class="p">,</span> <span class="s1">&#39;</span>
+</span><span class='line'><span class="s1">         if($a === 0)</span>
+</span><span class='line'><span class="s1">             $a = &amp;quot;/&amp;quot;;</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">         if($b === &amp;quot;&amp;quot; || $b === &amp;quot;.&amp;quot;)</span>
+</span><span class='line'><span class="s1">             return $a;</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">         if($b === &amp;quot;..&amp;quot;)</span>
+</span><span class='line'><span class="s1">             return dirname($a);</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">         return preg_replace(&amp;quot;/\/+/&amp;quot;, &amp;quot;/&amp;quot;, &amp;quot;$a/$b&amp;quot;);</span>
+</span><span class='line'><span class="s1">     &#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For example:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nb">dirname</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;/../../../folder/&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$path</span> <span class="o">=</span> <span class="nx">normalizePath</span><span class="p">(</span><span class="nv">$path</span><span class="p">);</span>
+</span><span class='line'><span class="k">echo</span> <span class="nv">$path</span><span class="p">;</span> <span class="c1">// /var/www/vhosts/domain.com/folder</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-08-07T14:48:08+01:00" pubdate data-updated="true">Aug 7<span>th</span>, 2012</time>
         
       </p>
@@ -735,71 +818,6 @@ cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<e
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-10T13:07:02+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-security-vulnerability-free-assistance.html">Magento Security Vulnerability + Free Assistance</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>The magento platform is based on a PHP framework called Zend Framework.</p>
-
-<p>Recently a bug was found in Zend Framework which potentially allows attackers to read any file on your server. This could mean they could gain access to your mysql server credentials for example.</p>
-
-<p>You can read the full details <a href="http://www.magentocommerce.com/blog/comments/update-zend-framework-vulnerability-security-update/">here</a>.</p>
-
-<p>The actual bug details for Zend Framework are in this <a href="http://framework.zend.com/security/advisory/ZF2012-01">security advisory</a>.</p>
-
-<h3>Free Security Patching Service</h3>
-
-
-<p>In a nutshell this represents a serious security hole that you need to plug as soon as possible. Fixing this issue is very simple indeed if you know what you are doing.</p>
-
-<p>For this reason Edmonds Commerce are happy to offer <b>FREE</b> assistance in applying this patch to any Magento store owner whether you are a current client or not. We will not charge you in any way for this service.</p>
-
-<p>To request <b>FREE</b> assistance <a href="/contact-us/?about=Free+Magento+Security+Fix"><b>contact us today</b></a></p>
-
-<h3>Donation to Charity</h3>
-
-
-<p>If you choose to, you could make a donation to cover this service here:
-<a href="http://www.justgiving.com/EdmondsCommerce"><a href="http://www.justgiving.com/EdmondsCommerce">http://www.justgiving.com/EdmondsCommerce</a></a></p>
-
-<h3>Please Note</h3>
-
-
-<p>We will need you to give us shell (otherwise known as SSH) access to your server if available.</p>
-
-<p>If you are on a shared hosting service that is not able to supply shell access, we would suggest you ask your hosting company to help you with this issue. Feel free to refer them to this page.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -823,6 +841,8 @@ cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<e
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/phpstorm/adding-code-sniffer-with-magento-standards-to-php-storm.html">Adding Code Sniffer With Magento Standards to PHP Storm</a>
+    
     <a class="list-group-item " href="/fixing-product-breadcrumbs-in-magento.html">Fixing Product Breadcrumbs in Magento</a>
     
     <a class="list-group-item " href="/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html">Using Magento 1.9.1&#8217;s Colour Swatches in Your Custom Theme</a>
@@ -830,8 +850,6 @@ cat /path/to/magento/app/etc/modules/<em> | grep -B 1 &ldquo;&lt;.</em>active.<e
     <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
     
     <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
-    
-    <a class="list-group-item " href="/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html">Running Out of Disk Space but Df Shows You Have Lots of Space Left</a>
     
   </div>
 </section>
