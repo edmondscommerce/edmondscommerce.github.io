@@ -12,16 +12,10 @@ description: Improving coding standards with PHP Storm for Magento
 Keeping inline with the Magento coding standards is always good practice when working but it can often be hard to
 stay on top of it, this is where PHP Code Sniffer comes in.
 
-Lets get setup, firstly if Code Sniffer is installed or not
-    yum list installed | grep php
-
-In the list of installed packages check if you can see the following package in the list 
-    php-pear-PHP-CodeSniffer.noarch
-    
-If you can find the package in the list, install it, using sudo if needed
+Lets get setup, install PHP Code sniffer if you haven't already
     yum install php-pear-PHP-CodeSniffer.noarch
 
-Finally, a sanity check that every thing is working
+Next, a sanity check that every thing is working
     phpcs -v
     #Output
     #Registering sniffs in the PEAR standard... DONE (27 sniffs registered)
