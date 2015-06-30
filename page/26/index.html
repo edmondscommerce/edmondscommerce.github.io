@@ -128,6 +128,185 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-10T16:29:28+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2012</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-security-patch-script.html">Magento Security Patch Script</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>We are currently offering a free service to apply the security patches for any Magento store. <a href="http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/">You can read all about that here</a>.</p>
+
+<p>For those of you who are comfortable SSHing into your server and running things manually but would like this to be as easy as possible, you can use our bash script to automatically determine which Magento security patch you require and then apply it.</p>
+
+<p>Simply run the following command:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>wget -qO- http://www.edmondscommerce.co.uk/stuff/applysecuritypatch.sh | /bin/sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For information, this is the source of the above file.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f app/Mage.php <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Not in the magento basedir. please run from public_html, httpdocs, www or wherever index.php is.&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>99
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">WGET_BINARY</span><span class="o">=</span><span class="k">$(</span>which wget<span class="k">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;&quot;</span> <span class="o">=</span> <span class="s2">&quot;$WGET_BINARY&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Can&#39;t find wget in path... can&#39;t continue&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>98
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">MAGENTO_VERSION</span><span class="o">=</span><span class="k">$(</span>grep <span class="s1">&#39;function getVersionInfo\(\)&#39;</span> -A6 app/Mage.php | sed s/<span class="o">[</span>^0-9<span class="o">]</span>//g | tr <span class="s1">&#39;\n&#39;</span> <span class="s1">&#39;.&#39;</span> | sed s/<span class="s1">&#39;\.\.*&#39;</span>// | sed s/<span class="s1">&#39;\.$&#39;</span>//<span class="k">)</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Your Magento version is $MAGENTO_VERSION&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">export</span> <span class="k">$(</span>grep <span class="s1">&#39;function getVersionInfo()&#39;</span> -A6 app/Mage.php | <span class="nv">grep</span> <span class="o">=</span> | sed s/,// | sed s/<span class="se">\&gt;</span>// | sed s/<span class="s1">&#39;[\t ]&#39;</span>//g | tr <span class="s2">&quot;a-z&quot;</span> <span class="s2">&quot;A-Z&quot;</span> | sed s/^/MAGENTO_/ | sed s/<span class="s2">&quot;&#39;&quot;</span>//g<span class="k">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">set</span> | grep MAGENTO
+</span><span class='line'>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c">#Community Edition 1.4.0.0 through 1.4.1.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch</span>
+</span><span class='line'><span class="c">#Community Edition 1.4.2.0 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch</span>
+</span><span class='line'><span class="c">#Community Edition 1.5.0.0 through 1.7.0.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$MAGENTO_MAJOR&quot;</span> -eq <span class="s2">&quot;1&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  if</span> <span class="o">[</span> <span class="s2">&quot;$MAGENTO_MINOR&quot;</span> -eq <span class="s2">&quot;4&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> <span class="nv">$MAGENTO_PATCH</span> -lt <span class="s2">&quot;2&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento &lt; 1.4.2.0 - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.4.2.0 - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">  elif</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -gt <span class="s2">&quot;4&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -lt <span class="s2">&quot;7&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">elif</span> <span class="o">[</span> <span class="nv">$MAGENTO_MINOR</span> -eq <span class="s2">&quot;7&quot;</span> -a <span class="nv">$MAGENTO_PATCH</span> -eq <span class="s2">&quot;0&quot;</span> -a <span class="nv">$MAGENTO_REVISION</span> -lt <span class="s2">&quot;2&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">CORRECT_PATCH</span><span class="o">=</span><span class="s1">&#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&#39;</span>
+</span><span class='line'>      <span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.5.0.0 or above - patch is $CORRECT_PATCH&quot;</span>;
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Running Magento 1.7.0.2 - already patched.&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">  fi</span>
+</span><span class='line'><span class="k">else </span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;You&#39;re not running version 1.x.x.x of Magento, I have no idea what to do!&quot;</span>
+</span><span class='line'>  <span class="nb">exit </span>97
+</span><span class='line'><span class="k">fi </span>
+</span><span class='line'>
+</span><span class='line'>wget -O - <span class="nv">$CORRECT_PATCH</span> 2&gt; /dev/null | patch -p0
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;Patch succeeded.&quot;</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">  </span><span class="nb">echo</span> <span class="s2">&quot;For some reason the patch failed.  See the output above.&quot;</span>
+</span><span class='line'>  <span class="nb">echo</span> <span class="s2">&quot;You could attempt to download the patch manually and apply it - the url is :- &quot;</span>
+</span><span class='line'>  <span class="nb">echo</span> <span class="nv">$CORRECT_PATCH</span>
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Please note this script is supplied without any warranty, use at your own risk. We are not supplying the patch files simply making it easy to download and apply the correct one.</p>
+
+<p>We strongly recommend you patch your store as soon as possible.</p>
+
+<p><b><a href="http://www.edmondscommerce.co.uk/contact-us/?about=Free+Magento+Security+Fix"> If you need help, just ask!</a></b></p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-07-10T13:07:02+01:00" pubdate data-updated="true">Jul 10<span>th</span>, 2012</time>
         
       </p>
@@ -682,52 +861,6 @@ You might be interested in using or viewing the zipped file here;<a href='http:/
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2012-05-30T10:49:15+01:00" pubdate data-updated="true">May 30<span>th</span>, 2012</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/php/phpmyadmin-increase-tables-displayed-in-left-column.html">phpMyAdmin Increase Tables Displayed in Left Column</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are using the latest version of phpMyAdmin you have no doubt spotted the nice javascript table select system that allows you to type keywords that filter the list of tables down to the one you are looking for.</p>
-
-<p>However if you are dealing with a system that has a lot of tables, the list is paged and unfortunately this javascript system does not filter the entire table list, just the current page.</p>
-
-<p>The solution is to add one line to your config.inc.php in the phpMyAdmin root.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="nv">$cfg</span><span class="p">[</span><span class="s1">&#39;MaxTableList&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -751,6 +884,8 @@ You might be interested in using or viewing the zipped file here;<a href='http:/
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento-exploit-stealing-customer-info-including-card-details-check-your-site-now.html">Magento Exploit Stealing Customer Info Including Card Details Check Your Site Now</a>
+    
     <a class="list-group-item " href="/phpstorm/adding-code-sniffer-with-magento-standards-to-php-storm.html">Adding Code Sniffer With Magento Standards to PHP Storm</a>
     
     <a class="list-group-item " href="/fixing-product-breadcrumbs-in-magento.html">Fixing Product Breadcrumbs in Magento</a>
@@ -758,8 +893,6 @@ You might be interested in using or viewing the zipped file here;<a href='http:/
     <a class="list-group-item " href="/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html">Using Magento 1.9.1&#8217;s Colour Swatches in Your Custom Theme</a>
     
     <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
-    
-    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
     
   </div>
 </section>

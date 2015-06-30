@@ -128,6 +128,95 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-03T12:40:04+00:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/mysql/sorting-results-arbitrarily-in-mysql.html">Sorting Results Arbitrarily in MySQL</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>When you have a result set in MySQL that you need to order in a specific way you might think that it is not possible and instead you are going to have to read all
+of your results into your application domain (eg PHP) and manage the sorting from there. On a large results set that could be seriously inefficient.</p>
+
+<p>The truth is that you don&rsquo;t have to do that. You can specify any kind of sort order including sorting by string values as you see fit.</p>
+
+<p>The way to do this is to use the magic of <a href="http://dev.mysql.com/doc/refman/5.0/en/string-functions.html#function_find-in-set">FIND_IN_SET</a> combined with ORDER BY.</p>
+
+<p>For a full example see this query that is pulling out product images from a data repository in descending image size as described in one of the columns as a string.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">SELECT</span>
+</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">prodID</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dc</span><span class="p">.</span><span class="n">url</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span> <span class="k">AS</span> <span class="n">resolution</span>
+</span><span class='line'><span class="k">FROM</span> <span class="n">cds_DigContent</span> <span class="n">dc</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Links</span> <span class="n">dcl</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dcl</span><span class="p">.</span><span class="n">contentGuid</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta</span> <span class="n">dcm</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcm</span><span class="p">.</span><span class="n">contentGuid</span> <span class="o">=</span> <span class="n">dc</span><span class="p">.</span><span class="n">contentGuid</span>
+</span><span class='line'>        <span class="k">AND</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaAtrId</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">JOIN</span> <span class="n">cds_DigContent_Meta_ValVoc</span> <span class="n">dcmv</span>
+</span><span class='line'>    <span class="k">ON</span> <span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueId</span> <span class="o">=</span> <span class="n">dcm</span><span class="p">.</span><span class="n">metaValueId</span><span class="p">)</span>
+</span><span class='line'><span class="k">WHERE</span> <span class="n">dc</span><span class="p">.</span><span class="n">mediaTypeId</span> <span class="o">=</span> <span class="mi">15</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">dcl</span><span class="p">.</span><span class="n">prodId</span> <span class="o">=</span> <span class="s1">&#39;{$this-&gt;getCnetProdID()}&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">ORDER</span> <span class="k">BY</span>
+</span><span class='line'>  <span class="nf">FIND_IN_SET</span><span class="p">(</span><span class="n">dcmv</span><span class="p">.</span><span class="n">metaValueName</span><span class="p">,</span> <span class="s1">&#39;2400 x 1800,1200 x 900,1024 x 768,800 x 600,640 x 480,400 x 300,200 x 150,75 x 75&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">LIMIT</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-12-02T20:43:49+00:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
         
       </p>
@@ -650,51 +739,6 @@ and can simply run</p>
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2013-09-26T17:34:04+01:00" pubdate data-updated="true">Sep 26<span>th</span>, 2013</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/git/a-great-way-to-simplify-git-merges.html">A Great Way to Simplify Git Merges</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>If you are struggling with a git merge with a long list of failed merge files then this little trick might be helpful.</p>
-
-<p>The standard approach is to go file by file and use git mergetool to open the files in a tool like Meld and then manually manage the differences. In many cases though you know exactly which version you want and this is simply a laborious process that doesn&rsquo;t really require human input.</p>
-
-<p>The solution to this is deceptively simple. All you need to do is to check out the file from the branch you want to keep the version of. If you have an entire directory where you know that the branch (for example master) has the correct version then you can check out that entire directory.</p>
-
-<p>You might find that sensible use of this technique can save you lots of time and really make the mergetool the one you use for the files where you really do need to merge.</p>
-
-<p>Thanks to <a href="http://stackoverflow.com/questions/914939/simple-tool-to-accept-theirs-or-accept-mine-on-a-whole-file-using-git?answertab=active#tab-top">this StackOverflow answer</a> for simplifying this for me.</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -718,6 +762,8 @@ and can simply run</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento-exploit-stealing-customer-info-including-card-details-check-your-site-now.html">Magento Exploit Stealing Customer Info Including Card Details Check Your Site Now</a>
+    
     <a class="list-group-item " href="/phpstorm/adding-code-sniffer-with-magento-standards-to-php-storm.html">Adding Code Sniffer With Magento Standards to PHP Storm</a>
     
     <a class="list-group-item " href="/fixing-product-breadcrumbs-in-magento.html">Fixing Product Breadcrumbs in Magento</a>
@@ -725,8 +771,6 @@ and can simply run</p>
     <a class="list-group-item " href="/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html">Using Magento 1.9.1&#8217;s Colour Swatches in Your Custom Theme</a>
     
     <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
-    
-    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
     
   </div>
 </section>

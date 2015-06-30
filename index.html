@@ -128,6 +128,79 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-30T00:00:00+01:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento-exploit-stealing-customer-info-including-card-details-check-your-site-now.html">Magento Exploit Stealing Customer Info Including Card Details Check Your Site Now</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>We have detected malicious code running on one of our client&rsquo;s Magento websites. The code in question is harvesting customer details which are then being stolen.</p>
+
+<p>The process is not very sophisticated though it does seem to be effective. Unfortunately investigating it further it seems that there are a number of hacked sites and there are even sensitive details including, in some cases, credit card information that is visible in Google&rsquo;s own cache.</p>
+
+<h3>Analysis</h3>
+
+<p>As is common with this kind of exploit, there is a PHP file that then calls <code>eval</code> on a base64 encoded set of code.</p>
+
+<p>In this case, the file was called abstractleft.php and was located in the Magento shell directory. The contents of the file begin with this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">PHP</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">eval</span><span class="p">(</span><span class="nb">gzinflate</span><span class="p">(</span><span class="nb">base64_decode</span><span class="p">(</span><span class="err">&#39;</span><span class="mi">7</span><span class="nx">f3</span><span class="o">/</span><span class="nx">Xxs38jiO</span><span class="o">/</span><span class="mi">36</span><span class="nx">Px</span><span class="o">/</span><span class="mi">0</span><span class="nx">Pyta92K1tDEnaBg</span><span class="o">....</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+The top of the file indicates that it is a web shell.</p>
+
+<p><code>/* WSO 2.1 (Web Shell by pgems.in) */</code></p>
+
+<p>The file is being used to generate a dump of data, with regular POST requests coming from the IP: <code>46.21.151.107</code></p>
+
+<p>In the case of our client, the issue is being resolved quickly and only seems to have been live for a day or so, however looking through Google&rsquo;s index its clear that there are other sites that have been leaking a lot of data.</p>
+
+<p>In the worst case, the Magento sites have been using the Saved Credit Card payment method. This means that the data scrapes have been pulling customer details and also the full card details. This is another reason why it is a <em>really bad idea</em> to use the Saved Credit Card payment method.</p>
+
+<h3>Defense</h3>
+
+<p>It is not clear exactly how the client server was compromised however it is important to ensure that all access credentials are updated and also firewall rules are reviewed and updated.</p>
+
+<p>Ideally we would like to know exactly how the attacker gained access to the server to place the exploit file. This involves examining security logs and other logs. If the attack is not too sophisticated then there is a good chance that there is a lot of debug information that should be helpful in finding out exactly how the attack has taken place.</p>
+
+<p>The main thing for Magento sites now though is to ensure that all security patches have been applied. If your live site has not been patched then really you must expect this kind of hack.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-24T09:53:52+01:00" pubdate data-updated="true">Jun 24<span>th</span>, 2015</time>
         
       </p>
@@ -736,69 +809,6 @@ With that said, you can now happily use PHP Storm to develop your applications, 
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-03-10T13:09:06+00:00" pubdate data-updated="true">Mar 10<span>th</span>, 2015</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/gnome-shell/cron-script-to-change-gnome-shell-wallpaper.html">Cron Script to Change Gnome Shell Wallpaper</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>I&rsquo;ve recently upgraded to Fedora 21 and one of my extensions was not compatible with the updated Gnome Shell version.</p>
-
-<p>I tried some variations but found that it seemed to be having a big negative impact on performance. A simpler option was required.</p>
-
-<p>Here it is &ndash; a simple BASH script that you can Cron up to change your background</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/usr/bin/env bash</span>
-</span><span class='line'><span class="nv">PID</span><span class="o">=</span><span class="k">$(</span>pgrep gnome-session<span class="k">)</span>
-</span><span class='line'><span class="nb">export </span><span class="nv">DBUS_SESSION_BUS_ADDRESS</span><span class="o">=</span><span class="k">$(</span>grep -z DBUS_SESSION_BUS_ADDRESS /proc/<span class="nv">$PID</span>/environ|cut -d<span class="o">=</span> -f2-<span class="k">)</span>
-</span><span class='line'><span class="nv">GSETTINGS_BACKEND</span><span class="o">=</span>dconf
-</span><span class='line'>gsettings <span class="nb">set </span>org.gnome.desktop.background picture-uri <span class="s1">&#39;&quot;file://&#39;</span>/home/joseph/Pictures/Wallpapers/<span class="k">$(</span>ls /home/joseph/Pictures/Wallpapers/ | shuf -n 1<span class="k">)</span><span class="s1">&#39;&quot;&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Add this line to your crontab to change</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>*/5 * * * * /home/joseph/Pictures/Wallpapers/CHANGE.bash
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Obviously you need to change paths etc but this works nicely</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -822,6 +832,8 @@ With that said, you can now happily use PHP Storm to develop your applications, 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento-exploit-stealing-customer-info-including-card-details-check-your-site-now.html">Magento Exploit Stealing Customer Info Including Card Details Check Your Site Now</a>
+    
     <a class="list-group-item " href="/phpstorm/adding-code-sniffer-with-magento-standards-to-php-storm.html">Adding Code Sniffer With Magento Standards to PHP Storm</a>
     
     <a class="list-group-item " href="/fixing-product-breadcrumbs-in-magento.html">Fixing Product Breadcrumbs in Magento</a>
@@ -829,8 +841,6 @@ With that said, you can now happily use PHP Storm to develop your applications, 
     <a class="list-group-item " href="/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html">Using Magento 1.9.1&#8217;s Colour Swatches in Your Custom Theme</a>
     
     <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
-    
-    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
     
   </div>
 </section>

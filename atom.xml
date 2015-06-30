@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-06-24T10:48:18+01:00</updated>
+  <updated>2015-06-30T14:38:16+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -12,6 +12,51 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Magento Exploit Stealing Customer Info Including Card Details Check Your Site Now]]></title>
+    <link href="http://edmondscommerce.github.io/magento-exploit-stealing-customer-info-including-card-details-check-your-site-now.html"/>
+    <updated>2015-06-30T00:00:00+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento-exploit-stealing-customer-info-including-card-details-check-your-site-now</id>
+    <content type="html"><![CDATA[<p>We have detected malicious code running on one of our client&rsquo;s Magento websites. The code in question is harvesting customer details which are then being stolen.</p>
+
+<p>The process is not very sophisticated though it does seem to be effective. Unfortunately investigating it further it seems that there are a number of hacked sites and there are even sensitive details including, in some cases, credit card information that is visible in Google&rsquo;s own cache.</p>
+
+<h3>Analysis</h3>
+
+<p>As is common with this kind of exploit, there is a PHP file that then calls <code>eval</code> on a base64 encoded set of code.</p>
+
+<p>In this case, the file was called abstractleft.php and was located in the Magento shell directory. The contents of the file begin with this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">PHP</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">eval</span><span class="p">(</span><span class="nb">gzinflate</span><span class="p">(</span><span class="nb">base64_decode</span><span class="p">(</span><span class="err">&#39;</span><span class="mi">7</span><span class="nx">f3</span><span class="o">/</span><span class="nx">Xxs38jiO</span><span class="o">/</span><span class="mi">36</span><span class="nx">Px</span><span class="o">/</span><span class="mi">0</span><span class="nx">Pyta92K1tDEnaBg</span><span class="o">....</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+The top of the file indicates that it is a web shell.</p>
+
+<p><code>/* WSO 2.1 (Web Shell by pgems.in) */</code></p>
+
+<p>The file is being used to generate a dump of data, with regular POST requests coming from the IP: <code>46.21.151.107</code></p>
+
+<p>In the case of our client, the issue is being resolved quickly and only seems to have been live for a day or so, however looking through Google&rsquo;s index its clear that there are other sites that have been leaking a lot of data.</p>
+
+<p>In the worst case, the Magento sites have been using the Saved Credit Card payment method. This means that the data scrapes have been pulling customer details and also the full card details. This is another reason why it is a <em>really bad idea</em> to use the Saved Credit Card payment method.</p>
+
+<h3>Defense</h3>
+
+<p>It is not clear exactly how the client server was compromised however it is important to ensure that all access credentials are updated and also firewall rules are reviewed and updated.</p>
+
+<p>Ideally we would like to know exactly how the attacker gained access to the server to place the exploit file. This involves examining security logs and other logs. If the attack is not too sophisticated then there is a good chance that there is a lot of debug information that should be helpful in finding out exactly how the attack has taken place.</p>
+
+<p>The main thing for Magento sites now though is to ensure that all security patches have been applied. If your live site has not been patched then really you must expect this kind of hack.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Adding Code Sniffer with Magento Standards to PHP Storm]]></title>
@@ -889,61 +934,6 @@ pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
 
 
 <p>As by default according to the <a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#port_in_redirect">nginx documentation</a> this behaviour is on by default.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Combined CSV]]></title>
-    <link href="http://edmondscommerce.github.io/bash/combined-csv.html"/>
-    <updated>2014-12-10T17:23:36+00:00</updated>
-    <id>http://edmondscommerce.github.io/bash/combined-csv</id>
-    <content type="html"><![CDATA[<p>Here is a quick BASH one liner to combine a folder of csv or similar files into one combined file with a header.</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">h</span><span class="o">=</span>0; <span class="k">for </span>f in *; <span class="k">do if</span> <span class="o">[[</span> 0 !<span class="o">=</span> <span class="nv">$h</span> <span class="o">]]</span>; <span class="k">then </span>tail -n +2 <span class="nv">$f</span> &gt;&gt; combined.txt; <span class="k">else </span>cat <span class="nv">$f</span> &gt; combined.txt; <span class="nv">h</span><span class="o">=</span>1; <span class="k">fi done</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>More readably, you can see it like this:</p>
-
-<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># has header been set, starts as no</span>
-</span><span class='line'><span class="nv">h</span><span class="o">=</span>0;
-</span><span class='line'><span class="c"># foreach file in current directory</span>
-</span><span class='line'><span class="k">for </span>f in *
-</span><span class='line'><span class="k">do</span>
-</span><span class='line'>    <span class="c"># if header has been set</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> 0 !<span class="o">=</span> <span class="nv">$h</span> <span class="o">]]</span>
-</span><span class='line'>    <span class="k">then</span>
-</span><span class='line'>        <span class="c"># append the contents of the file starting from line 2 into the combined file</span>
-</span><span class='line'>        tail -n +2 <span class="nv">$f</span> &gt;&gt; combined.txt
-</span><span class='line'>    <span class="k">else</span>
-</span><span class='line'>        <span class="c"># overwrite the combined file with the contents of the file, including header</span>
-</span><span class='line'>        cat <span class="nv">$f</span> &gt; combined.txt
-</span><span class='line'>        <span class="c"># and mark the header as having been set</span>
-</span><span class='line'>        <span class="nv">h</span><span class="o">=</span>1
-</span><span class='line'>    <span class="k">fi </span>
-</span><span class='line'><span class="k">done</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s it, pretty easy really</p>
 ]]></content>
   </entry>
   

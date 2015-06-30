@@ -128,6 +128,137 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-10T13:57:50+00:00" pubdate data-updated="true">Feb 10<span>th</span>, 2011</time>
+        
+      </p>
+    
+    
+      <h1 class="entry-title"><a href="/magento/magento-transactional-email-codes-custom-emails.html">Magento Transactional Email Codes - Custom Emails</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix"><p>If you need to send some custom emails as part of a custom Magento module development project, you will stumble into the Magento email template system and its confusing mixture of XML requirements.</p>
+
+<p>Rather than go into too much detail here are some pointers about how to achieve what you want to do.</p>
+
+<ol>
+<li>You need to set up your admin options in your system.xml file.</li>
+</ol>
+
+
+<p>I&rsquo;m not going to go into the details on how to set up custom admin configuration, for that try <a href="http://www.magentocommerce.com/wiki/5_-_modules_and_development/admin/xml_structure_for_admin_configurations">here</a>.</p>
+
+<p>Lets assume you have a custom module under the xml path:</p>
+
+<p>config/sections/custom_module/groups/email/template</p>
+
+<p>that section should look something like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;template</span> <span class="na">translate=</span><span class="s">&quot;label&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;label&gt;</span>Custom Email Template<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;frontend_type&gt;</span>select<span class="nt">&lt;/frontend_type&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;source_model&gt;</span>adminhtml/system_config_source_email_template<span class="nt">&lt;/source_model&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;sort_order&gt;</span>2<span class="nt">&lt;/sort_order&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;show_in_default&gt;</span>1<span class="nt">&lt;/show_in_default&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;show_in_website&gt;</span>1<span class="nt">&lt;/show_in_website&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;show_in_store&gt;</span>1<span class="nt">&lt;/show_in_store&gt;</span>
+</span><span class='line'><span class="nt">&lt;/template&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You need to set your default value in your config.xml file (inside the root config tag)</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'> <span class="c">&lt;!-- DEFAULTS For Admin System Configuration //--&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;default&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;custom_module&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;email&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;enabled&gt;</span>1<span class="nt">&lt;/enabled&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;template&gt;</span>custom_module_email_template<span class="nt">&lt;/template&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;identity&gt;</span>sales<span class="nt">&lt;/identity&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/email&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/custom_module&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/default&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you also need to define your email template, which goes inside the config/global/ node</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>       <span class="c">&lt;!-- EMAIL TEMPLATE //--&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;template&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;email&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;custom_module_email_template</span> <span class="na">translate=</span><span class="s">&quot;label&quot;</span> <span class="na">module=</span><span class="s">&quot;appliedsb&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;label&gt;</span>Custom Template<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;file&gt;</span>appliedsb/download_links.html<span class="nt">&lt;/file&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;type&gt;</span>html<span class="nt">&lt;/type&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/custom_moduel_email_template&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/email&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/template&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And then you need to make sure you put the email template inside the locale folder, en_us (or other locales as needed).</p>
+
+<p>Now you need to clear cache and I recommend resaving the custom configuration group in the admin and double check that your Custom Template label is appearing properly in the email templates dropdown for your module.</p>
+
+<p>And that should be it, your module now has a custom email template that has a locale file and is also over rideable with Magento&rsquo;s own transactional emails system &ndash; sweet!</p>
+
+<p>If you get the exception <strong>Invalid transactional email code:</strong> then double check that all your xml nodes match up and that the locale file is in the correct place, clear your cache, resave the admin config and try again. This bug can be tricky to track down but if you respect the above xml and file layout it should all work.</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-02-08T13:17:04+00:00" pubdate data-updated="true">Feb 8<span>th</span>, 2011</time>
         
       </p>
@@ -792,170 +923,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
 
         </article>
       
-      
-        <article class="post">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2011-01-06T19:07:13+00:00" pubdate data-updated="true">Jan 6<span>th</span>, 2011</time>
-        
-      </p>
-    
-    
-      <h1 class="entry-title"><a href="/magento/magento-translations-locales-list.html">Magento Translations / Locales List</a></h1>
-    
-  </header>
-
-
-  <div class="entry-content clearfix"><p>Working on a massively multilingual Magento implementation at the moment so I needed to grab all the locales from Connect.</p>
-
-<p>Here is the list that I grabbed:</p>
-
-<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>magento-community/Locale_Mage_community_fr_FR
-</span><span class='line'>magento-community/Locale_Mage_community_de_DE
-</span><span class='line'>magento-community/Locale_Mage_community_nl_NL
-</span><span class='line'>magento-community/Locale_Mage_community_es_ES
-</span><span class='line'>magento-community/Locale_Mage_community_language_ro_RO
-</span><span class='line'>magento-community/Locale_Mage_community_pt_BR
-</span><span class='line'>magento-community/Locale_Mage_community_fi_FI
-</span><span class='line'>magento-community/Locale_Mage_community_nb_NO
-</span><span class='line'>magento-community/Locale_Mage_community_hu_HU
-</span><span class='line'>magento-community/Locale_Mage_community_ja_JP
-</span><span class='line'>magento-community/Locale_Mage_community_el_GR
-</span><span class='line'>magento-community/Locale_Mage_community_de_CH
-</span><span class='line'>magento-community/Locale_Mage_community_language_pack_ro_RO
-</span><span class='line'>magento-community/Locale_Mage_community_es_MX
-</span><span class='line'>magento-community/Nostress_Czech_Language_Pack
-</span><span class='line'>magento-community/Locale_Mage_community_tr_TR
-</span><span class='line'>magento-community/Locale_Mage_community_sv_SE
-</span><span class='line'>magento-community/Locale_Mage_community_ru_RU
-</span><span class='line'>magento-community/Locale_Mage_community_pl_PL
-</span><span class='line'>magento-community/Locale_Mage_community_da_DK
-</span><span class='line'>magento-community/dutch_NL
-</span><span class='line'>magento-community/Locale_Mage_community_it_IT
-</span><span class='line'>magento-community/Locale_Mage_community_cs_CZ
-</span><span class='line'>magento-community/Locale_Mage_community_th_TH
-</span><span class='line'>magento-community/Locale_Mage_community_zh_TW
-</span><span class='line'>magento-community/Locale_Mage_community_es_AR
-</span><span class='line'>magento-community/Locale_Mage_community_sk_SK
-</span><span class='line'>magento-community/Locale_Mage_community_et_EE
-</span><span class='line'>magento-community/Locale_Mage_community_bg_BG
-</span><span class='line'>magento-community/PepMaq_Japan_Translation
-</span><span class='line'>magento-community/Locale_Mage_community_ca_ES
-</span><span class='line'>magento-community/Locale_Mage_community_es_CO
-</span><span class='line'>magento-community/Locale_Mage_community_fr_CA
-</span><span class='line'>magento-community/Locale_Mage_community_uk_UA
-</span><span class='line'>magento-community/Locale_Mage_community_lt_LT
-</span><span class='line'>magento-community/Locale_Mage_community_id_ID
-</span><span class='line'>magento-community/Locale_Mage_community_sl_SI
-</span><span class='line'>magento-community/Mage_PortugalRegions
-</span><span class='line'>magento-community/Locale_Mage_community_ar_SA
-</span><span class='line'>magento-community/Locale_Mage_community_he_IL
-</span><span class='line'>magento-community/Locale_Mage_community_ro_RO
-</span><span class='line'>magento-community/Locale_Mage_Community_en_AU
-</span><span class='line'>magento-community/Locale_Mage_community_hr_HR
-</span><span class='line'>magento-community/Locale_Mage_community_ar_MA
-</span><span class='line'>magento-community/Locale_Mage_community_sr_RS
-</span><span class='line'>magento-community/VietnamLanguagePack
-</span><span class='line'>magento-community/Locale_Mage_community_lv_LV
-</span><span class='line'>magento-community/Locale_Mage_community_de_AT
-</span><span class='line'>magento-community/Locale_Mage_community_nn_NO
-</span><span class='line'>magento-community/Locale_Mage_community_gl_ES
-</span><span class='line'>magento-community/Locale_Mage_community_it_CH
-</span><span class='line'>magento-community/Mage_Polski
-</span><span class='line'>magento-community/Locale_Mage_community_mn_MN
-</span><span class='line'>magento-community/Locale_Mage_community_bn_BD
-</span><span class='line'>magento-community/Locale_Mage_community_is_IS
-</span><span class='line'>magento-community/Locale_Mage_community_sq_AL
-</span><span class='line'>magento-community/Locale_Mage_community_cy_GB
-</span><span class='line'>magento-community/Locale_Mage_community_mk_MK
-</span><span class='line'>magento-community/Locale_Mage_community_bs_BA
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hope it helps</p>
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -979,6 +946,8 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/magento-exploit-stealing-customer-info-including-card-details-check-your-site-now.html">Magento Exploit Stealing Customer Info Including Card Details Check Your Site Now</a>
+    
     <a class="list-group-item " href="/phpstorm/adding-code-sniffer-with-magento-standards-to-php-storm.html">Adding Code Sniffer With Magento Standards to PHP Storm</a>
     
     <a class="list-group-item " href="/fixing-product-breadcrumbs-in-magento.html">Fixing Product Breadcrumbs in Magento</a>
@@ -986,8 +955,6 @@ or <a href="https://github.com/edmondscommerce/edmondscommerce.github.io">create
     <a class="list-group-item " href="/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html">Using Magento 1.9.1&#8217;s Colour Swatches in Your Custom Theme</a>
     
     <a class="list-group-item " href="/git/removing-untracked-files-but-not-git-ignored-ones.html">Removing Untracked Files but Not Git Ignored Ones</a>
-    
-    <a class="list-group-item " href="/php/developer-setup.html">Preparing Fedora for Development With PHP Storm</a>
     
   </div>
 </section>
