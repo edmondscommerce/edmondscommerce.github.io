@@ -4,7 +4,7 @@
   <title><![CDATA[Edmonds Commerce Dev Blog]]></title>
   <link href="http://edmondscommerce.github.io/atom.xml" rel="self"/>
   <link href="http://edmondscommerce.github.io/"/>
-  <updated>2015-06-24T10:46:50+01:00</updated>
+  <updated>2015-06-24T10:48:18+01:00</updated>
   <id>http://edmondscommerce.github.io/</id>
   <author>
     <name><![CDATA[EdmondsCommerce Development Team]]></name>
@@ -59,6 +59,891 @@ home directory. <code>/home/&lt;USER&gt;/.composer/vendor/magento-ecg/coding-sta
 <p>We&rsquo;re all set to go, in PHP Storm you can now choose to inspect code in various places such as individual files,
 the entire project or individual directories. I prefer to stick to the directories that I can currently working with
 such as the module within the namespace.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fixing product breadcrumbs in Magento]]></title>
+    <link href="http://edmondscommerce.github.io/fixing-product-breadcrumbs-in-magento.html"/>
+    <updated>2015-06-22T10:13:57+01:00</updated>
+    <id>http://edmondscommerce.github.io/fixing-product-breadcrumbs-in-magento</id>
+    <content type="html"><![CDATA[<p>Some times Magento has trouble displaying breadcrumbs for products, there is an override you can added that some times fixes this.</p>
+
+<p>Firstly, if you haven&rsquo;t already. Create a new module if you don&rsquo;t already have one in either your local or community directories under app/code.</p>
+
+<p>Create a new observer and assign it the event <code>catalog_controller_product_init</code>.</p>
+
+<p>With your observer ready to go, assign the event target to your method of choice on your observer and throw in some code</p>
+
+<pre><code>public function updateBreadCrumb(Varien_Event_Observer $observer)
+{
+    $current_product = Mage::registry('current_product');
+
+    if ($current_product) {
+        $categories = $current_product-&gt;getCategoryCollection()
+                      -&gt;addAttributeToSelect('name')
+                      -&gt;setPageSize(1);
+        foreach ($categories as $category) {
+            Mage::unregister('current_category');
+            Mage::register('current_category', $category);
+        }
+    }
+}
+</code></pre>
+
+<p>As the code removes and readds the registered categories it will force Magento to regenerate the breadcrumbs.
+Unless there is an issue with product categories in the database this should solve the problem.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Magento 1.9.1's Colour Swatches in your custom theme]]></title>
+    <link href="http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme.html"/>
+    <updated>2015-06-18T18:56:49+01:00</updated>
+    <id>http://edmondscommerce.github.io/magento/using-magento-1-dot-9-1-s-colour-swatches-in-your-theme</id>
+    <content type="html"><![CDATA[<p>If you&rsquo;ve upgraded to Magento 1.9.1 you might have noticed new functionality in the Admin to add colour swatches to your attributes. These work well but for reasons only known to Magento, these require you to be using the new rwd theme, or a derivitive of it. There&rsquo;s no reference to it in base/default so if your theme isn&rsquo;t a derivitive of rwd you&rsquo;ll need to copy the code across.</p>
+
+<p>If you look in the rwd/default theme, you&rsquo;ll notice there are folders for configurableswatches in layout, template and skin. These are the ones you&rsquo;ll need to copy across. But there&rsquo;s also a bit of customisation needed.</p>
+
+<h3>Step 1: Copy over the colourswatches files and folders</h3>
+
+<p>Copy these files from the rwd theme to the same places in your custom theme</p>
+
+<ul>
+<li><code>app/design/frontend/rwd/default/</code><strong><code>layout/configurableswatches.xml</code></strong></li>
+<li><code>app/design/frontend/rwd/default/</code><strong><code>template/configurableswatches/</code></strong></li>
+<li><code>skin/frontend/rwd/default/</code><strong><code>js/configurableswatches/</code></strong></li>
+</ul>
+
+
+<h3>Step 2: Update your theme&rsquo;s layout</h3>
+
+<p>The layout file <code>configurableswatches.xml</code> expects certain blocks to be present, which are only set in rwd&rsquo;s <code>catalog.xml</code></p>
+
+<p>Add the following lines to your theme&rsquo;s <code>catalog.xml</code>:</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;PRODUCT_TYPE_configurable&gt;
+</span><span class='line'>    ...
+</span><span class='line'>     &lt;reference name="product.info.options.wrapper"&gt;
+</span><span class='line'>         &lt;block type="catalog/product_view_type_configurable" name="product.info.options.configurable" as="options_configurable" before="-" template="catalog/product/view/type/options/configurable.phtml"&gt;
+</span><span class='line'>+             &lt;block type="core/text_list" name="product.info.options.configurable.renderers" as="attr_renderers" /&gt;
+</span><span class='line'>+             &lt;block type="core/text_list" name="product.info.options.configurable.after" as="after" /&gt;
+</span><span class='line'>         &lt;/block&gt;
+</span><span class='line'>     &lt;/reference&gt;
+</span><span class='line'> &lt;/PRODUCT_TYPE_configurable&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Step 3: Add your images</h3>
+
+<p>There&rsquo;s two ways you can set the swatch images:</p>
+
+<ul>
+<li>Globally at <code>media/wysiwyg/swatches</code></li>
+<li>On the attribute at > Catalog > Attributes > Manage Attributes > [your attribute] > Manage Label/Options (don&rsquo;t forget to save the attribute after it&rsquo;s uploaded)</li>
+</ul>
+
+
+<h3>Step 4: Enable the swatches</h3>
+
+<p>You&rsquo;ll need to enable the use of swatches at System Configuration > Catalog > Configurable Swatches.</p>
+
+<p>In General Settings, set Enabled to Yes and select your attribures in &ldquo;Product Attributes to Show as Swatches in Product Detail&rdquo;</p>
+
+<h3>Step 5: Apply CSS</h3>
+
+<p>As with everything else the style information is only in rwd&rsquo;s stylesheets. You&rsquo;ll likely need to make some small modifications to make them look acceptable. As a baseline this should suffice:</p>
+
+<pre><code>.product-options .swatch-attr .configurable-swatch-list li {
+    display: inline-block;
+    border:1px solid #CACACA;
+    padding: 1px;
+}
+.product-options .swatch-attr .configurable-swatch-list li.selected {
+    border-color:#0095D3;
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Removing untracked files but not git ignored ones]]></title>
+    <link href="http://edmondscommerce.github.io/git/removing-untracked-files-but-not-git-ignored-ones.html"/>
+    <updated>2015-06-17T12:06:25+01:00</updated>
+    <id>http://edmondscommerce.github.io/git/removing-untracked-files-but-not-git-ignored-ones</id>
+    <content type="html"><![CDATA[<p>Quite often you drop a load of files in to a git repo, such as a Magento extension, and then immediately regret it. But now you have a pile of files scattered across the repo and no way to Ctrl+Z out of the situation.</p>
+
+<p>This leaves us with some options:</p>
+
+<ul>
+<li><code>git reset --hard HEAD</code>, but that&rsquo;ll only revert any changes to <em>tracked</em> files. What about the untracked files in <code>git status</code>?</li>
+<li>Manually <code>rm -rf file1 file2 folder1 folder2</code> but that&rsquo;s a lot of copypasting.</li>
+<li><code>git clean -f</code>, but that <em>will remove all untracked files, including your gitignored ones</em>, so we don&rsquo;t want that.</li>
+</ul>
+
+
+<p>The best way is to <strong>automate the <code>rm -rf</code> procedure</strong> mentioned above using the following command</p>
+
+<pre><code>git status --porcelain | sed 's#^...##' | while read f; do rm -rf $f; done
+</code></pre>
+
+<p>The TL;DR of this command is that it outputs <code>git status</code> in a parseable way, and then loops over each file/folder and deletes it. You can see a <a href="http://explainshell.com/explain?cmd=git+status+--porcelain+%7C+sed+%27s%23%5E...%23%23%27+%7C+while+read+f%3B+do+rm+-rf+%24f%3B+done">full command breakdown here</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Preparing Fedora for development with PHP Storm]]></title>
+    <link href="http://edmondscommerce.github.io/php/developer-setup.html"/>
+    <updated>2015-06-15T16:25:22+01:00</updated>
+    <id>http://edmondscommerce.github.io/php/developer-setup</id>
+    <content type="html"><![CDATA[<p>Today I was asked to prepare a workstation system for development with PHP Storm, this was my first time using Fedora over the popular Ubuntu so here&rsquo;s how it went.</p>
+
+<p>Starting out, I visited the PHP Storm website hosted by the friendly people over at JetBrains to get a hold of my favourite IDE to develop with.
+The package comes as a compressed tar ball that needs extracting with your favourite decompression software of choice.</p>
+
+<p>After extracting the IDE it is time to do install it, when I attempted this I quickly ran in to a problem with the open source version of Java that comes pre-installed with Fedora.
+To remedy this you need to get the Oracle version of the Java Run Times to install and run PHP Storm successfully.</p>
+
+<p>After installing Java it is important that you tell Fedora to use Oracle&rsquo;s version over the pre-installed OpenJDK mentioned before.</p>
+
+<p><code>alternatives --install /usr/bin/java java /usr/java/latest/jre/bin/java 200000</code></p>
+
+<p>This will force Fedora to use this specific version of Java over the default, the procedure is similar to using an alias.</p>
+
+<p>After we have Fedora setup to use the correct version of Java we can happily install and run PHP Storm.
+CD in to your extracted PHP Storm folder we created earlier.</p>
+
+<pre><code>cd bin
+./phpstorm.sh
+</code></pre>
+
+<p>During the process you will be given the option to create a shortcut meaning you won&rsquo;t need to use the terminal to launch the IDE.
+With that said, you can now happily use PHP Storm to develop your applications, be wary if you switch your Java version back to open source as it may not be supported.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Running out of disk space but df shows you have lots of space left]]></title>
+    <link href="http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html"/>
+    <updated>2015-05-07T10:32:04+01:00</updated>
+    <id>http://edmondscommerce.github.io/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left</id>
+    <content type="html"><![CDATA[<p>Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Filesystem      Inodes   IUsed  IFree IUse% Mounted on
+</span><span class='line'>/dev/xvda1     2621440 2621440      0  100% /
+</span><span class='line'>udev            124879     398 124481    1% /dev
+</span><span class='line'>tmpfs           126892     288 126604    1% /run
+</span><span class='line'>none            126892       4 126888    1% /run/lock
+</span><span class='line'>none            126892       1 126891    1% /run/shm
+</span><span class='line'>none            126892       1 126891    1% /run/user
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">for </span>i in /var/*; <span class="k">do </span><span class="nb">echo</span> <span class="nv">$i</span>; find <span class="nv">$i</span> | wc -l; <span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Repeating Behat Scenarios when Testing Magento with SmartStep]]></title>
+    <link href="http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html"/>
+    <updated>2015-04-15T12:02:28+01:00</updated>
+    <id>http://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep</id>
+    <content type="html"><![CDATA[<p>When behat testing Magento I found myself repeating the same Homepage > Category > Product > Add-to-cart > Cart page scenario for a variety of tests &ndash; checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.</p>
+
+<p>I didn&rsquo;t want to copy-paste the whole procedure because if I changed, say the <code>.product-list</code> class, I&rsquo;d have to update each of the Scenarios. Bit of a kick in the face to <a href="http://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>.</p>
+
+<p>The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step <code>Given I have added to cart</code> or similar, but this defeats the object of using Gherkin to write the tests.</p>
+
+<p>Fortunately KnpLabs have soled this problem with <a href="https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md">SmartSteps</a>. This allows you to create a Scanerio that you want to be repeatable by tagging it as a <code>@smartStep</code>. Once it&rsquo;s tagged, you can easily embed that scenario into a new one by having a step <code>Given [scenario name]</code></p>
+
+<h3>Adding SmartSteps to your behat tests</h3>
+
+<ul>
+<li>In <code>composer.json</code>, add a new dependency</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"knplabs/friendly-contexts": "dev-master"</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>In <code>behat.yml</code></li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default:
+</span><span class='line'>    extensions:
+</span><span class='line'>        Knp\FriendlyContexts\Extension:
+</span><span class='line'>            smartTag: smartStep
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Tag your scenario</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  @smartStep
+</span><span class='line'>  Scenario: I arrive on the site and add a product to cart
+</span><span class='line'>    When I am on "/"
+</span><span class='line'>    Then I follow "My category"
+</span><span class='line'>    Then I follow "My product"
+</span><span class='line'>    Then I press "Add to Cart"
+</span><span class='line'>    And I should see "was added to your shopping cart"</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>And then use the Scenario in any other scenarios with</li>
+</ul>
+
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Given I arrive on the site and add a product to cart</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Behat]]></title>
+    <link href="http://edmondscommerce.github.io/behat/behat.html"/>
+    <updated>2015-04-01T12:04:12+01:00</updated>
+    <id>http://edmondscommerce.github.io/behat/behat</id>
+    <content type="html"><![CDATA[<p>I love Behat. One of the great things about it is that it has been built to be very extensible, so if it doesn&rsquo;t do exactly what you need then it&rsquo;s really quite easy to to customise the way it works without having to do any hacking on the core code. This is because it makes extensive use of an Observer Pattern like Hooks system.</p>
+
+<p>If you want to have your Behat tests fail as soon as a scenario fails &ndash; ideal when you are running a large suite of tests and trying to fix issues &ndash; then simply add in this method into a Context class.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'>
+</span><span class='line'>    <span class="sd">/** @AfterScenario */</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">function</span> <span class="nf">dieOnFailedScenario</span><span class="p">(</span><span class="nx">Behat\Behat\Hook\Scope\AfterScenarioScope</span> <span class="nv">$scope</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="mi">99</span> <span class="o">===</span> <span class="nv">$scope</span><span class="o">-&gt;</span><span class="na">getTestResult</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getResultCode</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;BEHAT_DIE_ON_FAILURE&#39;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">die</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">BEHAT_DIE_ON_FAILURE is defined</span><span class="se">\n\n</span><span class="s2">Killing Full Process</span><span class="se">\n\n\n\n</span><span class="s2">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">echo</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">To die on failure, please run:</span><span class="se">\n</span><span class="s2">export BEHAT_DIE_ON_FAILURE=true;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in your terminal, simply export BEHAT_DIE_ON_FAILURE=true and then the next time you run your tests, the process will die and you can go and fix the problems.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Resetting your forgotten osCommerce password with MySQL through PHPMyAdmin]]></title>
+    <link href="http://edmondscommerce.github.io/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin.html"/>
+    <updated>2015-03-10T14:26:56+00:00</updated>
+    <id>http://edmondscommerce.github.io/resetting-your-forgotten-oscommerce-password-with-mysql-through-phpmyadmin</id>
+    <content type="html"><![CDATA[<p>If you&rsquo;ve forgotten your osCommerce Admin password and need to reset it through phpMyadmin or raw MySQL, you can reset it to &lsquo;admin&rsquo; with the hashed password as <code>55340159dccd929e0cd2abd72cfe799a:14</code></p>
+
+<p>Don&rsquo;t forget to change it once you&rsquo;re logged in</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Cron Script to Change Gnome Shell Wallpaper]]></title>
+    <link href="http://edmondscommerce.github.io/gnome-shell/cron-script-to-change-gnome-shell-wallpaper.html"/>
+    <updated>2015-03-10T13:09:06+00:00</updated>
+    <id>http://edmondscommerce.github.io/gnome-shell/cron-script-to-change-gnome-shell-wallpaper</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently upgraded to Fedora 21 and one of my extensions was not compatible with the updated Gnome Shell version.</p>
+
+<p>I tried some variations but found that it seemed to be having a big negative impact on performance. A simpler option was required.</p>
+
+<p>Here it is &ndash; a simple BASH script that you can Cron up to change your background</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/usr/bin/env bash</span>
+</span><span class='line'><span class="nv">PID</span><span class="o">=</span><span class="k">$(</span>pgrep gnome-session<span class="k">)</span>
+</span><span class='line'><span class="nb">export </span><span class="nv">DBUS_SESSION_BUS_ADDRESS</span><span class="o">=</span><span class="k">$(</span>grep -z DBUS_SESSION_BUS_ADDRESS /proc/<span class="nv">$PID</span>/environ|cut -d<span class="o">=</span> -f2-<span class="k">)</span>
+</span><span class='line'><span class="nv">GSETTINGS_BACKEND</span><span class="o">=</span>dconf
+</span><span class='line'>gsettings <span class="nb">set </span>org.gnome.desktop.background picture-uri <span class="s1">&#39;&quot;file://&#39;</span>/home/joseph/Pictures/Wallpapers/<span class="k">$(</span>ls /home/joseph/Pictures/Wallpapers/ | shuf -n 1<span class="k">)</span><span class="s1">&#39;&quot;&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Add this line to your crontab to change</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>*/5 * * * * /home/joseph/Pictures/Wallpapers/CHANGE.bash
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Obviously you need to change paths etc but this works nicely</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Getting rid of the chain of quoted replies in Gmail]]></title>
+    <link href="http://edmondscommerce.github.io/gmail/getting-rid-of-the-chain-of-quoted-replies-in-gmail.html"/>
+    <updated>2015-03-02T19:02:28+00:00</updated>
+    <id>http://edmondscommerce.github.io/gmail/getting-rid-of-the-chain-of-quoted-replies-in-gmail</id>
+    <content type="html"><![CDATA[<h2>The problem with quoted replies</h2>
+
+<p>One of Gmail&rsquo;s stronger features is its threaded email conversations, allowing you to see emails as a chain of the back-and-forth, instead of the classic Inbox and Sent folder situation.</p>
+
+<p>Mail clients often include the email chain as part of the email itself, and for the most part these are marked up in such a way that Gmail can hide them with the small ellipses button.</p>
+
+<p>Sometimes though this doesn&rsquo;t work, and you end up having to scroll past page after page of quoted replies, which can be a right pain.</p>
+
+<p>In probably 75% of the cases these have some HTML wrapped around them, which we can use to hide them when needed.</p>
+
+<h2>Using Stylish to hide them in your browser</h2>
+
+<p>Because Gmail is a web-based client, you can use normal browser extensions to manipulate it. <a href="http://en.wikipedia.org/wiki/Stylish">Stylish</a> is a browser extension that allows you to set up CSS rules that are applied on the pages you&rsquo;re using.</p>
+
+<p>Here&rsquo;s a snippet of CSS that will hide the needless quoted replies, with the ability to hover over them if you really need to see them</p>
+
+<figure class='code panel panel-default'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>// Make quoted replies a small block
+</span><span class='line'>.im, .gmail_extra {
+</span><span class='line'>  height:30px;
+</span><span class='line'>  width:100px;
+</span><span class='line'>  background:#EFEFEF;
+</span><span class='line'>  overflow:hidden;
+</span><span class='line'>  display:block;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>// Allow these to be expanded when hovered
+</span><span class='line'>.im:hover,
+</span><span class='line'>.gmail_extra:hover
+</span><span class='line'>{
+</span><span class='line'>  height:auto;
+</span><span class='line'>  max-height:250px;
+</span><span class='line'>  width:auto;
+</span><span class='line'>  overflow:auto;
+</span><span class='line'>  background:#EFEFEF;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>// Show a little notice that they can be expanded
+</span><span class='line'>.im:before, .gmail_extra:before {
+</span><span class='line'>  content:"Snipped Quote, hover to expand";
+</span><span class='line'>  color:#666666;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>// Don't hide nested quote blocks
+</span><span class='line'>.im .im,
+</span><span class='line'>.gmail_extra .gmail_extra,
+</span><span class='line'>.im .gmail_extra,
+</span><span class='line'>.gmail_extra .im
+</span><span class='line'>      {
+</span><span class='line'>  height:auto;
+</span><span class='line'>  max-height:none;
+</span><span class='line'>  width:auto;
+</span><span class='line'>  overflow:auto;
+</span><span class='line'>  background:#EFEFEF;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>.gmail_extra .im:before {
+</span><span class='line'>  content:"";
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>The result</h2>
+
+<p>What was previously a big mess of nested quotes and signatures</p>
+
+<p><img src="http://edmondscommerce.github.io/assets/2015-03-02-GmailQuote1.png"></p>
+
+<p>Becomes a small &ldquo;Hover to expand&rdquo; box</p>
+
+<p><img src="http://edmondscommerce.github.io/assets/2015-03-02-GmailQuote2.png"></p>
+
+<p>Viewing it in the scrollable box</p>
+
+<p><img src="http://edmondscommerce.github.io/assets/2015-03-02-GmailQuote3.png"></p>
+
+<p>These styles work at the date of publication, but obviously Google might change the classes used for these.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Behat Selenium arguments[0] is undefined Problem + Solution]]></title>
+    <link href="http://edmondscommerce.github.io/behat/behat-selenium-arguments-0-is-undefined-problem-plus-solution.html"/>
+    <updated>2015-02-17T12:33:51+00:00</updated>
+    <id>http://edmondscommerce.github.io/behat/behat-selenium-arguments-0-is-undefined-problem-plus-solution</id>
+    <content type="html"><![CDATA[<p>Just spent a good amount of time struggling to see why my perfectly functional looking code was not working.</p>
+
+<p>Tests were failing with the error message:</p>
+
+<p><em>arguments[0] is undefined</em></p>
+
+<p>A little bit of Googling later and I found the issue.</p>
+
+<p>It seems that some Firefox versions will bomb out and give you this error message.</p>
+
+<p>The simple solution, if you can, is to switch to using Chrome and Chromedriver</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Easily Setup and Run Selenium for your Behat Tests]]></title>
+    <link href="http://edmondscommerce.github.io/behat/easily-setup-and-run-selenium-for-your-behat-tests.html"/>
+    <updated>2015-02-12T14:01:24+00:00</updated>
+    <id>http://edmondscommerce.github.io/behat/easily-setup-and-run-selenium-for-your-behat-tests</id>
+    <content type="html"><![CDATA[<p>We&rsquo;ve decided on sticking with Selenium to run our Behat based testing as it allows us to do proper browser testing and it&rsquo;s also actually quite nice to be able to watch the tests as they progress and easily spot anything that might be wrong.</p>
+
+<p>Getting Selenium running and ensuring everyone is using the same version is another challenge.</p>
+
+<p>To make that easier, and also to allow us to easily update as we go, we have now released a Composer package so that it can easily be added to project dependencies.</p>
+
+<p>For full details, we suggest you head over to the Repo and read the information there as that will be kept up to date.</p>
+
+<p><a href="https://github.com/edmondscommerce/selenium-server">https://github.com/edmondscommerce/selenium-server</a></p>
+
+<p>You can also find this on Packagist here:</p>
+
+<p><a href="https://packagist.org/packages/edmondscommerce/selenium-server">https://packagist.org/packages/edmondscommerce/selenium-server</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SUPEE-5344 - a New Patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14]]></title>
+    <link href="http://edmondscommerce.github.io/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html"/>
+    <updated>2015-02-11T15:53:28+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14</id>
+    <content type="html"><![CDATA[<p>Magento has become aware of a vulnerability requiring patching as soon as possible. The vulnerability allows an attacker to send a specially crafted request to a Magento store and allow it to run Magento code as though it were on the live server. Magento aren&rsquo;t aware of this having been used in the wild, but now that the vulnerability is public, attackers may use it against existing stores.</p>
+
+<p>This vulnerability affects all versions of Magento, and Magento have released patches for versions Community Edition 1.6 to 1.9, and Enterprise 1.11 to 1.14.</p>
+
+<p>The fix is to apply some stricter IP address checks to requests.</p>
+
+<h3>Patching your Magento store</h3>
+
+<p>To get the patch:</p>
+
+<p><em>Note: at time of writing, the Downloads of the CE edition seems to under heavy load and is currently presenting a white page instead of the shell file</em></p>
+
+<ul>
+<li><strong>Community Edition</strong> users should go to the <a href="http://www.magentocommerce.com/download">Magento downloads page</a> and scroll to the &ldquo;Magento Community Edition Patches&rdquo; section. From there, select your version of Magento and click Download</li>
+<li><strong>Enterprise Edition</strong> users should log into their Magento account Magento Support Portal</li>
+</ul>
+
+
+<p>You&rsquo;ll be presented with a shell file which will make the necessary changes to your store. Upload this patch to your server in the Magento root and run it against your store.</p>
+
+<p>The patch changes core files, and it&rsquo;s always recommended to test changes on a development copy before the live site, especially if you have modifications to your core code. Also keep in mind that any upgrades pre-1.9.0.1 will remove these changes, and the patch will have to be re-run.</p>
+
+<ol>
+<li><code>cd /your/magento/root/</code> &ndash; Navigate to the root of Magento</li>
+<li><code>./sh PATCH_SUPEE-5344_CE_1.8.0.0_v1.sh</code> &ndash; Run the patches</li>
+<li><code>rm PATCH_SUPEE-5344_CE_1.8.0.0_v1.sh</code> &ndash; Delete the patch file, so that it can&rsquo;t be re-run by the public</li>
+<li><code>rm -rf var/cache/*</code> &ndash; Clear Magento&rsquo;s cache</li>
+</ol>
+
+
+<p>Reload a page and the patch will have taken effect.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[SUPEE-3941 - A new patch for Magento Community 1.6, 1.7, 1.8 and 1.9; Enterprise 1.11, 1.12, 1.13 and 1.14]]></title>
+    <link href="http://edmondscommerce.github.io/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html"/>
+    <updated>2015-02-11T10:54:06+00:00</updated>
+    <id>http://edmondscommerce.github.io/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14</id>
+    <content type="html"><![CDATA[<p>This post was published with the incorrect vulnerability code; <a href="http://edmondscommerce.github.io/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html">this article has been moved to this post</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Behat and emulating mobile browsers using chrome]]></title>
+    <link href="http://edmondscommerce.github.io/Behat/behat-and-emulating-mobile-browsers-using-chrome.html"/>
+    <updated>2015-02-03T13:00:25+00:00</updated>
+    <id>http://edmondscommerce.github.io/Behat/behat-and-emulating-mobile-browsers-using-chrome</id>
+    <content type="html"><![CDATA[<p>Lets admit it not all mobile sites are responsive as they were created when responsive sites were in their infancy or just did not exist. Along with that and even if a site is responsive some elements, images, styles and javascript maybe exclusive to mobile user agents or excluded all together due to file size concerns.</p>
+
+<p>It would be useful to test a site when it is dealing with a mobile user agent. However you don not always need a actual mobile browser thanks to chromes mobile device emulation. Although it is not useful it can at lest be used to do some testing when site responds to specific user agents. Chromes mobile emulation can be driven with behat using the following example:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">default</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">base_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://urltotest.com/&quot;</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">sessions</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">goutte_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">guzzle_parameters</span><span class="p-Indicator">:</span>
+</span><span class='line'>              <span class="l-Scalar-Plain">ssl.certificate_authority</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">false</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_chrome_mobile_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">chrome</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">capabilities</span><span class="p-Indicator">:</span>
+</span><span class='line'>              <span class="l-Scalar-Plain">extra_capabilities</span><span class="p-Indicator">:</span>
+</span><span class='line'>                <span class="l-Scalar-Plain">chromeOptions</span><span class="p-Indicator">:</span>
+</span><span class='line'>                  <span class="l-Scalar-Plain">mobileEmulation</span><span class="p-Indicator">:</span>
+</span><span class='line'>                    <span class="l-Scalar-Plain">deviceName</span><span class="p-Indicator">:</span> <span class="s">&quot;Google</span><span class="nv"> </span><span class="s">Nexus</span><span class="nv"> </span><span class="s">5&quot;</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_chrome_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">chrome</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">capabilities</span><span class="p-Indicator">:</span>
+</span><span class='line'>              <span class="l-Scalar-Plain">extra_capabilities</span><span class="p-Indicator">:</span>
+</span><span class='line'>                <span class="l-Scalar-Plain">chromeOptions</span><span class="p-Indicator">:</span>
+</span><span class='line'>                  <span class="l-Scalar-Plain">args</span><span class="p-Indicator">:</span>
+</span><span class='line'>                    <span class="p-Indicator">-</span> <span class="s">&quot;--start-maximized&quot;</span>
+</span><span class='line'>                    <span class="p-Indicator">-</span> <span class="s">&quot;--test-type&quot;</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_firefox_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">firefox</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">suites</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">my_suite</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">contexts</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">FeatureContext</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Behat\MinkExtension\Context\MinkContext</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">chrome_mobile</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_chrome_mobile_session</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With Behat and Mink we are able to pass extra parameters to the chrome selnium driver using the extra_capabilities options. In the above example we enable mobile emulation using the &ldquo;Google Nexus 5&rdquo; profile. To drive tests using this we have two options.</p>
+
+<p>Specify the profile at run time using:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>bin/behat -p chrome
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Alternative you can tag specific scenarios to use a given profile by using the following tag above the scenario you want to affect:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>@mink:selenium_chrome_mobile_session
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Multiple Behat and Mink profiles for testing multiple browsers]]></title>
+    <link href="http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html"/>
+    <updated>2015-02-03T12:20:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/Behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers</id>
+    <content type="html"><![CDATA[<p>Behat makes it easy to write and run automated testing in browser and in most cases where functionality is not javascript driven then testing in a single browser is fine.</p>
+
+<p>However if you are testing Javascript driven functionality then it is best to have multiple profiles for multiple browsers without having to write the scenario multiple times with different tagsi for different sessions. Luckily behat support defination of multiple profiles which inherit from a single default profile for all your browser needs. You simply need to set up your bhat yaml config file like so:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">default</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">base_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://someurl.com&quot;</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">sessions</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">goutte_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">goutte</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">guzzle_parameters</span><span class="p-Indicator">:</span>
+</span><span class='line'>              <span class="l-Scalar-Plain">ssl.certificate_authority</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">false</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_chrome_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">chrome</span>
+</span><span class='line'>        <span class="l-Scalar-Plain">selenium_firefox_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">selenium2</span><span class="p-Indicator">:</span>
+</span><span class='line'>            <span class="l-Scalar-Plain">browser</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">firefox</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">suites</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">my_suite</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">contexts</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">FeatureContext</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Behat\MinkExtension\Context\MinkContext</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">chrome</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_chrome_session</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">firefox</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">extensions</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">Behat\MinkExtension</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">default_session</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">selenium_firefox_session</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The to run the crome profile for example use the -p option flag on the behat command as show:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>bin/behat -p chrome
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PageSpeed and issue with images on Safari]]></title>
+    <link href="http://edmondscommerce.github.io/PageSpeed/pagespeed-and-issue-with-images-on-safari.html"/>
+    <updated>2015-01-30T16:15:13+00:00</updated>
+    <id>http://edmondscommerce.github.io/PageSpeed/pagespeed-and-issue-with-images-on-safari</id>
+    <content type="html"><![CDATA[<p>Had an issue on a client site where the images were working in all major browser with the exception of safari. The client had page speed installed with the &lsquo;rewrite_images&rsquo; filter enabled.
+So it would work with older versions of Safari there are two options:</p>
+
+<p>For the first option we can disable the &lsquo;convert_jpeg_to_webp&rsquo; and &lsquo;convert_to_webp_lossless&rsquo; filters in nginx by using the following after the &lsquo;rewrite_images&rsquo; and &lsquo;resize_rendered_image_dimensions&rsquo; filters:</p>
+
+<pre><code>pagespeed EnableFilters rewrite_images;
+pagespeed EnableFilters resize_rendered_image_dimensions;
+pagespeed DisableFilters convert_jpeg_to_webp,convert_to_webp_lossless;
+</code></pre>
+
+<p>In Apache use the following:</p>
+
+<pre><code>ModPagespeedDisableFilters convert_jpeg_to_webp,convert_to_webp_lossless
+</code></pre>
+
+<p>Please not that the diable option must be specified after the enable lines for &lsquo;rewrite_images&rsquo; and &lsquo;resize_rendered_image_dimensions&rsquo; filters.</p>
+
+<p>In versions of PageSpeed that are 1.8.31.2 and above there is a new option which is &lsquo;ServeRewrittenWebpUrlsToAnyAgent&rsquo; which will check to see if the client can support webp files on any webp urls that are accessed.</p>
+
+<p>In Nginx to enable this option:</p>
+
+<pre><code>pagespeed ServeRewrittenWebpUrlsToAnyAgent off;
+</code></pre>
+
+<p>Alternatively in apache the setting is:</p>
+
+<pre><code>ModPagespeedServeRewrittenWebpUrlsToAnyAgent off
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Varnish and Nginx redirecting to port 8080]]></title>
+    <link href="http://edmondscommerce.github.io/nginx/varnish/varnish-and-nginx-redirecting-to-port-8080.html"/>
+    <updated>2015-01-23T15:22:43+00:00</updated>
+    <id>http://edmondscommerce.github.io/nginx/varnish/varnish-and-nginx-redirecting-to-port-8080</id>
+    <content type="html"><![CDATA[<p>So theres a strange problem where any redirects are going port 8080 when running your web application or site under varnish and nginx. Now arroung the web the solution apears to have varnish listen locally on port 80 while leaving nginx to listen on port 80 for any network addresses. The issue is that nginx when doing a redirect will add the port automatically to any redirect specified in nginx or is triggered from php, this is so that you dont have to ajust your rewrites if you are running on a non standard web port. But in the case of running varnish on top we dont want this behaviour to happen.</p>
+
+<p>To stop this in the location, server or http context of your nginx config. Simply add:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>port_in_redirect off;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As by default according to the <a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#port_in_redirect">nginx documentation</a> this behaviour is on by default.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Combined CSV]]></title>
+    <link href="http://edmondscommerce.github.io/bash/combined-csv.html"/>
+    <updated>2014-12-10T17:23:36+00:00</updated>
+    <id>http://edmondscommerce.github.io/bash/combined-csv</id>
+    <content type="html"><![CDATA[<p>Here is a quick BASH one liner to combine a folder of csv or similar files into one combined file with a header.</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">h</span><span class="o">=</span>0; <span class="k">for </span>f in *; <span class="k">do if</span> <span class="o">[[</span> 0 !<span class="o">=</span> <span class="nv">$h</span> <span class="o">]]</span>; <span class="k">then </span>tail -n +2 <span class="nv">$f</span> &gt;&gt; combined.txt; <span class="k">else </span>cat <span class="nv">$f</span> &gt; combined.txt; <span class="nv">h</span><span class="o">=</span>1; <span class="k">fi done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>More readably, you can see it like this:</p>
+
+<figure class='code panel panel-default'><figcaption class='panel-heading'><h3 class='panel-title'></h3></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># has header been set, starts as no</span>
+</span><span class='line'><span class="nv">h</span><span class="o">=</span>0;
+</span><span class='line'><span class="c"># foreach file in current directory</span>
+</span><span class='line'><span class="k">for </span>f in *
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'>    <span class="c"># if header has been set</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> 0 !<span class="o">=</span> <span class="nv">$h</span> <span class="o">]]</span>
+</span><span class='line'>    <span class="k">then</span>
+</span><span class='line'>        <span class="c"># append the contents of the file starting from line 2 into the combined file</span>
+</span><span class='line'>        tail -n +2 <span class="nv">$f</span> &gt;&gt; combined.txt
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>        <span class="c"># overwrite the combined file with the contents of the file, including header</span>
+</span><span class='line'>        cat <span class="nv">$f</span> &gt; combined.txt
+</span><span class='line'>        <span class="c"># and mark the header as having been set</span>
+</span><span class='line'>        <span class="nv">h</span><span class="o">=</span>1
+</span><span class='line'>    <span class="k">fi </span>
+</span><span class='line'><span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it, pretty easy really</p>
 ]]></content>
   </entry>
   
