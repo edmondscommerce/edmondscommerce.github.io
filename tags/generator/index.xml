@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Generator on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/generator/</link>
+    <description>Recent content in Generator on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 09 Dec 2013 18:43:03 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/generator/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Symfony2 Twig  &#39;DateTime could not be converted to string&#39;</title>
+      <link>http://example.com/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html</link>
+      <pubDate>Mon, 09 Dec 2013 18:43:03 +0000</pubDate>
+      
+      <guid>http://example.com/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html</guid>
+      <description>&lt;p&gt;I just hit an interesting issue with a nice and easy solution once you understand what is going on.
+On a current project I making heavy use of the &lt;a href=&#34;https://github.com/sensiolabs/SensioGeneratorBundle&#34; target=&#34;_blank&#34;&gt;SensioGeneratorBundle&lt;/a&gt; to generate CRUD etc. So far its working really nicely.&lt;/p&gt;
+
+&lt;p&gt;However I started to see an issue with one of my entities that Twig was not handling a DateTime column properly but others were being handled fine.&lt;/p&gt;
+
+&lt;p&gt;Looking through the Twig template I noticed this:&lt;/p&gt;
+
+&lt;p&gt;{% codeblock lang:html+jinja]
+{% raw]
+  {%- for field, metadata in fields]
+            {%- if loop.first and (&amp;lsquo;show&amp;rsquo; in actions)]&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;            &amp;lt;td&amp;gt;&amp;lt;a href=&amp;quot;{{ &amp;quot;{{ path(&#39;&amp;quot; ~ route_name_prefix ~ &amp;quot;_show&#39;, { &#39;id&#39;: entity.id }) }}&amp;quot; }}&amp;quot;&amp;gt;{{ &#39;{{ entity.&#39; ~ field|replace({&#39;_&#39;: &#39;&#39;}) ~ &#39; }}&#39; }}&amp;lt;/a&amp;gt;&amp;lt;/td&amp;gt;
+
+        {%- elseif metadata.type in [&#39;date&#39;, &#39;datetime&#39;]]
+
+            &amp;lt;td&amp;gt;{{ &#39;{% if entity.&#39; ~ field|replace({&#39;_&#39;: &#39;&#39;}) ~ &#39;]{{ entity.&#39; ~ field|replace({&#39;_&#39;: &#39;&#39;}) ~ &#39;|date(\&#39;Y-m-d H:i:s\&#39;) }}{% endif]&#39; }}&amp;lt;/td&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;{% endraw]
+{% endcodeblock]&lt;/p&gt;
+
+&lt;p&gt;What this means is that the first entity will never have the DateTime handling. Of course you probably don&amp;rsquo;t want a DateTime to be the first entity so I think this is reasonable.&lt;/p&gt;
+
+&lt;p&gt;To fix this, all you need to do is make sure that your Doctrine class does not declare the first property as a DateTime.&lt;/p&gt;
+
+&lt;p&gt;If you have a primary key or unique reference property then try to get this as the first declared property in your Doctrine entity class and then rebuild the CRUD and the problem goes away.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys</title>
+      <link>http://example.com/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</link>
+      <pubDate>Tue, 04 Dec 2012 12:21:44 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</guid>
+      <description>&lt;p&gt;If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.&lt;/p&gt;
+
+&lt;p&gt;Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.&lt;/p&gt;
+
+&lt;p&gt;When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.&lt;/p&gt;
+
+&lt;p&gt;For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Generate a nice unique block cache key&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param Mage_Core_Block_Abstract $block&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function ecCacheKey(Mage_Core_Block_Abstract $block){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $class = get_class($block);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $template = $block-&amp;gt;getTemplateFile();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $md5 = md5(var_export($block-&amp;gt;getData(), true));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $params = trim(implode(&amp;quot;,&amp;quot;, $block-&amp;gt;getRequest()-&amp;gt;getParams()), &amp;#39;,&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category=($block-&amp;gt;getCurrentCategory())?$block-&amp;gt;getCurrentCategory()-&amp;gt;getName():&amp;#39;no-category&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $store_id = Mage::app()-&amp;gt;getStore()-&amp;gt;getId();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;#39;edmondscommerce-&amp;#39;. $params . &amp;#39;-&amp;#39;. $category . &amp;#39;-&amp;#39; . $store_id . &amp;#39;-&amp;#39; . $class.&amp;#39;-&amp;#39;.$template.&amp;#39;-&amp;#39;.$md5;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You would use this in the following way:&lt;/p&gt;
+
+&lt;p&gt;In a block class, set up the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function _construct(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        parent::_construct();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;addData(array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_lifetime&amp;#39; =&amp;gt; 999999999,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_tags&amp;#39; =&amp;gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_key&amp;#39; =&amp;gt; Mage::helper(&amp;#39;blockcaching&amp;#39;)-&amp;gt;ecCacheKey($this)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ));&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Easily Create Colour Schemes</title>
+      <link>http://example.com/web-design/easily-create-colour-schemes.html</link>
+      <pubDate>Tue, 03 Nov 2009 13:06:27 +0000</pubDate>
+      
+      <guid>http://example.com/web-design/easily-create-colour-schemes.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Just came across Kuler - by Adobe.&lt;/p&gt;
+
+&lt;p&gt;A nice little flash app for creating colour schemes&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://kuler.adobe.com/&#34;&gt;http://kuler.adobe.com/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

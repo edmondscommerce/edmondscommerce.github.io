@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Netbeans on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/netbeans/</link>
+    <description>Recent content in Netbeans on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 21 Jun 2012 17:07:20 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/netbeans/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Netbeans Xdebug &#34;Waiting for connection&#34; Ubuntu 12.04 Mint13 &#43;SOLUTION</title>
+      <link>http://example.com/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution.html</link>
+      <pubDate>Thu, 21 Jun 2012 17:07:20 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution.html</guid>
+      <description>&lt;p&gt;If you have issues with netbeans and xdebug not connecting on recent distros, you might find that netbeans is listening on tcp6 and xdebug connecting on plain tcp.&lt;/p&gt;
+
+&lt;p&gt;To check if this is the case, run the following command whilst netbeans is &amp;ldquo;waiting for connection&amp;rdquo; (change 9000 if you&amp;rsquo;ve set a different port) :-&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;netstat -aln | grep 9000&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;if you get a line similar to the following (specifically tcp6 and not just tcp), it may well be that xdebug can&amp;rsquo;t connect over ipv6 :-
+&lt;code&gt;tcp6       0      0 :::9000                 :::*                    LISTEN&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;One solution is to disable ipv6, which can be done by creating the file /etc/sysctl.d/10-disable-ipv6.conf with the following contents :-
+&lt;code&gt;net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;then run (as root or sudo)
+&lt;code&gt;sysctl -p /etc/sysctl.d/10-disable-ipv6.conf&lt;/code&gt;
+and restart netbeans.  Suddenly, netbeans will listen on tcp (ipv4) and xdebug will connect.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Linux Mint 13 (MATE) Fix Ugly Netbeans (or other Java)</title>
+      <link>http://example.com/netbeans/linux-mint-13-mate-fix-ugly-netbeans-or-other-java.html</link>
+      <pubDate>Tue, 12 Jun 2012 16:26:12 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/linux-mint-13-mate-fix-ugly-netbeans-or-other-java.html</guid>
+      <description>&lt;p&gt;If you are using a Java application on your nice new Linux Mint desktop and are wondering why its so damn ugly, this might be your solution.&lt;/p&gt;
+
+&lt;p&gt;It looks like there is an issue with Java detecting your standard system style, fonts etc so it reverts to something pretty hideous.&lt;/p&gt;
+
+&lt;p&gt;One easy solution to at least get it looking alright (and also fixing a bug with menus and maximisation) is to set your netbeans conf to the following.&lt;/p&gt;
+
+&lt;p&gt;Simply go to your netbeans folder and look for an etc folder.&lt;/p&gt;
+
+&lt;p&gt;Inside there is a file called netbeans.conf&lt;/p&gt;
+
+&lt;p&gt;Back that up (rename to netbeans.conf.backup) and create a new file called netbeans.conf&lt;/p&gt;
+
+&lt;p&gt;Then paste this in:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+
+# ${HOME} will be replaced by JVM user.home system property
+netbeans_default_userdir=&amp;quot;${HOME}/.netbeans/7.1.2&amp;quot;
+
+# Options used by NetBeans launcher by default, can be overridden by explicit
+# command line switches:
+netbeans_default_options=&amp;quot;-J-client -J-Xss2m -J-Xms32m -J-XX:PermSize=32m -J-Dapple.laf.useScreenMenuBar=true -J-Dapple.awt.graphics.UseQuartz=true -J-Dsun.java2d.noddraw=true -J-Dsun.zip.disableMemoryMapping=true&amp;quot;
+
+#trying to fix teh UGLY
+netbeans_default_options=&amp;quot;${netbeans_default_options} --laf Nimbus -J-Dswing.aatext=true -J-Dawt.useSystemAAFontSettings=lcd&amp;quot;
+
+# Note that default -Xmx and -XX:MaxPermSize are selected for you automatically.
+# You can find these values in var/log/messages.log file in your userdir.
+# The automatically selected value can be overridden by specifying -J-Xmx or
+# -J-XX:MaxPermSize= here or on the command line.
+
+# If you specify the heap size (-Xmx) explicitly, you may also want to enable
+# Concurrent Mark &amp;amp; Sweep garbage collector. In such case add the following
+# options to the netbeans_default_options:
+# -J-XX:+UseConcMarkSweepGC -J-XX:+CMSClassUnloadingEnabled -J-XX:+CMSPermGenSweepingEnabled
+# (see http://wiki.netbeans.org/FaqGCPauses)
+
+# Default location of JDK, can be overridden by using --jdkhome &amp;lt;dir&amp;gt;:
+netbeans_jdkhome=&amp;quot;/opt/java/64/jre1.7.0_04&amp;quot;
+
+# Additional module clusters, using ${path.separator} (&#39;;&#39; on Windows or &#39;:&#39; on Unix):
+#netbeans_extraclusters=&amp;quot;/absolute/path/to/cluster1:/absolute/path/to/cluster2&amp;quot;
+
+# If you have some problems with detect of proxy settings, you may want to enable
+# detect the proxy settings provided by JDK5 or higher.
+# In such case add -J-Djava.net.useSystemProxies=true to the netbeans_default_options.
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Uppercase, Lowercase and Switch Case - useful key combo</title>
+      <link>http://example.com/netbeans/netbeans-uppercase-lowercase-and-switch-case-useful-key-combo.html</link>
+      <pubDate>Mon, 14 May 2012 11:34:13 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-uppercase-lowercase-and-switch-case-useful-key-combo.html</guid>
+      <description>&lt;p&gt;So, this is documented in the manual, but isn&amp;rsquo;t obvious in any menu :-&lt;/p&gt;
+
+&lt;p&gt;To uppercase a selection, press Control+U then U.
+To lowercase a selection, press Control+U then L.
+and to reverse case in the selection (for when you have typed a whole line of code without checking your caps lock!), press Control+U then S.&lt;/p&gt;
+
+&lt;p&gt;Really useful but not well known.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Netbeans to generate PHP class methods</title>
+      <link>http://example.com/netbeans/using-netbeans-to-generate-php-class-methods.html</link>
+      <pubDate>Thu, 08 Mar 2012 14:31:19 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/using-netbeans-to-generate-php-class-methods.html</guid>
+      <description>&lt;p&gt;One of the features that I was previously unaware of in Netbeans is its ability to automatically generate common class methods. This post is a quick guide of how this works for future reference.&lt;/p&gt;
+
+&lt;p&gt;To get the system to work, first load up a php class. For this example I&amp;rsquo;m going to be extending the Magento Product Model. This basic class can be seen here, with a couple of extra properties added.
+&lt;img src=&#34;http://example.com/images/screenshot5-600x166.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To start generating the methods you need to press [Alt] &amp;amp; [Insert] and you will be presented with a menu similar to the one below&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot6.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This lists all of the common methods that do not currently exist within the class. The first thing that we&amp;rsquo;ll do is to generate a constructor, which gives us the following options&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot7.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Here you can select which of the class properties you want to be set using the constructor. Pick the ones you want and click OK, and the following code is generated&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot8-600x368.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The Getters and Setters work in the same way, and the Override &amp;amp; Implement provides you with a list of all of the methods that the class can override from its parents. Using these together can help you to quickly all of the methods you need in minutes, as shown below.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot14-600x547.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Disable Transparent Undocked Windows</title>
+      <link>http://example.com/netbeans/netbeans-disable-transparent-undocked-windows.html</link>
+      <pubDate>Tue, 07 Feb 2012 17:14:39 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-disable-transparent-undocked-windows.html</guid>
+      <description>&lt;p&gt;If you have a dual monitor setup you might decide to undock some of your Netbeans windows, for example for running XDebug sessions or PHPUnit testing.&lt;/p&gt;
+
+&lt;p&gt;However you will find that by default, Netbeans sets the transparency of these windows to unreadable levels when they are not active.&lt;/p&gt;
+
+&lt;p&gt;This really defeats the object and is quite irritating.&lt;/p&gt;
+
+&lt;p&gt;I spent a long time under the false impression that this was some errant compiz setting and trying to figure it out that way.&lt;/p&gt;
+
+&lt;p&gt;Turns out that this is a Netbeans &amp;ldquo;feature&amp;rdquo; and you can disable it with a single untick of a box.&lt;/p&gt;
+
+&lt;p&gt;Tools-&amp;gt;Options-&amp;gt;Miscellaneous-&amp;gt;Appearance&lt;/p&gt;
+
+&lt;p&gt;untick the &amp;ldquo;Transparent floating windows&amp;rdquo; box&lt;/p&gt;
+
+&lt;p&gt;Enjoy lots of usable desk space in Netbeans!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Error Wavy Line - Alternative</title>
+      <link>http://example.com/netbeans/netbeans-error-wavy-line-alternative.html</link>
+      <pubDate>Thu, 19 Jan 2012 14:07:23 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-error-wavy-line-alternative.html</guid>
+      <description>&lt;p&gt;If you use Netbeans then you have no doubt seen the red wavy underline that pops under lines that have errors.&lt;/p&gt;
+
+&lt;p&gt;Unfortunatley if your errors relate to punctuation, eg concatenation full stops, then the red wavy line can actually obscure these making finding and fixing the error tricky.&lt;/p&gt;
+
+&lt;p&gt;An nice alternative is to set Netbeans to use a red strikethrough instead of the wavy line. This is just as visilble but does not obscure punctuation in any way making finding and fixing the error a lot easier.&lt;/p&gt;
+
+&lt;p&gt;To change this simply go to Tools-&amp;gt;Options-&amp;gt;Fonts &amp;amp; Colors&lt;/p&gt;
+
+&lt;p&gt;Then Set Language to All Languages&lt;/p&gt;
+
+&lt;p&gt;Then select Error in the category drop down&lt;/p&gt;
+
+&lt;p&gt;Simply change the Effects: drop down from Wave Underlined line to Strike Through&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHPUnit, LAMP, Magento and Netbeans</title>
+      <link>http://example.com/netbeans/phpunit-lamp-magento-and-netbeans.html</link>
+      <pubDate>Tue, 10 Jan 2012 13:11:10 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/phpunit-lamp-magento-and-netbeans.html</guid>
+      <description>&lt;p&gt;When using PHPUnit with xampp the first the to do is install PHPUnit through pear. You usually need to update pear first, after that you should be able to follow the instructions &lt;a href=&#34;http://pear.phpunit.de/&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Getting PHPUnit working with Magento is fairly straight forward. It&amp;rsquo;s just a case of including Mage.php and then calling Mage::app(); in the setup method of your test class:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;require_once&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;../app/Mage.php&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;TemplateTest&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PHPUnit_Framework_TestCase&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setUp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;app&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;testExample&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$helper&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;helper&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;core&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;assertTrue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$helper&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;instanceof&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage_Core_Helper_Data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Magento isn&amp;#39;t running!&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you use NetBeans as your IDE you&amp;rsquo;ll be glad to know that it has support for running your tests directly without having to use a terminal. This does require a bit of configuration. You need to tell NetBeans where the PHPUnit script is under Tools &amp;gt; Options &amp;gt; PHP &amp;gt; Unit Testing. If you are using it with XAMPP it will be located at /opt/lampp/bin/phpunit. To begin running the tests you then go Run &amp;gt; Test Project and NetBeans will ask you where your tests are. After that you will get a &amp;ldquo;Test File&amp;rdquo; source folder in the Projects pane. You can now right click each test file and choose &amp;ldquo;Run file&amp;rdquo; and netbeans will run it. If you have xdebug setup the debug option also works nicely.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to disable netbeans auto-complete of method variables </title>
+      <link>http://example.com/netbeans/how-to-disable-netbeans-auto-complete-of-method-variables.html</link>
+      <pubDate>Tue, 10 Jan 2012 13:10:10 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/how-to-disable-netbeans-auto-complete-of-method-variables.html</guid>
+      <description>&lt;p&gt;There is a new feature in Netbeans that tries to auto fill the variables for methods and functions in PHP. Whilst this may be something that is a time saver for some, it often gets these wrong, and if you are using descriptive variables in the method then these are overwritten if you have a variable of the same type above your method call.&lt;/p&gt;
+
+&lt;p&gt;Thankfully there is a way to disable this feature and revert to the old ways. In netbeans go to Tools -&amp;gt; Options -&amp;gt; Editor -&amp;gt; Code Completion and select Language PHP. From there you can deselect the Use Smart Parameters Pre-Filling and netbeans will work the way it used to&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Keyboard Select</title>
+      <link>http://example.com/netbeans/netbeans-keyboard-select.html</link>
+      <pubDate>Tue, 10 Jan 2012 12:03:39 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-keyboard-select.html</guid>
+      <description>&lt;p&gt;I recently installed the latest version of Netbeans (7.1) and decided to have a look through the available plugins at the same time. In there I found one called Quick File Chooser.&lt;/p&gt;
+
+&lt;p&gt;This replaces the file selector with a keyboard optimised version, which includes auto-complete and narrowing down a file list as you type.&lt;/p&gt;
+
+&lt;p&gt;If you prefer the keyboard over the mouse this is a required extension!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quickly Comment Code in Netbeans</title>
+      <link>http://example.com/netbeans/quickly-comment-code-in-netbeans.html</link>
+      <pubDate>Mon, 03 Oct 2011 17:08:30 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/quickly-comment-code-in-netbeans.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you want to quickly comment out a block of code in netbeans you might find the following really useful&lt;/p&gt;
+
+&lt;p&gt;Simply highlight the block of code and then hit [ctrl]+[shift]+[c]&lt;/p&gt;
+
+&lt;p&gt;The same key combination will uncomment it again.&lt;/p&gt;
+
+&lt;p&gt;Handy!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>NetBeans PHP Comments</title>
+      <link>http://example.com/netbeans/netbeans-php-comments.html</link>
+      <pubDate>Thu, 08 Sep 2011 10:35:22 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-php-comments.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Comments your code are essential to help both other developers and, in some cases, yourself understand what the code is meant to be doing.&lt;/p&gt;
+
+&lt;p&gt;When developing PHP in NetBeans there are two types of comments to consider. The first type of comments are the normal type of comments that are for a human to read and understand. This type of comments will say thing like &amp;ldquo;// This section is here to&amp;hellip;&amp;rdquo; and &amp;ldquo;// This is necessary because&amp;hellip;&amp;rdquo;. While human readable are definitely good, one of the issues when developing PHP is that it is difficult for IDEs to maintain the type of variables, the return types of methods and the type of variables that a method excepts. This is mainly because PHP is loosely typed but also because IDEs often can&amp;rsquo;t follow the inheritance hierarchy for what ever reason.&lt;/p&gt;
+
+&lt;p&gt;To get around the issues of type hierarchy and PHP been a loosely typed language, NetBeans supports type definition comments. This type of comment is intended to help the user of the IDE know what type a variable should be and also what types of variables a method expects and allow auto completion to function.&lt;/p&gt;
+
+&lt;p&gt;Example:
+&lt;code&gt;
+    /**
+     * Remove item from cart
+     *
+     * @param   int $itemId This is the id of the item to remove
+     * @return  Mage_Checkout_Model_Cart
+     */
+    public function removeItem($itemId)
+    {
+        $this-&amp;gt;getQuote()-&amp;gt;removeItem($itemId);
+        return $this;
+    }
+&lt;/code&gt;
+This example lets NetBeans know that removeItem&amp;rsquo;s one parameter should be an integer and that it returns an object of type Mage_Checkout_Model_Cart.
+&lt;img src=&#34;http://example.com/images/autocompleate1.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The other type of type comment tells NetBeans that a particular variable is of a specific type.
+For example:
+&lt;code&gt;
+class RemeberNumber {&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/** @var $theNumber int */
+protected $theNumber;
+
+public function __construct($number) {
+    $this-&amp;gt;theNumber = $number;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;}
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Because of the /** @var $theNumber int */ auto completion will now use that as the type else where with in the scope of that variable definition.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/autocompleate2.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans: Where&#39;s my Refresh button gone?</title>
+      <link>http://example.com/netbeans/netbeans-wheres-my-refresh-button-gone.html</link>
+      <pubDate>Tue, 23 Aug 2011 16:03:25 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-wheres-my-refresh-button-gone.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you ever find yourself in that annoying situation where netbeans refuses to see a file or set of files you&amp;rsquo;ve added to a folder, there is a solution.&lt;/p&gt;
+
+&lt;p&gt;My instinct having used netbeans for the past year was to right-click the folder and click Refresh.  The problem being that the Refresh item was missing from the menu!&lt;/p&gt;
+
+&lt;p&gt;It turns out that if you have &amp;ldquo;Enable auto-scanning of sources&amp;rdquo; enabled (which it is by default) in &amp;ldquo;Tools-&amp;gt;Options-&amp;gt;Miscellaneous-&amp;gt;Files&amp;rdquo;, netbeans assumes that it will know when you add a file, so you&amp;rsquo;ll never have to refresh the folders.  Unfortunately, that assumption is not always correct and the folder will not refresh.&lt;/p&gt;
+
+&lt;p&gt;So the answer is to uncheck that option, right-click the folder and &amp;ldquo;Refresh&amp;rdquo;, and if you like the option, turn it back on.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Path Tools Plugin</title>
+      <link>http://example.com/netbeans/netbeans-path-tools-plugin.html</link>
+      <pubDate>Mon, 16 May 2011 11:01:46 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-path-tools-plugin.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Just stumbled across a simple and incredibly useful Netbeans plugin.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://plugins.netbeans.org/plugin/676/path-tools&#34;&gt;http://plugins.netbeans.org/plugin/676/path-tools&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Path Tools.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s not listed in the standard list of available plugins, but if you download the nbm file and just drag and drop it into the plugin install dialog window it works easily enough.&lt;/p&gt;
+
+&lt;p&gt;Once installed you can right click any folder or file and explore in the OS file manager (Nautilus for example). You can also set up shell commands. From this point your imagination is your only restriction, this gives you easy integration to various external tools.&lt;/p&gt;
+
+&lt;p&gt;Nice :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Quick find Variable Declaration</title>
+      <link>http://example.com/netbeans/netbeans-quick-find-variable-declaration.html</link>
+      <pubDate>Wed, 27 Apr 2011 14:37:20 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-quick-find-variable-declaration.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+A nice little feature I stumbled across the other day.&lt;/p&gt;
+
+&lt;p&gt;If you hold down [Ctrl] whilst left clicking a variable, you get taken straight to its definition.&lt;/p&gt;
+
+&lt;p&gt;Handy!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Word Wrap</title>
+      <link>http://example.com/netbeans/netbeans-word-wrap.html</link>
+      <pubDate>Fri, 11 Mar 2011 11:45:02 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-word-wrap.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+I love Netbeans, but there has been one bug bear that I just learned to deal with.&lt;/p&gt;
+
+&lt;p&gt;Files with very long lines (or even quite long lines) and Netbeans inability to line wrap.&lt;/p&gt;
+
+&lt;p&gt;Now though there is a possiblity to enable line wrapping. And its dead easy. And it works!&lt;/p&gt;
+
+&lt;p&gt;You can use word wrap in Netbeans.&lt;/p&gt;
+
+&lt;p&gt;Add the following to netbeans.conf (netbeans_installation_path/etc/netbeans.conf, by default /etc/netbeans.conf under linux):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+-J-Dorg.netbeans.editor.linewrap=true
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to the sixth line so it looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+netbeans_default_options=&amp;quot;-J-client -J-Xss2m -J-Xms32m -J-XX:PermSize=32m -J-XX:MaxPermSize=200m -J-Dapple.laf.useScreenMenuBar=true -J-Dapple.awt.graphics.UseQuartz=true -J-Dsun.java2d.noddraw=true -J-Dorg.netbeans.editor.linewrap=true&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and restart Netbeans.&lt;/p&gt;
+
+&lt;p&gt;Set the Line Wrap option in Tools-&amp;gt;Options-&amp;gt;Editor-&amp;gt;Formating.&lt;/p&gt;
+
+&lt;p&gt;Works fine for me in Netbeans 6.9&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/255862/word-wrap-in-net-beans?tab=active#tab-top&#34;&gt;http://stackoverflow.com/questions/255862/word-wrap-in-net-beans?tab=active#tab-top&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

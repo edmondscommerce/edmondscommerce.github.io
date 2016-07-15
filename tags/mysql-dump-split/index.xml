@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mysql Dump Split on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/mysql-dump-split/</link>
+    <description>Recent content in Mysql Dump Split on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 10 Feb 2009 13:58:27 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/mysql-dump-split/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Updated MySQL Dump Splitter and Cleaner</title>
+      <link>http://example.com/mysql/php/updated-mysql-dump-splitter-and-cleaner.html</link>
+      <pubDate>Tue, 10 Feb 2009 13:58:27 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/php/updated-mysql-dump-splitter-and-cleaner.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+My MySQL dump splitting script has come in handy countless times. Recently I also needed to remove keys from an SQL dump to enable me to import a dump that had keys associated with text columns.&lt;/p&gt;
+
+&lt;p&gt;Here is the updated script&lt;/p&gt;
+
+&lt;p&gt;*note - now updated again to strip out any drop table statements if splitting&lt;/p&gt;
+
+&lt;p&gt;```php&lt;/p&gt;
+
+&lt;p&gt;&amp;lt;?php
+/*MySQL Dump Split to Tables
+* script supplied by Edmonds Commerce
+* www.edmondscommerce.co.uk
+* if you like it, please link back with a do-follow
+*
+* Now updated with better regex and also the ability to strip out keys other than the primary
+&lt;em&gt;/
+echo &amp;lsquo;&lt;h1&gt;MySQL Dump Split to Tables + Remove Keys&lt;/h1&gt;&amp;rsquo;;
+set_time_limit(600);
+if(!isset($_GET[&amp;lsquo;dump_file&amp;rsquo;])){
+    echo &amp;lsquo;&lt;form&gt;&lt;b&gt;Dump File Path:&lt;/b&gt; &lt;input name=&#34;dump_file&#34;&gt; &lt;input type=&#34;submit&#34; value=&#34;go&#34;&gt;&lt;select name=&#34;operation&#34;&gt;&lt;option value=&#34;split&#34;&gt;split by tables&lt;/option&gt;&lt;option value=&#34;keys&#34;&gt;remove keys other than primary&lt;/option&gt;&lt;option value=&#34;both&#34;&gt;both&lt;/option&gt;&lt;/select&gt;&lt;/form&gt;&amp;rsquo;;
+}else{
+    if(preg_match(&amp;lsquo;%keys|both%&amp;rsquo;, $_GET[&amp;lsquo;operation&amp;rsquo;])){
+        $contents = file_get_contents($_GET[&amp;lsquo;dump_file&amp;rsquo;]);
+        $pattern = &amp;lsquo;%,(s+?)KEY(.&lt;/em&gt;?))%si&amp;rsquo;;
+        $nokeys = preg_replace($pattern, &amp;ldquo;, $contents);&lt;br /&gt;
+        $_GET[&amp;lsquo;dump_file&amp;rsquo;] = &amp;lsquo;nokeys.sql&amp;rsquo;;
+        file_put_contents(&amp;lsquo;nokeys.sql&amp;rsquo;, $nokeys);
+    }
+    if(preg_match(&amp;lsquo;%split|both%&amp;rsquo;,$_GET[&amp;lsquo;operation&amp;rsquo;])){
+        echo &amp;lsquo;&lt;h3&gt;Splitting File&lt;/h3&gt;&amp;rsquo;;
+        flush();
+        $handle = fopen($_GET[&amp;lsquo;dump_file&amp;rsquo;], &amp;ldquo;r&amp;rdquo;) or die(&amp;lsquo;failed openeing source file &amp;rsquo; . $_GET[&amp;lsquo;dump_file&amp;rsquo;]);
+        if ($handle) {
+            while (!feof($handle)) {
+                $line = fgets($handle);
+                if(preg_match(&amp;lsquo;%^drop table(.+?);%i&amp;rsquo;, $line)){
+                    continue;
+                }&lt;br /&gt;
+                if(stristr($line, &amp;lsquo;CREATE TABLE&amp;rsquo;)){
+                    echo &amp;lsquo;. &amp;lsquo;;
+                    if(isset($out)){
+                        fclose($out);
+                        unset($out);
+                    }
+                    preg_match(&amp;lsquo;%CREATE TABLE (&lt;code&gt;|)(w+)(&lt;/code&gt;|)(s+)($%i&amp;rsquo;, $line, $matches);
+                    $table_name = $matches[2];
+                    $out = fopen(&amp;lsquo;output/&amp;rsquo;.$table_name . &amp;lsquo;.sql&amp;rsquo;, &amp;lsquo;w&amp;rsquo;) or die(&amp;lsquo;failed to create file &amp;rsquo; . $table_name . &amp;lsquo;.sql&amp;rsquo;);
+                    fwrite($out, $line . &amp;ldquo;n&amp;rdquo;) or die(&amp;lsquo;failed writing to file &amp;rsquo; . $table_name . &amp;lsquo;.sql&amp;rsquo;);
+                }else{
+                    if(isset($out)){
+                        fwrite($out, $line . &amp;ldquo;n&amp;rdquo;);
+                    }
+                }&lt;br /&gt;
+            }
+            fclose($out);
+            fclose($handle);
+        }else{
+            echo &amp;lsquo;no handle on file - does it exist - permissions&amp;hellip;&amp;rsquo;;
+        }
+    }
+}
+echo &amp;lsquo;&lt;h1&gt;Done&lt;/h1&gt;&amp;lsquo;
+?&amp;gt;&lt;/p&gt;
+
+&lt;p&gt;```&lt;h4&gt;More&amp;hellip;&lt;/h4&gt;&lt;a href=&#34;http://www.edmondscommerce.co.uk/blog/mysql/updated-mysql-dump-splitter-and-cleaner/&#34; rel=&#34;nofollow&#34;&gt;Updated &lt;b&gt;MySQL Dump&lt;/b&gt; Splitter and Cleaner | Edmonds Commerce Blog&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;http://www.branedy.net/?p=790&#34; rel=&#34;nofollow&#34;&gt;Branedy » Blog Archive » Wordpress &lt;b&gt;MySQL&lt;/b&gt; exercises&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;http://blog.drawcode.com/2009/02/10/python-script-to-backup-mysql-databases-wordpress-or-other-databases/&#34; rel=&#34;nofollow&#34;&gt;Python Script to Backup MySql Databases (Wordpress or other databases)&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;http://www.philaahzophy.com/2008/12/24/importing-large-mysql-databases-with-bigdump/&#34; rel=&#34;nofollow&#34;&gt;Importing Large MySQL Databases With BigDump&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;http://garagetechblog.com/2009/03/03/mysql-upgrade-1and1-is-not-the-best-host-in-the-world/&#34; rel=&#34;nofollow&#34;&gt;&lt;b&gt;MySQL&lt;/b&gt; Upgrade: 1and1 is not the best host in the world | TheGarage &lt;b&gt;&amp;hellip;&lt;/b&gt;&lt;/a&gt;&lt;br&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Links on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/links/</link>
+    <description>Recent content in Links on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 17 Jan 2012 19:43:24 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/links/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Unable to do string comparisions on Magento Urls [Solution]</title>
+      <link>http://example.com/magento/unable-to-do-string-comparisions-on-magento-urls-solution.html</link>
+      <pubDate>Tue, 17 Jan 2012 19:43:24 +0000</pubDate>
+      
+      <guid>http://example.com/magento/unable-to-do-string-comparisions-on-magento-urls-solution.html</guid>
+      <description>&lt;p&gt;I have been making a mwnu system for magento that would allow a client to add extra links to CMS page to top menu through a static block. One of the requirements was when you clicked the link the menu should display as active.&lt;/p&gt;
+
+&lt;p&gt;To do this I extended the Category_Navigation Block so it would get the content of the static block and then check each href against the current url. If they matched then it would add the active class to the menu structure. This worked perfectly when running locally, so I pushed it to our staging site where it broke.&lt;/p&gt;
+
+&lt;p&gt;Assuming that there was a difference with the url structure on the stagin site that I hadn&amp;rsquo;t anticipated, I echoed out the link variables and compared them, but they looked identical. Thinking there may be spacing that had snuck past trim, I var_dumped them and again they looked identical, apart for the fact that the character count was different.&lt;/p&gt;
+
+&lt;p&gt;After much messing around I came to two conclusions. Firstly Magento will append a session id to urls if you&amp;rsquo;re using multi-store, and far more importantly, this extra information is not displayed if you var_dump the variable. I finally found this by turning the string into an array and echoing each character onto a new line, like so&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$link = $this-&amp;gt;getUrl();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;// outputs http://www.example.com/index.php&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;var_dump($link);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$array = preg_split(&amp;#39;//&amp;#39;, $link, -1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($array as $char) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;// simplified replace with print($char.&amp;quot;\n&amp;quot;) to get each character on a new line&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;print($char);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;// outputs http://www.example.com/index.php?___SID=U&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To solve this replace your link with the following&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$link = preg_replace(&amp;#39;%\?.*%&amp;#39;, &amp;#39;&amp;#39;, $this-&amp;gt;getLink());&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and it will work the way that you expect.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Performance Tuning</title>
+      <link>http://example.com/mysql/mysql-performance-tuning.html</link>
+      <pubDate>Mon, 16 Jan 2012 10:44:36 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-performance-tuning.html</guid>
+      <description>&lt;p&gt;Just came across &lt;a href=&#34;http://forums.mysql.com/read.php?24,92131,92131&#34;&gt;this forum post&lt;/a&gt; of MySQL that looks to be a gold mine of information related to performance tuning MySQL.&lt;/p&gt;
+
+&lt;p&gt;For reference I am copying and pasting the full thing here though all credit goes to the above.&lt;/p&gt;
+
+&lt;p&gt;Book: High Performance MySQL (2nd Edition)
+&lt;a href=&#34;http://www.highperfmysql.com/&#34;&gt;http://www.highperfmysql.com/&lt;/a&gt;
+MySQL Performance Tuning - Best Practices:
+&lt;a href=&#34;http://jpipes.com/presentations/perf_tuning_best_practices.pdf&#34;&gt;http://jpipes.com/presentations/perf_tuning_best_practices.pdf&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Index Tuning and Coding Techniques for Optimal Performance:
+&lt;a href=&#34;http://jpipes.com/presentations/index_coding_optimization.pdf&#34;&gt;http://jpipes.com/presentations/index_coding_optimization.pdf&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Web Performance and Scalability with MySQL:
+&lt;a href=&#34;http://develooper.com/talks/&#34;&gt;http://develooper.com/talks/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;PHP Applications: 120 Performance Tuning screws for MySQL
+&lt;a href=&#34;http://blog.ulf-wendel.de/?p=268&#34;&gt;http://blog.ulf-wendel.de/?p=268&lt;/a&gt;
+&lt;a href=&#34;http://blog.ulf-wendel.de/?p=163&#34;&gt;http://blog.ulf-wendel.de/?p=163&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Server Variables
+&lt;a href=&#34;http://forge.mysql.com/wiki/ServerVariables&#34;&gt;http://forge.mysql.com/wiki/ServerVariables&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Server Variables - SQL layer or Storage Engine specific
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2006/06/08/mysql-server-variables-sql-layer-or-storage-engine-specific/&#34; target=&#34;_blank&#34;&gt;http://www.mysqlperformanceblog.com/2006/06/08/mysql-server-variables-sql-layer-or-storage-engine-specific/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;“Show profile” + “Information_schema.profiling”
+&lt;a href=&#34;http://blogs.mysql.com/peterg/2008/11/06/show-profile-information_schemaprofiling/&#34;&gt;http://blogs.mysql.com/peterg/2008/11/06/show-profile-information_schemaprofiling/&lt;/a&gt;
+PeterZ presentations:
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/mysql-performance-presentations/&#34;&gt;http://www.mysqlperformanceblog.com/mysql-performance-presentations/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Using MMM to ALTER huge tables
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/27/using-mmm-to-alter-huge-tables/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/27/using-mmm-to-alter-huge-tables/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL File System Fragmentation Benchmarks
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/21/mysql-file-system-fragmentation-benchmarks/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/21/mysql-file-system-fragmentation-benchmarks/&lt;/a&gt;
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/18/working-with-many-files-and-file-system-fragmentation/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/18/working-with-many-files-and-file-system-fragmentation/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Finding/killing long running InnoDB transactions with Events
+&lt;a href=&#34;http://www.markleith.co.uk/?p=730 &#34;&gt;&lt;a href=&#34;http://www.markleith.co.uk/?p=730&#34; target=&#34;_blank&#34;&gt;http://www.markleith.co.uk/?p=730&lt;/a&gt; &lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Using the event scheduler to purge the process list
+&lt;a href=&#34;http://datacharmer.blogspot.com/2008/10/using-event-scheduler-to-purge-process.html&#34;&gt;http://datacharmer.blogspot.com/2008/10/using-event-scheduler-to-purge-process.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;kill_run_aways&lt;/code&gt; Stored Proc
+&lt;a href=&#34;http://forge.mysql.com/tools/tool.php?id=106&#34;&gt;http://forge.mysql.com/tools/tool.php?id=106&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Yoshinori: Tracking long running transactions in MySQL
+&lt;a href=&#34;http://yoshinorimatsunobu.blogspot.com/2011/04/tracking-long-running-transactions-in.html&#34;&gt;http://yoshinorimatsunobu.blogspot.com/2011/04/tracking-long-running-transactions-in.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;How to debug long-running transactions in MySQL
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2011/03/08/how-to-debug-long-running-transactions-in-mysql/&#34;&gt;http://www.mysqlperformanceblog.com/2011/03/08/how-to-debug-long-running-transactions-in-mysql/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Remove Hard Coded URLs from Theme</title>
+      <link>http://example.com/magento/magento-remove-hard-coded-urls-from-theme.html</link>
+      <pubDate>Thu, 02 Sep 2010 14:14:18 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-remove-hard-coded-urls-from-theme.html</guid>
+      <description>&lt;p&gt;If you are working on a theme, you may find that there are hard coded links dotted all over the place.&lt;/p&gt;
+
+&lt;p&gt;This can make testing a site offline (and thereby not on the same URL) a bit of a pain.&lt;/p&gt;
+
+&lt;p&gt;Here is a quick fix for you:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Remove all hard coded links from the CMS section:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;update&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cms_block&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;content&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;replace&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;content&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;http://www.domain.com/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;{{store url=&amp;#39;&amp;#39;}}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;update&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cms_page&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;content&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;replace&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;content&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;http://www.domain.com/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;{{store url=&amp;#39;&amp;#39;}}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Remove all hard coded links from the theme files.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;This is a command line one using grep and sed.&lt;/p&gt;
+
+&lt;p&gt;Firstly, cd into the root theme folder&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+cd app/design/frontent/default/hardtheme
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now find files with hard coded links&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+grep -rl &#39;http://www.domain.com&#39; ./
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now to automatically remove all those,&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+grep -rl &#39;http://www.domain.com&#39; ./ | xargs sed -i &#39;s/http:\/\/domain.com\//&amp;lt;?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);?&amp;gt;/&#39;
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Link Building Service</title>
+      <link>http://example.com/link-building/seo/link-building-service.html</link>
+      <pubDate>Sat, 25 Jul 2009 12:22:21 +0000</pubDate>
+      
+      <guid>http://example.com/link-building/seo/link-building-service.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Edmonds Commerce is very pleased to announce the launch of our new &lt;b&gt;link building service&lt;/b&gt;.&lt;/p&gt;
+
+&lt;p&gt;Any site that wishes to rank well in the search engines for competitive keywords needs to have a link building campaign as an important part of it&amp;rsquo;s SEO strategy. If you are looking to outsource your link building, it is important that you use a company with a deep understanding of SEO. We can offer this to you.&lt;/p&gt;
+
+&lt;p&gt;You need to take care choosing your link building service as there are numerous potential pitfalls and mistakes that can be made with a link building campaign and it is all too easy to waste your money on worthless or even counter productive link building strategies.&lt;/p&gt;
+
+&lt;p&gt;It is for this reason we have decided to launch our &lt;b&gt;link building service&lt;/b&gt;, offering you peace of mind based on the trust that we have built up as a web development company and with the quality and reliability that our development customers already enjoy.&lt;/p&gt;
+
+&lt;p&gt;If you are interested in outsourcing your link building to Edmonds Commerce, simply &lt;a href=&#34;http://www.edmondscommerce.co.uk/contact-about-link-building-service.html&#34;&gt;&lt;b&gt;drop us an email&lt;/b&gt;&lt;/a&gt; or alternatively give us a call on &lt;b&gt;0844 357 0201&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;What&amp;rsquo;s Involved?&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;We will ask you for a monthly budget and will work with you to choose some keywords to target. We will then use this budget to build the maximum quantity and quality links possible for you, to the high standards we demand.&lt;/p&gt;
+
+&lt;p&gt;What we ask from you as the client is simply a monthly commitment of a set budget to build these links. We strongly believe that a link building campaign should be consistent and permanent rather than a short sharp spike every now and then. For brand new sites there is an argument that an initial burst of link building can be beneficial, primarily to help get the site spidered, but in the longer term a steady stream of new inbound links is much better.&lt;/p&gt;
+
+&lt;p&gt;As an initial budget we ask for a minimum of &lt;strong&gt;£100 per month&lt;/strong&gt;. Of course you can spend as much as you want, but its more important that is is sustainable so choose a price that is affordable. If that is a bit too much for you, we suggest you look into link building for yourself. Note we really emphasise that you must be able to sustain this price on a monthly basis for at least 6 months. We do not believe or advise in flash in the pan SEO campaigns and strongly suggest implementing a consistent and long term SEO strategy.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;How Quickly Will it Benefit the Site?&lt;/b&gt;
+SEO is a long term strategy with a delayed gratification. There are short cuts and possibilities to shoot to the top, but these techniques (often referred to as &amp;lsquo;black hat&amp;rsquo;) are not recommended if you are looking for something reliable and long term. How quickly the new links will start to benefit your site is hard to judge with precision and of course it depends on other factors such as the SEO of the actual site pages themselves and how competitive your particular keywords are. As a general idea though, we would expect to see benefits within a couple of months or so. That said, we are seeing nearly instant benefit to some of our clients who have established sites. It seems they just needed that little extra push for the search engines to really dig into them.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Are there Other Thing&amp;rsquo;s My Site Needs for SEO?&lt;/b&gt;
+Yes link building is only one aspect of a successful SEO campaign. More important than link building is ensuring that the site itself is optimised. This is already something that Edmonds Commerce offers as a service. This is kind of SEO comes under the umbrella term of &amp;lsquo;on site&amp;rsquo; or &amp;lsquo;on page&amp;rsquo; SEO.&lt;/p&gt;
+
+&lt;p&gt;Another important factor in SEO is having quality original and keyword rich textual content on your site. Writing search engine friendly text does not require any particular specialist or technical knowledge other than a broad understanding of the principles of SEO and of course a flair for writing helps! We will gladly advise you on how to go about writing optimised content and can give you some pointers on how to improve your content.&lt;/p&gt;
+
+&lt;p&gt;If you would be interested in outsourcing your search engine optimised textual content creation do get in touch as we are considering adding this to our portfolio of services at some point in the future.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;What is Page Rank?&lt;/b&gt;
+Often you will hear the term page rank (often abbreviated to PR). This refers to Google&amp;rsquo;s Page Rank system. This system gives each page on the internet that Google is aware of a score from 0 to 10. The best score is 10 and 0 is of course the lowest. There are some pages that Google is not even aware of.&lt;/p&gt;
+
+&lt;p&gt;Very roughly speaking, Google scores these pages in terms of how many links from other sites are linking to the specific page. If there are lots of other pages linking to this page, the page rank for this page will be higher. Also, PR is passed on. So if your page has lots of links from pages that have a high PR then its likely that your page will have a high PR. Conversely if all of the pages linking to your page have a PR of 0, or worse aren&amp;rsquo;t even known by Google at all, then your PR is likely to be low.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Why does PR Matter?&lt;/b&gt;
+Generally speaking, if there are two pages about the same subject and they are both equal in terms of their &amp;lsquo;on site&amp;rsquo; SEO then the page with the higher page rank will rank higher in the search results than the page with lower page rank. That&amp;rsquo;s it basically, its a factor in determining which pages should be displayed higher in the results. It is by no means the only factor but it is definitely involved.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;How do I Sign Up for the Link Building Service?&lt;/b&gt;
+If you would like to sign up for the link building service with Edmonds Commerce, simply &lt;a href=&#34;http://www.edmondscommerce.co.uk/contact-about-link-building-service.html&#34;&gt;get in touch with us today&lt;/a&gt; and we can discuss. It would be helpful if you could have an idea of the monthly budget you would like to use. We will ask you for an initial commitment of 3 months. We are totally sure that after 3 months you will want to maintain the service as a permanent arrangement, steadily improving your search engine presence as a long term sustainable strategy.&lt;/p&gt;
+
+&lt;p&gt;You can either &lt;a href=&#34;http://www.edmondscommerce.co.uk/contact-about-link-building-service.html&#34;&gt;&lt;b&gt;email us&lt;/b&gt;&lt;/a&gt; or give us a call on &lt;b&gt;0844 357 0201&lt;/b&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SEO, Links, Pagrank and Anchor Text</title>
+      <link>http://example.com/search-engine-optimisation/link-building/seo-links-pagrank-and-anchor-text.html</link>
+      <pubDate>Tue, 19 Feb 2008 12:27:14 +0000</pubDate>
+      
+      <guid>http://example.com/search-engine-optimisation/link-building/seo-links-pagrank-and-anchor-text.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+One of the most important aspects of a successful SEO campaign is the building of links from external web sites that point to your web site. However it is not as simple as that. There are good links and bad links. If it was as simple as building the most amount of links possible then it would be very easy for those of us with a little bit of know how to completely dominate the search engine results pages.&lt;/p&gt;
+
+&lt;p&gt;No these days you need to build quality inbound links that are from reputable web pages. The links must not have the rel=&amp;ldquo;nofollow&amp;rdquo; attribute as if they do they will effectively be worthless to you in terms of SEO. The no follow attribute was brought in to try and combat the explosion of blog comment spam. The idea being that if blogs are set up to automatically nofollow all links posted in comments then the spammer might give up.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What Makes a Good Link? &lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A good link will firstly be from a page that is relevant to the page that you are trying to promote. So lets say for example you are trying to build links to your category page where you display your range of rabbit hutches and other rabbit related paraphenalia, then ideally you want to be building links on other web pages that are also rabbit related.&lt;/p&gt;
+
+&lt;p&gt;You might decide to take Google&amp;rsquo;s toolbar pagerank into consideration when you are looking for inbound links. Whilst this is by no means a reliable indicator of the value of a link, it does give you some indication and I think it would be fair to say that a link from a page with a pagerank of 4 or more is much better than a link with no pagerank.&lt;/p&gt;
+
+&lt;p&gt;The other major factor that you need to take into consideration is the anchor text of the link that you place. The anchor text is the visible text that people can actually click on to visit your page. To promote your rabbit products page, you really want to try to get the word rabbit in there. So for example &amp;lt;a href=&amp;ldquo;mysite.com/rabbit-page.html&amp;rdquo;&amp;gt;Buy Rabbit Stuff&amp;lt;/a&amp;gt; is much better than &amp;lt;a href=&amp;ldquo;mysite.com/rabbit-page.html&amp;rdquo;&amp;gt;click here&amp;lt;/a&amp;gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Where to Build Links?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is the big question and unfortunatley there are no easy answers. Various link building oppportunities tend to crop up, be over exploited and then become generally worthless, or much reduced in value. Where to build links really depends on the context that you are trying to build links for.&lt;/p&gt;
+
+&lt;p&gt;If you would like to hire Edmonds Commerce for some link building services or consultation - drop us a line!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>10 SEO Myths</title>
+      <link>http://example.com/search-engine-optimisation/10-seo-myths.html</link>
+      <pubDate>Mon, 04 Feb 2008 13:06:07 +0000</pubDate>
+      
+      <guid>http://example.com/search-engine-optimisation/10-seo-myths.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+The world of search engine optimisation or SEO for short is confusing to say the least. The main problem is that much of SEO knowledge is like a kind of religion. You can never truly know how the Google algorithm works at any one time. You can read up on forums and blogs and maybe do your own experiments to try to get an understanding, but at any one time a lot of what you know about SEO is based on faith.&lt;/p&gt;
+
+&lt;p&gt;The other really confusing thing about SEO is that we are always being told different stories. If you are not careful you may be reading blog posts for forums that are from the early years of 2000. By now these posts or comments are generally out of date and not applicable to current day SEO.&lt;/p&gt;
+
+&lt;p&gt;So to try to clear things up a bit, here is a list of the 10 most common SEO Myths that you will encounter when trying to figure out how to get thousands of visitors per day from natural search results.
+&lt;ul&gt;
+    &lt;li&gt;&lt;strong&gt;1. As Many Links as Possible is the Answer&lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;2. Reciprocal Linking is the Answer&lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;3. &lt;/strong&gt;&lt;strong&gt;Paying Someone for Guaranteed First Place Positions is the Answer&lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;4. Directory Submission is the Answer
+&lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;5. Keywords Everywhere is the Answer&lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;6. Paid Links are the Answer&lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;7. Do No Evil is the Answer&lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;8. Pay Per Click is the Answer&lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;9. Time is the Answer &lt;/strong&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;10. Money is the Answer&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+Here is a breakdown of this list.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1. As Many Links as Possible is the Answer &lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;From reading about SEO you may get the impression that links are one of the most important aspects of promoting a web site in the search engines. Whilst this is true, it does not follow that the more the better. In fact there are scenarios where you can easily have too many links. Furthermore there are scenarios where certain links can actually work against you.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2. Reciprocal Linking is the Answer &lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A reciprocal link is simply enough an &amp;ldquo;I&amp;rsquo;ll link to you if you link to me&amp;rdquo; scenario. There was a time when reciprocal linking was one of the main white hat SEO techniques.  However the latest information from Google is that reciprocal links are being devalued. Reciprocal Links that are worth having are hard to come by and whilst I would not advise you to abandon any form of reciprocal linking, pouring hours and hours into it is most likely a waste of time.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3. Paying Someone for Guaranteed First Place Positions is the Answer
+&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;You might get the impression that being in the top of the first page results is all important to getting the most traffic to visit your site. It is true that the vast majority of people do not stray much beyond the first three results presented in the search engine results page. However there is a big difference between ranking number one for a search term that a lot of people are using, and ranking number one for a search term that no one is using.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4. Directory Submission is the Answer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;One commonly supported way to build inbound links to your site  is to submit it to a long list of directories. This is another technique that used to work well but has since dwindled to the point that it is hardly worth your time. There was a time when directory sites were actually a reasonable source of traffic but this day has long gone. Furthermore, the vast majority of directories these days are cookie cutter sites with little value and highly unlikely to enjoy any visitors other than those people who are still looking to submit to directories.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;5. Keywords Everywhere is the Answer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;You may get the impression that to rank for your chosen search term, you simply need to repeat that search term as many times as possible in as many places as possible on your page. This is referred to as keyword stuffing and is very much looked down upon by the search engines. In fact it is entirely possible to rank for a search term which does not exist on your page even once. I do not recommend that you test this theory out just yet, but conversely do not be tempted to put your search term on the page any more than is natural for that page.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;6. Paid Links are the Answer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;After reading about all the ways that people used to build links being closed up by the search engines, or being so labour intensive to be not worth the effort, many people looked towards simply paying a web site a monthly fee to display a link. This has worked well in the past but the search engines quickly became concerned about their algorithms being manipulated with sheer cash. The search engines now go to a lot of effort to devalue or even penalise sites that use paid links. This means that even if you can afford to pay the often huge monthly bills for links, you stand a good chance of gaining at best nothing and at worst a penalisation for your trouble.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;7. Do No Evil is the Answer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Google famously stated as its mission statement that they intended to Do No Evil. So you might think that if you play exactly by the rules laid down by Google then the big G will reward you for your steadfast commitment to SEO as Google permits you with high rankings. Unfortunately this is not usually the case and in fact the people who are ranking at the top for competitive search terms are using one or more techniques that cross over into the slightly murkier side of search engine optimisation.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;8. Pay Per Click is the Answer &lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Pay Per Click is the term used to describe the Google Adwords style of search engine marketing. This simply enough means that you set a price you are willing to pay and if you set a high enough price to beat your competitors, your advert will be placed on the search engine results page. Instant gratification! However a badly managed PPC campaign can literally break the bank. We highly discourage you from relying solely on PPC as your search engine marketing strategy. Its damn expensive!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;9. Time is the Answer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;So after everything you have learned, you might get the impression that you simply need to plug away and dutifully wait for the search engine spiders to come and gobble up your site and give you the rankings. Keep plugging away and putting in the hours for a few years and you will gradually rise to the top. No unfortunatley it is entirely possible that you will sink literally thousands of hours of employee time into your SEO strategy and never gain anything substantial back.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;10. Money is the Answer &lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;There aren&amp;rsquo;t many things in life that can not be sorted out by simply throwing unlimited bundles of cash at. That&amp;rsquo;s a sad fact that goes a long way to explaining why the rich get richer whilst the poor get poorer. Thankfully though in SEO terms this is not entirely true and it is definitely possible for a small operation to outrank huge coorporations with vastly larger budgets and resources.&lt;/p&gt;
+
+&lt;p&gt;So what is the answer?&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s the rub. There is no definitive answer to what is going to work in SEO. And even if I was to start spilling the beans on some currently successful techniques, there is every chance that by the time you read this article they have already expired or become much less effective.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

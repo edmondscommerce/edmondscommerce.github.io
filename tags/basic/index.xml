@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Basic on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/basic/</link>
+    <description>Recent content in Basic on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 21 Feb 2012 12:43:44 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/basic/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Zend Framework Rest HTTP Basic Authentication</title>
+      <link>http://example.com/zend-framework/zend-framework-rest-http-basic-authentication.html</link>
+      <pubDate>Tue, 21 Feb 2012 12:43:44 +0000</pubDate>
+      
+      <guid>http://example.com/zend-framework/zend-framework-rest-http-basic-authentication.html</guid>
+      <description>&lt;p&gt;I have recently been working on a Magento project that required a custom API integration with Zen Desk.&lt;/p&gt;
+
+&lt;p&gt;Magento is based on Zend Framework which is nice because it means we can use the Zend_Rest_Client object to handle the API integration which provides a nice layer of abstraction and sorts out a lot of the heavy lifting required.&lt;/p&gt;
+
+&lt;p&gt;However I came across a terminal issue trying to get it working properly with HTTP Basic Authentication which the Zen Desk API uses.&lt;/p&gt;
+
+&lt;p&gt;I found some instructions which recommended creating a Zend_Uri_Http object and then setting the username and password against this. However as Zen Desk uses the email address as the username component, this failed completely.&lt;/p&gt;
+
+&lt;p&gt;In the end the solution I found was to grab the static HTTP client object that the REST client is built upon and call the public setAuth method on this. This way the Authorisation header is correctly created, encoded and appended to the headers.&lt;/p&gt;
+
+&lt;p&gt;Logically it feels like a dirty way to do things, grabbing the HTTP client statically to do this, but it works and I can&amp;rsquo;t see how else you would do it.&lt;/p&gt;
+
+&lt;p&gt;For info here is the code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return Zend_Rest_Client &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function getClient() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (null === $this-&amp;gt;_client) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $url = $this-&amp;gt;getApiUrl();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $uri = Zend_Uri_Http::fromString($url);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $this-&amp;gt;_client = new Zend_Rest_Client($uri);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            Zend_Service_Abstract::getHttpClient()-&amp;gt;setAuth($this-&amp;gt;getUsername(),$this-&amp;gt;getPassword());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $this-&amp;gt;_client;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Variable on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/variable/</link>
+    <description>Recent content in Variable on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 25 Apr 2013 10:14:30 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/variable/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Prestashop Debug Mode using the Magento Environment Variable Method</title>
+      <link>http://example.com/prestashop/prestashop-debug-mode-using-the-magento-environment-variable-method.html</link>
+      <pubDate>Thu, 25 Apr 2013 10:14:30 +0000</pubDate>
+      
+      <guid>http://example.com/prestashop/prestashop-debug-mode-using-the-magento-environment-variable-method.html</guid>
+      <description>&lt;p&gt;Magento developers are no doubt familiar with the concept of defining a server environment variable MAGE_IS_DEVELOPER_MODE so that when running Magento locally it is always in developer mode but there is no chance of accidently deploying a live site in developer mode.&lt;/p&gt;
+
+&lt;p&gt;This little trick will allow you to use the same environment variable to also have the same effect when working with PrestaShop.&lt;/p&gt;
+
+&lt;p&gt;To explain - developer mode generally means that things like error messages and debugging information are displayed clearly in the browser which makes things much easier when you are developing, to see what is going wrong.&lt;/p&gt;
+
+&lt;p&gt;On a live site you want to keep error information hidden and generally display to the customer a more friendly error message screen that perhaps helps them find their way back to a functional section of the site or gives them information to contact the site owner directly for assistance.&lt;/p&gt;
+
+&lt;p&gt;Anyway, to put PrestaShop in debug mode locally but have no risk of deployign this to live you can alter the file: config/defines.inc.php&lt;/p&gt;
+
+&lt;p&gt;from&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;define(&amp;#39;_PS_MODE_DEV_&amp;#39;, false);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;to&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;define(&amp;#39;_PS_MODE_DEV_&amp;#39;, isset($_SERVER[&amp;#39;MAGE_IS_DEVELOPER_MODE&amp;#39;]));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Restrict Access Using .htaccess File Rules in PHP</title>
+      <link>http://example.com/php/restrict-access-using-htaccess-file-rules-in-php.html</link>
+      <pubDate>Mon, 11 Mar 2013 15:29:34 +0000</pubDate>
+      
+      <guid>http://example.com/php/restrict-access-using-htaccess-file-rules-in-php.html</guid>
+      <description>&lt;p&gt;The function below is one that we have used a few times to allow certain &amp;ldquo;admin only&amp;rdquo; assets to be accessed or visible on the front end of a website.&lt;/p&gt;
+
+&lt;p&gt;The theory is that the htaccess file in the admin folder will be kept up to date and can therefore be used as the authoritative list of IP addresses that are allowed to access admin assets.&lt;/p&gt;
+
+&lt;p&gt;This function is simple enough and should be useful anywhere that you use htaccess to protect a certain folder and would like to implement the same white list rules in other places without having to maintain a duplicate list of authorised IP addresses.&lt;/p&gt;
+
+&lt;p&gt;The function also uses &lt;a href=&#34;http://www.php.net/manual/en/language.variables.scope.php#language.variables.scope.static&#34; title=&#34;PHP.net Static Variables&#34; target=&#34;_blank&#34;&gt;static variables&lt;/a&gt; - a lesser known bit of PHP functionality which can be a nice easy performance optimisation when working with procedural PHP code. If a function will be called many times and will always return the same result in a single request, you can actually cache that result to a static variable and serve that on any subsequent requests.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function isAllowedIp() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    static $pass = null;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if ($pass !== null) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $pass;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $pass=false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $customer_ip = $_SERVER[&amp;#39;REMOTE_ADDR&amp;#39;];    &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $htaccess = file_get_contents(&amp;#39;admin/.htaccess&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    preg_match_all(&amp;#39;%allow from ([0-9.]+)%&amp;#39;, $htaccess, $matches);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($matches[1] as $ip) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ($ip == $customer_ip) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $pass = true; //this is stored statically for perfomance reasons&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            return true;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    return false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Quick find Variable Declaration</title>
+      <link>http://example.com/netbeans/netbeans-quick-find-variable-declaration.html</link>
+      <pubDate>Wed, 27 Apr 2011 14:37:20 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-quick-find-variable-declaration.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+A nice little feature I stumbled across the other day.&lt;/p&gt;
+
+&lt;p&gt;If you hold down [Ctrl] whilst left clicking a variable, you get taken straight to its definition.&lt;/p&gt;
+
+&lt;p&gt;Handy!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

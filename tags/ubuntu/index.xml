@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ubuntu on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/ubuntu/</link>
+    <description>Recent content in Ubuntu on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 30 Jul 2013 15:57:06 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/ubuntu/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Compiling Twitter Bootstrap&#39;s less files on Ubuntu 12.04/Mint 13</title>
+      <link>http://example.com/less-css/compiling-twitter-bootstraps-less-files-on-ubuntu-12-04mint-13.html</link>
+      <pubDate>Tue, 30 Jul 2013 15:57:06 +0000</pubDate>
+      
+      <guid>http://example.com/less-css/compiling-twitter-bootstraps-less-files-on-ubuntu-12-04mint-13.html</guid>
+      <description>&lt;p&gt;The version of lessc available in Ubuntu 12.04&amp;rsquo;s repositories is now out of date, stuck on version 1.2. When attempting to compile the bootstrap.less file to a proper CSS file, you&amp;rsquo;ll find it complaining with the following error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+NameError: #grid &amp;gt; .core is undefined in /path/to/folder/less/bootstrap.less
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is due to your lessc version being outdated, but with Ubuntu 12.04/Mint 13, lessc 1.3+ isn&amp;rsquo;t available in the repositories. You&amp;rsquo;ll also have issues because nodejs itself is outdated too.&lt;/p&gt;
+
+&lt;p&gt;To update both issue the following commands:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo apt-get update
+sudo apt-get install python-software-properties python g++ make
+sudo add-apt-repository ppa:chris-lea/node.js
+sudo apt-get update
+sudo apt-get install nodejs
+
+sudo apt-get autoremove node-less
+sudo npm install -g less
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;(Source: &lt;a href=&#34;http://askubuntu.com/questions/272780/ubuntu-12-10-lessc-1-3-3-installation&#34; target=&#34;_blank&#34;&gt;Ask Ubuntu&lt;/a&gt;)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to Restore Hibernate After Deleting and Recreating Your Swap Partition in Mint 13, Mint 14 and Ubuntu 12.04, Ubuntu 12.10</title>
+      <link>http://example.com/linux-mint/how-to-restore-hibernate-after-deleting-and-recreating-your-swap-partition-in-mint-13-mint-14-and-ubuntu-12-04-ubuntu-12-10.html</link>
+      <pubDate>Fri, 21 Dec 2012 15:06:53 +0000</pubDate>
+      
+      <guid>http://example.com/linux-mint/how-to-restore-hibernate-after-deleting-and-recreating-your-swap-partition-in-mint-13-mint-14-and-ubuntu-12-04-ubuntu-12-10.html</guid>
+      <description>&lt;p&gt;As part of increasing my swap space in order to hibernate (my previous setup had 4GB of swap but 8GB of RAM) I had deleted and recreated my swap partition. There was no change in the partition&amp;rsquo;s device files - it was still /dev/sda2, however my new swap partition seemed to be nonfunctional. This is down to the device&amp;rsquo;s UUID having changed.&lt;/p&gt;
+
+&lt;h2&gt;Finding your new UUID&lt;/h2&gt;
+
+&lt;p&gt;To find the new UUID, issue:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+$ ls -l /dev/disk/by-uuid/
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;rsquo;ll get this output. Just copy the UUID (the string of random letters and numbers), we&amp;rsquo;ll use this soon&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+total 0
+lrwxrwxrwx 1 root root 10 Dec 21 14:27 13823b29-79f5-485f-a260-ba4c4c7f2d92 -&amp;gt; ../../sda1
+lrwxrwxrwx 1 root root 10 Dec 21 14:27 65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69 -&amp;gt; ../../sda2
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h2&gt;Fixing swap on bootup&lt;/h2&gt;
+You&amp;rsquo;ll find that the new swap partition isn&amp;rsquo;t available on boot, nor can it be manually enabled using sudo swapon -a. To fix these, use your favourite text editor to open /etc/fstab and add the new UUID on the swap line&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+UUID=65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69 none            swap    sw              0       0
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Issue a sudo swapon -a and check your System Monitor. If you have available swap then you&amp;rsquo;re all good&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Fixing hibernate&lt;/h2&gt;
+Because fstab is used way after the system decides whether to resume from Hibernate you&amp;rsquo;ll need to update it on which partition it should resume from&lt;/p&gt;
+
+&lt;p&gt;Again, use your favourite text editor to open /etc/initramfs-tools/conf.d/resume. Add in your new UUID&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+RESUME=UUID=65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Update your configuration for it to take effect, and hibernate will work just fine again&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo update-initramfs -u
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Linux Mint 14 / Ubuntu 12.10 Slow Wifi with Ath9k Drivers &#43; Solution</title>
+      <link>http://example.com/linux/linux-mint-14-ubuntu-12-10-slow-wifi-with-ath9k-drivers-solution.html</link>
+      <pubDate>Wed, 12 Dec 2012 10:44:52 +0000</pubDate>
+      
+      <guid>http://example.com/linux/linux-mint-14-ubuntu-12-10-slow-wifi-with-ath9k-drivers-solution.html</guid>
+      <description>&lt;p&gt;I upgrade my laptop to the latest release of Linux Mint 14 MATE edition. Everything is working beautifully apart from the wireless which, whilst functional, was cripplingly slow.&lt;/p&gt;
+
+&lt;p&gt;After a load of searching and testing, the solution that worked for me was:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo -s
+
+iwconfig wlan0 rate 54M
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;options ath9k nohwcrypt=1&amp;quot;&lt;/span&gt; &amp;gt; /etc/modprobe.d/ath9k.conf
+
+reboot
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you copy and paste the above into a terminal it will force the wifi speed to 54M and will make sure hardware crypt is disabled and finally reboot your machine.&lt;/p&gt;
+
+&lt;p&gt;I did this and my wifi speed is now perfectly fast, I&amp;rsquo;m a happy bunny :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Tip: Have Git Branch Displayed in Bash Prompt</title>
+      <link>http://example.com/linux/tip-have-git-branch-displayed-in-bash-prompt.html</link>
+      <pubDate>Wed, 07 Nov 2012 16:53:02 +0000</pubDate>
+      
+      <guid>http://example.com/linux/tip-have-git-branch-displayed-in-bash-prompt.html</guid>
+      <description>&lt;p&gt;This is a very small tip, but one that can really save accidents in the long term.&lt;/p&gt;
+
+&lt;p&gt;To display the current branch in git simply add the following to your .bashrc in your home directory :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;__git_ps1 &lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt; 
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;git symbolic-ref HEAD 2&amp;gt;/dev/null&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; -n &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$b&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;printf&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot; (%s)&amp;quot;&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;##refs/heads/&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;PS1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;debian_chroot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:+(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$debian_chroot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\$( __git_ps1 ) \$\[\033[00m\] &amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This is based on the Linux Mint prompt so is nicely coloured as well.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Mate: Make Keyboard Calculator Button Work Again, and gedit etc.</title>
+      <link>http://example.com/linux/mate-make-keyboard-calculator-button-work-again-and-gedit-etc.html</link>
+      <pubDate>Wed, 05 Sep 2012 13:48:20 +0000</pubDate>
+      
+      <guid>http://example.com/linux/mate-make-keyboard-calculator-button-work-again-and-gedit-etc.html</guid>
+      <description>&lt;p&gt;One of the things that has not yet been fixed in mate is that the physical calculator button available on a lot of keyboards is mapped to &amp;ldquo;gcalctool&amp;rdquo; still but mate calls this &amp;ldquo;mate-calc&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;A quick and easy fix is to ensure you have a bin folder inside your home directory (e.g. /home/edmondscommerce/bin/ ) and run the following commands at a shell :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ~/bin
+ln -s &lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;which mate-calc&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt; gcalctool
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This means that anything that calls gcalctool will call mate-calc by default.  The bin directory has to exist at login time to be added to the path so you may have to log out and back in to enable it.&lt;/p&gt;
+
+&lt;p&gt;If you have gnomey habits like pressing Alt+F2 and typing &amp;ldquo;gedit&amp;rdquo; you might find the following few aliases are handy too :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;ln -s &lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;which caja&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt; nautilus
+ln -s &lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;which pluma&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt; gedit
+ln -s  &lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;which evince&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt; atril
+ln -s  &lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;which eog&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt; eom
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Xampp 1.8 is out!</title>
+      <link>http://example.com/php/xampp-1-8-is-out.html</link>
+      <pubDate>Tue, 21 Aug 2012 16:50:52 +0000</pubDate>
+      
+      <guid>http://example.com/php/xampp-1-8-is-out.html</guid>
+      <description>&lt;p&gt;A new version of Xampp has been release which includes PHP 5.4! Remember that instantly jumping to the latest version of PHP is not necessarily a good idea as numerous deprecated features may have been removed and others may now be deprecated and cause issues in your applications. Check the PHP 5.4 release announcement for the major changes: &lt;a href=&#34;http://php.net/releases/5_4_0.php&#34; target=&#34;_blank&#34;&gt;http://php.net/releases/5_4_0.php&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The Xampp 1.8 release also includes numerous other updates including phpMyAdmin, MySQL and many more of the applications bundled with it.&lt;/p&gt;
+
+&lt;p&gt;Grab the new version here &lt;a href=&#34;http://sourceforge.net/projects/xampp/files/&#34; target=&#34;_blank&#34;&gt;http://sourceforge.net/projects/xampp/files/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>safe-rm - saves you from rm -rf /*</title>
+      <link>http://example.com/linux/safe-rm-saves-you-from-rm-rf.html</link>
+      <pubDate>Thu, 09 Aug 2012 15:59:14 +0000</pubDate>
+      
+      <guid>http://example.com/linux/safe-rm-saves-you-from-rm-rf.html</guid>
+      <description>&lt;p&gt;Okay, so it&amp;rsquo;s a sysadmin&amp;rsquo;s nightmare that you might when tired miss out a dot from an rm -rf ./* and whilst you shouldn&amp;rsquo;t run as root, there are times when permissions problems push you into it.&lt;/p&gt;
+
+&lt;p&gt;This little gem allows you to blacklist folders from rm (such as /etc /bin and other system directories, along with any custom ones you might want to protect).&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s in debian/ubuntu repositories so apt-get install safe-rm is quite useful, but it seems to be nowhere to be found for CentOS/RHEL, so we packaged it up (one of our employees used to be a package maintainer for a linux distro) for CentOS servers.&lt;/p&gt;
+
+&lt;p&gt;The original url for safe-rm is &lt;a href=&#34;https://launchpad.net/safe-rm&#34; title=&#34;https://launchpad.net/safe-rm&#34;&gt;https://launchpad.net/safe-rm&lt;/a&gt; and our rpm is available &lt;a href=&#34;http://www.edmondscommerce.co.uk/stuff/safe-rm-0.8-1.x86_64.rpm&#34; title=&#34;here&#34;&gt;here&lt;/a&gt; - Feel free to mirror this elsewhere.&lt;/p&gt;
+
+&lt;p&gt;Next up: &lt;a href=&#34;http://www.edmondscommerce.co.uk/linux/creating-rpms/&#34; title=&#34;how we created the rpm&#34;&gt;how we created the rpm&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Xdebug &#34;Waiting for connection&#34; Ubuntu 12.04 Mint13 &#43;SOLUTION</title>
+      <link>http://example.com/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution.html</link>
+      <pubDate>Thu, 21 Jun 2012 17:07:20 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution.html</guid>
+      <description>&lt;p&gt;If you have issues with netbeans and xdebug not connecting on recent distros, you might find that netbeans is listening on tcp6 and xdebug connecting on plain tcp.&lt;/p&gt;
+
+&lt;p&gt;To check if this is the case, run the following command whilst netbeans is &amp;ldquo;waiting for connection&amp;rdquo; (change 9000 if you&amp;rsquo;ve set a different port) :-&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;netstat -aln | grep 9000&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;if you get a line similar to the following (specifically tcp6 and not just tcp), it may well be that xdebug can&amp;rsquo;t connect over ipv6 :-
+&lt;code&gt;tcp6       0      0 :::9000                 :::*                    LISTEN&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;One solution is to disable ipv6, which can be done by creating the file /etc/sysctl.d/10-disable-ipv6.conf with the following contents :-
+&lt;code&gt;net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;then run (as root or sudo)
+&lt;code&gt;sysctl -p /etc/sysctl.d/10-disable-ipv6.conf&lt;/code&gt;
+and restart netbeans.  Suddenly, netbeans will listen on tcp (ipv4) and xdebug will connect.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Tip: Should have run that in screen? now you can!</title>
+      <link>http://example.com/linux/tip-should-have-run-that-in-screen-now-you-can.html</link>
+      <pubDate>Thu, 24 May 2012 15:00:27 +0000</pubDate>
+      
+      <guid>http://example.com/linux/tip-should-have-run-that-in-screen-now-you-can.html</guid>
+      <description>&lt;p&gt;Ever started a long process running that you thought wouldn&amp;rsquo;t take long and then thought &amp;ldquo;I should have run that in screen&amp;rdquo;?&lt;/p&gt;
+
+&lt;p&gt;Well, thanks to an ingenious programmer, you can actually do that!&lt;/p&gt;
+
+&lt;p&gt;The app is called reptyr, is at &lt;a href=&#34;https://github.com/nelhage/reptyr&#34;&gt;https://github.com/nelhage/reptyr&lt;/a&gt; and there&amp;rsquo;s a ubuntu ppa &lt;a href=&#34;https://launchpad.net/~broder/+archive/reptyr&#34;&gt;here&lt;/a&gt; Note: I compiled from scratch as the ppa didn&amp;rsquo;t seem to work for me.&lt;/p&gt;
+
+&lt;p&gt;So, all you need to do is open a terminal (press Ctrl-Z to stop the task if you only have one and don&amp;rsquo;t want to open a new one), run screen (or tmux etc) and type &amp;ldquo;reptyr 1234&amp;rdquo; where 1234 is the process id (pid) of the program to pull to your current terminal.  To get the pid, &amp;ldquo;ps waux&amp;rdquo; usually gives all the info you need to identify it.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Uppercase, Lowercase and Switch Case - useful key combo</title>
+      <link>http://example.com/netbeans/netbeans-uppercase-lowercase-and-switch-case-useful-key-combo.html</link>
+      <pubDate>Mon, 14 May 2012 11:34:13 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-uppercase-lowercase-and-switch-case-useful-key-combo.html</guid>
+      <description>&lt;p&gt;So, this is documented in the manual, but isn&amp;rsquo;t obvious in any menu :-&lt;/p&gt;
+
+&lt;p&gt;To uppercase a selection, press Control+U then U.
+To lowercase a selection, press Control+U then L.
+and to reverse case in the selection (for when you have typed a whole line of code without checking your caps lock!), press Control+U then S.&lt;/p&gt;
+
+&lt;p&gt;Really useful but not well known.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ubuntu 10.10 is Dead... What next?</title>
+      <link>http://example.com/ubuntu/ubuntu-10-10-is-dead-what-next.html</link>
+      <pubDate>Wed, 11 Apr 2012 09:21:44 +0000</pubDate>
+      
+      <guid>http://example.com/ubuntu/ubuntu-10-10-is-dead-what-next.html</guid>
+      <description>&lt;p&gt;Today we and no doubt countless other Ubuntu 10.10 users got the dreaded:
+&lt;img src=&#34;http://example.com/images/1010dead.png&#34; alt=&#34;Image&#34; /&gt;
+You can read the official announcement &lt;a href=&#34;http://fridge.ubuntu.com/2012/04/10/ubuntu-10-10-maverick-meerkat-end-of-life-reached-on-april-10-2012/?utm_source=rss&amp;utm_medium=rss&amp;utm_campaign=ubuntu-10-10-maverick-meerkat-end-of-life-reached-on-april-10-2012&#34;&gt;here&lt;/a&gt;.
+As everyone is aware, Ubuntu and Gnome have both moved towards a new desktop environment paradigm which is designed to be a bit more dumbed down and accessible to less technical users.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately its not really suitable for power users who might have a LOT of open windows spread over multiple desktops and often running multiple monitors.&lt;/p&gt;
+
+&lt;p&gt;Gnome 2, simple as it was, has some really nice desktop features that once you are used to them it feels like you can&amp;rsquo;t live without them.&lt;/p&gt;
+
+&lt;p&gt;So now the big question is, what next?&lt;/p&gt;
+
+&lt;p&gt;We already have one Linux Mint fan in the office and it is looking like this project is going in the right kind of direction for us with their support for MATE (Gnome 2 basically) and also the Cinnamon desktop which is a more modern take on the classic Gnome 2 desktop paradigm. Its more than likely this is where we will be going to next.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ubuntu Prevent Focus Stealing</title>
+      <link>http://example.com/ubuntu/ubuntu-prevent-focus-stealing.html</link>
+      <pubDate>Thu, 05 Apr 2012 15:07:19 +0000</pubDate>
+      
+      <guid>http://example.com/ubuntu/ubuntu-prevent-focus-stealing.html</guid>
+      <description>&lt;p&gt;If you find yourself typing away whilst something else loads or another window pops open and all of a sudden your typing has gone into a different window then this solution is for you&lt;/p&gt;
+
+&lt;p&gt;Open gconf-editor. Open a terminal and type gconf-editor and hit return.&lt;/p&gt;
+
+&lt;p&gt;Now navigate to /apps/compiz/general/screen0/options/focus_prevention_level key and set its value to 4.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s it.&lt;/p&gt;
+
+&lt;p&gt;You might actually decide that focus stealing is sometimes useful in which case you can always change it back.&lt;/p&gt;
+
+&lt;p&gt;Originally found here: &lt;a href=&#34;http://askubuntu.com/a/55220&#34;&gt;http://askubuntu.com/a/55220&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Restore lessc -w functionality, extendable to anything that needs to watch a file.</title>
+      <link>http://example.com/linux/restore-lessc-w-functionality-extendable-to-anything-that-needs-to-watch-a-file.html</link>
+      <pubDate>Fri, 02 Mar 2012 12:25:46 +0000</pubDate>
+      
+      <guid>http://example.com/linux/restore-lessc-w-functionality-extendable-to-anything-that-needs-to-watch-a-file.html</guid>
+      <description>&lt;p&gt;The latest version of the less compiler in ruby has reduced the functionality of watching a file, so we wrote this little script (which we put in ~/bin/lessc-w) to restore the old functionality :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+#!/bin/bash
+
+LESSFILE=$1
+CSSFILE=`basename $1 .less`.css
+
+if [ &amp;quot;$2&amp;quot; != &amp;quot;-f&amp;quot; ]; then
+    if [ &amp;quot;`file -b $LESSFILE`&amp;quot; != &amp;quot;ASCII text&amp;quot; ]; then
+        echo &amp;quot;file $1 doesn&#39;t look like a less file...., looks like a `file -b $LESSFILE`&amp;quot;;
+        echo &amp;quot;usage: lessc-w lessfile.less [-f]&amp;quot;;
+        exit
+    fi
+fi
+
+while true; do
+    inotifywait -e modify $LESSFILE &amp;amp;&amp;amp; \
+    echo &amp;quot;Rebuilding styles&amp;quot; &amp;amp;&amp;amp; \
+    lessc $LESSFILE &amp;gt; $CSSFILE
+done
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As you can see it&amp;rsquo;s very simple to tweak this to any program that needs to be run when a file is changed.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Start windows on a specified workspace</title>
+      <link>http://example.com/linux/start-windows-on-a-specified-workspace.html</link>
+      <pubDate>Tue, 31 Jan 2012 14:04:27 +0000</pubDate>
+      
+      <guid>http://example.com/linux/start-windows-on-a-specified-workspace.html</guid>
+      <description>&lt;p&gt;I rely on multiple desktops in order to keep my workflow organised. However each time I start up my computer I have to move these windows onto the correct desktop, which is a pain. Thankfully there is a way to place each window onto it&amp;rsquo;s own desktop when your computer starts. This will explain the basics of doing this.&lt;/p&gt;
+
+&lt;p&gt;First you need to install a tool called wmcrtl. On ubuntu you can do this by running this command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo apt-get install wmctrl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once this is installed you need to see how it thinks you desktop is set up. You can do this by running this command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;wmctrl -d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;which give me the following result&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0  * DG: 13440x1050  VP: 0,0  WA: 0,24 3360x1002  Workspace 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The important part is the 13440x1050 - which corresponds to 8 1680x1050 desktops. Some versions of ubuntu put each desktop as a separate workspace, if so you&amp;rsquo;ll need to modify the instructions slightly.&lt;/p&gt;
+
+&lt;p&gt;At this point you can move you windows around so they are where you want them to be. Once you are happy with your layout, run the following command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;wmctrl -lG
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;which will give you something similar to this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+0x0340002e  0 3360 48   1680 1002 ross-desktop Add New Post ‹ Edmonds Commerce — WordPress - Chromium
+0x02a00077  0 23002 106  253  970  ross-desktop Buddy List
+0x02200004  0 0    58   1680 1021 ross-desktop Terminal
+0x06400003  0 6720 58   1680 1021 ross-desktop *untitled - Geany
+...
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can be broken down as follows&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+window-id	desktop-number	x-ofset	y-ofset	width	height	machine-name	window-title
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using this information you can put together a script that will run at startup to launch you windows.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;NB This script relies on the window title to move a window. This works because the script will be run at startup and it is assumed that you will only have one instance of each program running. If you plan to have multiple windows open, then you will need to get the window-id, go through the man pages for ways of doing this.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+#!/bin/bash
+geany /tmp/scratch.sql /tmp/scratch.php &amp;amp;
+x-terminal-emulator &amp;amp;
+# allow the windows to spawn before moving them
+sleep 5
+# select and move the windows
+# format wmctrl -r &amp;quot;window to move&amp;quot; -e gravity,x-pos,y-pos,width,height (-1 keeps the current value)
+wmctrl -r &amp;quot;scratch.php - /tmp - Geany&amp;quot; -e 0,6720,0,-1,-1
+wmctrl -r &amp;quot;Terminal&amp;quot; -e 0,3360,0,-1,-1
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;save the file and make it executable, and then run it at startup to have your windows automatically appear where you want them. This is just scratching the surface of what wmctrl can do, so if you want to carry out more windows management from the command line go through the man pages and see if it can do what you want.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Sun Java 1.6.0.30 packages for Ubuntu « « Flexion.Org Blog Flexion.Org Blog</title>
+      <link>http://example.com/linux/sun-java-1-6-0-30-packages-for-ubuntu-%C2%AB-%C2%AB-flexion-org-blog-flexion-org-blog.html</link>
+      <pubDate>Fri, 13 Jan 2012 08:10:47 +0000</pubDate>
+      
+      <guid>http://example.com/linux/sun-java-1-6-0-30-packages-for-ubuntu-%C2%AB-%C2%AB-flexion-org-blog-flexion-org-blog.html</guid>
+      <description>&lt;p&gt;If you want or need sun java for your Linux Ubuntu desktop, perhaps for running Netbeans, then you will like this link&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.flexion.org/2012/01/10/updated-sun-java6-packages-for-ubuntu/&#34;&gt;http://blog.flexion.org/2012/01/10/updated-sun-java6-packages-for-ubuntu/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;There is a PPA for sun java. Problem solved.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

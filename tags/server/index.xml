@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Server on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/server/</link>
+    <description>Recent content in Server on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 07 May 2015 10:32:04 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/server/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Running out of disk space but df shows you have lots of space left</title>
+      <link>http://example.com/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html</link>
+      <pubDate>Thu, 07 May 2015 10:32:04 +0000</pubDate>
+      
+      <guid>http://example.com/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html</guid>
+      <description>&lt;p&gt;Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;Filesystem      Inodes   IUsed  IFree IUse% Mounted on
+/dev/xvda1     &lt;span class=&#34;m&#34;&gt;2621440&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;2621440&lt;/span&gt;      &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  100% /
+udev            &lt;span class=&#34;m&#34;&gt;124879&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;398&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;124481&lt;/span&gt;    1% /dev
+tmpfs           &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;288&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126604&lt;/span&gt;    1% /run
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;4&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126888&lt;/span&gt;    1% /run/lock
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126891&lt;/span&gt;    1% /run/shm
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126891&lt;/span&gt;    1% /run/user
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; i in /var/*&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; find &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; wc -l&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SSL testing and SHA-1 Sunsetting</title>
+      <link>http://example.com/security/ssl-testing-and-sha-1-sunsetting.html</link>
+      <pubDate>Wed, 12 Nov 2014 13:03:36 +0000</pubDate>
+      
+      <guid>http://example.com/security/ssl-testing-and-sha-1-sunsetting.html</guid>
+      <description>&lt;p&gt;Over last few days we been doing a bit of work on doing some audits for people and one of the things that has come up is ssl. For the purpose of checking the servers ssl implementation we have been using &lt;a href=&#34;https://www.ssllabs.com/ssltest/&#34; target=&#34;_blank&#34;&gt;Qualys SSL Labs&lt;/a&gt; which is a excelent tool.&lt;/p&gt;
+
+&lt;p&gt;The checker checks for the ssl certificate and tells you if your server setup is vulnerable to attacks such as Poodle and OpenSSL CCS Injection. We will produce a blog post shortly on the best practise setup to prevent these attcks.&lt;/p&gt;
+
+&lt;p&gt;For the moment SHA-1 as a certificate signature algorithm is getting depricated in &lt;a href=&#34;https://community.qualys.com/blogs/securitylabs/2014/09/09/sha1-deprecation-what-you-need-to-know&#34; target=&#34;_blank&#34;&gt;chrome&lt;/a&gt;. As the cost for collision attcks against SHA-1 will become more &lt;a href=&#34;https://www.schneier.com/blog/archives/2012/10/when_will_we_se.html&#34; target=&#34;_blank&#34;&gt;affordable&lt;/a&gt; in the next few years.&lt;/p&gt;
+
+&lt;p&gt;Goole have set the cut off for certificates after 2016 but we will be seeing some crosses on the padlock in chrom during the first quater of 2015.&lt;/p&gt;
+
+&lt;p&gt;If your certificate expires in 2015 then you will not see any chrome. If your certificate expires in 2016 you will see some minor errors being reported in chrome. However if your certificate expires in 2017 then chrome will treat it as an insecure certificate in 2015.&lt;/p&gt;
+
+&lt;p&gt;So our advice is:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;If your certificate expires in 2015: When you come to renew make sure you get SHA-256 as the certificate signature&lt;/li&gt;
+&lt;li&gt;If your certificate expires in 2016: Think about getting renewed during 2015 or earlier.&lt;/li&gt;
+&lt;li&gt;If your certificate expires in 2017: Think about getting a new one issue as soon as possible.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Apache JMeter For Load Testing</title>
+      <link>http://example.com/load-testing/using-apache-jmeter-for-load-testing.html</link>
+      <pubDate>Tue, 27 May 2014 13:01:39 +0000</pubDate>
+      
+      <guid>http://example.com/load-testing/using-apache-jmeter-for-load-testing.html</guid>
+      <description>&lt;p&gt;Load testing is something that you really need a decent solution for. A simple tool such as Apache Bench (ab) is overly simplistic for todays web applications.&lt;/p&gt;
+
+&lt;p&gt;After some research I decided to use Apache Jmeter as the tool of choice. It is written in Java so easy enough to run on any platform.
+It features a GUI which is ideal for creating your tests, then a command line version which is what you should use to run your tests.&lt;/p&gt;
+
+&lt;p&gt;For my purposes I wanted to feed in a large list of URLs, for that I followed these instructions:
+&lt;a href=&#34;http://asciiville.com/musings/coder/how-to-feed-jmeter-from-csv&#34; target=&#34;_blank&#34;&gt;http://asciiville.com/musings/coder/how-to-feed-jmeter-from-csv&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This allows you to create a csv file with your choice of URLs. It was actually quite hard to find a decent and succint guide to getting this set up but thankfully that page fitted my requirements.&lt;/p&gt;
+
+&lt;p&gt;Once I started to run the test I quickly realised that my system was grinding to a halt with out of memory errors. A bit more searching yielded this page which advises on how to properly run Jmeter including the fact that you really should run it on the command line for proper testing.
+&lt;a href=&#34;http://blazemeter.com/blog/jmeter-performance-and-tuning-tips&#34; target=&#34;_blank&#34;&gt;http://blazemeter.com/blog/jmeter-performance-and-tuning-tips&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Testing a Magento site in maintenance mode</title>
+      <link>http://example.com/magento/testing-a-magento-site-in-maintenance-mode.html</link>
+      <pubDate>Thu, 09 May 2013 12:15:23 +0000</pubDate>
+      
+      <guid>http://example.com/magento/testing-a-magento-site-in-maintenance-mode.html</guid>
+      <description>&lt;p&gt;Often you&amp;rsquo;ll have your site in maintenance mode, but obviously before you show your changes to the world you&amp;rsquo;ll want to check the site over.&lt;/p&gt;
+
+&lt;p&gt;The best way to set Magento into Maintenance Mode is to add a maintenance.flag file to the web root, and there&amp;rsquo;s a snippet of code in Magento&amp;rsquo;s index.php which handles this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$maintenanceFile = &amp;#39;maintenance.flag&amp;#39;;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;...&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if (file_exists($maintenanceFile)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    include_once dirname(__FILE__) . &amp;#39;/errors/503.php&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    exit;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You&amp;rsquo;ll want to set this to also take your IP address into consideration, so just make the following amends and you&amp;rsquo;ll have added conditional maintenance mode:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$maintenanceFile = &amp;#39;maintenance.flag&amp;#39;;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;...&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if (file_exists($maintenanceFile) &amp;amp;&amp;amp; $_SERVER[&amp;#39;REMOTE_ADDR&amp;#39;] != &amp;quot;123.123.123.123&amp;quot;) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if($_SERVER[&amp;#39;REMOTE_ADDR&amp;#39;] == &amp;quot;123.123.123.123&amp;quot;) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //Do nothing, but it&amp;#39;s safer to check if it *is* your IP than *isn&amp;#39;t*&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    else {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        include_once dirname(__FILE__) . &amp;#39;/errors/503.php&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        exit;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Prestashop Debug Mode using the Magento Environment Variable Method</title>
+      <link>http://example.com/prestashop/prestashop-debug-mode-using-the-magento-environment-variable-method.html</link>
+      <pubDate>Thu, 25 Apr 2013 10:14:30 +0000</pubDate>
+      
+      <guid>http://example.com/prestashop/prestashop-debug-mode-using-the-magento-environment-variable-method.html</guid>
+      <description>&lt;p&gt;Magento developers are no doubt familiar with the concept of defining a server environment variable MAGE_IS_DEVELOPER_MODE so that when running Magento locally it is always in developer mode but there is no chance of accidently deploying a live site in developer mode.&lt;/p&gt;
+
+&lt;p&gt;This little trick will allow you to use the same environment variable to also have the same effect when working with PrestaShop.&lt;/p&gt;
+
+&lt;p&gt;To explain - developer mode generally means that things like error messages and debugging information are displayed clearly in the browser which makes things much easier when you are developing, to see what is going wrong.&lt;/p&gt;
+
+&lt;p&gt;On a live site you want to keep error information hidden and generally display to the customer a more friendly error message screen that perhaps helps them find their way back to a functional section of the site or gives them information to contact the site owner directly for assistance.&lt;/p&gt;
+
+&lt;p&gt;Anyway, to put PrestaShop in debug mode locally but have no risk of deployign this to live you can alter the file: config/defines.inc.php&lt;/p&gt;
+
+&lt;p&gt;from&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;define(&amp;#39;_PS_MODE_DEV_&amp;#39;, false);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;to&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;define(&amp;#39;_PS_MODE_DEV_&amp;#39;, isset($_SERVER[&amp;#39;MAGE_IS_DEVELOPER_MODE&amp;#39;]));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Release SagePay Form Orders via API</title>
+      <link>http://example.com/sagepay/release-sagepay-form-orders-via-api.html</link>
+      <pubDate>Tue, 19 Mar 2013 17:54:16 +0000</pubDate>
+      
+      <guid>http://example.com/sagepay/release-sagepay-form-orders-via-api.html</guid>
+      <description>&lt;p&gt;If you use SagePay Form integration then you might think that it is impossible to release orders created via this integration system via the API.&lt;/p&gt;
+
+&lt;p&gt;Historically this was true however thanks to the new admin and reporting API you can now grab all of the details you need to perform the kind of admin side integration previously only possible via Server and Direct integrations.&lt;/p&gt;
+
+&lt;p&gt;This does take a bit of work but if you like the fact that Form alleviates PCI compliance issues, allows your customers to use the nice easy to use Form interface and also gives you easy PayPal integration then this is a great solution.&lt;/p&gt;
+
+&lt;p&gt;Thanks goes out to SagePay&amp;rsquo;s technical support who have proved really helpful in ironing out the kinks in getting this working.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Apache Log File Analysis Script</title>
+      <link>http://example.com/bash/apache-log-file-analysis-script.html</link>
+      <pubDate>Thu, 14 Mar 2013 14:17:48 +0000</pubDate>
+      
+      <guid>http://example.com/bash/apache-log-file-analysis-script.html</guid>
+      <description>&lt;p&gt;Here is a little bash script we knocked together to track down some malicious activity on a clients server.&lt;/p&gt;
+
+&lt;p&gt;Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.&lt;/p&gt;
+
+&lt;p&gt;Here is the script:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;###### SETUP ############&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;LOG_FOLDER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/www/vhosts/domain.co.uk/statistics/logs
+&lt;span class=&#34;nv&#34;&gt;ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LOG_FOLDER&lt;/span&gt;/access_log
+
+&lt;span class=&#34;nv&#34;&gt;HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;20000
+
+
+
+&lt;span class=&#34;c1&#34;&gt;######### FUNCTIONS ##############&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; title&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;---------------------------------&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$@&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;---------------------------------&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; urls_by_ip&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;IP&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;
+    tail -5000 &lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk -v &lt;span class=&#34;nv&#34;&gt;ip&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IP&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}&amp;#39;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort -rn &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; head -20
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; ip_addresses_by_user_agent&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;USERAGENT_STRING&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | grep &amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;USERAGENT_STRING&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;  | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;####### RUN REPORTS #############&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 URLs&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_URLS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$7&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_URLS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 URLS excluding POST data&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_URLS_WITHOUT_POST&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk -F&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; ?&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$7&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_URLS_WITHOUT_POST&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 IPs&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 user agents&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;IP Addresses for Top 3 User Agents&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;I&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; I&amp;lt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; I++&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;UA&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`echo &amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; | head -n &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$I&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | tail -n 1 | awk &amp;#39;{&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;=&amp;quot;&amp;quot;; print &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$0&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;}&amp;#39;`&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$UA&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;~~~~~~~~~~~~~~~~~~&amp;quot;&lt;/span&gt;
+    ip_addresses_by_user_agent &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$UA&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;    &amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Bash timeout and copying text in vim</title>
+      <link>http://example.com/bash/bash-timeout-and-copying-text-in-vim.html</link>
+      <pubDate>Thu, 14 Mar 2013 12:59:42 +0000</pubDate>
+      
+      <guid>http://example.com/bash/bash-timeout-and-copying-text-in-vim.html</guid>
+      <description>&lt;p&gt;I have been working with a server that had been configured differently from the way that I prefer.&lt;/p&gt;
+
+&lt;p&gt;The two biggest complaints that I had about it were that the timeout was set very low, meaning that the connection would break off every five minutes, and that vim had been set up so if you selected text using the mouse you could not copy it.&lt;/p&gt;
+
+&lt;p&gt;The solutions to these two problems are as follows.&lt;/p&gt;
+
+&lt;p&gt;You can tell the terminal not to timeout with the following command&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;TMOUT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Be aware that this will only work for the terminal that you are working with.&lt;/p&gt;
+
+&lt;p&gt;The issue with vim is that the mouse was triggering visual mode.&lt;/p&gt;
+
+&lt;p&gt;To get round this hold down shift when selecting text and everything will work as expected&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Wget For Beginners</title>
+      <link>http://example.com/linux/wget-for-beginners.html</link>
+      <pubDate>Mon, 19 Nov 2012 08:02:25 +0000</pubDate>
+      
+      <guid>http://example.com/linux/wget-for-beginners.html</guid>
+      <description>&lt;h3&gt;What is Wget in general ?&lt;/h3&gt;
+
+&lt;p&gt;Wget is a free utility for non-interactive download of file from the web. The user doesn’t need to login system every time &lt;a href=&#34;http://www.gnu.org/software/wget/&#34; rel=&#34;nofollow&#34;&gt;Wget&lt;/a&gt; can download the entire web page or mirroring the entire web page. If download crashed or stop for various reason Wget will start download again from where it stopped. It is highly recommended for downloading file from web with slow network connections.&lt;/p&gt;
+
+&lt;h2&gt;How to Use Wget ? &lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget -t 10 www.google.com&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If network connection fails Wget will to try to reconnect 20 times in default.With -t command we can specify how many times it need to  reconnect.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget -p --convert-links -r www.google.com -o logfile&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This command will download the site -p and &amp;ndash;convert will make sure all linked files are linked to downloaded document such as images and external links it enables complete offline viewing. Log file can be enabled with -O command to view the output message.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget --spider --force-html www.google.com&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&amp;ndash;spider Will check the webpage is existent or not.
+&amp;ndash;force  It will enforce the file type that have to be downloaded.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget -u mozilla www.google.com&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;some site access allowed to certain user &lt;a href=&#34;http://www.user-agents.org/&#34; rel=&#34;nofollow&#34;&gt;agents&lt;/a&gt;. So to access with certain user agent you can use this command.&lt;/p&gt;
+
+&lt;p&gt;Ftp connection download is achieved by&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget -r ftp://username:password@ftp.example.com&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Admin Login Not Working in Some Browsers &#43; Solution</title>
+      <link>http://example.com/magento/magento-admin-login-not-working-in-some-browsers.html</link>
+      <pubDate>Tue, 13 Nov 2012 16:17:29 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-admin-login-not-working-in-some-browsers.html</guid>
+      <description>&lt;p&gt;If you are tearing your hair out trying to figure out why you are not able to log into the Magento admin on some browsers then this might be your solution.&lt;/p&gt;
+
+&lt;p&gt;This solution will apply particularly if you are setting up Magento on a brand new server or VPS as you will see.&lt;/p&gt;
+
+&lt;p&gt;The problem is actually that the server time is wrong. The server time is used for generating cookies and the fact that the time is wrong means that cookies become invalidated immediately. Some browsers will deal with this in a less aggressive way than others and might actually let the cookie work, others will go for hard line security and will make the whole thing break.&lt;/p&gt;
+
+&lt;p&gt;The way to check this is to SSH into the server and check the time:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;date
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If the time is wrong then you need to do the following to fix it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum install ntp
+chkconfig ntpd on
+ntpdate pool.ntp.org
+/etc/init.d/ntpd start
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The above will install NTP, make it run on startup, will update the time and will set it running so the time should stay up to date from here on.&lt;/p&gt;
+
+&lt;p&gt;To check that has worked simply check the time again:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;date
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then finally flush your Magento cache and sessions&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;rm -rf var/cache/*
+rm -rf var/sessions/*
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And you should be good to go&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Rsync For Beginners</title>
+      <link>http://example.com/linux/rsync-for-beginners-2.html</link>
+      <pubDate>Mon, 05 Nov 2012 16:42:47 +0000</pubDate>
+      
+      <guid>http://example.com/linux/rsync-for-beginners-2.html</guid>
+      <description>&lt;h3&gt;What is Rsync in general ?&lt;/h3&gt;
+
+&lt;p&gt;Rsync works like the &lt;a href=&#34;http://linux.about.com/od/commands/l/blcmdl1_rcp.htm&#34; rel=&#34;nofollow&#34;&gt;rcp&lt;/a&gt; command in linux. It is used to copy files across machines. It uses efficient checksum algorithm that looks for modified files by time and size. It is used for two purposes:&lt;/p&gt;
+
+&lt;h2&gt;Backup&lt;/h2&gt;
+ 
+
+&lt;p&gt;Rsync is used to transfer file from the local to a remote machine. By default Rsync will use rsh, however you can instead use &lt;a href=&#34;http://linux.about.com/od/commands/l/blcmdl1_ssh.htm&#34; rel=&#34;nofollow&#34;&gt;ssh&lt;/a&gt; for high security. Compressed files are transferred to save file transfer time and reduce the load on the network. It helps to transfer bulk files in minutes.&lt;/p&gt;
+
+&lt;h2&gt;Mirroring&lt;/h2&gt;
+
+&lt;p&gt;Rsync can synchronize file between two servers location(i.e) local and remote. By using the checksum algorithm it updates local files only if it is updated in remote server.&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;How to use Rsync&lt;/h3&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;rsync -avze ssh -p2020 root@server.com:/sitepath/files   /localdata&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This command transfer files from remote server to local machine.&lt;/p&gt;
+
+&lt;p&gt;a  Archive. It is denotes all related files and documents.
+v  Verbose.It will display status message as it is processing.
+z  Compression.It achives better compression ratio.
+e  It allows to chose alternative remote shell program for communication.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;rsync -avze ssh -p2020 --exclude home/var/cache root@server.com:/sitepath/files /localdata&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This command will transfer files from remote server to local machine by excluding cache folder.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;rsync -avz /sitepath/files root@server.com:/localdata &lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This command will  transfer all file from local to remote server. It is uses default remote shell protocol.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SSH Access, what is it all about in Simple Words?</title>
+      <link>http://example.com/server/ssh-access-what-is-it-all-about-in-simple-words.html</link>
+      <pubDate>Mon, 05 Nov 2012 16:29:37 +0000</pubDate>
+      
+      <guid>http://example.com/server/ssh-access-what-is-it-all-about-in-simple-words.html</guid>
+      <description>&lt;p&gt;&lt;h3&gt;What is an SSH access?&lt;/h3&gt;
+SSH stands for Secure Socket Shell. SSH is a protocol, like HTTP, it gives us a way to gain a secure access to remote computers.&lt;/p&gt;
+
+&lt;p&gt;The principle is to connect two networked computers via a secure encrypted channel within an insecure network environment such as the Internet.&lt;/p&gt;
+
+&lt;p&gt;With SSH access we can easily move files around and run programs on your server. We can also transmit files to and from our own network onto your server, for example to take a copy of your site for local development or to push updated files onto your server.&lt;/p&gt;
+
+&lt;p&gt;SSH needs a server application installing on your server (most web servers will have this by default) and an SSH client on your local machine to allow you to connect to your server.&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;Where do you get your SSH access from?&lt;/h3&gt;
+If you need SSH access details you should ask your hosting company, they should be able to install it for you if it is not already in place. If you are on shared hosting then the chances are that you will not be able to get SSH access details, if you need SSH access then you should consider upgrading your hosting to something that will support it.&lt;/p&gt;
+
+&lt;p&gt;SSH access details will consist of at least:&lt;/p&gt;
+
+&lt;p&gt;domain or IP address:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+domain.com
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;
+123.123.123.123
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;username:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mywebserverlogin
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;password:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+ihy324579ySDWf
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;it may also include a port if SSH is not running on the standard port.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+2020
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h3&gt;Why do we need the SSH access details?&lt;/h3&gt;
+We will always ask our customers to provide us with SSH access details. This is for two main reasons:&lt;/p&gt;
+
+&lt;p&gt;&lt;h4&gt;1. Power and Speed&lt;/h4&gt;
+SSH access allows us to run commands directly on the server, compress files, run scripts etc. For example we will generally run some static analysis scripts for our &lt;a href=&#34;http://example.com/platforms/magento&#34;&gt;Magento&lt;/a&gt; customers using a bash script that we can run with SSH access. This gives us some instant feedback on the state of your Magento installation and allows us to spot any potential problems.&lt;/p&gt;
+
+&lt;p&gt;If we need to get a copy of your site files, using SSH we can prepare a compressed archive of your site files allowing us to download them much faster. Likewise we can easily get a reliable database dump, especially if you have a large database that might cause problems for browser based tools such as phpMyAdmin.&lt;/p&gt;
+
+&lt;p&gt;&lt;h4&gt;2. Security&lt;/h4&gt;
+SSH is a much more secure protocol than something like FTP. In SSH everything is encrypted. It has been built from the ground up to be a very secure way of networking and inter communicating between servers on an insecure network such as the web.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Transfer Server Permissions</title>
+      <link>http://example.com/linux/transfer-server-permissions.html</link>
+      <pubDate>Mon, 17 Sep 2012 15:00:01 +0000</pubDate>
+      
+      <guid>http://example.com/linux/transfer-server-permissions.html</guid>
+      <description>&lt;p&gt;So sometimes you might have a restored backup without the correct permissions (whether that be because the backup didn&amp;rsquo;t store the permissions, the file system refused to take them, or you simply forgot to add the -p flag to tar!) and you want to copy the permissions from one machine to another.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a little script to do just that that we found whilst browsing the internet to do just that (uses perl and find) :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;find / -type f -o -type d 2&amp;gt;/dev/null &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;read&lt;/span&gt; FILE&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;   perl -le&lt;span class=&#34;s1&#34;&gt;&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;    printf &amp;quot;chmod %o \&amp;quot;%s\&amp;quot;\n&amp;quot;, 07777 &amp;amp; (stat)[2], $_&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;    for @ARGV&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;  &amp;#39;&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$FILE&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt; &amp;gt; /tmp/file_perms.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you run that on the server with the correct permissions, then transfer the file to the server with the wrong permissions and run the file with the following command, it will fix the perms on that server :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sh /tmp/file_perms.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Which may save a lot of transfer time restoring a new backup.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Format searched log files</title>
+      <link>http://example.com/bash/format-searched-log-files.html</link>
+      <pubDate>Thu, 16 Aug 2012 15:45:56 +0000</pubDate>
+      
+      <guid>http://example.com/bash/format-searched-log-files.html</guid>
+      <description>&lt;p&gt;When you are monitoring a log file you may want to narrow it down, and format the results. This simple one line command will break up the output from a log file to make it easier to quickly read&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+tail -f /path/to/log | grep &amp;ldquo;search term&amp;rdquo; | sed &amp;rsquo;s/(.*)/&amp;mdash;&amp;mdash;&amp;mdash;-\n\1\n&amp;mdash;&amp;mdash;&amp;mdash;-/&amp;rsquo;
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Server Gone Away - Large Packets the Issue?</title>
+      <link>http://example.com/mysql/mysql-server-gone-away-large-packets-the-issue.html</link>
+      <pubDate>Wed, 15 Aug 2012 12:58:23 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-server-gone-away-large-packets-the-issue.html</guid>
+      <description>&lt;p&gt;If you are scratching your head trying to figure out why you keep getting MySQL server gone away error messages despite the fact you have bumped up all the timeout etc configurations to high values then this could be your solution.&lt;/p&gt;
+
+&lt;p&gt;MySQL will also give you this error if you try to send a packet that is larger than the packet size defined. We had an application that was using MariaDB which has a default max allowed packet of 16M by default.&lt;/p&gt;
+
+&lt;p&gt;The application in question was sending large amounts of data to be stored and so the solution to the gone away issues was simply to increase the max_allowed_packet configuration in my.cnf, restart the mysql daemon and the problems are sorted.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

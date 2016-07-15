@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Wmctrl on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/wmctrl/</link>
+    <description>Recent content in Wmctrl on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 31 Jan 2012 14:04:27 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/wmctrl/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Start windows on a specified workspace</title>
+      <link>http://example.com/linux/start-windows-on-a-specified-workspace.html</link>
+      <pubDate>Tue, 31 Jan 2012 14:04:27 +0000</pubDate>
+      
+      <guid>http://example.com/linux/start-windows-on-a-specified-workspace.html</guid>
+      <description>&lt;p&gt;I rely on multiple desktops in order to keep my workflow organised. However each time I start up my computer I have to move these windows onto the correct desktop, which is a pain. Thankfully there is a way to place each window onto it&amp;rsquo;s own desktop when your computer starts. This will explain the basics of doing this.&lt;/p&gt;
+
+&lt;p&gt;First you need to install a tool called wmcrtl. On ubuntu you can do this by running this command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo apt-get install wmctrl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once this is installed you need to see how it thinks you desktop is set up. You can do this by running this command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;wmctrl -d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;which give me the following result&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0  * DG: 13440x1050  VP: 0,0  WA: 0,24 3360x1002  Workspace 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The important part is the 13440x1050 - which corresponds to 8 1680x1050 desktops. Some versions of ubuntu put each desktop as a separate workspace, if so you&amp;rsquo;ll need to modify the instructions slightly.&lt;/p&gt;
+
+&lt;p&gt;At this point you can move you windows around so they are where you want them to be. Once you are happy with your layout, run the following command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;wmctrl -lG
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;which will give you something similar to this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+0x0340002e  0 3360 48   1680 1002 ross-desktop Add New Post ‹ Edmonds Commerce — WordPress - Chromium
+0x02a00077  0 23002 106  253  970  ross-desktop Buddy List
+0x02200004  0 0    58   1680 1021 ross-desktop Terminal
+0x06400003  0 6720 58   1680 1021 ross-desktop *untitled - Geany
+...
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can be broken down as follows&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+window-id	desktop-number	x-ofset	y-ofset	width	height	machine-name	window-title
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using this information you can put together a script that will run at startup to launch you windows.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;NB This script relies on the window title to move a window. This works because the script will be run at startup and it is assumed that you will only have one instance of each program running. If you plan to have multiple windows open, then you will need to get the window-id, go through the man pages for ways of doing this.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+#!/bin/bash
+geany /tmp/scratch.sql /tmp/scratch.php &amp;amp;
+x-terminal-emulator &amp;amp;
+# allow the windows to spawn before moving them
+sleep 5
+# select and move the windows
+# format wmctrl -r &amp;quot;window to move&amp;quot; -e gravity,x-pos,y-pos,width,height (-1 keeps the current value)
+wmctrl -r &amp;quot;scratch.php - /tmp - Geany&amp;quot; -e 0,6720,0,-1,-1
+wmctrl -r &amp;quot;Terminal&amp;quot; -e 0,3360,0,-1,-1
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;save the file and make it executable, and then run it at startup to have your windows automatically appear where you want them. This is just scratching the surface of what wmctrl can do, so if you want to carry out more windows management from the command line go through the man pages and see if it can do what you want.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

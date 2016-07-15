@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docblock on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/docblock/</link>
+    <description>Recent content in Docblock on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 01 Mar 2012 11:00:05 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/docblock/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Netbeans AutoComplete on Magento Objects called by Mage::getModel()</title>
+      <link>http://example.com/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel.html</link>
+      <pubDate>Thu, 01 Mar 2012 11:00:05 +0000</pubDate>
+      
+      <guid>http://example.com/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel.html</guid>
+      <description>&lt;p&gt;As we have been working with the various versions of Magento its nice to see more and more use of DocBlock notation to help IDEs auto suggest and auto complete methods etc when working with objects.&lt;/p&gt;
+
+&lt;p&gt;However the style is inconsistent and with a few subtle tweaks would be much, much better.&lt;/p&gt;
+
+&lt;h3&gt;Template Files, What is $this?&lt;/h3&gt;
+
+&lt;p&gt;First one is the @see syntax often used in .phtml files to describe which block object is in play as $this. Whilst that is useful to read, it is totally useless to the IDE.&lt;/p&gt;
+
+&lt;p&gt;For example have a look at
+&lt;b&gt;&lt;a href=&#34;https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/design/frontend/base/default/template/catalog/product/view.phtml&#34;&gt;app/design/frontend/base/default/template/catalog/product/view.phtml&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * Product view template&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @see Mage_Catalog_Block_Product_View&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @see Mage_Review_Block_Product_View&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;All we need to do is add this underneath&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/*&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @var $this Mage_Catalog_Block_Product_View&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And now when working with in the .phtml file, $this will auto complete for you.&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;i&gt;Eagle eyed readers may think that as $this could be either this is perhaps a bad idea, however the Review one actually extends the Catalog one overriding some functionality, it is basically the same.&lt;/i&gt;&lt;/blockquote&gt;
+
+&lt;h3&gt;$Model = Mage::getModel() why always the Abstract?&lt;/h3&gt;
+
+&lt;p&gt;Another one that I have just finally figured out is the correct way to get Netbeans to recognise exactly what class an object is when called with Mage::getModel() or Mage::getSingleton().&lt;/p&gt;
+
+&lt;p&gt;You might have auto complete suggesting that this is an instance of Mage_Core_Model_Abstract.&lt;/p&gt;
+
+&lt;p&gt;Whilst effectively true, this is unlikely to be useful for you in your context, you need to know exactly what Model class it is.&lt;/p&gt;
+
+&lt;p&gt;The reason that Netbeans thinks its Mage_Core_Model_Abstract is because the docblock in
+&lt;b&gt;&lt;a href=&#34;https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/Mage.php&#34;&gt;app/Mage.php&lt;/a&gt;&lt;/b&gt;
+describes this as the return value of this method.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Retrieve model object&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @link    Mage_Core_Model_Config::getModelInstance&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param   string $modelClass&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param   array $arguments&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return  Mage_Core_Model_Abstract&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public static function getModel($modelClass = &amp;#39;&amp;#39;, $arguments = array())&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return self::getConfig()-&amp;gt;getModelInstance($modelClass, $arguments);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;I often see blocks of code where the author is attempting to get auto complete working properly by using this syntax&lt;/p&gt;
+
+&lt;p&gt;see
+&lt;b&gt;&lt;a href=&#34;https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/code/core/Mage/Customer/controllers/AccountController.php&#34;&gt;app/code/core/Mage/Customer/controllers/AccountController.php&lt;/a&gt;&lt;/b&gt;
+createPostAction()&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/* @var $customerForm Mage_Customer_Model_Form */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$customerForm = Mage::getModel(&amp;#39;customer/form&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This is generally the right way to do it, however I think the docblock specifying the return value on Mage:getModel clobbers it.&lt;/p&gt;
+
+&lt;p&gt;The simple solution is to move the docblock from above the Mage::getModel call to below it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$customerForm = Mage::getModel(&amp;#39;customer/form&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;/* @var $customerForm Mage_Customer_Model_Form */&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;b&gt;And it works!&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot4-600x475.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

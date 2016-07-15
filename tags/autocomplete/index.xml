@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Autocomplete on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/autocomplete/</link>
+    <description>Recent content in Autocomplete on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 01 Mar 2012 11:00:05 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/autocomplete/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Netbeans AutoComplete on Magento Objects called by Mage::getModel()</title>
+      <link>http://example.com/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel.html</link>
+      <pubDate>Thu, 01 Mar 2012 11:00:05 +0000</pubDate>
+      
+      <guid>http://example.com/magento/netbeans-autocomplete-on-magento-objects-called-by-magegetmodel.html</guid>
+      <description>&lt;p&gt;As we have been working with the various versions of Magento its nice to see more and more use of DocBlock notation to help IDEs auto suggest and auto complete methods etc when working with objects.&lt;/p&gt;
+
+&lt;p&gt;However the style is inconsistent and with a few subtle tweaks would be much, much better.&lt;/p&gt;
+
+&lt;h3&gt;Template Files, What is $this?&lt;/h3&gt;
+
+&lt;p&gt;First one is the @see syntax often used in .phtml files to describe which block object is in play as $this. Whilst that is useful to read, it is totally useless to the IDE.&lt;/p&gt;
+
+&lt;p&gt;For example have a look at
+&lt;b&gt;&lt;a href=&#34;https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/design/frontend/base/default/template/catalog/product/view.phtml&#34;&gt;app/design/frontend/base/default/template/catalog/product/view.phtml&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * Product view template&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @see Mage_Catalog_Block_Product_View&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @see Mage_Review_Block_Product_View&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;All we need to do is add this underneath&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/*&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @var $this Mage_Catalog_Block_Product_View&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And now when working with in the .phtml file, $this will auto complete for you.&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;i&gt;Eagle eyed readers may think that as $this could be either this is perhaps a bad idea, however the Review one actually extends the Catalog one overriding some functionality, it is basically the same.&lt;/i&gt;&lt;/blockquote&gt;
+
+&lt;h3&gt;$Model = Mage::getModel() why always the Abstract?&lt;/h3&gt;
+
+&lt;p&gt;Another one that I have just finally figured out is the correct way to get Netbeans to recognise exactly what class an object is when called with Mage::getModel() or Mage::getSingleton().&lt;/p&gt;
+
+&lt;p&gt;You might have auto complete suggesting that this is an instance of Mage_Core_Model_Abstract.&lt;/p&gt;
+
+&lt;p&gt;Whilst effectively true, this is unlikely to be useful for you in your context, you need to know exactly what Model class it is.&lt;/p&gt;
+
+&lt;p&gt;The reason that Netbeans thinks its Mage_Core_Model_Abstract is because the docblock in
+&lt;b&gt;&lt;a href=&#34;https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/Mage.php&#34;&gt;app/Mage.php&lt;/a&gt;&lt;/b&gt;
+describes this as the return value of this method.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Retrieve model object&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @link    Mage_Core_Model_Config::getModelInstance&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param   string $modelClass&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param   array $arguments&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return  Mage_Core_Model_Abstract&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public static function getModel($modelClass = &amp;#39;&amp;#39;, $arguments = array())&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return self::getConfig()-&amp;gt;getModelInstance($modelClass, $arguments);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;I often see blocks of code where the author is attempting to get auto complete working properly by using this syntax&lt;/p&gt;
+
+&lt;p&gt;see
+&lt;b&gt;&lt;a href=&#34;https://github.com/LokeyCoding/magento-mirror/blob/magento-1.6/app/code/core/Mage/Customer/controllers/AccountController.php&#34;&gt;app/code/core/Mage/Customer/controllers/AccountController.php&lt;/a&gt;&lt;/b&gt;
+createPostAction()&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/* @var $customerForm Mage_Customer_Model_Form */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$customerForm = Mage::getModel(&amp;#39;customer/form&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This is generally the right way to do it, however I think the docblock specifying the return value on Mage:getModel clobbers it.&lt;/p&gt;
+
+&lt;p&gt;The simple solution is to move the docblock from above the Mage::getModel call to below it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$customerForm = Mage::getModel(&amp;#39;customer/form&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;/* @var $customerForm Mage_Customer_Model_Form */&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;b&gt;And it works!&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot4-600x475.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>NetBeans PHP Comments</title>
+      <link>http://example.com/netbeans/netbeans-php-comments.html</link>
+      <pubDate>Thu, 08 Sep 2011 10:35:22 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-php-comments.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Comments your code are essential to help both other developers and, in some cases, yourself understand what the code is meant to be doing.&lt;/p&gt;
+
+&lt;p&gt;When developing PHP in NetBeans there are two types of comments to consider. The first type of comments are the normal type of comments that are for a human to read and understand. This type of comments will say thing like &amp;ldquo;// This section is here to&amp;hellip;&amp;rdquo; and &amp;ldquo;// This is necessary because&amp;hellip;&amp;rdquo;. While human readable are definitely good, one of the issues when developing PHP is that it is difficult for IDEs to maintain the type of variables, the return types of methods and the type of variables that a method excepts. This is mainly because PHP is loosely typed but also because IDEs often can&amp;rsquo;t follow the inheritance hierarchy for what ever reason.&lt;/p&gt;
+
+&lt;p&gt;To get around the issues of type hierarchy and PHP been a loosely typed language, NetBeans supports type definition comments. This type of comment is intended to help the user of the IDE know what type a variable should be and also what types of variables a method expects and allow auto completion to function.&lt;/p&gt;
+
+&lt;p&gt;Example:
+&lt;code&gt;
+    /**
+     * Remove item from cart
+     *
+     * @param   int $itemId This is the id of the item to remove
+     * @return  Mage_Checkout_Model_Cart
+     */
+    public function removeItem($itemId)
+    {
+        $this-&amp;gt;getQuote()-&amp;gt;removeItem($itemId);
+        return $this;
+    }
+&lt;/code&gt;
+This example lets NetBeans know that removeItem&amp;rsquo;s one parameter should be an integer and that it returns an object of type Mage_Checkout_Model_Cart.
+&lt;img src=&#34;http://example.com/images/autocompleate1.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The other type of type comment tells NetBeans that a particular variable is of a specific type.
+For example:
+&lt;code&gt;
+class RemeberNumber {&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/** @var $theNumber int */
+protected $theNumber;
+
+public function __construct($number) {
+    $this-&amp;gt;theNumber = $number;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;}
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Because of the /** @var $theNumber int */ auto completion will now use that as the type else where with in the scope of that variable definition.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/autocompleate2.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Autocomplete on Class Properties Using PHPDoc</title>
+      <link>http://example.com/netbeans/netbeans-autocomplete-on-class-properties-using-phpdoc.html</link>
+      <pubDate>Wed, 12 May 2010 11:26:41 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-autocomplete-on-class-properties-using-phpdoc.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are using netbeans for PHP classes and you have some of your class properties are instances of other objects and you want to get autocomplete working for them, then you might struggle to figure out which PHPDoc syntax to use to get autocomplete working.&lt;/p&gt;
+
+&lt;p&gt;Here is the answer:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;* @property MyObject $myObject&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;* @property AnotherObject $anotherObject&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;*/&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;class MyClass{&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;     protected $myObject;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     protected $anotherObject;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     public function __construct($myObject, $anotherObject){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         $this-&amp;gt;myObject=$myObject;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         $this-&amp;gt;anotherObject=$anotherObject;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     public function autocomplete(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         $this-&amp;gt;myObject-&amp;gt;//autocomplete works here&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Define Variable Type in Comment</title>
+      <link>http://example.com/netbeans/netbeans-define-variable-type-in-comment.html</link>
+      <pubDate>Thu, 08 Apr 2010 12:30:56 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-define-variable-type-in-comment.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Netbeans for PHP like me (its awesome) and you ever use any kind of function or method to return objects, then you will have noticed that Netbeans&amp;rsquo; autocompletion doesn&amp;rsquo;t work for these variables.&lt;/p&gt;
+
+&lt;p&gt;However, you can make Netbeans work how you expect, by using some special comments.&lt;/p&gt;
+
+&lt;p&gt;Check out these two blog stories:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blogs.sun.com/netbeansphp/entry/defining_variable_type_in_a&#34;&gt;http://blogs.sun.com/netbeansphp/entry/defining_variable_type_in_a&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blogs.sun.com/netbeansphp/entry/defining_a_variable_type_in&#34;&gt;http://blogs.sun.com/netbeansphp/entry/defining_a_variable_type_in&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;In a nutshell, you can define a variable as being a specific object by using a comment in this format:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$o=getObject(&amp;#39;ObjectName&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;/* @var  $o ObjectName  */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$o-&amp;gt;/*autocomplete kicks in here */&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;That&amp;rsquo;s a really nice feature I think :)&lt;/p&gt;
+
+&lt;p&gt;Oh yeah, they are adding Zend Framework support as well !&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blogs.sun.com/netbeansphp/entry/zend_framework_support_added&#34;&gt;http://blogs.sun.com/netbeansphp/entry/zend_framework_support_added&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;If I ever see these guys, I&amp;rsquo;m definitely buying them a beer!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

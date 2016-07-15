@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ipn on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/ipn/</link>
+    <description>Recent content in Ipn on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 15 Oct 2014 09:53:44 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/ipn/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Intermittent PayPal IPN failure in Magento</title>
+      <link>http://example.com/magento/intermittent-paypal-ipn-failure-in-magento.html</link>
+      <pubDate>Wed, 15 Oct 2014 09:53:44 +0000</pubDate>
+      
+      <guid>http://example.com/magento/intermittent-paypal-ipn-failure-in-magento.html</guid>
+      <description>&lt;p&gt;On one or two store we had an issue with intermittent IPN failures. Some paypal orders would be stuck on the &amp;lsquo;Pending&amp;rsquo; status even if there was a sucessful paypal payment. In the exception logs there would be the following exception being thrown &amp;lsquo;PayPal IPN postback failure. See paypal_unknown_ipn.log for details.&amp;rsquo; on line 156 of app/code/core/Mage/Paypal/Model/Ipn.php.&lt;/p&gt;
+
+&lt;p&gt;###What the issue turned out to be&lt;/p&gt;
+
+&lt;p&gt;The issue turned out to be curl adding in extra error. On occasions curl will send the following header &amp;lsquo;Expect: 100&amp;rsquo;. The idea behind that is that rather than curl just send the data. It will send a inital request just to check if the web server will accept the data. Curl will usually fall on this bahaviour if the request is above a certain size.&lt;/p&gt;
+
+&lt;p&gt;It turns out that the magento implementation assumes that the response will be consitant. But with the ocasional &amp;lsquo;Expect&amp;rsquo; header bing in the request this is not always the case.&lt;/p&gt;
+
+&lt;p&gt;In the _postBack method in the IPN class where it makes the curl post back is recived there is the following code near to the end of the method.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    $response = preg_split(&amp;#39;/^\r?$/m&amp;#39;, $response, 2);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $response = trim($response[1]);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This code assumes the line position of where the &amp;lsquo;VERIFIED&amp;rsquo; line would occur. To resolve the header issue the following code should be used instead.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    $response = preg_split(&amp;#39;/^\r?$/m&amp;#39;, $response);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $response = trim(end($response));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;As the &amp;lsquo;VERIFIED&amp;rsquo; line will always be the last line in the response. Regardless of any extra headers being added. This should resolve the issue but of corse remeber to use the local method and copy the class to the local folder with the correct path before doing the modification.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Modsecurity on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/modsecurity/</link>
+    <description>Recent content in Modsecurity on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 11 Nov 2014 14:06:37 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/modsecurity/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Compile NGINX with PageSpeed and ModSecurity on CentOS</title>
+      <link>http://example.com/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html</link>
+      <pubDate>Tue, 11 Nov 2014 14:06:37 +0000</pubDate>
+      
+      <guid>http://example.com/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html</guid>
+      <description>&lt;p&gt;ModSecurity is a brilliant addition to web servers to block any nefarious requests before they hit your application.
+This improves security and reduces load if your server comes under attack as the requests are killed very quickly.&lt;/p&gt;
+
+&lt;p&gt;PageSpeed is a module provided by Google to automatically improve the performance of your web pages in the browser. In a stroke it can offer a much more responsive front end with just a few configuration options.&lt;/p&gt;
+
+&lt;p&gt;Nginx is a very fast and lightweight web server ideal for using with back end servers such as PHP-FPM.&lt;/p&gt;
+
+&lt;p&gt;Here is a script that will download and compile Nginx with the two modules and also apply the correct ModSecurity configuration.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Please run as root&amp;quot;&lt;/span&gt;
+yum install gcc-c++ pcre-dev pcre-devel zlib-devel make unzip
+
+&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1.9.32.2&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1.7.7&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;MODSEC_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2.8.0
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_EXTRA_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; --with-http_realip_module --with-http_ssl_module &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/opt/nginx_with_pagespeed_and_mod_security
+
+mkdir -p &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Mod Security&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Installing dependencies, grabbing the repo, checking out the tag for our version and building it&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;------------&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+yum install libtool httpd-devel libxml2 libxml2-devel
+git clone https://github.com/SpiderLabs/ModSecurity.git
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ModSecurity
+git checkout tags/v&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;MODSEC_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+./autogen.sh
+./configure --enable-standalone-module --disable-mlogc
+make
+make install
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; --add-module=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/ModSecurity/nginx/modsecurity &amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Mod Security Config and Rules&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;-----------------------------&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;For nginx, we have to get all the config and cat it all into one single config file&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+wget https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended
+cat modsecurity.conf-recommended  &amp;gt; /etc/nginx/modsecurity.conf
+wget https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master -O owasp-modsecurity-crs.tar.gz
+tar -xvzf owasp-modsecurity-crs.tar.gz
+&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;find . -type d -name SpiderLabs-owasp-modsecurity-crs*&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+cat &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/modsecurity_crs_10_setup.conf.example &amp;gt;&amp;gt; /etc/nginx/modsecurity.conf
+cat &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/base_rules/modsecurity_*.conf &amp;gt;&amp;gt; /etc/nginx/modsecurity.conf
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; f in &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;find &lt;span class=&#34;nv&#34;&gt;$CRS_DIR&lt;/span&gt; -type f -name *.data&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;FILE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;basename &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;cp &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; /etc/nginx/&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$FILE&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+cp ModSecurity/unicode.mapping /etc/nginx/unicode.mapping
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Page Speed&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;----------&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Downlading the pagespeed version and building this&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+wget https://github.com/pagespeed/ngx_pagespeed/archive/release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta.zip
+unzip release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta.zip
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ngx_pagespeed-release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta/
+wget https://dl.google.com/dl/page-speed/psol/&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+tar -xzvf &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz  &lt;span class=&#34;c1&#34;&gt;# extracts to psol/&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; --add-module=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/ngx_pagespeed-release-&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;-beta &amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Nginx&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;-----&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;Finally, compiling Nginx with our extra modules and the added modules and installing it&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+wget http://nginx.org/download/nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+tar -xvzf nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/
+./configure &lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$NGINX_EXTRA_MODULES&lt;/span&gt;
+make
+sudo make install
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;COMPLETED INSTALL - CHECKING&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;checking the nginx version now, should be &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; and you should see our modules&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+nginx -V
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;And now doing a config test&amp;quot;&lt;/span&gt;
+/etc/init.d/nginx configtest
+
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;SCRIPT COMPLETED&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;However, you are not there yet&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;You need to go and look at the /etc/nginx/modsecurity.conf file and change settings there as appropriate&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Also you need to modify your nginx vhost config - see:&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Google Checkout, 501 Error with Mod Security &#43; Solution</title>
+      <link>http://example.com/security/google-checkout-501-error-with-mod-security-solution.html</link>
+      <pubDate>Thu, 26 Mar 2009 10:48:57 +0000</pubDate>
+      
+      <guid>http://example.com/security/google-checkout-501-error-with-mod-security-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are pulling your hair out trying to figure out why you are seeing a 501 error in your Google Checkout integration console I may well have the answer and solution for you.&lt;/p&gt;
+
+&lt;p&gt;This is the error message you will see in the integration console.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+ 	We encountered an error trying to access your server at https://domain.co.uk/googlecheckout/api/ -- the error we got is Sending failed with HTTP response code: 501. Response body was: &amp;lt;HTML&amp;gt; &amp;lt;HEAD&amp;gt; &amp;lt;TITLE&amp;gt;501 Not Implemented&amp;lt;/TITLE&amp;gt; &amp;lt;/HEAD&amp;gt; &amp;lt;BODY&amp;gt; &amp;lt;H1&amp;gt;Not Implemented&amp;lt;/H1&amp;gt; The page you are looking for cannot be displayed because a header value in the request does not match certain configuration settings on the Web server.&amp;lt;P&amp;gt; &amp;lt;HR&amp;gt; &amp;lt;ADDRESS&amp;gt; Web Server at domain.co.uk &amp;lt;/ADDRESS&amp;gt; &amp;lt;/BODY&amp;gt; &amp;lt;/HTML&amp;gt; &amp;lt;!-- - Unfortunately, Microsoft has added a clever new - &amp;quot;feature&amp;quot; to Internet Explorer. If the text of - an error&#39;s message is &amp;quot;too small&amp;quot;, specifically - less than 512 bytes, Internet Explorer returns - its own error message. You can turn that off, - but it&#39;s pretty tricky to find switch called - &amp;quot;smart error messages&amp;quot;. That means, of course, - that short error messages are censored by default. - IIS always returns error messages that are long - enough to make Internet Explorer happy. The - workaround is pretty simple: pad the error - message with a big comment like this to push it - over the five hundred and twelve bytes minimum. - Of course, that&#39;s exactly what you&#39;re reading - right now. --&amp;gt; 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The first thing to do is log into your server via SSH and examine the error logs.&lt;/p&gt;
+
+&lt;p&gt;find the error logs, open the file up in vi using this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+vi error_log
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then go to the bottom of the file using the ```shift
+ + [g] shortcut. Then to search backwards in the log use the following command:&lt;/p&gt;
+
+&lt;p&gt;[code]
+?ModSecurity&lt;/p&gt;
+
+&lt;p&gt;```&lt;/p&gt;
+
+&lt;p&gt;If you find something with this error message then you have mod security installed. If you search around you may well find an error message like this:&lt;/p&gt;
+
+&lt;blockquote&gt;
+[Thu Mar 26 10:22:11 2009] [error] [client 94.229.166.12] ModSecurity: Access denied with code 501 (phase 2). Match of &#34;rx (?:^(?:application\\/x-www-form-urlencoded(?:;(?:\\s?charset\\s?=\\s?[\\w\\d\\-]{1,18})?)??$|multipart/form-data;)|text/xml)&#34; against &#34;REQUEST_HEADERS:Content-Type&#34; required. [file &#34;/etc/httpd/modsecurity.d/modsecurity_crs_30_http_policy.conf&#34;] [line &#34;71&#34;] [id &#34;960010&#34;] [msg &#34;Request content type is not allowed by policy&#34;] [severity &#34;WARNING&#34;] [tag &#34;POLICY/ENCODING_NOT_ALLOWED&#34;] [hostname &#34;247electrical.co.uk&#34;] [uri &#34;/googlecheckout/api&#34;] [unique_id &#34;-UMIen8AAAEAAFsDLH4AAAAB&#34;]
+&lt;/blockquote&gt;
+
+&lt;p&gt;This error message tells us which particular rule is causing it to fail. What we need to do now is either edit this rule or disable it altogether. I will first try to edit it so that the request can get through, but the rule is still active. The rule we need to edit is in this rules file:&lt;/p&gt;
+
+&lt;p&gt;modsecurity_crs_30_http_policy.conf&lt;/p&gt;
+
+&lt;p&gt;and is on line 71.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m no mod security expert. Having had a quick look through the documentation I am not sure how to edit this rule to allow Google Checkout callbacks through. So for the time being I am going to disable this particular rule altogether by adding a  # in front of lines 70,71 and 72.&lt;/p&gt;
+
+&lt;p&gt;If any mod security experts out there read this blog and know a better solution please do post it in the comments.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

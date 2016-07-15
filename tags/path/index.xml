@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Path on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/path/</link>
+    <description>Recent content in Path on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 08 Aug 2012 13:43:30 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/path/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP Realpath for None Existant Paths</title>
+      <link>http://example.com/php/php-realpath-for-none-existant-paths.html</link>
+      <pubDate>Wed, 08 Aug 2012 13:43:30 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-realpath-for-none-existant-paths.html</guid>
+      <description>&lt;p&gt;If you want the functionality of realpath, to take a path containing relative elements such as /../ then this little function is exactly what you are looking for.&lt;/p&gt;
+
+&lt;p&gt;PHP&amp;rsquo;s built in realpath function will return false if the file or folder does not exist. Unfortunately when using complex paths then this can make debugging things a little complicated.&lt;/p&gt;
+
+&lt;p&gt;To resolve this simply use this function:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function normalizePath($path) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    return array_reduce(explode(&amp;#39;/&amp;#39;, $path), create_function(&amp;#39;$a, $b&amp;#39;, &amp;#39;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			if($a === 0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				$a = &amp;quot;/&amp;quot;;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;			if($b === &amp;quot;&amp;quot; || $b === &amp;quot;.&amp;quot;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				return $a;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;			if($b === &amp;quot;..&amp;quot;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				return dirname($a);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;			return preg_replace(&amp;quot;/\/+/&amp;quot;, &amp;quot;/&amp;quot;, &amp;quot;$a/$b&amp;quot;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		&amp;#39;), 0);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$path = dirname(__FILE__) . &amp;#39;/../../../folder/&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$path = normalizePath($path);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;echo $path; // /var/www/vhosts/domain.com/folder&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Tip: Javascript late-loading trick</title>
+      <link>http://example.com/javascript/tip-javascript-late-loading-trick.html</link>
+      <pubDate>Fri, 30 Mar 2012 14:36:08 +0000</pubDate>
+      
+      <guid>http://example.com/javascript/tip-javascript-late-loading-trick.html</guid>
+      <description>&lt;p&gt;Having issues with javascript dependencies or awkwardly structured html defining objects you need before run?&lt;/p&gt;
+
+&lt;p&gt;This is a little trick I used combined with &lt;a href=&#34;https://github.com/csnover/RoundRect&#34;&gt;csnover&amp;rsquo;s roundrect.js&lt;/a&gt; to provide IE versions &amp;lt; 9 with border-radius rounded corners.&lt;/p&gt;
+
+&lt;p&gt;Create a separate source file e.g. mylateloader.js and in it include the following code :-&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+function myInArray(needle, haystack) {
+    var length = haystack.length;
+    for(var i = 0; i &amp;lt; length; i++) {
+        var str = jQuery(haystack[i]).attr(&#39;src&#39;);
+        if(typeof(str) != &#39;undefined&#39; &amp;amp;&amp;amp; str.search(&#39;.*&#39;+needle+&#39;.*&#39;) &amp;gt; -1) return str;
+    }
+    return false;
+}
+
+jQuery(document).ready(function(){
+    var script = document.createElement(&#39;script&#39;);
+    url = myInArray(&#39;mylateloader.js&#39;, document.getElementsByTagName(&#39;script&#39;));
+    script.src = url.replace(&#39;mylateloader.js&#39;,&#39;mycoolminifiedfile.min.js&#39;);
+    document.getElementsByTagName(&#39;head&#39;)[0].appendChild(script);
+    setTimeout(&amp;quot;mycoolobject.run()&amp;quot;,2000);
+})
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That way, at document.ready(), mycoolminifiedfile.min.js is loaded &lt;em&gt;from the same directory on the server as the late loader js&lt;/em&gt; and 2 seconds later, the mycoolobject.run() is called.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans &#43; Xdebug Not Highlighting Lines or Opening Files when Step Through Debugging &#43; Solution</title>
+      <link>http://example.com/php/netbeans-xdebug-not-highlighting-lines-or-opening-files-when-step-through-debugging-solution.html</link>
+      <pubDate>Fri, 14 Oct 2011 10:27:39 +0000</pubDate>
+      
+      <guid>http://example.com/php/netbeans-xdebug-not-highlighting-lines-or-opening-files-when-step-through-debugging-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Netbeans along with Xdebug to facilitate step through debugging when coding PHP then you may come across this issue.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s possible to get it into a semi working scenario where you can have working breakpoints and see variable values but you have no idea which bit of code you are actually stepped up to.&lt;/p&gt;
+
+&lt;p&gt;This can happen if your server path and project path are not correctly configured.&lt;/p&gt;
+
+&lt;p&gt;To resolve this simply go to your project properties, run configuration and then hit the advanced button.&lt;/p&gt;
+
+&lt;p&gt;The server path should be the absolute path to the project root on the server (eg /home/server/sites/blah/) and the project path should be the path on your local machine to the project files (eg /home/joseph/projects/blah/).&lt;/p&gt;
+
+&lt;p&gt;Stop any debugging sessions and then start another one up and if you have the paths set right, you should get the behaviour you expect where Netbeans highlights the current line of code and allows you to step through the code to figure out what&amp;rsquo;s going on.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Path Tools Plugin</title>
+      <link>http://example.com/netbeans/netbeans-path-tools-plugin.html</link>
+      <pubDate>Mon, 16 May 2011 11:01:46 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-path-tools-plugin.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Just stumbled across a simple and incredibly useful Netbeans plugin.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://plugins.netbeans.org/plugin/676/path-tools&#34;&gt;http://plugins.netbeans.org/plugin/676/path-tools&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Path Tools.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s not listed in the standard list of available plugins, but if you download the nbm file and just drag and drop it into the plugin install dialog window it works easily enough.&lt;/p&gt;
+
+&lt;p&gt;Once installed you can right click any folder or file and explore in the OS file manager (Nautilus for example). You can also set up shell commands. From this point your imagination is your only restriction, this gives you easy integration to various external tools.&lt;/p&gt;
+
+&lt;p&gt;Nice :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Template Path Hints in Admin - Updated</title>
+      <link>http://example.com/magento/magento-template-path-hints-in-admin-updated.html</link>
+      <pubDate>Thu, 21 Apr 2011 14:46:14 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-template-path-hints-in-admin-updated.html</guid>
+      <description>&lt;p&gt;A while ago we posted a technique for displaying template path hints in admin which involved running a couple of DB queries. That worked, but a nicer method is to create a custom module with some special XML config to get it configurable as standard.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;
+&amp;lt;config&amp;gt;
+    &amp;lt;sections&amp;gt;
+        &amp;lt;dev translate=&amp;quot;label&amp;quot; module=&amp;quot;core&amp;quot;&amp;gt;
+            &amp;lt;groups&amp;gt;
+                &amp;lt;debug translate=&amp;quot;label&amp;quot;&amp;gt;
+                    &amp;lt;fields&amp;gt;
+                        &amp;lt;template_hints translate=&amp;quot;label&amp;quot;&amp;gt;
+                            &amp;lt;frontend_type&amp;gt;select&amp;lt;/frontend_type&amp;gt;
+                            &amp;lt;source_model&amp;gt;adminhtml/system_config_source_yesno&amp;lt;/source_model&amp;gt;
+                            &amp;lt;sort_order&amp;gt;20&amp;lt;/sort_order&amp;gt;
+                            &amp;lt;show_in_default&amp;gt;1&amp;lt;/show_in_default&amp;gt;
+                            &amp;lt;show_in_website&amp;gt;1&amp;lt;/show_in_website&amp;gt;
+                            &amp;lt;show_in_store&amp;gt;1&amp;lt;/show_in_store&amp;gt;
+                        &amp;lt;/template_hints&amp;gt;
+                        &amp;lt;template_hints_blocks translate=&amp;quot;label&amp;quot;&amp;gt;
+                            &amp;lt;label&amp;gt;Add Block Names to Hints&amp;lt;/label&amp;gt;
+                            &amp;lt;frontend_type&amp;gt;select&amp;lt;/frontend_type&amp;gt;
+                            &amp;lt;source_model&amp;gt;adminhtml/system_config_source_yesno&amp;lt;/source_model&amp;gt;
+                            &amp;lt;sort_order&amp;gt;21&amp;lt;/sort_order&amp;gt;
+                            &amp;lt;show_in_default&amp;gt;1&amp;lt;/show_in_default&amp;gt;
+                            &amp;lt;show_in_website&amp;gt;1&amp;lt;/show_in_website&amp;gt;
+                            &amp;lt;show_in_store&amp;gt;1&amp;lt;/show_in_store&amp;gt;
+                        &amp;lt;/template_hints_blocks&amp;gt;
+                    &amp;lt;/fields&amp;gt;
+                &amp;lt;/debug&amp;gt;
+            &amp;lt;/groups&amp;gt;
+        &amp;lt;/dev&amp;gt;
+    &amp;lt;/sections&amp;gt;
+&amp;lt;/config&amp;gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Original credits and full instructions here:
+&lt;a href=&#34;http://www.deanoj.co.uk/web-development/magento/magento-template-path-hints-in-adminhtml/&#34;&gt;http://www.deanoj.co.uk/web-development/magento/magento-template-path-hints-in-adminhtml/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Cheers Deano :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Media Save Path Dispretion Method</title>
+      <link>http://example.com/magento/magento-media-save-path-dispretion-method.html</link>
+      <pubDate>Thu, 17 Feb 2011 15:28:57 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-media-save-path-dispretion-method.html</guid>
+      <description>&lt;p&gt;If you want to calculate the actual save path that Magento will use for an image file for example then you might find yourself scouring the source code for the specific method that does this.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s not the easiest to find, in fact its tucked away in the lib folder inside the Varien_File_Uploader class.&lt;/p&gt;
+
+&lt;p&gt;The method in question is a usefully static method Varien_File_Uploader::getDispretionPath();&lt;/p&gt;
+
+&lt;p&gt;Sorted!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get Script Location in Bash Regardless of Location Launched From</title>
+      <link>http://example.com/php/get-script-location-in-bash-regardless-of-location-launched-from.html</link>
+      <pubDate>Mon, 29 Nov 2010 12:53:16 +0000</pubDate>
+      
+      <guid>http://example.com/php/get-script-location-in-bash-regardless-of-location-launched-from.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Bash scripts are often used to work on files and the current working directory is of paramount importance.&lt;/p&gt;
+
+&lt;p&gt;However, you may have scripts that are running in a development environment and also a live environment with different folder setups.&lt;/p&gt;
+
+&lt;p&gt;To help with portability and remove the requirement to hard code paths, you can use this little snippet&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+DIR=&amp;quot;$( cd &amp;quot;$( dirname &amp;quot;$0&amp;quot; )&amp;quot; &amp;amp;&amp;amp; pwd )&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For example, I have a system all running from a folder with one subfolder called processes (where my scripts are located) and another folder called launcher which actually handles the application.&lt;/p&gt;
+
+&lt;p&gt;The processes scripts generally launch a sequence of actions in one go.&lt;/p&gt;
+
+&lt;p&gt;Here is how I am using the above snippet&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+
+#!/bin/bash
+
+DIR=&amp;quot;$( cd &amp;quot;$( dirname &amp;quot;$0&amp;quot; )&amp;quot; &amp;amp;&amp;amp; pwd )&amp;quot;
+
+cd $DIR
+
+cd ../launcher
+
+pwd
+
+./shellLauncher.php Scraper importCsvFile
+
+./shellLauncher.php Scraper scrapeNewProducts
+
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This script cd&amp;rsquo;s to the script location first (the processes sub folder) then goes back up the folder structure and into the launcher folder before launching the individual actions that make up this process.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Calibre Save Template - Save to Device in Custom Folder Structure</title>
+      <link>http://example.com/php/calibre-save-template-save-to-device-in-custom-folder-structure.html</link>
+      <pubDate>Sun, 21 Nov 2010 22:06:50 +0000</pubDate>
+      
+      <guid>http://example.com/php/calibre-save-template-save-to-device-in-custom-folder-structure.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Calibre to manage your ebooks and ereading device, then this might be of interest.&lt;/p&gt;
+
+&lt;p&gt;Calibre is an excellent open source ebook management system, however some elements of its configuration are a little complex.&lt;/p&gt;
+
+&lt;p&gt;If you want to save books in a custom folder structure then its easy (and very powerful) with liberal use of regex or regex like patterns.&lt;/p&gt;
+
+&lt;p&gt;For reference, here is my send to devices save template:
+&lt;script type=&#34;text/javascript&#34; src=&#34;http://snipt.net/embed/f2adeff9ab53daeca290680c9e10189c&#34;&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;If you want to learn more about it see this manual page:
+&lt;a href=&#34;http://calibre-ebook.com/user_manual/template_lang.html#templatelangcalibre&#34; target=&#34;_blank&#34;&gt;http://calibre-ebook.com/user_manual/template_lang.html#templatelangcalibre&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Template Path Hints - In Admin!</title>
+      <link>http://example.com/magento/magento-template-path-hints-in-admin.html</link>
+      <pubDate>Sat, 25 Sep 2010 10:37:22 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-template-path-hints-in-admin.html</guid>
+      <description>&lt;p&gt;If you love template path hints in Magento for quickly figuring out which template file or block you need to edit or override and have a requirement for some admin side coding, you are going to love this.&lt;/p&gt;
+
+&lt;p&gt;You might not have thought it was possible to enable template path hints in admin, but it is!&lt;/p&gt;
+
+&lt;p&gt;Just run this query:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;INSERT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;INTO&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;core_config_data&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;scope&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;scope_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;VALUES&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;dev/debug/template_hints&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;dev/debug/template_hints_blocks&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To disable them again, run this query&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;UPDATE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;core_config_data&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;where&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;scope&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;scope_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;path&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;dev/debug/template_hints&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To enable again run this query&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;UPDATE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;core_config_data&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;where&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;scope&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;scope_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;path&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;dev/debug/template_hints&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Make Multiple Directories in One Go - Yes!</title>
+      <link>http://example.com/ubuntu/make-multiple-directories-in-one-go-yes.html</link>
+      <pubDate>Tue, 03 Nov 2009 15:23:39 +0000</pubDate>
+      
+      <guid>http://example.com/ubuntu/make-multiple-directories-in-one-go-yes.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you work with applications that have a lot of nested directories (ahem Magento) then you might really like this.&lt;/p&gt;
+
+&lt;p&gt;In one command, you can make an entire path of nested directories with the command mkdirhier.&lt;/p&gt;
+
+&lt;p&gt;eg&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mkdirhier EC/Custom/Model/Blah/Something/Really/Deep
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You need to have xutils-dev installed&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo apt-get install xutils-dev
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Oh yeah of course you have to be running a proper developers operating system as well :)&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

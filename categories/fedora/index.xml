@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Fedora on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/fedora/</link>
+    <description>Recent content in Fedora on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 10 Sep 2014 17:38:09 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/fedora/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Fedora Live USB Key Creation</title>
+      <link>http://example.com/fedora/fedora-live-usb-key-creation.html</link>
+      <pubDate>Wed, 10 Sep 2014 17:38:09 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/fedora-live-usb-key-creation.html</guid>
+      <description>&lt;p&gt;I have had continual problems getting most of my USB keys to work as liveusb drives.&lt;/p&gt;
+
+&lt;p&gt;This is pretty awkward however it looks like I have now found a solution that works. Instead of using the official Fedora live USB creator, we are going to use something called livecd-iso-to-disk&lt;/p&gt;
+
+&lt;p&gt;First of all install it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo yum -y install livecd-tools
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then this is your command to create the liveusb. Note you need to set the sdX to whichever your USB key is using, and of course make sure the path to the iso file is correct&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo livecd-iso-to-disk --format --msdos --reset-mbr --overlay-size-mb &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; --home-size-mb &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; ~/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso /dev/sdc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Getting Skype Working on Fedora 20</title>
+      <link>http://example.com/fedora/getting-skype-working-on-fedora-20.html</link>
+      <pubDate>Fri, 17 Jan 2014 14:45:29 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/getting-skype-working-on-fedora-20.html</guid>
+      <description>&lt;p&gt;I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&amp;rsquo;t completely smooth, there were a few hoops I had to jump through.&lt;/p&gt;
+
+&lt;p&gt;I am making a note of these here for my own future reference and to help out any one else hitting problems like these.&lt;/p&gt;
+
+&lt;p&gt;To install Skype on Fedora 20 64bit, the first thing you need to do is download the &lt;a href=&#34;http://www.skype.com/en/download-skype/skype-for-linux/&#34; target=&#34;_blank&#34;&gt;Fedora 32bit RPM from Skype&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;To install this you should use Yum so that dependancies are handled properly:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
+After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
+One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.&lt;/p&gt;
+
+&lt;p&gt;Here is the process in commands:&lt;/p&gt;
+
+&lt;p&gt;Firstly remove the package and install the i686 version&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;yum remove libvpx.x86_64
+yum install libvpx.i686
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then install Skype&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then reinstall the 64 bit version of libvpx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; yum install libvpx.x86_64 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then reinstall the programs that were removed when I removed libvpx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo gnome-open /usr/share/applications/skype.desktop
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Change the line that reads &lt;strong&gt;Exec=skype %U&lt;/strong&gt; to the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Exec=env PULSE_LATENCY_MSEC=30 skype %U&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Restart Skype and the audio issues should be resolved.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Upgrading from Fedora 19 to 20 using FedUp</title>
+      <link>http://example.com/fedora/upgrading-from-fedora-19-to-20-using-fedup.html</link>
+      <pubDate>Fri, 03 Jan 2014 19:32:48 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/upgrading-from-fedora-19-to-20-using-fedup.html</guid>
+      <description>&lt;p&gt;I decided to upgrade to the latest version because why not, its the first Friday of the year.&lt;/p&gt;
+
+&lt;p&gt;The first thing to do is head over to &lt;a href=&#34;https://fedoraproject.org/wiki/FedUp&#34; target=&#34;_blank&#34;&gt;this page&lt;/a&gt; which explains how to use the tool.&lt;/p&gt;
+
+&lt;p&gt;I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y --enablerepo=updates-testing install fedup
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y update
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once that is all done then you need to run the fedup command itself:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y update fedup fedora-release
+sudo fedup --network 20
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
+sudo fedup --network 20
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
+It takes a while, make a brew or something.&lt;/p&gt;
+
+&lt;p&gt;Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
+&lt;a href=&#34;https://extensions.gnome.org/local/&#34; target=&#34;_blank&#34;&gt;https://extensions.gnome.org/local/&lt;/a&gt; and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
+When that&amp;rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.&lt;/p&gt;
+
+&lt;p&gt;For me the only one I&amp;rsquo;m really going to miss is the &lt;a href=&#34;https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/&#34; target=&#34;_blank&#34;&gt;Quick Close in Overview&lt;/a&gt; which is really handy, hopefully will be updated soon.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Fedora Yum Update Failing - RPMFusion &#43; Solution</title>
+      <link>http://example.com/fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html</link>
+      <pubDate>Thu, 02 Jan 2014 10:42:59 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html</guid>
+      <description>&lt;p&gt;I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.&lt;/p&gt;
+
+&lt;p&gt;To see what was really going on I ran yum update from the command line&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y update
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This died with the following error message:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Couldn&#39;t open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.&lt;/p&gt;
+
+&lt;p&gt;To do that you can run this simple command (again in the command line):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;su -c &#39;yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I did this and then ran the yum update command again and everything is fixed.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Setting up a Fedora 19 based PHP Development Installation</title>
+      <link>http://example.com/fedora/setting-up-a-fedora-19-based-php-development-installation.html</link>
+      <pubDate>Thu, 31 Oct 2013 10:25:52 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/setting-up-a-fedora-19-based-php-development-installation.html</guid>
+      <description>&lt;p&gt;I have decided to switch from Debian/Ubuntu/Mint which has served me very well over the last few years and move towards more of a RedHat based distribution as it seems that servers these days are more commonly CentOS or RedHat based and I always like to keep my development environment as close as I can to the server environment for all kinds of reason.&lt;/p&gt;
+
+&lt;p&gt;Also, I have decided that I really quite like Gnome Shell and it makes sense to pick a distribution that is properly bundled with Gnome Shell rather than bolting it into a distro after installation.&lt;/p&gt;
+
+&lt;h3&gt;1. Install Apache and PHP 5.5&lt;/h3&gt;
+You need to become root first, stay as root for the rest of the steps.
+
+```bash
+
+su
+rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm 
+rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm
+rpm -Uvh http://rpms.famillecollet.com/remi-release-19.rpm
+yum --enablerepo=remi install httpd php php-common
+yum --enablerepo=remi install php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml
+
+```
+
+&lt;h3&gt;2. Set that to start up automatically (you are going to be developing none stop right?)&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;service httpd start
+systemctl &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; httpd.service
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3&gt;3. Create a test PHP file to confirm thats all working&lt;/h3&gt;
+
+&lt;p&gt;Extra bit here, install &lt;a href=&#34;http://vim.spf13.com/&#34; target=&#34;_blank&#34;&gt;this version of Vim&lt;/a&gt;, its quite tasty:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;curl http://j.mp/spf13-vim3 -L -o - &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now create your PHP file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;vim /var/www/html/test.php
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;May as well just throw a phpinfo() in there&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;phpinfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And now check it: &lt;a href=&#34;http://localhost/test.php&#34;&gt;http://localhost/test.php&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;4. Finally lets get a MySQL version installed. Lets choose MariaDB&lt;/h3&gt;
+I tried Percona but it does not have a proper Fedora version. Then I discovered that Fedora have adopted MariaDB which is fine by me, lets go with the flow:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum install mariadb mariadb-server
+systemctl start mysqld.service
+systemctl &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; mysqld.service
+/usr/bin/mysql_secure_installation
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it, next up is getting Java and PhpStorm installed and also phpMyAdmin&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

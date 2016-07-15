@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mysql on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/mysql/</link>
+    <description>Recent content in Mysql on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 03 Dec 2013 12:40:04 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/mysql/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Sorting Results Arbitrarily in MySQL</title>
+      <link>http://example.com/mysql/sorting-results-arbitrarily-in-mysql.html</link>
+      <pubDate>Tue, 03 Dec 2013 12:40:04 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/sorting-results-arbitrarily-in-mysql.html</guid>
+      <description>&lt;p&gt;When you have a result set in MySQL that you need to order in a specific way you might think that it is not possible and instead you are going to have to read all
+of your results into your application domain (eg PHP) and manage the sorting from there. On a large results set that could be seriously inefficient.&lt;/p&gt;
+
+&lt;p&gt;The truth is that you don&amp;rsquo;t have to do that. You can specify any kind of sort order including sorting by string values as you see fit.&lt;/p&gt;
+
+&lt;p&gt;The way to do this is to use the magic of &lt;a href=&#34;http://dev.mysql.com/doc/refman/5.0/en/string-functions.html#function_find-in-set&#34; target=&#34;_blank&#34;&gt;FIND_IN_SET&lt;/a&gt; combined with ORDER BY.&lt;/p&gt;
+
+&lt;p&gt;For a full example see this query that is pulling out product images from a data repository in descending image size as described in one of the columns as a string.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prodID&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;dcmv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaValueName&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;resolution&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cds_DigContent&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cds_DigContent_Links&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cds_DigContent_Meta&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcm&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dcm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaAtrId&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cds_DigContent_Meta_ValVoc&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcmv&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dcmv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaValueId&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaValueId&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mediaTypeId&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;15&lt;/span&gt;
+      &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prodId&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;{$this-&amp;gt;getCnetProdID()}&amp;#39;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;ORDER&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BY&lt;/span&gt;
+  &lt;span class=&#34;nf&#34;&gt;FIND_IN_SET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dcmv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaValueName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;2400 x 1800,1200 x 900,1024 x 768,800 x 600,640 x 480,400 x 300,200 x 150,75 x 75&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;LIMIT&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Substring not Returning Anything &#43; Solution</title>
+      <link>http://example.com/mysql/mysql-substring-not-returning-anything-solution.html</link>
+      <pubDate>Tue, 20 Aug 2013 10:54:20 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-substring-not-returning-anything-solution.html</guid>
+      <description>&lt;p&gt;If you are puzzled why your simple usage of the MySQL SUBSTRING() function is not returning anything this could be your solution.&lt;/p&gt;
+
+&lt;p&gt;The substring function allows you to specify a string (eg a column), the start character and the length. If you are used to languages like PHP then you are probably used to this kind of function regarding 0 as the starting character. In fact this function regards 1 as the starting character. If you specify 0 then you simply won&amp;rsquo;t get any results.&lt;/p&gt;
+
+&lt;p&gt;This does not work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+SELECT SUBSTRING(column, 0, 10) as tenchars
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This does work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+SELECT SUBSTRING(column, 1, 10) as tenchars
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>ERROR 1062 (23000) at line [Line No]: Duplicate entry for key &#39;[Key Name]&#39;</title>
+      <link>http://example.com/mysql/error-1062-23000-at-line-line-no-duplicate-entry-for-key-key-name.html</link>
+      <pubDate>Tue, 02 Jul 2013 14:09:53 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/error-1062-23000-at-line-line-no-duplicate-entry-for-key-key-name.html</guid>
+      <description>&lt;p&gt;Importing a database dump from one location using mysqldump, and them importing it into a blank database I received this error:&lt;/p&gt;
+
+&lt;p&gt;ERROR 1062 (23000) at line [Line No]: Duplicate entry for key &amp;lsquo;[Key Name]&amp;rsquo;&lt;/p&gt;
+
+&lt;p&gt;The issue here is that a constraint is set up to prevent two rows containing the same value. Although key checks are disabled, it still can&amp;rsquo;t add the rows. Sometimes as a useful technique to just get it running locally (obviously there&amp;rsquo;s an issue here which does need resolving), simply change the &amp;ldquo;INSERT INTO&amp;rdquo; statement to &amp;ldquo;INSERT IGNORE INTO&amp;rdquo;, which will skip that entry.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SQLSTATE[28000]: Invalid authorization specification: 1045 Access denied for user &#43; Solution</title>
+      <link>http://example.com/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html</link>
+      <pubDate>Tue, 12 Feb 2013 18:03:29 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html</guid>
+      <description>&lt;p&gt;I have recently been running some MySql scripts that wrote to a file.&lt;/p&gt;
+
+&lt;p&gt;These worked fine locally, but as soon as I deployed them I started to get the error above.&lt;/p&gt;
+
+&lt;p&gt;After much looking around I came across this solution.&lt;/p&gt;
+
+&lt;p&gt;When I was developing locally, I was connecting with a user that had global privileges. When I was running the code on the server I was connecting with a user that only had privileges for the database I was using.&lt;/p&gt;
+
+&lt;p&gt;The issue is that then FILE privilege is a Global setting, so the user did not have access to it, hence the access denied message.&lt;/p&gt;
+
+&lt;p&gt;Grant FILE privileges and you can connect as expected&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL 5.1 to 5.5 Migration</title>
+      <link>http://example.com/mysql/mysql-5-1-to-5-5-migration.html</link>
+      <pubDate>Tue, 18 Sep 2012 11:09:09 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-5-1-to-5-5-migration.html</guid>
+      <description>&lt;p&gt;According to pretty much every source there&amp;rsquo;s only one sensible way to migrate from 5.0, 5.1 or 5.2 to 5.5 of mysql (or mariadb/percona for that matter), and it&amp;rsquo;s not pretty (for a server with only two active magento installations for instance, this will take about 3 hours).&lt;/p&gt;
+
+&lt;p&gt;The answer is that you have to do an sql dump and restore.  This does take an age but does at least provide the reassurance that you are going to have nice clean databases after the upgrade.&lt;/p&gt;
+
+&lt;p&gt;So the commands are :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mysqldump --all-databases --routines --events &amp;gt; fulldump.sql
+mysqldump mysql --tables user &amp;gt; users.sql
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then upgrade mysql binaries to 5.5 and empty the database directory - such as /var/lib/mysql and start mysql with it&amp;rsquo;s script (e.g. /etc/init.d/mysql start).   Note, if you&amp;rsquo;re using a distribution that doesn&amp;rsquo;t come with start scripts, you may want to run mysql_install as root before starting mysql however you start it.&lt;/p&gt;
+
+&lt;p&gt;Then the following will restore the databases and users :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mysql -u root &lt;span class=&#34;c1&#34;&gt;# add -p if you set up a default password when upgrading/installing 5.5&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\r&lt;/span&gt; mysql
+&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; users.sql
+&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; fulldump.sql
+FLUSH PRIVILEGES&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\q&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Server Gone Away - Large Packets the Issue?</title>
+      <link>http://example.com/mysql/mysql-server-gone-away-large-packets-the-issue.html</link>
+      <pubDate>Wed, 15 Aug 2012 12:58:23 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-server-gone-away-large-packets-the-issue.html</guid>
+      <description>&lt;p&gt;If you are scratching your head trying to figure out why you keep getting MySQL server gone away error messages despite the fact you have bumped up all the timeout etc configurations to high values then this could be your solution.&lt;/p&gt;
+
+&lt;p&gt;MySQL will also give you this error if you try to send a packet that is larger than the packet size defined. We had an application that was using MariaDB which has a default max allowed packet of 16M by default.&lt;/p&gt;
+
+&lt;p&gt;The application in question was sending large amounts of data to be stored and so the solution to the gone away issues was simply to increase the max_allowed_packet configuration in my.cnf, restart the mysql daemon and the problems are sorted.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Wondering what you&#39;re waiting for? Mytop tells all</title>
+      <link>http://example.com/mysql/wondering-what-youre-waiting-for-mytop-tells-all.html</link>
+      <pubDate>Tue, 14 Aug 2012 16:03:11 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/wondering-what-youre-waiting-for-mytop-tells-all.html</guid>
+      <description>&lt;p&gt;Mytop is a handy utility which shows what queries are currently being executed on your MySQL server - useful for those times when you&amp;rsquo;re not quite sure if it&amp;rsquo;s still on the job&lt;/p&gt;
+
+&lt;p&gt;Running mytop is easy, just run it from the command line and it&amp;rsquo;ll give you a top-like list of any queries currently being executed on the server
+You need to tell my top how it should connect to your database. You &lt;em&gt;can&lt;/em&gt; specify everything as parameters on the command, such as&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;$ mytop -u&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;myuser -p&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mypassword --db&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mydatabase -P&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3306
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;But chances are you&amp;rsquo;re not changing your database server &lt;em&gt;that&lt;/em&gt; often.&lt;/p&gt;
+
+&lt;h3&gt;Setting the default parameters for mytop&lt;/h3&gt;
+
+&lt;p&gt;If you want to save yourself the effort of repeatedly typing the same details over and over, just tell mytop what you want it to choose if you don&amp;rsquo;t tell it any parameters&lt;/p&gt;
+
+&lt;p&gt;All you need to do is let mytop know how to connect to your MySQL database in the form of a config file called .mytop in your home folder, with the following contents (replace as necessary):
+&lt;blockquote&gt;
+&lt;code&gt;
+     user=myuser
+         pass=
+         host=my.host.name
+         db=
+         delay=5
+         port=3306
+         socket=
+         batchmode=0
+         header=1
+         color=1
+         idle=1
+&lt;/code&gt;
+&lt;/blockquote&gt;&lt;/p&gt;
+
+&lt;p&gt;You can add as many or as few of these as you like for easy configuration, like specifying the db flag if you&amp;rsquo;re primarily accessing only one database. I like to leave the password field blank, and use the &amp;ndash;prompt flag to avoid any awkward leaks!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Performance Tuning</title>
+      <link>http://example.com/mysql/mysql-performance-tuning.html</link>
+      <pubDate>Mon, 16 Jan 2012 10:44:36 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-performance-tuning.html</guid>
+      <description>&lt;p&gt;Just came across &lt;a href=&#34;http://forums.mysql.com/read.php?24,92131,92131&#34;&gt;this forum post&lt;/a&gt; of MySQL that looks to be a gold mine of information related to performance tuning MySQL.&lt;/p&gt;
+
+&lt;p&gt;For reference I am copying and pasting the full thing here though all credit goes to the above.&lt;/p&gt;
+
+&lt;p&gt;Book: High Performance MySQL (2nd Edition)
+&lt;a href=&#34;http://www.highperfmysql.com/&#34;&gt;http://www.highperfmysql.com/&lt;/a&gt;
+MySQL Performance Tuning - Best Practices:
+&lt;a href=&#34;http://jpipes.com/presentations/perf_tuning_best_practices.pdf&#34;&gt;http://jpipes.com/presentations/perf_tuning_best_practices.pdf&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Index Tuning and Coding Techniques for Optimal Performance:
+&lt;a href=&#34;http://jpipes.com/presentations/index_coding_optimization.pdf&#34;&gt;http://jpipes.com/presentations/index_coding_optimization.pdf&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Web Performance and Scalability with MySQL:
+&lt;a href=&#34;http://develooper.com/talks/&#34;&gt;http://develooper.com/talks/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;PHP Applications: 120 Performance Tuning screws for MySQL
+&lt;a href=&#34;http://blog.ulf-wendel.de/?p=268&#34;&gt;http://blog.ulf-wendel.de/?p=268&lt;/a&gt;
+&lt;a href=&#34;http://blog.ulf-wendel.de/?p=163&#34;&gt;http://blog.ulf-wendel.de/?p=163&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Server Variables
+&lt;a href=&#34;http://forge.mysql.com/wiki/ServerVariables&#34;&gt;http://forge.mysql.com/wiki/ServerVariables&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Server Variables - SQL layer or Storage Engine specific
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2006/06/08/mysql-server-variables-sql-layer-or-storage-engine-specific/&#34; target=&#34;_blank&#34;&gt;http://www.mysqlperformanceblog.com/2006/06/08/mysql-server-variables-sql-layer-or-storage-engine-specific/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;“Show profile” + “Information_schema.profiling”
+&lt;a href=&#34;http://blogs.mysql.com/peterg/2008/11/06/show-profile-information_schemaprofiling/&#34;&gt;http://blogs.mysql.com/peterg/2008/11/06/show-profile-information_schemaprofiling/&lt;/a&gt;
+PeterZ presentations:
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/mysql-performance-presentations/&#34;&gt;http://www.mysqlperformanceblog.com/mysql-performance-presentations/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Using MMM to ALTER huge tables
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/27/using-mmm-to-alter-huge-tables/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/27/using-mmm-to-alter-huge-tables/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL File System Fragmentation Benchmarks
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/21/mysql-file-system-fragmentation-benchmarks/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/21/mysql-file-system-fragmentation-benchmarks/&lt;/a&gt;
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/18/working-with-many-files-and-file-system-fragmentation/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/18/working-with-many-files-and-file-system-fragmentation/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Finding/killing long running InnoDB transactions with Events
+&lt;a href=&#34;http://www.markleith.co.uk/?p=730 &#34;&gt;&lt;a href=&#34;http://www.markleith.co.uk/?p=730&#34; target=&#34;_blank&#34;&gt;http://www.markleith.co.uk/?p=730&lt;/a&gt; &lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Using the event scheduler to purge the process list
+&lt;a href=&#34;http://datacharmer.blogspot.com/2008/10/using-event-scheduler-to-purge-process.html&#34;&gt;http://datacharmer.blogspot.com/2008/10/using-event-scheduler-to-purge-process.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;kill_run_aways&lt;/code&gt; Stored Proc
+&lt;a href=&#34;http://forge.mysql.com/tools/tool.php?id=106&#34;&gt;http://forge.mysql.com/tools/tool.php?id=106&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Yoshinori: Tracking long running transactions in MySQL
+&lt;a href=&#34;http://yoshinorimatsunobu.blogspot.com/2011/04/tracking-long-running-transactions-in.html&#34;&gt;http://yoshinorimatsunobu.blogspot.com/2011/04/tracking-long-running-transactions-in.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;How to debug long-running transactions in MySQL
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2011/03/08/how-to-debug-long-running-transactions-in-mysql/&#34;&gt;http://www.mysqlperformanceblog.com/2011/03/08/how-to-debug-long-running-transactions-in-mysql/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Compare two columns in mysql</title>
+      <link>http://example.com/mysql/compare-two-columns-in-mysql.html</link>
+      <pubDate>Thu, 12 Jan 2012 18:02:17 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/compare-two-columns-in-mysql.html</guid>
+      <description>&lt;p&gt;Many database queries rely on seeing if two columns match / differ, however sometimes you may want to check if either column contains a sub-string of the other. MySql allows you to do this, but it isn&amp;rsquo;t that well documented, so hopefully this will help someone looking for this in the future&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+SELECT *
+FROM
+    &lt;code&gt;table&lt;/code&gt;
+WHERE
+    &lt;code&gt;col1&lt;/code&gt; LIKE CONCAT(&amp;lsquo;%&amp;rsquo;, &lt;code&gt;col2&lt;/code&gt;, &amp;lsquo;%&amp;rsquo;)
+    OR col2 LIKE CONCAT(&amp;lsquo;%&amp;rsquo;,&lt;code&gt;col1&lt;/code&gt;,&amp;lsquo;%&amp;rsquo;)
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>mysql_dump not restored correctly 1064: USING BTREE &#43; fix</title>
+      <link>http://example.com/mysql/mysql_dump-not-restored-correctly-1064-using-btree-fix.html</link>
+      <pubDate>Thu, 10 Nov 2011 18:30:05 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql_dump-not-restored-correctly-1064-using-btree-fix.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+When migrating one server to another you often hit bumps in the road.  Todays was transferring a database from one server to another.&lt;/p&gt;
+
+&lt;p&gt;During this standard procedure I found that the restored database was missing a few tables.  Irritating as Magento doesn&amp;rsquo;t like missing tables.&lt;/p&gt;
+
+&lt;p&gt;Digging down into the backup and extracting the first missing table I was able to replicate the error which came out as
+&lt;code&gt;1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near &amp;lsquo;USING BTREE&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;I eventually found out that some versions of mysql 5.1 export a dump file that contains mysql5.1 specific features and loading the file into mysql 5.0 will not work.&lt;/p&gt;
+
+&lt;p&gt;The solution is a little frustrating but if you run the command with the &amp;ndash;compatible=mysql40 switch, the dump file extracts fine :-
+&lt;code&gt;mysqldump &amp;ndash;compatible=mysql40&lt;/code&gt;
+Don&amp;rsquo;t ask me why there&amp;rsquo;s no &amp;ndash;compatible=mysql50 flag.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Very High Speed Batch Update Multiple Rows of a Table in Single Query</title>
+      <link>http://example.com/mysql/very-high-speed-batch-update-multiple-rows-of-a-table-in-single-query.html</link>
+      <pubDate>Thu, 13 Oct 2011 14:00:26 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/very-high-speed-batch-update-multiple-rows-of-a-table-in-single-query.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to update a large number of rows on a single table then your first reaction may be to write a loop that updates one row at a time.&lt;/p&gt;
+
+&lt;p&gt;Of course if the table is large then this can result in a very large number of SQL queries.&lt;/p&gt;
+
+&lt;p&gt;Taking a bit of inspiration from &lt;a href=&#34;http://www.kavoir.com/2009/05/mysql-update-multiple-rows-with-one-single-query.html&#34;&gt;this post&lt;/a&gt; I have put together this simple PHP function that will allow you to update as many rows as you want.&lt;/p&gt;
+
+&lt;p&gt;The trade off is basically memory usage as you build up a big array of row update information preparing for the batch. For this reason you may want to tune the number of rows you update per query.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function bulkUpdateSingleColumn($table, $id_column, $update_column, array &amp;amp;$idstovals){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $sql = &amp;quot;update $table set $update_column = CASE $id_column &amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        foreach($idstovals as $id=&amp;gt;$val){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $sql .= &amp;quot; WHEN &amp;#39;$id&amp;#39; THEN &amp;#39;$val&amp;#39; \n&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $sql .= &amp;quot; END &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        WHERE $id_column in (&amp;quot; . implode(&amp;#39;,&amp;#39;, array_keys($idstovals)) . &amp;quot;)&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;//debugging info&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        echo &amp;#39;&amp;lt;small&amp;gt;&amp;#39;.$sql.&amp;#39;&amp;lt;/small&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $idstovals=array();        &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        db_query($sql);       &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        done();        &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The user specified as a definer (&#39;something&#39;@&#39;somewhere&#39;) does not exist &#43;SOLVED</title>
+      <link>http://example.com/mysql/the-user-specified-as-a-definer-somethingsomewhere-does-not-exist-solved.html</link>
+      <pubDate>Tue, 11 Oct 2011 13:34:26 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/the-user-specified-as-a-definer-somethingsomewhere-does-not-exist-solved.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Today I was working on an oscommerce site and took a backup of their database, created the usual details from their config file on my local mysql and the above error came up (with admin@localhost for what it&amp;rsquo;s worth).&lt;/p&gt;
+
+&lt;p&gt;Upon investigation, a trigger had been created on the database whilst logged in via a different user than the user specified in the config file.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s actually a few solutions depending on your needs :-
+Ensure the user (something@somewhere) is created on your new database installation
+Delete the trigger (for instance if testing locally and you know it&amp;rsquo;s not needed)
+Edit the DB dump file, find the definition of the trigger and change it to the configured user.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Triggers - A Quick Guide</title>
+      <link>http://example.com/mysql/mysql-triggers-a-quick-guide.html</link>
+      <pubDate>Sat, 15 Jan 2011 12:26:09 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-triggers-a-quick-guide.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+MySQL has a nice feature that you may well not have used called Triggers.&lt;/p&gt;
+
+&lt;p&gt;These are little SQL statements that are tied to events on table and then perform some extra work.&lt;/p&gt;
+
+&lt;p&gt;The idea being that you will check the values for a row and if they meet some conditions you will take some further action. You might usually do this kind of thing in code but if you really must be certain that in a certain circumstance a certain action will be taken, then triggers are a good option because regardless which bit of code makes the change you can be sure your rules will be enforced.&lt;/p&gt;
+
+&lt;p&gt;Of course this ties you to a specific DB platform so its not something you should over use. There can also be performance issues so you need to bear that in mind.&lt;/p&gt;
+
+&lt;p&gt;Anyway, assuming you know what you are letting yourself in for and have read the &lt;a href=&#34;http://www.google.com/search?hl=en&amp;q=site%3Adev.mysql.com+triggers+5.0&amp;aq=f&amp;aqi=&amp;aql=&amp;oq=&#34;&gt;documentation&lt;/a&gt; here is my little summary.&lt;/p&gt;
+
+&lt;p&gt;First you need to give your trigger a name. Choose something descriptive.&lt;/p&gt;
+
+&lt;p&gt;Then you need to associate it to an even (UPDATE, INSERT etc) and also decide whether to do it BEFORE or AFTER. If you are not sure, use BEFORE - it&amp;rsquo;s generally the one you want to use.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;CREATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;TRIGGER&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;do_something&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BEFORE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;UPDATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;table&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The next bit is boiler plate as far as I can gather, just whack it in. It delimits your actual statement and tells it to be run for each updated row.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;  &lt;span class=&#34;k&#34;&gt;FOR&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;EACH&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ROW&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BEGIN&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then do your test&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;IF&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;OLD&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Note the NEW and OLD keywords there.&lt;/p&gt;
+
+&lt;p&gt;You have a choice of using the NEW and OLD keyword to access existing (OLD) and about to be set (NEW) data for each column.&lt;/p&gt;
+
+&lt;p&gt;Note also, this is only possible if you use the BEFORE event as opposed to AFTER, hence generally just sticking to using BEFORE&lt;/p&gt;
+
+&lt;p&gt;Now, enforce your requirements&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;another_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;and_another_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;and_another&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;cheese&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then wrap it up&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;END&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;IF&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;END&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;That&amp;rsquo;s it&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;BUT WAIT&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s another bit that I totally missed which caused me issues - you need to wrap the whole thing in a delimiter statement:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;delimiter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;//&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;...&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;the&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;statement&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;END&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;//&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;delimiter&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So the full final thing should look like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;delimiter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;//&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;CREATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;TRIGGER&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;do_something&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BEFORE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;UPDATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;table&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;FOR&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;EACH&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ROW&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BEGIN&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;IF&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;OLD&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;another_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;and_another_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;and_another&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;cheese&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;END&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;IF&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;END&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;//&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;delimiter&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Another point to mention is - just use the CLI for handling these, don&amp;rsquo;t try to use phpMyAdmin etc - it doesn&amp;rsquo;t really work.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Failing to Create Foreign Keys (errno 150) &#43; Solution</title>
+      <link>http://example.com/mysql/failing-to-create-foreign-keys-errno-150-solution.html</link>
+      <pubDate>Tue, 19 Oct 2010 16:32:25 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/failing-to-create-foreign-keys-errno-150-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are struggling to get some foreign keys set up on your MySQL InnoDB database then perhaps this is your problem and a pretty simple solution.&lt;/p&gt;
+
+&lt;p&gt;If you are getting errno 150 then take a look at the data types for the two fields that you are trying to relate to each other.&lt;/p&gt;
+
+&lt;p&gt;I had issues in Magento creating foreign keys against the customer_entity and sales_flat_order tables (entity_id columns). Turns out the issue was that these columns were set to UNSIGNED on the Magento tables, yet my tables columns did not have this attribute.&lt;/p&gt;
+
+&lt;p&gt;Set your columns to UNSIGNED (and otherwise double check the datatypes are the same) and I bet it will all work for you.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Slow Truncating InnoDB Tables that have Foreign Keys set on them</title>
+      <link>http://example.com/mysql/slow-truncating-innodb-tables-that-have-foreign-keys-set-on-them.html</link>
+      <pubDate>Tue, 10 Aug 2010 17:12:34 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/slow-truncating-innodb-tables-that-have-foreign-keys-set-on-them.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+One of the advantages of using InnoDB as your storage engine in MySQL is that you can create a database structure that will automatically keep itself clean and tidy, by having deletes cascade through your tables as soon as you delete the main entity.&lt;/p&gt;
+
+&lt;p&gt;However, if you need to empty a large table, you will find that this process is really slow.&lt;/p&gt;
+
+&lt;p&gt;The solution is to first of all truncate all of the tables that have foreign key relations set on the main table and then only empty the main table once those child tables are emptied.&lt;/p&gt;
+
+&lt;p&gt;Yes this defeats the object a bit, but if you want speed, this is the solution. It is incredibly fast in comparison, and the end result is the same.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

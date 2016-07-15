@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Find_in_set on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/find_in_set/</link>
+    <description>Recent content in Find_in_set on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 03 Dec 2013 12:40:04 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/find_in_set/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Sorting Results Arbitrarily in MySQL</title>
+      <link>http://example.com/mysql/sorting-results-arbitrarily-in-mysql.html</link>
+      <pubDate>Tue, 03 Dec 2013 12:40:04 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/sorting-results-arbitrarily-in-mysql.html</guid>
+      <description>&lt;p&gt;When you have a result set in MySQL that you need to order in a specific way you might think that it is not possible and instead you are going to have to read all
+of your results into your application domain (eg PHP) and manage the sorting from there. On a large results set that could be seriously inefficient.&lt;/p&gt;
+
+&lt;p&gt;The truth is that you don&amp;rsquo;t have to do that. You can specify any kind of sort order including sorting by string values as you see fit.&lt;/p&gt;
+
+&lt;p&gt;The way to do this is to use the magic of &lt;a href=&#34;http://dev.mysql.com/doc/refman/5.0/en/string-functions.html#function_find-in-set&#34; target=&#34;_blank&#34;&gt;FIND_IN_SET&lt;/a&gt; combined with ORDER BY.&lt;/p&gt;
+
+&lt;p&gt;For a full example see this query that is pulling out product images from a data repository in descending image size as described in one of the columns as a string.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prodID&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+  &lt;span class=&#34;n&#34;&gt;dcmv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaValueName&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;resolution&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cds_DigContent&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cds_DigContent_Links&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cds_DigContent_Meta&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcm&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dcm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contentGuid&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaAtrId&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cds_DigContent_Meta_ValVoc&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcmv&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dcmv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaValueId&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaValueId&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mediaTypeId&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;15&lt;/span&gt;
+      &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dcl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prodId&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;{$this-&amp;gt;getCnetProdID()}&amp;#39;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;ORDER&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BY&lt;/span&gt;
+  &lt;span class=&#34;nf&#34;&gt;FIND_IN_SET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dcmv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;metaValueName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;2400 x 1800,1200 x 900,1024 x 768,800 x 600,640 x 480,400 x 300,200 x 150,75 x 75&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;LIMIT&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

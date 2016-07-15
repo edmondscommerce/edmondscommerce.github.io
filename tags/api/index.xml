@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Api on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/api/</link>
+    <description>Recent content in Api on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 25 Jul 2013 15:05:08 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/api/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP Base64 Decode if Encoded Otherwise Leave Intact</title>
+      <link>http://example.com/php/php-base64-decode-if-encoded-otherwise-leave-intact.html</link>
+      <pubDate>Thu, 25 Jul 2013 15:05:08 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-base64-decode-if-encoded-otherwise-leave-intact.html</guid>
+      <description>&lt;p&gt;I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).&lt;/p&gt;
+
+&lt;p&gt;However to really make things interesting, they didn&amp;rsquo;t always do this so you couldn&amp;rsquo;t just go and decode everything.&lt;/p&gt;
+
+&lt;p&gt;Here is the solution I came up with:&lt;/p&gt;
+
+&lt;p&gt;First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;preg_replace_callback(&amp;#39;%&amp;gt;([^&amp;lt;]+?)&amp;lt;%&amp;#39;, array($this, &amp;#39;_decode&amp;#39;), $response)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then the callback function is a method on the same object hence the use of array($this, &amp;lsquo;_decode&amp;rsquo;)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Decode from bas64 if it actually is base64 encoded in the first place&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * If not return the raw string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param $matches&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function _decode($matches)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $raw=$matches[1];&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $decoded = base64_decode($raw, true);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $return=$decoded;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if(false === $decoded){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $return=$raw;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }elseif(base64_encode($decoded) != $raw){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $return=$raw;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;#39;&amp;gt;&amp;lt;![CDATA[&amp;#39; . $return . &amp;#39;]]&amp;gt;&amp;lt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&amp;rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.&lt;/p&gt;
+
+&lt;p&gt;If it doesn&amp;rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.&lt;/p&gt;
+
+&lt;p&gt;By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.&lt;/p&gt;
+
+&lt;p&gt;Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.&lt;/p&gt;
+
+&lt;p&gt;However - one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&amp;rsquo;t mind compromising the data a little which I didn&amp;rsquo;t for my purposes) then you can do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;//have to utf8 encode it to fix the fact its not properly encoded at their end&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$xml = simplexml_load_string(utf8_encode($response));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it, another crazy API defeated and bent to my will!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP SOAP Client Basic Template</title>
+      <link>http://example.com/php/php-soap-client-basic-template.html</link>
+      <pubDate>Mon, 08 Jul 2013 08:28:17 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-soap-client-basic-template.html</guid>
+      <description>&lt;p&gt;Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&amp;rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&amp;rsquo;m just unlucky?&lt;/p&gt;
+
+&lt;p&gt;In my experience decent API&amp;rsquo;s don&amp;rsquo;t use SOAP.&lt;/p&gt;
+
+&lt;p&gt;Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&amp;rsquo;t work), I&amp;rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * Class Template Soap Client Consuming Class&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; */&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;EdmondsCommerceSoap&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;edmondscommerce&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pass&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;NotReallyMyPassw0rd&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;test&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;connection_timeout&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;25&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;location&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;trace&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;//this is important if you want to be able to use the soapDebug method&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setAuthHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;Method&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapFault&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;h1&amp;gt;SoapFault: &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getMessage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;/h1&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;pre&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getTraceAsString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;/pre&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;h2&amp;gt;Debug Info:&amp;lt;/h2&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;var_dump&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;soapDebug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    * This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setAuthHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$auth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;username&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;MessageId&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;md5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()),&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;password&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;password&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$auth&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$k&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SoapHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Header&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__setSoapHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     *  This method gathers all debug info into a handy array ready for var_dump, log etc etc&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;soapDebug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;headers&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequestHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body_formatted&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;headers&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponseHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body_formatted&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This method is purely to assist the debug method and simply makes generated XML readable&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;preg_replace&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/(&amp;gt;)(&amp;lt;)(\/*)/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;$1&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;$2$3&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strtok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!==&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/.+&amp;lt;\/\w[^&amp;gt;]*&amp;gt;$/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/^&amp;lt;\/\w/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/^&amp;lt;\w[^&amp;gt;]*[^\/]&amp;gt;.*$/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;endif&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;str_pad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strlen&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;STR_PAD_LEFT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strtok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;endwhile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Add Jquery to Any Page via Console</title>
+      <link>http://example.com/jquery/add-jquery-to-any-page-via-console.html</link>
+      <pubDate>Tue, 26 Mar 2013 18:44:22 +0000</pubDate>
+      
+      <guid>http://example.com/jquery/add-jquery-to-any-page-via-console.html</guid>
+      <description>&lt;p&gt;Sometimes you might want to do a little on the fly DOM editing using your favourite Javascript library - jQuery.&lt;/p&gt;
+
+&lt;p&gt;To do this you might need to include jQuery on the page, you can do this by pasting these lines into your console in Chrome or Firebug in Firefox.&lt;/p&gt;
+
+&lt;pre class=&#34;lang:js decode:true &#34; title=&#34;Run this in your console&#34; &gt;var jq = document.createElement(&#39;script&#39;);
+jq.src = &#34;http://code.jquery.com/jquery-latest.min.js&#34;;
+document.getElementsByTagName(&#39;head&#39;)[0].appendChild(jq);
+jQuery.noConflict();
+&lt;/pre&gt; 
+
+&lt;p&gt;And there you have it, the full power of jQuery at your fingertips&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Release SagePay Form Orders via API</title>
+      <link>http://example.com/sagepay/release-sagepay-form-orders-via-api.html</link>
+      <pubDate>Tue, 19 Mar 2013 17:54:16 +0000</pubDate>
+      
+      <guid>http://example.com/sagepay/release-sagepay-form-orders-via-api.html</guid>
+      <description>&lt;p&gt;If you use SagePay Form integration then you might think that it is impossible to release orders created via this integration system via the API.&lt;/p&gt;
+
+&lt;p&gt;Historically this was true however thanks to the new admin and reporting API you can now grab all of the details you need to perform the kind of admin side integration previously only possible via Server and Direct integrations.&lt;/p&gt;
+
+&lt;p&gt;This does take a bit of work but if you like the fact that Form alleviates PCI compliance issues, allows your customers to use the nice easy to use Form interface and also gives you easy PayPal integration then this is a great solution.&lt;/p&gt;
+
+&lt;p&gt;Thanks goes out to SagePay&amp;rsquo;s technical support who have proved really helpful in ironing out the kinks in getting this working.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP API Development Logging and Debugging</title>
+      <link>http://example.com/php/4145.html</link>
+      <pubDate>Thu, 14 Mar 2013 14:53:48 +0000</pubDate>
+      
+      <guid>http://example.com/php/4145.html</guid>
+      <description>&lt;p&gt;If you are ever working with API integrations, either in or out bound, then it might be useful to set up a simple dumb logging system to assist you with developing and debugging things.&lt;/p&gt;
+
+&lt;p&gt;Here is a really simple snippet to help you along with that.&lt;/p&gt;
+
+&lt;p&gt;It literally takes exactly what it has received and logs it with no messing about. Brilliant!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;raw_input&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;file_get_contents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php://input&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;_POST&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_POST&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;_GET&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_GET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;file_put_contents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;inboundXML.log&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;var_export&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Security Vulnerability &#43; Free Assistance</title>
+      <link>http://example.com/magento/magento-security-vulnerability-free-assistance.html</link>
+      <pubDate>Tue, 10 Jul 2012 13:07:02 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-security-vulnerability-free-assistance.html</guid>
+      <description>&lt;p&gt;The magento platform is based on a PHP framework called Zend Framework.&lt;/p&gt;
+
+&lt;p&gt;Recently a bug was found in Zend Framework which potentially allows attackers to read any file on your server. This could mean they could gain access to your mysql server credentials for example.&lt;/p&gt;
+
+&lt;p&gt;You can read the full details &lt;a href=&#34;http://www.magentocommerce.com/blog/comments/update-zend-framework-vulnerability-security-update/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The actual bug details for Zend Framework are in this &lt;a href=&#34;http://framework.zend.com/security/advisory/ZF2012-01&#34;&gt;security advisory&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;Free Security Patching Service&lt;/h3&gt;
+
+&lt;p&gt;In a nutshell this represents a serious security hole that you need to plug as soon as possible. Fixing this issue is very simple indeed if you know what you are doing.&lt;/p&gt;
+
+&lt;p&gt;For this reason Edmonds Commerce are happy to offer &lt;b&gt;FREE&lt;/b&gt; assistance in applying this patch to any Magento store owner whether you are a current client or not. We will not charge you in any way for this service.&lt;/p&gt;
+
+&lt;p&gt;To request &lt;b&gt;FREE&lt;/b&gt; assistance &lt;a href=&#34;http://example.com/contact-us/?about=Free+Magento+Security+Fix&#34;&gt;&lt;b&gt;contact us today&lt;/b&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;Donation to Charity&lt;/h3&gt;
+If you choose to, you could make a donation to cover this service here:
+&lt;a href=&#34;http://www.justgiving.com/EdmondsCommerce&#34;&gt;http://www.justgiving.com/EdmondsCommerce&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;Please Note&lt;/h3&gt;
+We will need you to give us shell (otherwise known as SSH) access to your server if available.&lt;/p&gt;
+
+&lt;p&gt;If you are on a shared hosting service that is not able to supply shell access, we would suggest you ask your hosting company to help you with this issue. Feel free to refer them to this page.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Zend Framework Rest HTTP Basic Authentication</title>
+      <link>http://example.com/zend-framework/zend-framework-rest-http-basic-authentication.html</link>
+      <pubDate>Tue, 21 Feb 2012 12:43:44 +0000</pubDate>
+      
+      <guid>http://example.com/zend-framework/zend-framework-rest-http-basic-authentication.html</guid>
+      <description>&lt;p&gt;I have recently been working on a Magento project that required a custom API integration with Zen Desk.&lt;/p&gt;
+
+&lt;p&gt;Magento is based on Zend Framework which is nice because it means we can use the Zend_Rest_Client object to handle the API integration which provides a nice layer of abstraction and sorts out a lot of the heavy lifting required.&lt;/p&gt;
+
+&lt;p&gt;However I came across a terminal issue trying to get it working properly with HTTP Basic Authentication which the Zen Desk API uses.&lt;/p&gt;
+
+&lt;p&gt;I found some instructions which recommended creating a Zend_Uri_Http object and then setting the username and password against this. However as Zen Desk uses the email address as the username component, this failed completely.&lt;/p&gt;
+
+&lt;p&gt;In the end the solution I found was to grab the static HTTP client object that the REST client is built upon and call the public setAuth method on this. This way the Authorisation header is correctly created, encoded and appended to the headers.&lt;/p&gt;
+
+&lt;p&gt;Logically it feels like a dirty way to do things, grabbing the HTTP client statically to do this, but it works and I can&amp;rsquo;t see how else you would do it.&lt;/p&gt;
+
+&lt;p&gt;For info here is the code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return Zend_Rest_Client &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function getClient() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (null === $this-&amp;gt;_client) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $url = $this-&amp;gt;getApiUrl();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $uri = Zend_Uri_Http::fromString($url);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $this-&amp;gt;_client = new Zend_Rest_Client($uri);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            Zend_Service_Abstract::getHttpClient()-&amp;gt;setAuth($this-&amp;gt;getUsername(),$this-&amp;gt;getPassword());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $this-&amp;gt;_client;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Controller Action Return Json (for AJAX, API etc)</title>
+      <link>http://example.com/magento/magento-controller-action-return-json-for-ajax-api-etc.html</link>
+      <pubDate>Wed, 15 Feb 2012 14:15:01 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-controller-action-return-json-for-ajax-api-etc.html</guid>
+      <description>&lt;p&gt;If you have a controller action that is designed to be accessed by AJAX requests or perhaps as part of a custom API system then you might like this snippet.&lt;/p&gt;
+
+&lt;p&gt;If you are working with the above scenario you likely would like to return pure JSON without any HTML etc. Also serving up the correct content type headers is going to be helpful, its not HTML, its JSON.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function searchAction(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $query = $this-&amp;gt;getRequest()-&amp;gt;getParam(&amp;#39;query&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $json = Mage::getModel(&amp;#39;mymodule/mymodel&amp;#39;)-&amp;gt;getSearchJson($query);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;getResponse()-&amp;gt;setHeader(&amp;#39;Content-type&amp;#39;, &amp;#39;application/json&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;getResponse()-&amp;gt;setBody($json);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento API fix - Get Product by SKU</title>
+      <link>http://example.com/magento/magento-api-fix-get-product-by-sku.html</link>
+      <pubDate>Fri, 08 Jul 2011 11:36:51 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-api-fix-get-product-by-sku.html</guid>
+      <description>&lt;p&gt;I have just finished working on a nice little project for Magento API for our client CNG Florist Sundries.&lt;/p&gt;
+
+&lt;p&gt;The Aim of the project was to make Magento API use SKU&amp;rsquo;s when pulling out the product information. By default Magento API accept a variable productId which can either be a product id or sku. The problem, especially with this task, was the fact that the client is using numeric values for product SKU values.&lt;/p&gt;
+
+&lt;p&gt;Now when he used third party system to update his catalog by passing SKU values, Magento was assuming the values are productId and consequently updating the wrong products. Our fix will simply force Magento to look for SKU&amp;rsquo;s first and return the correct product ID for the required product.&lt;/p&gt;
+
+&lt;p&gt;The client site is &lt;a href=&#39;http://www.cngfloristsundries.co.uk/&#39;&gt;www.cngfloristsundries.co.uk&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Cinder Block Magento AppliedSB API Integration </title>
+      <link>http://example.com/portfolio/cinderblock-magento-appliedsb-api-integration.html</link>
+      <pubDate>Wed, 09 Mar 2011 10:15:01 +0000</pubDate>
+      
+      <guid>http://example.com/portfolio/cinderblock-magento-appliedsb-api-integration.html</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://cinderblock.com/&#34;&gt;Cinder Block&lt;/a&gt; are a USA based company who retail merchandise for a wide catalog bands and artists in the music industry.&lt;/p&gt;
+
+&lt;p&gt;The site is based upon a very large Magento Enterprise based multistore system with unique official store fronts for each band.&lt;/p&gt;
+
+&lt;p&gt;Cinder Block&amp;rsquo;s traditional merchandise is clothing, mainly T Shirts though they wanted to expand into selling downloadble music. Rather than use an inhouse system Cinder Block opted to use an external API and chose &lt;a href=&#34;http://www.appliedsb.com/&#34;&gt;Applied SB&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The project requirements were broadly to do the follwing:&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;1. Populate the Product Page with API Data
+&lt;/b&gt;
+The Applied SB API provides image, title and price data for each product. For albums it also provides details of each individual track. Cinder Block needed to be able to get all of this data automatically from a single reference code or album_id. We created a Magento extension that handles all of the API communications to grab this data and also uses Magento block caching to keep the performance of the pages fast.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;2. Allow Streaming of Sample Music from the Product Page&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;On the product page Cinder Block wanted visitors to be able to play from within the browser the sample tracks that the Applied SB API provides. Again all of this data is provided by the API and the Magento extension grabs and caches this data automatically. The previews are streamed directly from the Applied SB system and the browser player is based upon Sound Manager.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;3. Allow Purchase of Downloadable Music through Standard Checkout Procedure&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;For upgrade compatability and general ease of use we kept modifications to the checkout procedure to a bear minimum. The downloadable products are standard Magento products in every way. On successful checkout the Magento extension uses the event/observer system in Magento to trigger the extra functionality to register the purchase with the Applied SB and to retrieve the download links and utilise Applied SB&amp;rsquo;s download manager.&lt;/p&gt;
+
+&lt;p&gt;This data is stored within a custom order attribute that is set up by the extension and is viewable from within the admin when looking at an order.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;4. Supply Download Links Upon Successful Checkout in Account Area and via Email&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;After retrieving the download links, the extension sends a custom email with the download information. For this we hooked into Magento&amp;rsquo;s standard email templating system allowing Cinder Block to create a custom email template for each store front as they see fit. This works in the exact same way as all of the other email templates within Magento which means its very powerful and configurable.&lt;/p&gt;
+
+&lt;p&gt;All in all the project was both challenging and rewarding. We encountered a few setbacks including core Magento bugs which were reported back to Magento and actioned, no doubt they will be fixed in forth coming Magento enterprise releases.&lt;/p&gt;
+
+&lt;p&gt;Here is a quote from Mark at Cinder Block:&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;i&gt;&#34;Despite being faced with many challenges, Joseph worked over time to successfully integrate music downloads into our Magento platform. And the follow up refining has been swift and on the mark. The result is incontestable: It just works. Period. Thanks, Joseph!&#34;&lt;/i&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;Here is a screen shot of one of the product pages including the MP3 previews and also a related products carousel which we threw into the project for free.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot-thumb-150x150.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You can see the live page &lt;a href=&#34;http://floggingmolly.cinderblock.com/flogging-molly-swagger-album-download.html&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

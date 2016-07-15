@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Urls on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/urls/</link>
+    <description>Recent content in Urls on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 22 Oct 2012 16:40:10 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/urls/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Reduce Catalog URL Rewrites Time in Magento</title>
+      <link>http://example.com/magento/reduce-catalog-url-rewrites-time-in-magento.html</link>
+      <pubDate>Mon, 22 Oct 2012 16:40:10 +0000</pubDate>
+      
+      <guid>http://example.com/magento/reduce-catalog-url-rewrites-time-in-magento.html</guid>
+      <description>&lt;p&gt;I recently had a client that wanted to remove the category structure from their product urls.&lt;/p&gt;
+
+&lt;p&gt;There is a option to do this in the admin, but they wanted to redirect all of the existing urls to the shorter one.&lt;/p&gt;
+
+&lt;p&gt;The way that I wanted to do this was to truncate the current core_url_rewrite table and regenerate the urls with the &amp;ldquo;Use Categories Path for Product URLs&amp;rdquo; set to no, and then override the 404 controller to redirect to the correct url.&lt;/p&gt;
+
+&lt;p&gt;However, after the urls were generated, I found that all of the urls including the category path were still included, which meant that the override would not work.&lt;/p&gt;
+
+&lt;p&gt;After spending quite a bit of time looking for a way to get round this, I put together a simple override to prevent the category path urls from getting generated.&lt;/p&gt;
+
+&lt;p&gt;This had the added benefit of reducing the number of entries in the core_url_rewite table from ~2k entries to under 500, which cut the amount of time that was needed to generate it.&lt;/p&gt;
+
+&lt;p&gt;The code is below for anyone else that needs to use this in the future. There are three files in total, set up like this&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;EdmondsCommerce/&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;`-- Redirects&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    |-- controllers&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    |   `-- Cms&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    |       `-- IndexController.php&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    |-- etc&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    |   `-- config.xml&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    `-- Model&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        `-- Catalog&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            `-- Url.php&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This is the code for the Model&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;class EdmondsCommerce_Redirects_Model_Catalog_Url &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;  extends Mage_Catalog_Model_Url {&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * This method is called each time that a url &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * is generated for a product. It is called for the &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * root category and each category that the product is in.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * This code checks to see if the category passed to it is&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * the root category. If it is it will &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * add the url rewrite as normal. If not it does nothing&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param Varien_Object $product&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param Varien_Object $category&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function _refreshProductRewrite(Varien_Object $product, Varien_Object $category) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $rootCategory = $this-&amp;gt;getStoreRootCategory($category-&amp;gt;getStoreId());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if($category-&amp;gt;getId() == $rootCategory-&amp;gt;getId()) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            parent::_refreshProductRewrite($product, $category);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you want to redirect from the existing urls to the new ones, you will need to use the following controller&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;include_once(&amp;#39;Mage/Cms/controllers/IndexController.php&amp;#39;);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;class EdmondsCommerce_Redirects_Cms_IndexController &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;extends Mage_Cms_IndexController {&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * This checks to see if the site can redirect&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * before displaying a 404&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param type $coreRoute&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function noRouteAction($coreRoute = null) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        // Get the request&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $request = $_SERVER[&amp;#39;REQUEST_URI&amp;#39;];&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        // Strip off get params if there are any&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (strpos($request, &amp;#39;?&amp;#39;) !== FALSE) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $request = substr($request, 0, strpos($request, &amp;#39;?&amp;#39;));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         *  This makes sure that no part of the request is included&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         *  in the base url. This should help&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         *  the system work if it is running from a sub folder&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $parts = explode(&amp;#39;/&amp;#39;, Mage::getBaseUrl());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        foreach ($parts AS $part) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $request = str_replace(array($part, &amp;#39;//&amp;#39;), &amp;#39;&amp;#39;, $request);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        /*&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         * Combine the request with the base path to get the full url&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         * and remove any trailing slashes&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $path = trim(str_replace(&amp;#39;http:/&amp;#39;, &amp;#39;http://&amp;#39;, str_replace(&amp;#39;//&amp;#39;, &amp;#39;/&amp;#39;, Mage::getBaseUrl() . $request)), &amp;#39;/&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //Get the last section which should be the product title&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $cleanedPath = explode(&amp;#39;/&amp;#39;, $path);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $key = array_pop($cleanedPath);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //Here we find url keys like the title&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $collection = Mage::getModel(&amp;#39;catalog/product&amp;#39;)-&amp;gt;getCollection();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $collection-&amp;gt;addAttributeToSelect(&amp;#39;url_key&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $collection-&amp;gt;addFieldToFilter(array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            array(&amp;#39;attribute&amp;#39; =&amp;gt; &amp;#39;url_key&amp;#39;, &amp;#39;like&amp;#39; =&amp;gt; &amp;quot;$key&amp;quot;)));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $products = $collection-&amp;gt;load();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        /*&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         * Proceed if there is only 1 result, if there are more we&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         * don&amp;#39;t know which one is correct&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (count($products) == 1) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            foreach ($products AS $product) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $url = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $product-&amp;gt;getUrlKey();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                //Check to make sure the url is not the same as the path, should prevent infinite redirects&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                if ($path != $url) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    header(&amp;#39;HTTP/1.1 301 Moved Permanently&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    header(&amp;#39;Location: &amp;#39; . $url);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    die();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        // Could not find a suitable url carry out the 404&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        parent::noRouteAction($coreRoute);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then use the following xml file&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;modules&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;EdmondsCommerce_Redirects&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.1.0&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;depends&amp;gt;&amp;lt;/depends&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/EdmondsCommerce_Redirects&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/modules&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;models&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;redirects&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;class&amp;gt;&lt;/span&gt;EdmondsCommerce_Redirects_Model&lt;span class=&#34;nt&#34;&gt;&amp;lt;/class&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/redirects&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;catalog&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;url&amp;gt;&lt;/span&gt;EdmondsCommerce_Redirects_Model_Catalog_Url&lt;span class=&#34;nt&#34;&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/catalog&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/models&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/global&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;frontend&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;routers&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;cms&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;args&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;modules&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;EdmondsCommerce_Redirects&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;before=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;Mage_Cms&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;EdmondsCommerce_Redirects_Cms&lt;span class=&#34;nt&#34;&gt;&amp;lt;/EdmondsCommerce_Redirects&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/modules&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/args&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/cms&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/routers&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/frontend&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Live Images on Staging Without Absolute URLs (but a bit of JS)</title>
+      <link>http://example.com/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html</link>
+      <pubDate>Tue, 27 Mar 2012 11:05:49 +0000</pubDate>
+      
+      <guid>http://example.com/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html</guid>
+      <description>&lt;p&gt;If you have a staging copy of your site anywhere then you might not bother copying over your entire catalogue of product images etc.&lt;/p&gt;
+
+&lt;p&gt;You might decide to drop in absolute URLs for those images so that they are pulled from live. However you really don&amp;rsquo;t want absolute URLs in your code and you certainly don&amp;rsquo;t want that to go live because it just adds unnecessary bloat.&lt;/p&gt;
+
+&lt;p&gt;A nice trick you can do here is make a change to your staging site as follows. Of course ensure this change doesn&amp;rsquo;t go live, but it should be just one file so that&amp;rsquo;s easy to handle.&lt;/p&gt;
+
+&lt;p&gt;(Note this assumes you already have jQuery available on your page)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-javascript&#34; data-lang=&#34;javascript&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;script&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ready&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;nx&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;img&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;each&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;
+        &lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;attr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;src&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;        
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;indexOf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;http&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)){&lt;/span&gt;
+            &lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;new_src&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;http://www.LIVEDOMAIN.co.uk/&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;nx&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;attr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;src&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;new_src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;});&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;});&lt;/span&gt;    
+&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Don&amp;rsquo;t forget to change LIVEDOMAIN to be your real live domain&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Stage Gear - General Site Improvements</title>
+      <link>http://example.com/portfolio/stage-gear-general-site-improvements.html</link>
+      <pubDate>Thu, 09 Jun 2011 16:46:41 +0000</pubDate>
+      
+      <guid>http://example.com/portfolio/stage-gear-general-site-improvements.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2&gt;Stage Gear – General Site Improvements&lt;/h2&gt;&lt;/p&gt;
+
+&lt;p&gt;Stage Gear needed a number of aspects of their OSCommerce site improving, including the look and feel, the addition of SEO URLs to improve site ranking, improving search on the site and adding basic Facebook integration.&lt;/p&gt;
+
+&lt;h3&gt;Stage Gear&lt;/h3&gt;
+
+&lt;p&gt;Stage Gear is a company that specialise in retailing &lt;a href=&#34;http://www.sound-light-company.co.uk/&#34;&gt;sound and lighting equipment&lt;/a&gt; for use by clubs, pubs, bands and DJs.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/stagegear-300x224.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This project was terrific as it demonstrates that OSCommerce is still fully capable of running a modern web site.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

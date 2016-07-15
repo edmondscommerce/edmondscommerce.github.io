@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Log on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/log/</link>
+    <description>Recent content in Log on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 14 Mar 2013 14:53:48 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/log/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP API Development Logging and Debugging</title>
+      <link>http://example.com/php/4145.html</link>
+      <pubDate>Thu, 14 Mar 2013 14:53:48 +0000</pubDate>
+      
+      <guid>http://example.com/php/4145.html</guid>
+      <description>&lt;p&gt;If you are ever working with API integrations, either in or out bound, then it might be useful to set up a simple dumb logging system to assist you with developing and debugging things.&lt;/p&gt;
+
+&lt;p&gt;Here is a really simple snippet to help you along with that.&lt;/p&gt;
+
+&lt;p&gt;It literally takes exactly what it has received and logs it with no messing about. Brilliant!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;raw_input&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;file_get_contents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php://input&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;_POST&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_POST&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;_GET&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_GET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;file_put_contents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;inboundXML.log&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;var_export&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Apache Log File Analysis Script</title>
+      <link>http://example.com/bash/apache-log-file-analysis-script.html</link>
+      <pubDate>Thu, 14 Mar 2013 14:17:48 +0000</pubDate>
+      
+      <guid>http://example.com/bash/apache-log-file-analysis-script.html</guid>
+      <description>&lt;p&gt;Here is a little bash script we knocked together to track down some malicious activity on a clients server.&lt;/p&gt;
+
+&lt;p&gt;Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.&lt;/p&gt;
+
+&lt;p&gt;Here is the script:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;###### SETUP ############&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;LOG_FOLDER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/www/vhosts/domain.co.uk/statistics/logs
+&lt;span class=&#34;nv&#34;&gt;ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LOG_FOLDER&lt;/span&gt;/access_log
+
+&lt;span class=&#34;nv&#34;&gt;HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;20000
+
+
+
+&lt;span class=&#34;c1&#34;&gt;######### FUNCTIONS ##############&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; title&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;---------------------------------&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$@&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;---------------------------------&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; urls_by_ip&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;IP&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;
+    tail -5000 &lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk -v &lt;span class=&#34;nv&#34;&gt;ip&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IP&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}&amp;#39;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort -rn &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; head -20
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; ip_addresses_by_user_agent&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;USERAGENT_STRING&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | grep &amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;USERAGENT_STRING&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;  | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;####### RUN REPORTS #############&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 URLs&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_URLS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$7&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_URLS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 URLS excluding POST data&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_URLS_WITHOUT_POST&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk -F&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; ?&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$7&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_URLS_WITHOUT_POST&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 IPs&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 user agents&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;IP Addresses for Top 3 User Agents&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;I&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; I&amp;lt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; I++&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;UA&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`echo &amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; | head -n &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$I&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | tail -n 1 | awk &amp;#39;{&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;=&amp;quot;&amp;quot;; print &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$0&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;}&amp;#39;`&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$UA&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;~~~~~~~~~~~~~~~~~~&amp;quot;&lt;/span&gt;
+    ip_addresses_by_user_agent &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$UA&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;    &amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Apache Access Logs Find Spiders by Counting Requests to IP Addresses</title>
+      <link>http://example.com/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html</link>
+      <pubDate>Tue, 21 Aug 2012 13:24:37 +0000</pubDate>
+      
+      <guid>http://example.com/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html</guid>
+      <description>&lt;p&gt;If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;LOG_FILE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+&lt;span class=&#34;nv&#34;&gt;OUT_FILE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/tmp/spider_analysis
+
+&lt;span class=&#34;c1&#34;&gt;#This generates a file with the top 20 IP addresses by number of requests&lt;/span&gt;
+cat &lt;span class=&#34;nv&#34;&gt;$LOG_FILE&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk &lt;span class=&#34;s1&#34;&gt;&amp;#39;{print $1}&amp;#39;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; uniq -c &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort -nr &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; head -n &lt;span class=&#34;m&#34;&gt;20&lt;/span&gt; &amp;gt; &lt;span class=&#34;nv&#34;&gt;$OUT_FILE&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Top 20 IP addresses by number of request&amp;quot;&lt;/span&gt;
+cat &lt;span class=&#34;nv&#34;&gt;$OUT_FILE&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;#allow for loop to split on new line&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS_BAK&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IFS&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; i in &lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;cat &lt;span class=&#34;nv&#34;&gt;$OUT_FILE&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;COUNT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk &lt;span class=&#34;s1&#34;&gt;&amp;#39;{print $1}&amp;#39;&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;IP_ADD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk &lt;span class=&#34;s1&#34;&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;---------------------------------&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IP_ADD&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; has made &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$COUNT&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; requests&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Whois Information&amp;quot;&lt;/span&gt;
+    whois &lt;span class=&#34;nv&#34;&gt;$IP_ADD&lt;/span&gt; 
+    &lt;span class=&#34;c1&#34;&gt;#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;---------------------------------&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# set that back&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IFS_BAK&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS_BAK&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You would use this to give you some idea of which IPs are hitting the server a lot.&lt;/p&gt;
+
+&lt;p&gt;Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Git Search History for Specific Line of Code or String</title>
+      <link>http://example.com/git/git-search-history-for-specific-line-of-code-or-string.html</link>
+      <pubDate>Fri, 09 Dec 2011 11:18:51 +0000</pubDate>
+      
+      <guid>http://example.com/git/git-search-history-for-specific-line-of-code-or-string.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to track down exactly how and when a particular change happened and you are not even sure exactly where it is (perhaps because its no longer present but you are not totally sure where it was supposed to be) then this little trick can be a life saver.&lt;/p&gt;
+
+&lt;p&gt;You can search git log for a specific string with the -S flag&lt;/p&gt;
+
+&lt;p&gt;eg, searching for a constant definition&lt;/p&gt;
+
+&lt;p&gt;git -log -SCONSTANT_NAME&lt;/p&gt;
+
+&lt;p&gt;very handy indeed :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Disable Logging Without Editing Core Files</title>
+      <link>http://example.com/magento/magento-disable-logging-without-editing-core-files.html</link>
+      <pubDate>Wed, 16 Feb 2011 09:52:27 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-disable-logging-without-editing-core-files.html</guid>
+      <description>&lt;p&gt;If you want to disable Magento&amp;rsquo;s logging functioality (which can cause a lot of issues due to very large tables being generated and the overhead associated with that) then this is a possible solution.&lt;/p&gt;
+
+&lt;p&gt;You can disable events by putting some special XML in your app/etc/local.xml file.&lt;/p&gt;
+
+&lt;p&gt;This file does not get touched by upgrades (AFAIK) and the effects should kick in as soon as the configuration cache is cleared and rebuilt.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;lt;frontend&amp;gt;&lt;/span&gt; 
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;events&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;controller_action_predispatch&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/controller_action_predispatch&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;controller_action_postdispatch&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/controller_action_postdispatch&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;customer_login&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/customer_login&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;customer_logout&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/customer_logout&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;sales_quote_save_after&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/sales_quote_save_after&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;checkout_quote_destroy&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/checkout_quote_destroy&amp;gt;&lt;/span&gt; 
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/events&amp;gt;&lt;/span&gt; 
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/frontend&amp;gt;&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Debugging - An Introduction to Magento Exception Logging and Developer Mode</title>
+      <link>http://example.com/magento/magento-debugging-an-introduction-to-magento-exception-logging-and-developer-mode.html</link>
+      <pubDate>Mon, 29 Nov 2010 10:18:58 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-debugging-an-introduction-to-magento-exception-logging-and-developer-mode.html</guid>
+      <description>&lt;p&gt;One of the first stumbling blocks newcomers to Magento might find is that when things go wrong, they don&amp;rsquo;t know how to find out what it is that&amp;rsquo;s actually going wrong.&lt;/p&gt;
+
+&lt;p&gt;This is because Magento does an excellent job of keeping all of the error information away from people browsing the site. This is without a doubt a very good thing. Error messages can often contain information that would help an attacker compromise your system.&lt;/p&gt;
+
+&lt;p&gt;What Magento does instead (if you have it enabled) is to log all error information to log files which you can then access via FTP etc to view the error information. This is in much the same way as a well configured web server will not display error information generated by PHP itself but will instead display the &amp;ldquo;white screen of death&amp;rdquo; and log the error information to a file.&lt;/p&gt;
+
+&lt;p&gt;Magento exceptions can range from minor notices to major issues but not fatal errors. If PHP has a fatal error then this will be handled by PHP itself.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Magento Exception Logging&lt;/h2&gt;
+If you are experiencing errors with Magento, the first thing you need to do is to make sure exception logging is enabled.&lt;/p&gt;
+
+&lt;p&gt;In the admin go to:&lt;/p&gt;
+
+&lt;p&gt;System-&amp;gt;Configuration &amp;gt; Developer &amp;gt; Log Settings &amp;gt; Enabled = Yes&lt;/p&gt;
+
+&lt;p&gt;You can also set custom locations for your error log files, though the defaults are normally fine. Make sure the folder is writeable.&lt;/p&gt;
+
+&lt;p&gt;Now if you are having errors, you can look in var/log at the exception.log and/or system.log files that have been generated.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Magento Developer Mode&lt;/h2&gt;
+If you are developing locally and you would like to make Magento dump error information to screen instead of logging to a file, this is very easy to do. You simply need to set the site to run in Developer Mode.&lt;/p&gt;
+
+&lt;p&gt;The most secure way to do this (in the sense that you won&amp;rsquo;t accidently set your live store in Developer Mode) is to edit your local apache configuration and add this line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+SetEnv MAGE_IS_DEVELOPER_MODE &amp;quot;true&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You need to set this up in the directory you are running Magento, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+&amp;lt;Directory &amp;quot;/opt/lampp/htdocs&amp;quot;&amp;gt;
+    #
+    # Possible values for the Options directive are &amp;quot;None&amp;quot;, &amp;quot;All&amp;quot;,
+    # or any combination of:
+    #   Indexes Includes FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
+    #
+    # Note that &amp;quot;MultiViews&amp;quot; must be named *explicitly* --- &amp;quot;Options All&amp;quot;
+    # doesn&#39;t give it to you.
+    #
+    # The Options directive is both complicated and important.  Please see
+    # http://httpd.apache.org/docs/2.2/mod/core.html#options
+    # for more information.
+    #
+    #Options Indexes FollowSymLinks
+    # XAMPP
+    Options Indexes FollowSymLinks ExecCGI Includes
+        SetEnv MAGE_IS_DEVELOPER_MODE &amp;quot;true&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now any Magento site you run from within that folder (or any sub folder) will be running in Developer Mode when you are working locally, but will still be in the much more secure normal mode on the live server, without you having to edit any files within Magento itself.&lt;/p&gt;
+
+&lt;p&gt;If you prefer, you can add this line to your .htaccess file, or you can edit the index.php file to force Developer Mode however with either of these approaches there is always the risk you will accidently upload this file and set your live store into Developer Mode.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Detailed Exception Log</title>
+      <link>http://example.com/magento/magento-detailed-exception-log.html</link>
+      <pubDate>Mon, 18 Oct 2010 10:20:02 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-detailed-exception-log.html</guid>
+      <description>&lt;p&gt;I have never been a particular fan of PHP&amp;rsquo;s standard stack trace - it tantalises you with a short snippet of info for each step of the trace that always seems to miss off the really useful bit of info.&lt;/p&gt;
+
+&lt;p&gt;I have done previous posts before on how to get a more detailed stack trace. If you want to have this in Magento you need to edit Mage.php (I currently don&amp;rsquo;t know a way of overriding Mage.php) with this code (around line 724)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Write exception to log&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param Exception $e&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public static function logException(Exception $e)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (!self::getConfig()) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            return;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $file = self::getStoreConfig(&amp;#39;dev/log/exception_file&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //self::log(&amp;quot;\n&amp;quot; . $e-&amp;gt;__toString(), Zend_Log::ERR, $file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $exceptionDump = &amp;quot;\n\nDETAILED EXCEPTION DUMP\n\n&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		foreach($e-&amp;gt;getTrace() as $n=&amp;gt; $t){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$exceptionDump .= &amp;quot;\n\n------------\n#$n\n&amp;quot; . var_export($t, true) . &amp;quot;\n&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        self::log(&amp;quot;\n&amp;quot; . $exceptionDump, Zend_Log::ERR, $file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

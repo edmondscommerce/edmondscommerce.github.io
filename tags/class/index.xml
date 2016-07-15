@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Class on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/class/</link>
+    <description>Recent content in Class on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 19 Dec 2012 11:53:48 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/class/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Shell Scripts and Memory Limit Woes &#43; Solution</title>
+      <link>http://example.com/magento/magento-shell-scripts-and-memory-limit-woes-solution.html</link>
+      <pubDate>Wed, 19 Dec 2012 11:53:48 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-shell-scripts-and-memory-limit-woes-solution.html</guid>
+      <description>&lt;p&gt;OK so you love Magento&amp;rsquo;s shell scripts! They are great for quickly putting together bulk processes that have full access to the Magento ORM.&lt;/p&gt;
+
+&lt;p&gt;These kinds of shell scripts will often require above normal amounts of RAM for the kind of heavy lifting they lend themselves well to. If you are finding your script is banging against some mysterious memory limit that really shouldn&amp;rsquo;t be there then perhaps this is your answer:&lt;/p&gt;
+
+&lt;p&gt;You might see an error message such as this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20 bytes)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The reason this might be happening is that one of the things the abstract shell class does is parse the .htaccess file and apply any PHP configuration it finds. This is pretty slick and I can definitely see the value of it however if you are not aware its happening and you have a memory limit defined in a .htaccess file then it will be applied to your shell environment.&lt;/p&gt;
+
+&lt;p&gt;The solution is up to you, edit the htaccess file or override this method in your shell class so that it doesn&amp;rsquo;t do things you do not want:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Parse .htaccess file and apply php settings to shell script&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function _applyPhpVariables()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $htaccess = $this-&amp;gt;_getRootPath() . &amp;#39;.htaccess&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (file_exists($htaccess)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            // parse htaccess file&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $data = file_get_contents($htaccess);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $matches = array();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            preg_match_all(&amp;#39;#^\s+?php_value\s+([a-z_]+)\s+(.+)$#siUm&amp;#39;, $data, $matches, PREG_SET_ORDER);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if ($matches) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                foreach ($matches as $match) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    @ini_set($match[1], $match[2]);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            preg_match_all(&amp;#39;#^\s+?php_flag\s+([a-z_]+)\s+(.+)$#siUm&amp;#39;, $data, $matches, PREG_SET_ORDER);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if ($matches) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                foreach ($matches as $match) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    @ini_set($match[1], $match[2]);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys</title>
+      <link>http://example.com/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</link>
+      <pubDate>Tue, 04 Dec 2012 12:21:44 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</guid>
+      <description>&lt;p&gt;If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.&lt;/p&gt;
+
+&lt;p&gt;Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.&lt;/p&gt;
+
+&lt;p&gt;When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.&lt;/p&gt;
+
+&lt;p&gt;For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Generate a nice unique block cache key&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param Mage_Core_Block_Abstract $block&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function ecCacheKey(Mage_Core_Block_Abstract $block){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $class = get_class($block);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $template = $block-&amp;gt;getTemplateFile();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $md5 = md5(var_export($block-&amp;gt;getData(), true));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $params = trim(implode(&amp;quot;,&amp;quot;, $block-&amp;gt;getRequest()-&amp;gt;getParams()), &amp;#39;,&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category=($block-&amp;gt;getCurrentCategory())?$block-&amp;gt;getCurrentCategory()-&amp;gt;getName():&amp;#39;no-category&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $store_id = Mage::app()-&amp;gt;getStore()-&amp;gt;getId();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;#39;edmondscommerce-&amp;#39;. $params . &amp;#39;-&amp;#39;. $category . &amp;#39;-&amp;#39; . $store_id . &amp;#39;-&amp;#39; . $class.&amp;#39;-&amp;#39;.$template.&amp;#39;-&amp;#39;.$md5;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You would use this in the following way:&lt;/p&gt;
+
+&lt;p&gt;In a block class, set up the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function _construct(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        parent::_construct();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;addData(array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_lifetime&amp;#39; =&amp;gt; 999999999,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_tags&amp;#39; =&amp;gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_key&amp;#39; =&amp;gt; Mage::helper(&amp;#39;blockcaching&amp;#39;)-&amp;gt;ecCacheKey($this)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ));&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Netbeans to generate PHP class methods</title>
+      <link>http://example.com/netbeans/using-netbeans-to-generate-php-class-methods.html</link>
+      <pubDate>Thu, 08 Mar 2012 14:31:19 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/using-netbeans-to-generate-php-class-methods.html</guid>
+      <description>&lt;p&gt;One of the features that I was previously unaware of in Netbeans is its ability to automatically generate common class methods. This post is a quick guide of how this works for future reference.&lt;/p&gt;
+
+&lt;p&gt;To get the system to work, first load up a php class. For this example I&amp;rsquo;m going to be extending the Magento Product Model. This basic class can be seen here, with a couple of extra properties added.
+&lt;img src=&#34;http://example.com/images/screenshot5-600x166.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To start generating the methods you need to press [Alt] &amp;amp; [Insert] and you will be presented with a menu similar to the one below&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot6.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This lists all of the common methods that do not currently exist within the class. The first thing that we&amp;rsquo;ll do is to generate a constructor, which gives us the following options&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot7.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Here you can select which of the class properties you want to be set using the constructor. Pick the ones you want and click OK, and the following code is generated&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot8-600x368.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The Getters and Setters work in the same way, and the Override &amp;amp; Implement provides you with a list of all of the methods that the class can override from its parents. Using these together can help you to quickly all of the methods you need in minutes, as shown below.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot14-600x547.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP DomPDF Bug - page_cache.cls.php on line 66 dompdf &#43; Solution</title>
+      <link>http://example.com/php/php-dompdf-bug-page_cache-cls-php-on-line-66-dompdf-solution.html</link>
+      <pubDate>Fri, 24 Jun 2011 15:29:39 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-dompdf-bug-page_cache-cls-php-on-line-66-dompdf-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are struggling with a weird bug with DomPDF, something about it trying to connect to a postgres database..&lt;/p&gt;
+
+&lt;p&gt;well here is the solution that will get you up and running:&lt;/p&gt;
+
+&lt;p&gt;open the file and make the init method just return false&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;class Page_Cache {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    const DB_USER = &amp;quot;dompdf_page_cache&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    const DB_PASS = &amp;quot;some meaningful password&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    const DB_NAME = &amp;quot;dompdf_page_cache&amp;quot;;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    static private $__connection = null;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    function init() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (is_null(self::$__connection)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $con_str = &amp;quot;host=&amp;quot; . DB_HOST .&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    &amp;quot; dbname=&amp;quot; . self::DB_NAME .&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    &amp;quot; user=&amp;quot; . self::DB_USER .&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    &amp;quot; password=&amp;quot; . self::DB_PASS;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;            if (!self::$__connection = pg_connect($con_str))&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                throw new Exception(&amp;quot;Database connection failed.&amp;quot;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Not sure really why this is trying to do this, obviously some kind of hard coded postgres caching system but anyway this fixed it.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Autocomplete on Class Properties Using PHPDoc</title>
+      <link>http://example.com/netbeans/netbeans-autocomplete-on-class-properties-using-phpdoc.html</link>
+      <pubDate>Wed, 12 May 2010 11:26:41 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-autocomplete-on-class-properties-using-phpdoc.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are using netbeans for PHP classes and you have some of your class properties are instances of other objects and you want to get autocomplete working for them, then you might struggle to figure out which PHPDoc syntax to use to get autocomplete working.&lt;/p&gt;
+
+&lt;p&gt;Here is the answer:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;* @property MyObject $myObject&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;* @property AnotherObject $anotherObject&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;*/&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;class MyClass{&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;     protected $myObject;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     protected $anotherObject;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     public function __construct($myObject, $anotherObject){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         $this-&amp;gt;myObject=$myObject;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         $this-&amp;gt;anotherObject=$anotherObject;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     public function autocomplete(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         $this-&amp;gt;myObject-&amp;gt;//autocomplete works here&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

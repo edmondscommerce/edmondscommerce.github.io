@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zend Form Remove Error Messages on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/zend-form-remove-error-messages/</link>
+    <description>Recent content in Zend Form Remove Error Messages on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 09 Apr 2009 07:59:24 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/zend-form-remove-error-messages/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Zend Form Remove Error Messages</title>
+      <link>http://example.com/zend-framework/zend-form-remove-error-messages.html</link>
+      <pubDate>Thu, 09 Apr 2009 07:59:24 +0000</pubDate>
+      
+      <guid>http://example.com/zend-framework/zend-form-remove-error-messages.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Sometimes you don&amp;rsquo;t want to display the error messages for a form. I have tried to find the proper solution to remove validtion error messages and haven&amp;rsquo;t found what I would regard as the proper solution.&lt;/p&gt;
+
+&lt;p&gt;However what does work for me is to loop through any elements that I want to remove the error messages for and remove the error message decorator like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt; foreach($subforms[&amp;#39;empty&amp;#39;] as $sf){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; 	$elements = $sf-&amp;gt;getElements();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        foreach($elements as $e){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        	$e-&amp;gt;removeDecorator(&amp;#39;Errors&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;In this context I have filtered out all the subforms where all inputs are empty and will then remove the error messages from those sub forms.&lt;/p&gt;
+
+&lt;p&gt;If you are interested, here is the method I use to validate subforms and separate out valid, invalid and totally empty sub forms.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;public function validateSubForms($data){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$subforms = $this-&amp;gt;getSubForms();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	foreach($subforms as $sf){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		if($sf-&amp;gt;isValid($data)){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$valid[]=$sf;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		}else{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$error_other_than_empty = false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$elements = $sf-&amp;gt;getElements();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			foreach($elements as $e){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				$errors = $e-&amp;gt;getErrors();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				foreach($errors as $er){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				   // EC_Debug::diedump($er);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;					if($er !=&amp;#39;isEmpty&amp;#39;){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;						$error_other_than_empty = true;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;						break(2);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;					}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			if($error_other_than_empty){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				$invalid[]=$sf;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			}else{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				$empty[]=$sf;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	return array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		&amp;#39;valid&amp;#39; =&amp;gt; $valid,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		&amp;#39;empty&amp;#39;=&amp;gt;$empty,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		&amp;#39;invalid&amp;#39; =&amp;gt; $invalid&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Debug on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/debug/</link>
+    <description>Recent content in Debug on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 08 Jul 2013 08:28:17 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/debug/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP SOAP Client Basic Template</title>
+      <link>http://example.com/php/php-soap-client-basic-template.html</link>
+      <pubDate>Mon, 08 Jul 2013 08:28:17 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-soap-client-basic-template.html</guid>
+      <description>&lt;p&gt;Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&amp;rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&amp;rsquo;m just unlucky?&lt;/p&gt;
+
+&lt;p&gt;In my experience decent API&amp;rsquo;s don&amp;rsquo;t use SOAP.&lt;/p&gt;
+
+&lt;p&gt;Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&amp;rsquo;t work), I&amp;rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * Class Template Soap Client Consuming Class&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; */&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;EdmondsCommerceSoap&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;edmondscommerce&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pass&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;NotReallyMyPassw0rd&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;test&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;connection_timeout&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;25&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;location&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;trace&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;//this is important if you want to be able to use the soapDebug method&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setAuthHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;Method&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapFault&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;h1&amp;gt;SoapFault: &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getMessage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;/h1&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;pre&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getTraceAsString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;/pre&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;h2&amp;gt;Debug Info:&amp;lt;/h2&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;var_dump&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;soapDebug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    * This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setAuthHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$auth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;username&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;MessageId&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;md5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()),&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;password&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;password&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$auth&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$k&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SoapHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Header&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__setSoapHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     *  This method gathers all debug info into a handy array ready for var_dump, log etc etc&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;soapDebug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;headers&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequestHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body_formatted&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;headers&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponseHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body_formatted&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This method is purely to assist the debug method and simply makes generated XML readable&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;preg_replace&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/(&amp;gt;)(&amp;lt;)(\/*)/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;$1&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;$2$3&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strtok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!==&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/.+&amp;lt;\/\w[^&amp;gt;]*&amp;gt;$/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/^&amp;lt;\/\w/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/^&amp;lt;\w[^&amp;gt;]*[^\/]&amp;gt;.*$/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;endif&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;str_pad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strlen&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;STR_PAD_LEFT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strtok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;endwhile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Prestashop Debug Mode using the Magento Environment Variable Method</title>
+      <link>http://example.com/prestashop/prestashop-debug-mode-using-the-magento-environment-variable-method.html</link>
+      <pubDate>Thu, 25 Apr 2013 10:14:30 +0000</pubDate>
+      
+      <guid>http://example.com/prestashop/prestashop-debug-mode-using-the-magento-environment-variable-method.html</guid>
+      <description>&lt;p&gt;Magento developers are no doubt familiar with the concept of defining a server environment variable MAGE_IS_DEVELOPER_MODE so that when running Magento locally it is always in developer mode but there is no chance of accidently deploying a live site in developer mode.&lt;/p&gt;
+
+&lt;p&gt;This little trick will allow you to use the same environment variable to also have the same effect when working with PrestaShop.&lt;/p&gt;
+
+&lt;p&gt;To explain - developer mode generally means that things like error messages and debugging information are displayed clearly in the browser which makes things much easier when you are developing, to see what is going wrong.&lt;/p&gt;
+
+&lt;p&gt;On a live site you want to keep error information hidden and generally display to the customer a more friendly error message screen that perhaps helps them find their way back to a functional section of the site or gives them information to contact the site owner directly for assistance.&lt;/p&gt;
+
+&lt;p&gt;Anyway, to put PrestaShop in debug mode locally but have no risk of deployign this to live you can alter the file: config/defines.inc.php&lt;/p&gt;
+
+&lt;p&gt;from&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;define(&amp;#39;_PS_MODE_DEV_&amp;#39;, false);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;to&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;define(&amp;#39;_PS_MODE_DEV_&amp;#39;, isset($_SERVER[&amp;#39;MAGE_IS_DEVELOPER_MODE&amp;#39;]));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP Stack traces you can click on! (in PhpStorm)</title>
+      <link>http://example.com/php/php-stack-traces-you-can-click-on-in-phpstorm.html</link>
+      <pubDate>Fri, 07 Sep 2012 14:35:37 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-stack-traces-you-can-click-on-in-phpstorm.html</guid>
+      <description>&lt;p&gt;Having a stack trace is very handy at times but wouldn&amp;rsquo;t it be nice if you could click on the filename in the stack trace in your browser and your IDE take you to the file and line that it&amp;rsquo;s talking about?&lt;/p&gt;
+
+&lt;p&gt;Well, with PhpStorm and kint, you can!  Using a plugin called Remote Call, the PhpStorm IDE can listen on a port and go to files and line numbers via an ajax call.&lt;/p&gt;
+
+&lt;p&gt;To configure this, grab the latest version of kint, and copy it&amp;rsquo;s sample config to an actual config file, and edit the section about pathDisplayCallback to look like this :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$_kintSettings[&amp;#39;pathDisplayCallback&amp;#39;] = &amp;quot;_kintLine&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;function _kintLine( $file, $line = NULL ) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ( !$line ) { // means this is called from resource type dump&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                return $file;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;quot;&amp;lt;u&amp;gt;&amp;lt;a class=\&amp;quot;kint-ide-link\&amp;quot; href=\&amp;quot;http://localhost:8091/?message={$file}:{$line}\&amp;quot;&amp;gt;&amp;quot; . $file . &amp;quot;&amp;lt;/a&amp;gt;&amp;lt;/u&amp;gt; line &amp;lt;i&amp;gt;{$line}&amp;lt;/i&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can even be clever with regex to make the filenames be relative - for instance, we run our projects from a directory below one called, oddly enough &amp;ldquo;projects&amp;rdquo; and our function looks like this :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function _kintLine( $file, $line = NULL )&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $shortname = preg_replace(&amp;#39;#.*/[Pp]rojects/[^/]*/#&amp;#39;,&amp;#39;&amp;#39;,$file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ( !$line ) { // means this is called from resource type dump&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                return $shortname;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;quot;&amp;lt;u&amp;gt;&amp;lt;a class=\&amp;quot;kint-ide-link\&amp;quot; href=\&amp;quot;http://localhost:8091/?message={$file}:{$line}\&amp;quot;&amp;gt;&amp;quot; . $shortname . &amp;quot;&amp;lt;/a&amp;gt;&amp;lt;/u&amp;gt; line &amp;lt;i&amp;gt;{$line}&amp;lt;/i&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now, if you call Kint::trace(); from your file that you&amp;rsquo;ve included Kint.class.php from, you get a clickable stacktrace!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Debugging Output Buffering Being Disabled</title>
+      <link>http://example.com/php/debugging-output-buffering-being-disabled.html</link>
+      <pubDate>Tue, 21 Aug 2012 17:09:55 +0000</pubDate>
+      
+      <guid>http://example.com/php/debugging-output-buffering-being-disabled.html</guid>
+      <description>&lt;p&gt;If you are confused as to exactly which bit of code is killing your output buffer in PHP then you might love this little trick. Combined with Xdebug it can get you to the root of the problem quickly and easily.&lt;/p&gt;
+
+&lt;p&gt;The trick involves using the callback function capability of ob_start.&lt;/p&gt;
+
+&lt;p&gt;Firstly you need to make a callback handler, for example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function ob_callback(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;#39;wtf&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then in your IDE, set a break point on the echo line. If you aren&amp;rsquo;t using Xdebug, you could do something like this instead:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function ob_callback(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;#39;&amp;lt;h1&amp;gt;Output Buffer Has Been Killed&amp;lt;/h1&amp;gt;&amp;lt;pre&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    var_dump(debug_backtrace());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    die;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then where you are starting your output buffer, simply pass in the function name as a parameter like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;ob_start(&amp;#39;ob_callback&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Display out-of-stock products part of a Configurable Product</title>
+      <link>http://example.com/magento/display-out-of-stock-products-part-of-a-configurable-product.html</link>
+      <pubDate>Thu, 31 May 2012 16:39:50 +0000</pubDate>
+      
+      <guid>http://example.com/magento/display-out-of-stock-products-part-of-a-configurable-product.html</guid>
+      <description>&lt;p&gt;In a situation where you want Magento to display out of stock product options of a configurable products, overriding getAllowProducts() function in Mage_Catalog_Block_Product_View_Type_Configurable is where you should be looking, change&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;if ($product-&amp;gt;isSaleable()) &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;         $products[] = $product;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;to&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$products[] = $product;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Bingo!!!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Layout ignore=&#34;1&#34;</title>
+      <link>http://example.com/magento/magento-layout-ignore1.html</link>
+      <pubDate>Wed, 29 Feb 2012 17:17:15 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-layout-ignore1.html</guid>
+      <description>&lt;p&gt;If you are looking at your Layout XML when trying to debug missing blocks for example, you may see the attribute ignore=&amp;ldquo;1&amp;rdquo; being assigned to chunks of XML.&lt;/p&gt;
+
+&lt;p&gt;These are set when some module or other is using the remove syntax to remove a block.&lt;/p&gt;
+
+&lt;p&gt;For example I have just had some issues with Fontis Recaptcha and TBT Sweetooth extensions not playing nice together.&lt;/p&gt;
+
+&lt;p&gt;The reason is that the Fontis extension is removing the entire customer_form_register handle and replacing it with a custom one however the Sweettooth module is still referring to the core Magento handle which then means its layout updates are not having any effect.&lt;/p&gt;
+
+&lt;p&gt;The way to see this is find the layout sections with ignore=&amp;ldquo;1&amp;rdquo;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;core/text_list&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;left&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;as=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;left&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;ignore=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;1&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and search your files for a corresponding&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;remove&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;left&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The name attribute is the one you need to look for the correlation on.&lt;/p&gt;
+
+&lt;p&gt;For the sweettooth issue, the solutions was to simply add in the sweet tooth XML to the Fontis XML like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;lt;customer_account_create&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;remove&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;customer_form_register&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;reference&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;content&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;customer/form_register&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;recaptcha_form_register&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;template=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;fontis/recaptcha/register.phtml&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;core/template&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;recaptcha.box&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;as=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;recaptcha_box&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;template=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;fontis/recaptcha/recaptcha.phtml&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;rewardsref/field_register&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;rewards_referral&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;template=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;rewardsref/customer/register/fieldset.phtml&amp;quot;&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/reference&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/customer_account_create&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Inspiration from this &lt;a href=&#34;http://stackoverflow.com/questions/1087733/magento-my-account-layout-xml-problem&#34;&gt;Stack Overflow&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Performance Tuning</title>
+      <link>http://example.com/mysql/mysql-performance-tuning.html</link>
+      <pubDate>Mon, 16 Jan 2012 10:44:36 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-performance-tuning.html</guid>
+      <description>&lt;p&gt;Just came across &lt;a href=&#34;http://forums.mysql.com/read.php?24,92131,92131&#34;&gt;this forum post&lt;/a&gt; of MySQL that looks to be a gold mine of information related to performance tuning MySQL.&lt;/p&gt;
+
+&lt;p&gt;For reference I am copying and pasting the full thing here though all credit goes to the above.&lt;/p&gt;
+
+&lt;p&gt;Book: High Performance MySQL (2nd Edition)
+&lt;a href=&#34;http://www.highperfmysql.com/&#34;&gt;http://www.highperfmysql.com/&lt;/a&gt;
+MySQL Performance Tuning - Best Practices:
+&lt;a href=&#34;http://jpipes.com/presentations/perf_tuning_best_practices.pdf&#34;&gt;http://jpipes.com/presentations/perf_tuning_best_practices.pdf&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Index Tuning and Coding Techniques for Optimal Performance:
+&lt;a href=&#34;http://jpipes.com/presentations/index_coding_optimization.pdf&#34;&gt;http://jpipes.com/presentations/index_coding_optimization.pdf&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Web Performance and Scalability with MySQL:
+&lt;a href=&#34;http://develooper.com/talks/&#34;&gt;http://develooper.com/talks/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;PHP Applications: 120 Performance Tuning screws for MySQL
+&lt;a href=&#34;http://blog.ulf-wendel.de/?p=268&#34;&gt;http://blog.ulf-wendel.de/?p=268&lt;/a&gt;
+&lt;a href=&#34;http://blog.ulf-wendel.de/?p=163&#34;&gt;http://blog.ulf-wendel.de/?p=163&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Server Variables
+&lt;a href=&#34;http://forge.mysql.com/wiki/ServerVariables&#34;&gt;http://forge.mysql.com/wiki/ServerVariables&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL Server Variables - SQL layer or Storage Engine specific
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2006/06/08/mysql-server-variables-sql-layer-or-storage-engine-specific/&#34; target=&#34;_blank&#34;&gt;http://www.mysqlperformanceblog.com/2006/06/08/mysql-server-variables-sql-layer-or-storage-engine-specific/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;“Show profile” + “Information_schema.profiling”
+&lt;a href=&#34;http://blogs.mysql.com/peterg/2008/11/06/show-profile-information_schemaprofiling/&#34;&gt;http://blogs.mysql.com/peterg/2008/11/06/show-profile-information_schemaprofiling/&lt;/a&gt;
+PeterZ presentations:
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/mysql-performance-presentations/&#34;&gt;http://www.mysqlperformanceblog.com/mysql-performance-presentations/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Using MMM to ALTER huge tables
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/27/using-mmm-to-alter-huge-tables/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/27/using-mmm-to-alter-huge-tables/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;MySQL File System Fragmentation Benchmarks
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/21/mysql-file-system-fragmentation-benchmarks/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/21/mysql-file-system-fragmentation-benchmarks/&lt;/a&gt;
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2008/03/18/working-with-many-files-and-file-system-fragmentation/&#34;&gt;http://www.mysqlperformanceblog.com/2008/03/18/working-with-many-files-and-file-system-fragmentation/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Finding/killing long running InnoDB transactions with Events
+&lt;a href=&#34;http://www.markleith.co.uk/?p=730 &#34;&gt;&lt;a href=&#34;http://www.markleith.co.uk/?p=730&#34; target=&#34;_blank&#34;&gt;http://www.markleith.co.uk/?p=730&lt;/a&gt; &lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Using the event scheduler to purge the process list
+&lt;a href=&#34;http://datacharmer.blogspot.com/2008/10/using-event-scheduler-to-purge-process.html&#34;&gt;http://datacharmer.blogspot.com/2008/10/using-event-scheduler-to-purge-process.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;kill_run_aways&lt;/code&gt; Stored Proc
+&lt;a href=&#34;http://forge.mysql.com/tools/tool.php?id=106&#34;&gt;http://forge.mysql.com/tools/tool.php?id=106&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Yoshinori: Tracking long running transactions in MySQL
+&lt;a href=&#34;http://yoshinorimatsunobu.blogspot.com/2011/04/tracking-long-running-transactions-in.html&#34;&gt;http://yoshinorimatsunobu.blogspot.com/2011/04/tracking-long-running-transactions-in.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;How to debug long-running transactions in MySQL
+&lt;a href=&#34;http://www.mysqlperformanceblog.com/2011/03/08/how-to-debug-long-running-transactions-in-mysql/&#34;&gt;http://www.mysqlperformanceblog.com/2011/03/08/how-to-debug-long-running-transactions-in-mysql/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Git Search History for Specific Line of Code or String</title>
+      <link>http://example.com/git/git-search-history-for-specific-line-of-code-or-string.html</link>
+      <pubDate>Fri, 09 Dec 2011 11:18:51 +0000</pubDate>
+      
+      <guid>http://example.com/git/git-search-history-for-specific-line-of-code-or-string.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to track down exactly how and when a particular change happened and you are not even sure exactly where it is (perhaps because its no longer present but you are not totally sure where it was supposed to be) then this little trick can be a life saver.&lt;/p&gt;
+
+&lt;p&gt;You can search git log for a specific string with the -S flag&lt;/p&gt;
+
+&lt;p&gt;eg, searching for a constant definition&lt;/p&gt;
+
+&lt;p&gt;git -log -SCONSTANT_NAME&lt;/p&gt;
+
+&lt;p&gt;very handy indeed :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento javascript stopped working &#43; solution</title>
+      <link>http://example.com/magento/magento-javascript-stopped-working-solution.html</link>
+      <pubDate>Thu, 11 Aug 2011 14:52:58 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-javascript-stopped-working-solution.html</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve just spent to long trying to fix an infuriating problem with a simple fix. If you create a new theme from scratch and suddenly realise that none of your magento javascript is working, it could be because you&amp;rsquo;ve included jQuery and forgotten to include the noConflict argument.&lt;/p&gt;
+
+&lt;p&gt;If you have included jQuery, then make sure the following line is included at the top of your page.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+jQuery.noConflict();
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP Custom Error and Exception Handler - Make PHP Stricter</title>
+      <link>http://example.com/php/php-custom-error-and-exception-handler-make-php-stricter.html</link>
+      <pubDate>Thu, 12 May 2011 11:20:58 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-custom-error-and-exception-handler-make-php-stricter.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you prefer a coding style that doesn&amp;rsquo;t let you get away with as much as PHP does by default then you may like this trick.&lt;/p&gt;
+
+&lt;p&gt;As standard PHP will let you get away with quite a lot of things that are probably not a good idea. Some times that can be great, allowing you to quickly prototype things or achieve results quickly without having to go through nit picking your code.&lt;/p&gt;
+
+&lt;p&gt;However on the other hand if you are working on a production system that you would really rather complained as much as possible in the dev stage to help to minimise the likelihood that bugs will creep through to production then this looseness can work against you.&lt;/p&gt;
+
+&lt;p&gt;For this reason I often use this trick to make PHP much more fussy and strict and make errors much more obvious and easier to deal with.&lt;/p&gt;
+
+&lt;p&gt;First of all, we need to create a custom error handler. This will override the standard error handling in PHP and allow us to do what we want. What I am going to do is convert all of the standard PHP errors into exceptions.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Error Handler&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function ec_error_handler($severity, $message, $filename, $lineno) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if (error_reporting() == 0) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    //if (error_reporting() &amp;amp; $severity) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    throw new ErrorException($message, 0, $severity, $filename, $lineno);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    //}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You will notice that 2 lines are commented out. If uncommented, this will respect the error reporting settings of PHP. Commented out it throws an exception regardless of PHP error reporting settings.&lt;/p&gt;
+
+&lt;p&gt;To make PHP use this function as my error handler we do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;set_error_handler(&amp;#39;ec_error_handler&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So now every PHP error, notice etc is being converted into an exception. This gives me the ability to view stack traces and see exactly which file, line etc is involved so tracking issues down is a snap.&lt;/p&gt;
+
+&lt;p&gt;Now though I want a nice system to capture these exceptions and dump this info to the screen.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Exception Handler&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function ec_exceptions_handler(Exception $e) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    ob_start();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(1, &amp;#39;Uncaught Exception&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(2, $e-&amp;gt;getMessage());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(3, &amp;#39;Line &amp;#39; . $e-&amp;gt;getLine() . &amp;#39; of &amp;#39; . $e-&amp;gt;getFile());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($e-&amp;gt;getTrace() as $t) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        var_dump($t);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    dumpObjects();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $exceptionMessage = ob_get_clean();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo $exceptionMessage;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    exit(1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This function starts the output buffer then dumps a large amount of information including the message, line and file for the exception. The full stack trace.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s also dumping all global objects using another function.&lt;/p&gt;
+
+&lt;p&gt;This output is captured into a variable with ob_get_clean(). At this point, you might decide to log this variable to a file, database, ticketing system etc - I leave that bit to you. Finally the info is dumped to the screen and the program exits.&lt;/p&gt;
+
+&lt;p&gt;Of course this is not something you should do in a production environment, this level of information on a production system is a welcome invitation to hackers to exploit you. However in a secure local dev environment its exactly what you need.&lt;/p&gt;
+
+&lt;p&gt;To get PHP to use this exception handler, we do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;set_exception_handler(&amp;#39;ec_exceptions_handler&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Here are the other functions you will need:&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Dump Objects&lt;/b&gt;
+This one simply var dumps all the objects as they are at the time of the exception. This may be overkill for your situation, I leave that up to you.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function dumpObjects() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(1, &amp;#39;Dumping Objects&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($GLOBALS as $g) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (is_object($g)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            h(2, get_class($g));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            var_dump($g);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;b&gt;H Tag Helper&lt;/b&gt;
+And this is just a html helper to create H tags&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function h($n, $m){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;quot;&amp;lt;h$n&amp;gt;$m&amp;lt;/h$n&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    flush();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;I hope you find this useful. Feel free to add any comments etc below.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Enable Exception Logging</title>
+      <link>http://example.com/magento/magento-enable-exception-logging.html</link>
+      <pubDate>Mon, 15 Nov 2010 14:55:19 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-enable-exception-logging.html</guid>
+      <description>&lt;p&gt;Magento has some great exception logging functionality which is invaluable when trying to figure out why things aren&amp;rsquo;t working.&lt;/p&gt;
+
+&lt;p&gt;However, like a lot of settings in Magento, its tucked away in the configuration and its not always easy to remember how to enable it.&lt;/p&gt;
+
+&lt;p&gt;So here it is:&lt;/p&gt;
+
+&lt;p&gt;System-&amp;gt;Configuration-&amp;gt;Developer-&amp;gt;Log Settings&lt;/p&gt;
+
+&lt;p&gt;Once its enabled, the log files will be created in /var/logs/&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento View SQL For Collection</title>
+      <link>http://example.com/magento/magento-view-sql-for-collection.html</link>
+      <pubDate>Thu, 21 Oct 2010 10:46:19 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-view-sql-for-collection.html</guid>
+      <description>&lt;p&gt;If you are working with collections and would like to verify that the actual SQL being used is what you expect it to be then this little tip might prove really handy.&lt;/p&gt;
+
+&lt;p&gt;For any collection you can call the method getSelect(). This retrieves the actual Select object that handles the query.&lt;/p&gt;
+
+&lt;p&gt;If you cast this select object to a string, you get the raw SQL query, so for example the following is pretty handy:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;die(var_dump((string)$collection-&amp;gt;getSelect()));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This way you can tweak your collection filters etc and check that its doing what you expect it to be doing&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Zend Framework Easy SQL Info</title>
+      <link>http://example.com/zend-framework/zend-framework-easy-sql-info.html</link>
+      <pubDate>Mon, 13 Jul 2009 13:47:52 +0000</pubDate>
+      
+      <guid>http://example.com/zend-framework/zend-framework-easy-sql-info.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you develop using Zend Framework you will know that it is sometimes tricky to see exactly whats going on in terms of SQL queries. After trying a few different ideas including subclassing the database classes or other complex systems, the easiest I have found is this:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Edit your app.ini config file and add a line:
+```&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;db_profiling_enabled = false&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Then in your development section in your ini file, set the same value to true
+
+2. Add the following lines to your bootstrap.php after the database adapter setup. 
+
+```php
+
+// DATABASE ADAPTER - Setup the database adapter
+// Zend_Db implements a factory interface that allows developers to pass in an 
+// adapter name and some parameters that will create an appropriate database 
+// adapter object.  In this instance, we will be using the values found in the 
+// &amp;quot;database&amp;quot; section of the configuration obj.
+$dbAdapter = Zend_Db::factory($configuration-&amp;gt;database);
+//$dbAdapter = new EC_Db_Mysqli($configuration-&amp;gt;database-&amp;gt;params);
+
+
+if($configuration-&amp;gt;db_profiling_enabled){
+    // create a new profiler
+    $profiler = new Zend_Db_Profiler_Firebug(&#39;EdmondsCommerce DB Queries Debug&#39;);
+    // enable profiling (this is only recommended in development mode, disable this in production mode)
+    $profiler-&amp;gt;setEnabled(true);
+    // add the profiler to the database object
+    $dbAdapter-&amp;gt;setProfiler($profiler);
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note you may need to move this chunk above the database adapter section:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;// CONFIGURATION - Setup the configuration object&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;// The Zend_Config_Ini component will parse the ini file, and resolve all of&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;// the values for the given section.  Here we will be using the section name&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;// that corresponds to the APP&amp;#39;s Environment&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$configuration = new Zend_Config_Ini(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    APPLICATION_PATH . &amp;#39;/config/app.ini&amp;#39;, &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    APPLICATION_ENVIRONMENT&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This is based on a modified quickstart layout for a project. If you have decided to use an alternative layout, you should be able to tell where the relevant code should be.&lt;/p&gt;
+
+&lt;p&gt;You will need to have the Firebug firefox extension to view this output. If you also install the FirePHP extension for firebug then there are even more cool things that you can do.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

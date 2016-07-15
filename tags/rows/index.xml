@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rows on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/rows/</link>
+    <description>Recent content in Rows on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 13 Oct 2011 14:00:26 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/rows/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Very High Speed Batch Update Multiple Rows of a Table in Single Query</title>
+      <link>http://example.com/mysql/very-high-speed-batch-update-multiple-rows-of-a-table-in-single-query.html</link>
+      <pubDate>Thu, 13 Oct 2011 14:00:26 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/very-high-speed-batch-update-multiple-rows-of-a-table-in-single-query.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to update a large number of rows on a single table then your first reaction may be to write a loop that updates one row at a time.&lt;/p&gt;
+
+&lt;p&gt;Of course if the table is large then this can result in a very large number of SQL queries.&lt;/p&gt;
+
+&lt;p&gt;Taking a bit of inspiration from &lt;a href=&#34;http://www.kavoir.com/2009/05/mysql-update-multiple-rows-with-one-single-query.html&#34;&gt;this post&lt;/a&gt; I have put together this simple PHP function that will allow you to update as many rows as you want.&lt;/p&gt;
+
+&lt;p&gt;The trade off is basically memory usage as you build up a big array of row update information preparing for the batch. For this reason you may want to tune the number of rows you update per query.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function bulkUpdateSingleColumn($table, $id_column, $update_column, array &amp;amp;$idstovals){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $sql = &amp;quot;update $table set $update_column = CASE $id_column &amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        foreach($idstovals as $id=&amp;gt;$val){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $sql .= &amp;quot; WHEN &amp;#39;$id&amp;#39; THEN &amp;#39;$val&amp;#39; \n&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $sql .= &amp;quot; END &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        WHERE $id_column in (&amp;quot; . implode(&amp;#39;,&amp;#39;, array_keys($idstovals)) . &amp;quot;)&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;//debugging info&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        echo &amp;#39;&amp;lt;small&amp;gt;&amp;#39;.$sql.&amp;#39;&amp;lt;/small&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $idstovals=array();        &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        db_query($sql);       &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        done();        &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Database on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/database/</link>
+    <description>Recent content in Database on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 28 Apr 2014 13:22:34 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/database/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Simple Database Migrations</title>
+      <link>http://example.com/php/simple-database-migrations.html</link>
+      <pubDate>Mon, 28 Apr 2014 13:22:34 +0000</pubDate>
+      
+      <guid>http://example.com/php/simple-database-migrations.html</guid>
+      <description>&lt;p&gt;Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.&lt;/p&gt;
+
+&lt;p&gt;It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.&lt;/p&gt;
+
+&lt;p&gt;Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.&lt;/p&gt;
+
+&lt;p&gt;Here is the code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;mysql_fetch_assoc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;db_query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;select version from db_migrations order by version desc limit 0,1&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$current_version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;version&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;version&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$di&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;DirectoryIterator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/migrations&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$di&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;cm&#34;&gt;/* @var $f DirectoryIterator */&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;isDot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;())&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;continue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pathinfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getFilename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PATHINFO_EXTENSION&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;explode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#1 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;];&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;is_numeric&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#2 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$current_version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#3 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;empty&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;ksort&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SORT_NUMERIC&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;require&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/migrations/&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;h&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Database Migrations - running migration &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;db_query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;insert into db_migrations set version = &amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39; &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP PDO Fetch Object and Columns with Spaces</title>
+      <link>http://example.com/php/php-pdo-fetch-object-and-columns-with-spaces.html</link>
+      <pubDate>Fri, 24 May 2013 17:39:35 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-pdo-fetch-object-and-columns-with-spaces.html</guid>
+      <description>&lt;p&gt;If you use PDO and Fetch Object, it might not be clear exactly to access row properties that are based on columns that have spaces.&lt;/p&gt;
+
+&lt;p&gt;I know I searched for things like:&lt;/p&gt;
+
+&lt;p&gt;PDO Columns with spaces
+PDO::fetchObject spaces
+and PDO spaces in column names&lt;/p&gt;
+
+&lt;p&gt;I eventually found what I was looking for in the depths of the PHP.net comments however hopefully this post will be a little bit easier to find thanks to a bit of primitive SEO up there.&lt;/p&gt;
+
+&lt;p&gt;The solution to using columns with spaces is simply this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$sql=&amp;quot;select * from table_with_spaces_in_column_names &amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$statement = $myPDOObject-&amp;gt;prepare($sql);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$statement-&amp;gt;execute();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$row = $statement-&amp;gt;fetchObject();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$ColumnWithSpaces = $row-&amp;gt;{&amp;#39;Column With Spaces&amp;#39;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Magento Database Migrations to Track Configuration Changes</title>
+      <link>http://example.com/magento/using-magento-database-migrations-to-track-configuration-changes.html</link>
+      <pubDate>Tue, 21 May 2013 09:11:44 +0000</pubDate>
+      
+      <guid>http://example.com/magento/using-magento-database-migrations-to-track-configuration-changes.html</guid>
+      <description>&lt;p&gt;Often when working on a Magento site, there is a requirement to build custom functionality or implement new themes etc but to finish the job, the final step will be to perform some admin configuration.&lt;/p&gt;
+
+&lt;p&gt;This manual step can introduce the possiblity of human error if a step is missed or not performed exactly correctly.&lt;/p&gt;
+
+&lt;p&gt;Also if the configuration is to be applied multiple times across staging, pre production and final production then these risks increase.&lt;/p&gt;
+
+&lt;p&gt;The only sure way to make sure that the correct configuration is applied and also to provide a proper audit trail for configuration changes is to use Magento&amp;rsquo;s database migrations - install and upgrade scripts - to update the database programmatically with the required configuration changes.&lt;/p&gt;
+
+&lt;p&gt;To assist with this, there is a nice simple module you can find on Git Hub:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/danslo/MigrationHelper&#34;&gt;https://github.com/danslo/MigrationHelper&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This module will automatically create the migration files for you which can be a real time saver.&lt;/p&gt;
+
+&lt;p&gt;I would always suggest you create your own custom namespaced configuration migration module that is purely to track these configuration changes.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>&#34;Base table or view already exists: 1050 Table ‘*’ already exists&#34; After Deleting Tables</title>
+      <link>http://example.com/magento/base-table-or-view-already-exists-1050-table-already-exists-after-deleting-tables.html</link>
+      <pubDate>Tue, 08 Jan 2013 16:27:02 +0000</pubDate>
+      
+      <guid>http://example.com/magento/base-table-or-view-already-exists-1050-table-already-exists-after-deleting-tables.html</guid>
+      <description>&lt;p&gt;If for example you&amp;rsquo;re removing an extension and want to clear out its information from the database, you&amp;rsquo;ll need to establish the rows and tables it&amp;rsquo;s inserted, as well as some standard Magento table entries.&lt;/p&gt;
+
+&lt;p&gt;So you&amp;rsquo;ve removed everything, cleared your cache and now you go to the homepage to check everything is all good, and boom, PDOException:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Base table or view already exists: 1050 Table ‘*’ already exists
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In my case it was &lt;code&gt;salesrule&lt;/code&gt;, which made me question why it was trying to create the table afresh. The reason I got this is that I&amp;rsquo;d erroneously removed salesrule_setup from core_resource, and therefore Magento was reinstalling the module. Reinstating the row, and clearing my cache solved the issue&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Establishing a New Database Connection in Magento</title>
+      <link>http://example.com/magento/establishing-a-new-database-connection-in-magento.html</link>
+      <pubDate>Mon, 10 Dec 2012 15:18:27 +0000</pubDate>
+      
+      <guid>http://example.com/magento/establishing-a-new-database-connection-in-magento.html</guid>
+      <description>&lt;p&gt;Connecting to a new database in &lt;a href=&#34;http://example.com/platforms/magento&#34;&gt;Magento&lt;/a&gt; is not the most straight forward of tasks yet it is better structured in other systems that give you no other options. In some systems (such as osCommerce) you would have no choice but to manually create a new PDO object and give it the necessary details.&lt;/p&gt;
+
+&lt;p&gt;In Magneto all database connections are defined in the configuration. The connection that you will always have available is &amp;lsquo;default_setup&amp;rsquo; which, by convention, is always defined in app/etc/local.xml.&lt;/p&gt;
+
+&lt;p&gt;If you will always want the second database connection available you should consider adding it to app/etc/local.xml. You can also define them in module specific configuration if you desire.&lt;/p&gt;
+
+&lt;p&gt;Knowing that the database configuration is nothing more that configuration establishing a new database connection on the fly in code is relatively straight forward. Here is some example code to do this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$config&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;app&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getConfig&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$originalPrefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;global/resources/default_setup&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$newPrefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;global/resources/orders_db&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$nodesToCopy&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/connection/host&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/connection/username&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/connection/password&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/connection/initStatements&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/connection/model&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/connection/type&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/connection/pdoType&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/connection/active&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$nodesToCopy&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$nodeToCopy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;$nodeVal&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;string&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$config&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getNode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$originalPrefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$nodeToCopy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;$config&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setNode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$newPrefix&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$nodeToCopy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$nodeVal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$config&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setNode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;global/resources/orders_db/connection/dbname&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;import_orders&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$ordersDb&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getSingleton&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;core/resource&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;orders_db&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;In this example the &amp;lsquo;default_setup&amp;rsquo; connection details are copied to a new connection called &amp;lsquo;orders_db&amp;rsquo;, then the database for this new connection is changed to &amp;lsquo;import_orders&amp;rsquo;. Having defined the configuration for the database simply get the connection object and Magento will establish the connection for you.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Run Multiple MySQL Queries in a Single Function</title>
+      <link>http://example.com/php/run-multiple-mysql-queries-in-a-single-function.html</link>
+      <pubDate>Wed, 14 Nov 2012 12:45:09 +0000</pubDate>
+      
+      <guid>http://example.com/php/run-multiple-mysql-queries-in-a-single-function.html</guid>
+      <description>&lt;p&gt;If you want to be able to run multiple queries in a single function call, for example doing the classic drop table blah; create table blah; then you might like this function.&lt;/p&gt;
+
+&lt;p&gt;The use case is for things like database migration systems which you might copy and paste chunks of SQL including multiple queries from things like phpMyAdmin&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * Run multiple queries passed in as a single string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * This is optimised for copying and pasting from phpMyAdmin&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * Handy for things like database migration systems&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @param string $sql  multiple queries terminated with ; and a new line&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;function multiQuery($sql)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $sqls = preg_split(&amp;#39;%;$%m&amp;#39;, trim($sql));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($sqls as $q) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (empty($q)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            continue;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        mysql_query($q); //suggest you replace this with your custom query function or if not throw in some extra error checking at least&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Profiler Improved - Aoe_Profiler by Fabrizio Branca</title>
+      <link>http://example.com/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca.html</link>
+      <pubDate>Fri, 17 Aug 2012 15:31:32 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca.html</guid>
+      <description>&lt;p&gt;The Magento profiler is useful when you are trying to discover what potential bottlenecks are in place in a specific Magento implementation that are slowing down the performance of the site. Often when doing this kind of analysis you might find that a particular block or extension is responsible for more than 70% of the total page load time. At this point you would choose to either optimise, cache or disable the block altogether to remove this performance bottleneck and improve page speed significantly.&lt;/p&gt;
+
+&lt;p&gt;If you have ever tried to use Magento&amp;rsquo;s built in profiler you will no doubt agree with Fabrizio&amp;rsquo;s comments that, when you have it working, the output is hard to read and not really very useful in terms of seeing what is actually going on.&lt;/p&gt;
+
+&lt;p&gt;To aid with this process and give us a nice colourful and friendly user interface to the Magento profiler, Fabrizio has built a Magento module that extends the default profiler and makes it a much more useful tool.&lt;/p&gt;
+
+&lt;p&gt;You can download the extension from &lt;a href=&#34;https://github.com/fbrnc/Aoe_Profiler&#34; title=&#34;Magento Aoe Profiler on Git Hub&#34; target=&#34;_blank&#34;&gt;git hub here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Read the full blog story &lt;a href=&#34;http://www.fabrizio-branca.de/magento-profiler.html&#34; title=&#34;Fabrizio Branch blog&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you would like some help optimising the performance of your Magento store, feel free to get in touch with Edmonds Commerce today and we can assist in getting the very best performance from your Magento web site.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Yii Setting up Authorisation - the Missing Manual</title>
+      <link>http://example.com/php/yii-setting-up-authorisation-the-missing-manual.html</link>
+      <pubDate>Wed, 01 Feb 2012 17:25:50 +0000</pubDate>
+      
+      <guid>http://example.com/php/yii-setting-up-authorisation-the-missing-manual.html</guid>
+      <description>&lt;p&gt;Reading the generally very clear and concise Yii documentation you can quickly get started with the framework.&lt;/p&gt;
+
+&lt;p&gt;However one issue that I struggled to be clear on is setting up the database driven authorisation system.&lt;/p&gt;
+
+&lt;p&gt;I recommend reading &lt;a href=&#34;http://danaluther.blogspot.com/2010/03/yii-authentication-via-database.html&#34;&gt;this blog post&lt;/a&gt; which finally helped me to understand wth I was supposed to do. The official documentation is &lt;a href=&#34;http://www.yiiframework.com/doc/guide/1.1/en/topics.auth#defining-authorization-hierarchy&#34;&gt;here&lt;/a&gt; which you should also read.&lt;/p&gt;
+
+&lt;p&gt;There are a few key points that are not really clear but are important.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1. You need to create the tables.
+&lt;/strong&gt;
+There is a file: yii/framework/web/auth/schema-mysql.sql&lt;/p&gt;
+
+&lt;p&gt;You need to run this on your database to build the necessary tables#&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2. Creating the rules - use the Yii Shell
+&lt;/strong&gt;
+You will see examples of PHP code that defines rules etc. You may wonder where the hell you are supposed to put this code and also is it really a good idea to run this kind of code on every page load, seems odd.&lt;/p&gt;
+
+&lt;p&gt;Well the answer is you are only meant to run it once and you can either make a PHP script that runs it or even nicer is to use the Yii interactive shell and paste the lines in one at a time to execute them.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Using the Yii Shell&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Go to your web root on the command line (I&amp;rsquo;m using Linux, good luck if you aren&amp;rsquo;t)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+cd ~/Projects/yii-projects/public
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now run the yiic tool from the web root with the shell flag&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+protected/yiic shell
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You now have an interactive PHP shell with the Yii framework available. You can create models, crud etc as you might have done in Gii, but you can also run PHP code directly, including working with Yii objects - such as the authManager&lt;/p&gt;
+
+&lt;p&gt;Try this:&lt;/p&gt;
+
+&lt;p&gt;Paste this line into your Yii shell and hit return&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+$auth=Yii:app()-&amp;gt;authManager;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then this line and hit return&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+var_dump($auth);
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You should see a var dump of the CDbAuthManager object&lt;/p&gt;
+
+&lt;p&gt;Now when you see examples such as this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$auth=Yii::app()-&amp;gt;authManager;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$auth-&amp;gt;createOperation(&amp;#39;createPost&amp;#39;,&amp;#39;create a post&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$auth-&amp;gt;createOperation(&amp;#39;readPost&amp;#39;,&amp;#39;read a post&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$auth-&amp;gt;createOperation(&amp;#39;updatePost&amp;#39;,&amp;#39;update a post&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$auth-&amp;gt;createOperation(&amp;#39;deletePost&amp;#39;,&amp;#39;delete a post&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You realise that this is something you can do ONCE to set up these roles, and a great way to do that is via the Yii Shell.&lt;/p&gt;
+
+&lt;p&gt;Have fun ;)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>mysql_dump not restored correctly 1064: USING BTREE &#43; fix</title>
+      <link>http://example.com/mysql/mysql_dump-not-restored-correctly-1064-using-btree-fix.html</link>
+      <pubDate>Thu, 10 Nov 2011 18:30:05 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql_dump-not-restored-correctly-1064-using-btree-fix.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+When migrating one server to another you often hit bumps in the road.  Todays was transferring a database from one server to another.&lt;/p&gt;
+
+&lt;p&gt;During this standard procedure I found that the restored database was missing a few tables.  Irritating as Magento doesn&amp;rsquo;t like missing tables.&lt;/p&gt;
+
+&lt;p&gt;Digging down into the backup and extracting the first missing table I was able to replicate the error which came out as
+&lt;code&gt;1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near &amp;lsquo;USING BTREE&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;I eventually found out that some versions of mysql 5.1 export a dump file that contains mysql5.1 specific features and loading the file into mysql 5.0 will not work.&lt;/p&gt;
+
+&lt;p&gt;The solution is a little frustrating but if you run the command with the &amp;ndash;compatible=mysql40 switch, the dump file extracts fine :-
+&lt;code&gt;mysqldump &amp;ndash;compatible=mysql40&lt;/code&gt;
+Don&amp;rsquo;t ask me why there&amp;rsquo;s no &amp;ndash;compatible=mysql50 flag.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Disable Logging Without Editing Core Files</title>
+      <link>http://example.com/magento/magento-disable-logging-without-editing-core-files.html</link>
+      <pubDate>Wed, 16 Feb 2011 09:52:27 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-disable-logging-without-editing-core-files.html</guid>
+      <description>&lt;p&gt;If you want to disable Magento&amp;rsquo;s logging functioality (which can cause a lot of issues due to very large tables being generated and the overhead associated with that) then this is a possible solution.&lt;/p&gt;
+
+&lt;p&gt;You can disable events by putting some special XML in your app/etc/local.xml file.&lt;/p&gt;
+
+&lt;p&gt;This file does not get touched by upgrades (AFAIK) and the effects should kick in as soon as the configuration cache is cleared and rebuilt.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;lt;frontend&amp;gt;&lt;/span&gt; 
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;events&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;controller_action_predispatch&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/controller_action_predispatch&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;controller_action_postdispatch&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/controller_action_postdispatch&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;customer_login&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/customer_login&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;customer_logout&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/customer_logout&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;sales_quote_save_after&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/sales_quote_save_after&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;checkout_quote_destroy&amp;gt;&lt;/span&gt; 
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;observers&amp;gt;&amp;lt;log&amp;gt;&amp;lt;type&amp;gt;&lt;/span&gt;disabled&lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&amp;lt;/log&amp;gt;&amp;lt;/observers&amp;gt;&lt;/span&gt; 
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/checkout_quote_destroy&amp;gt;&lt;/span&gt; 
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/events&amp;gt;&lt;/span&gt; 
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/frontend&amp;gt;&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Database Repair Tool</title>
+      <link>http://example.com/magento/magento-database-repair-tool.html</link>
+      <pubDate>Mon, 17 Aug 2009 08:30:07 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-database-repair-tool.html</guid>
+      <description>&lt;p&gt;Varien have just released a new tool to help repair Magento databases. The system works by taking a reference database (a clean installation of the same Magento version your store is running) and comparing this to your live store DB.&lt;/p&gt;
+
+&lt;p&gt;It then goes through and repairs your store DB, fixing things like missing foreign keys etc.&lt;/p&gt;
+
+&lt;p&gt;I haven&amp;rsquo;t personally seen a requirement for this as yet, but if they have gone to the effort of releasing a tool I imagine it is because there is a requirement for this kind of tool. Definitely something to bear in mind if you ever do need to repair an Existing Magento database.&lt;/p&gt;
+
+&lt;p&gt;Read the full wiki post here:
+&lt;a href=&#34;http://www.magentocommerce.com/wiki/doc/db-repair-tool&#34;&gt;http://www.magentocommerce.com/wiki/doc/db-repair-tool&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento DB Dump - Just Use the Admin Backup - Not phpMyAdmin</title>
+      <link>http://example.com/magento/magento-db-dump-just-use-the-admin-backup-not-phpmyadmin.html</link>
+      <pubDate>Wed, 08 Apr 2009 12:32:12 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-db-dump-just-use-the-admin-backup-not-phpmyadmin.html</guid>
+      <description>&lt;p&gt;This is as much a note to self as anything else. If you are migrating a Magento store or creating a copy of a store - if you use phpMyAdmin to create the database dump things can all go wrong.&lt;/p&gt;
+
+&lt;p&gt;Instead save yourself the hassle and just use the admin backups functionality. You can then import this using phpMyAdmin without any problems&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Desktop on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/desktop/</link>
+    <description>Recent content in Desktop on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 31 Jan 2012 14:04:27 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/desktop/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Start windows on a specified workspace</title>
+      <link>http://example.com/linux/start-windows-on-a-specified-workspace.html</link>
+      <pubDate>Tue, 31 Jan 2012 14:04:27 +0000</pubDate>
+      
+      <guid>http://example.com/linux/start-windows-on-a-specified-workspace.html</guid>
+      <description>&lt;p&gt;I rely on multiple desktops in order to keep my workflow organised. However each time I start up my computer I have to move these windows onto the correct desktop, which is a pain. Thankfully there is a way to place each window onto it&amp;rsquo;s own desktop when your computer starts. This will explain the basics of doing this.&lt;/p&gt;
+
+&lt;p&gt;First you need to install a tool called wmcrtl. On ubuntu you can do this by running this command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo apt-get install wmctrl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once this is installed you need to see how it thinks you desktop is set up. You can do this by running this command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;wmctrl -d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;which give me the following result&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0  * DG: 13440x1050  VP: 0,0  WA: 0,24 3360x1002  Workspace 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The important part is the 13440x1050 - which corresponds to 8 1680x1050 desktops. Some versions of ubuntu put each desktop as a separate workspace, if so you&amp;rsquo;ll need to modify the instructions slightly.&lt;/p&gt;
+
+&lt;p&gt;At this point you can move you windows around so they are where you want them to be. Once you are happy with your layout, run the following command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;wmctrl -lG
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;which will give you something similar to this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+0x0340002e  0 3360 48   1680 1002 ross-desktop Add New Post ‹ Edmonds Commerce — WordPress - Chromium
+0x02a00077  0 23002 106  253  970  ross-desktop Buddy List
+0x02200004  0 0    58   1680 1021 ross-desktop Terminal
+0x06400003  0 6720 58   1680 1021 ross-desktop *untitled - Geany
+...
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can be broken down as follows&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+window-id	desktop-number	x-ofset	y-ofset	width	height	machine-name	window-title
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using this information you can put together a script that will run at startup to launch you windows.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;NB This script relies on the window title to move a window. This works because the script will be run at startup and it is assumed that you will only have one instance of each program running. If you plan to have multiple windows open, then you will need to get the window-id, go through the man pages for ways of doing this.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+#!/bin/bash
+geany /tmp/scratch.sql /tmp/scratch.php &amp;amp;
+x-terminal-emulator &amp;amp;
+# allow the windows to spawn before moving them
+sleep 5
+# select and move the windows
+# format wmctrl -r &amp;quot;window to move&amp;quot; -e gravity,x-pos,y-pos,width,height (-1 keeps the current value)
+wmctrl -r &amp;quot;scratch.php - /tmp - Geany&amp;quot; -e 0,6720,0,-1,-1
+wmctrl -r &amp;quot;Terminal&amp;quot; -e 0,3360,0,-1,-1
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;save the file and make it executable, and then run it at startup to have your windows automatically appear where you want them. This is just scratching the surface of what wmctrl can do, so if you want to carry out more windows management from the command line go through the man pages and see if it can do what you want.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Path Tools Netbeans Open File in external program plus guake code</title>
+      <link>http://example.com/ubuntu/path-tools-netbeans-open-file-in-external-program-plus-guake-code.html</link>
+      <pubDate>Tue, 10 Jan 2012 16:30:14 +0000</pubDate>
+      
+      <guid>http://example.com/ubuntu/path-tools-netbeans-open-file-in-external-program-plus-guake-code.html</guid>
+      <description>&lt;p&gt;Not many people are aware of the Path Tools extension for netbeans, and even fewer know how to make it really useful.&lt;/p&gt;
+
+&lt;p&gt;Effectively it provides 4 buttons - Copy Path, Open Folder, Open Terminal and Edit Path, the latter three being configurable.&lt;/p&gt;
+
+&lt;p&gt;Its default for Open Folder is great (for gnome users) but that&amp;rsquo;s the only one that has a default.&lt;/p&gt;
+
+&lt;p&gt;I use Guake (a pull-down transparent terminal) and for the two options (For Folder and For File) I set to the following for a nice &amp;ldquo;New tab in guake&amp;rdquo; :-&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;guake --new-tab &amp;quot;{path}&amp;quot; -t
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;guake --new-tab &amp;quot;{parent-path}&amp;quot; -t
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And for the &amp;ldquo;Edit Path&amp;rdquo; button, I find it extremely useful to create a &amp;ldquo;run external program&amp;rdquo; script - sat in my personal bin directory ($HOME/bin/) containing the following code :-&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/bin/bash
+
+ESCAPEDPARAMS=`echo $* | sed -e &#39;s/\([[\/.*]\|\]\)/\\\&amp;amp;/g&#39;`
+MIME=`file --mime-type $* | cut -f2 -d: | cut -f2 -d&#39; &#39;`
+DESKTOPFILE=/usr/share/applications/`xdg-mime query default $MIME`
+EXEC=`grep &#39;^Exec=&#39; $DESKTOPFILE | cut -f2 -d=`
+COMMAND=`zenity --width 600 --entry --title=&amp;quot;Path Tools&amp;quot; --text=&amp;quot;Run Command : &amp;quot; --entry-text=&amp;quot;$(echo $EXEC | sed s/&#39;%U&#39;/&amp;quot;$ESCAPEDPARAMS&amp;quot;/)&amp;quot;` 
+
+if [ &amp;quot;$?&amp;quot;==&amp;quot;0&amp;quot; ]; then
+  sh -c &amp;quot;$COMMAND&amp;quot;
+else
+  echo &amp;quot;&amp;quot;
+fi
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and set that up as the command &amp;ldquo;For Folder&amp;rdquo; and &amp;ldquo;For File&amp;rdquo; with {path} for both (not {parent-path} notice).&lt;/p&gt;
+
+&lt;p&gt;So, what does it do?&lt;/p&gt;
+
+&lt;ul&gt;
+    &lt;li&gt;MIME variable is set to the mime-type of the file (e.g. image/jpeg)&lt;/li&gt;
+    &lt;li&gt;DESKTOPFILE is set to the .desktop file that is associated with that mime-type (for my gnome setup this is /usr/share/applications/${DESKTOPFILE} )&lt;/li&gt;
+    &lt;li&gt;EXEC is the command contained within that desktop file&lt;/li&gt;
+    &lt;li&gt;COMMAND uses zenity to prompt for the commandline I want to run, pre-populated with the gnome default&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This means when I press the &amp;ldquo;Edit Path&amp;rdquo; button on a JPeg file, a popup asks for a commandline, prepopulated with my defaults (in this instance &amp;ldquo;eog /path/to/file.jpg&amp;rdquo;) and if I want I can change the command to gimp.  If I click OK in the box, the command is run.  If I just wanted to see the full path, I can maximise the box, look at it and click Cancel.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ubuntu Desktop Slideshow Recursive Folder</title>
+      <link>http://example.com/python/ubuntu-desktop-slideshow-recursive-folder.html</link>
+      <pubDate>Sat, 08 Jan 2011 11:50:22 +0000</pubDate>
+      
+      <guid>http://example.com/python/ubuntu-desktop-slideshow-recursive-folder.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Ubuntu, you probably use F-Spot for managing your photos. It&amp;rsquo;s a nice app and it organises all your photos into a directory tree based on date.&lt;/p&gt;
+
+&lt;p&gt;If you want to set up a desktop slideshow that shows images from this folder tree then you need to create a custom XML file that you can then set as the desktop background. Of course you need a system to create the slideshow.&lt;/p&gt;
+
+&lt;p&gt;This script does just that:&lt;/p&gt;
+
+&lt;script type=&#34;text/javascript&#34; src=&#34;http://snipt.net/embed/7cb620ed391c0a6e72548a0cc804fe3a&#34;&gt;&lt;/script&gt;
+
+&lt;p&gt;Inspired by a few scripts I found on the web, though &lt;a href=&#34;http://royvandewater.com/blog/2009/12/ubuntu-wallpaper-slideshow/&#34;&gt;this is the one I based it on&lt;/a&gt;, simply modified to make it recursively pull images rather than just images in the current directory and also shuffle the resulting list.&lt;/p&gt;
+
+&lt;p&gt;Place the script in the root of your ~/Photos directory, mark it as executable and then run it. It generates an XML file for you. You can now go to your desktop, right click and go to background then hit the [Add] button.&lt;/p&gt;
+
+&lt;p&gt;Now navigate to your ~/Photos directory and select the generated XML file. Job done.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Great Desktop Wallpaper Collection</title>
+      <link>http://example.com/ubuntu/great-desktop-wallpaper-collection.html</link>
+      <pubDate>Wed, 11 Mar 2009 08:42:00 +0000</pubDate>
+      
+      <guid>http://example.com/ubuntu/great-desktop-wallpaper-collection.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+I always use this site for my desktop wallpaper..&lt;/p&gt;
+
+&lt;p&gt;I love having a nice landscape shot of somewhere beautiful in the background.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://interfacelift.com/wallpaper_beta/downloads/date/any/&#34; rel=&#34;nofollow&#34;&gt;&lt;a href=&#34;http://interfacelift.com/wallpaper_beta/downloads/date/any/&#34; target=&#34;_blank&#34;&gt;http://interfacelift.com/wallpaper_beta/downloads/date/any/&lt;/a&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s great because not only are the pictures really nice, but they are all available in all of the usual desktop resolutions eg 1680x1050.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

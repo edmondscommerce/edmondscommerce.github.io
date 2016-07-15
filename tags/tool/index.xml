@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tool on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/tool/</link>
+    <description>Recent content in Tool on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 10 Jul 2012 16:29:28 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/tool/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Security Patch Script</title>
+      <link>http://example.com/magento/magento-security-patch-script.html</link>
+      <pubDate>Tue, 10 Jul 2012 16:29:28 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-security-patch-script.html</guid>
+      <description>&lt;p&gt;We are currently offering a free service to apply the security patches for any Magento store. &lt;a href=&#34;http://www.edmondscommerce.co.uk/magento/magento-security-vulnerability-free-assistance/&#34;&gt;You can read all about that here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For those of you who are comfortable SSHing into your server and running things manually but would like this to be as easy as possible, you can use our bash script to automatically determine which Magento security patch you require and then apply it.&lt;/p&gt;
+
+&lt;p&gt;Simply run the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;wget -qO- http://www.edmondscommerce.co.uk/stuff/applysecuritypatch.sh &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; /bin/sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;For information, this is the source of the above file.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; ! -f app/Mage.php &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Not in the magento basedir. please run from public_html, httpdocs, www or wherever index.php is.&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;exit&lt;/span&gt; 99
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;WGET_BINARY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;which wget&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$WGET_BINARY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Can&amp;#39;t find wget in path... can&amp;#39;t continue&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;exit&lt;/span&gt; 98
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;MAGENTO_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;grep &lt;span class=&#34;s1&#34;&gt;&amp;#39;function getVersionInfo\(\)&amp;#39;&lt;/span&gt; -A6 app/Mage.php &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed s/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;^0-9&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;//g &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; tr &lt;span class=&#34;s1&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed s/&lt;span class=&#34;s1&#34;&gt;&amp;#39;\.\.*&amp;#39;&lt;/span&gt;// &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed s/&lt;span class=&#34;s1&#34;&gt;&amp;#39;\.$&amp;#39;&lt;/span&gt;//&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Your Magento version is &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$MAGENTO_VERSION&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;grep &lt;span class=&#34;s1&#34;&gt;&amp;#39;function getVersionInfo()&amp;#39;&lt;/span&gt; -A6 app/Mage.php &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;grep&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed s/,// &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed s/&lt;span class=&#34;se&#34;&gt;\&amp;gt;&lt;/span&gt;// &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed s/&lt;span class=&#34;s1&#34;&gt;&amp;#39;[\t ]&amp;#39;&lt;/span&gt;//g &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; tr &lt;span class=&#34;s2&#34;&gt;&amp;quot;a-z&amp;quot;&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;A-Z&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed s/^/MAGENTO_/ &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed s/&lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;#39;&amp;quot;&lt;/span&gt;//g&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep MAGENTO
+
+&lt;span class=&#34;c1&#34;&gt;#&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#Community Edition 1.4.0.0 through 1.4.1.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#Community Edition 1.4.2.0 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#Community Edition 1.5.0.0 through 1.7.0.1 http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$MAGENTO_MAJOR&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; -eq &lt;span class=&#34;s2&#34;&gt;&amp;quot;1&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$MAGENTO_MINOR&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; -eq &lt;span class=&#34;s2&#34;&gt;&amp;quot;4&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$MAGENTO_PATCH&lt;/span&gt; -lt &lt;span class=&#34;s2&#34;&gt;&amp;quot;2&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    	&lt;span class=&#34;nv&#34;&gt;CORRECT_PATCH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.0.0-1.4.1.1.patch&amp;#39;&lt;/span&gt;
+      &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Running Magento &amp;lt; 1.4.2.0 - patch is &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CORRECT_PATCH&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;CORRECT_PATCH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.4.2.0.patch&amp;#39;&lt;/span&gt;
+      &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Running Magento 1.4.2.0 - patch is &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CORRECT_PATCH&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;elif&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$MAGENTO_MINOR&lt;/span&gt; -gt &lt;span class=&#34;s2&#34;&gt;&amp;quot;4&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$MAGENTO_MINOR&lt;/span&gt; -lt &lt;span class=&#34;s2&#34;&gt;&amp;quot;7&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;CORRECT_PATCH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&amp;#39;&lt;/span&gt;
+      &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Running Magento 1.5.0.0 or above - patch is &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CORRECT_PATCH&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;elif&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$MAGENTO_MINOR&lt;/span&gt; -eq &lt;span class=&#34;s2&#34;&gt;&amp;quot;7&amp;quot;&lt;/span&gt; -a &lt;span class=&#34;nv&#34;&gt;$MAGENTO_PATCH&lt;/span&gt; -eq &lt;span class=&#34;s2&#34;&gt;&amp;quot;0&amp;quot;&lt;/span&gt; -a &lt;span class=&#34;nv&#34;&gt;$MAGENTO_REVISION&lt;/span&gt; -lt &lt;span class=&#34;s2&#34;&gt;&amp;quot;2&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;CORRECT_PATCH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;http://www.magentocommerce.com/downloads/assets/1.7.0.2/CE_1.5.0.0-1.7.0.1.patch&amp;#39;&lt;/span&gt;
+      &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Running Magento 1.5.0.0 or above - patch is &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CORRECT_PATCH&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+      &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Running Magento 1.7.0.2 - already patched.&amp;quot;&lt;/span&gt;
+      &lt;span class=&#34;nb&#34;&gt;exit&lt;/span&gt; 1
+    &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; 
+  &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;You&amp;#39;re not running version 1.x.x.x of Magento, I have no idea what to do!&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;exit&lt;/span&gt; 97
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt; 
+
+wget -O - &lt;span class=&#34;nv&#34;&gt;$CORRECT_PATCH&lt;/span&gt; 2&amp;gt; /dev/null &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; patch -p0
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$?&lt;/span&gt; -eq &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Patch succeeded.&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;For some reason the patch failed.  See the output above.&amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;You could attempt to download the patch manually and apply it - the url is :- &amp;quot;&lt;/span&gt;
+  &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$CORRECT_PATCH&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Please note this script is supplied without any warranty, use at your own risk. We are not supplying the patch files simply making it easy to download and apply the correct one.&lt;/p&gt;
+
+&lt;p&gt;We strongly recommend you patch your store as soon as possible.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;&lt;a href=&#34;http://www.edmondscommerce.co.uk/contact-us/?about=Free+Magento+Security+Fix&#34;&gt; If you need help, just ask!&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Connect Search - Easy Solution</title>
+      <link>http://example.com/magento/magento-connect-search-easy-solution.html</link>
+      <pubDate>Sat, 29 Aug 2009 16:19:48 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-connect-search-easy-solution.html</guid>
+      <description>&lt;p&gt;The Magento site has recently switched from serving search results internally to using Google to provide the results. Whilst the Google results pages are a lot faster, we now miss the opportunity to search specific areas of the Magento site.&lt;/p&gt;
+
+&lt;p&gt;In particular, its now a bit of a pain to track down a suitable module in Magento Connect. To make things a bit easier I have knocked together a simple &lt;a href=&#34;http://www.edmondscommerce.co.uk/stuff/magento-connect-search.html&#34;&gt;Magento Connect Search&lt;/a&gt; tool.&lt;/p&gt;
+
+&lt;p&gt;I could easily extend this tool to provide searching of other areas of the Magento site if you wish. Just drop a quick comment against this blog post and I will do it.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Database Repair Tool</title>
+      <link>http://example.com/magento/magento-database-repair-tool.html</link>
+      <pubDate>Mon, 17 Aug 2009 08:30:07 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-database-repair-tool.html</guid>
+      <description>&lt;p&gt;Varien have just released a new tool to help repair Magento databases. The system works by taking a reference database (a clean installation of the same Magento version your store is running) and comparing this to your live store DB.&lt;/p&gt;
+
+&lt;p&gt;It then goes through and repairs your store DB, fixing things like missing foreign keys etc.&lt;/p&gt;
+
+&lt;p&gt;I haven&amp;rsquo;t personally seen a requirement for this as yet, but if they have gone to the effort of releasing a tool I imagine it is because there is a requirement for this kind of tool. Definitely something to bear in mind if you ever do need to repair an Existing Magento database.&lt;/p&gt;
+
+&lt;p&gt;Read the full wiki post here:
+&lt;a href=&#34;http://www.magentocommerce.com/wiki/doc/db-repair-tool&#34;&gt;http://www.magentocommerce.com/wiki/doc/db-repair-tool&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

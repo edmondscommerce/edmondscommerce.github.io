@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Attribute on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/attribute/</link>
+    <description>Recent content in Attribute on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 07 Feb 2011 18:27:50 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/attribute/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Extending Magento Objects with Custom Attributes</title>
+      <link>http://example.com/magento/extending-magento-objects-with-custom-attributes.html</link>
+      <pubDate>Mon, 07 Feb 2011 18:27:50 +0000</pubDate>
+      
+      <guid>http://example.com/magento/extending-magento-objects-with-custom-attributes.html</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s fairly common that you need to add in some custom data to a Magento object.&lt;/p&gt;
+
+&lt;p&gt;The most common scenario is products and its totally handled via the admin side. However if you need to extend something like the order object to store custom order information then things get a little bit more tricky, but it&amp;rsquo;s fairly easy still.&lt;/p&gt;
+
+&lt;p&gt;If you are extending an order, you also need to make sure that you extend in the &amp;ldquo;flat table&amp;rdquo; way as opposed to the standard EAV way otherwise things won&amp;rsquo;t work as you expect.&lt;/p&gt;
+
+&lt;p&gt;If you just want to add in a simple text attribute then you can do the following:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Edit your config.xml and set up the installer section, the following needs to be within the&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&amp;lt;/global&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;tags&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c&#34;&gt;&amp;lt;!-- RESOURCES - Install etc //--&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;resources&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;custommodule_setup&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;setup&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;module&amp;gt;&lt;/span&gt;EdmondsCommerce_CustomModule&lt;span class=&#34;nt&#34;&gt;&amp;lt;/module&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;c&#34;&gt;&amp;lt;!--&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;                    	Points to&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;                    	app/code/local/EdmondsCommerce_CustomModule/sql/custommodule_setup/mysql4-install-0.0.1.php&lt;/span&gt;
+
+&lt;span class=&#34;c&#34;&gt;                    	Sets mysql4-install-0.1.0.php to be a class of type Mage_Sales_Model_Mysql4_Setup&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;                    	Passes &amp;#39;core_setup&amp;#39; as a connection &amp;#39;type&amp;#39; :)&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;                    --&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;class&amp;gt;&lt;/span&gt;Mage_Sales_Model_Mysql4_Setup&lt;span class=&#34;nt&#34;&gt;&amp;lt;/class&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/setup&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;connection&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use&amp;gt;&lt;/span&gt;core_setup&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/connection&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/custommodule_setup&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/resources&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Note this bit:
+&lt;class&gt;Mage_Sales_Model_Mysql4_Setup&lt;/class&gt;&lt;/p&gt;
+
+&lt;p&gt;Its important you specify the correct setup model for the object you are extending. Just take a look at the core module config.xml file to find out. In the above example we are setting up to extend the order object which uses the flat table storage system.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Your installer file
+app/code/local/EdmondsCommerce/CustomModule/sql/custommodule_setup/mysql4-install-0.1.0.php&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt;/* @var $installer Mage_Sales_Model_Mysql4_Setup */&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$installer&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$installer&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;startSetup&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+
+&lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;* Adds an attribute of the code custommodule_info to the order object&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;* As this is a flat table, it adds the column to the table for you&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;**/&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$installer&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;addAttribute&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;order&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;custommodule_info&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;type&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;text&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$installer&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;endSetup&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then access any Magento page and your installer should run and update the schema for you.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

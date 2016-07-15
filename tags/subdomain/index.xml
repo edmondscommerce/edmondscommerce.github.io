@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Subdomain on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/subdomain/</link>
+    <description>Recent content in Subdomain on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 14 Nov 2014 13:34:08 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/subdomain/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Getting sub domains and domain from a url</title>
+      <link>http://example.com/php/getting-sub-domains-and-domain-from-a-url.html</link>
+      <pubDate>Fri, 14 Nov 2014 13:34:08 +0000</pubDate>
+      
+      <guid>http://example.com/php/getting-sub-domains-and-domain-from-a-url.html</guid>
+      <description>&lt;p&gt;At first it seems like a simple one - just use the &lt;code&gt;parse_url&lt;/code&gt; function already built into PHP.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately though, this just gives you the host - which is usually a combination of a subdomain - such as www - and the domain itself.&lt;/p&gt;
+
+&lt;p&gt;To resolve this I ended up writing the following code. It will gradually snip bits off the start of a host and then make a HTTP request until that request fails.&lt;/p&gt;
+
+&lt;p&gt;Once it fails, we know that we have snipped off all of the sub domains we can and we have our final domain.&lt;/p&gt;
+
+&lt;p&gt;Here is the code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function getDomain($url)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (!$this-&amp;gt;_domain) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $host = parse_url($url, PHP_URL_HOST);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $sanity = $this-&amp;gt;getHeadersForUrl($host);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if (!$sanity) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                throw new ErrorException(&amp;quot;No headers when sanity checking full host: $host in &amp;quot; . __METHOD__);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $elems = explode(&amp;#39;.&amp;#39;, $host);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $subdomains = array();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $domain = false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            while (!$domain) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $check = implode(&amp;#39;.&amp;#39;, $elems);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $headers = $this-&amp;gt;getHeadersForUrl($check);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                if ($headers) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    $subdomains[] = array_shift($elems);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                } else {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    array_unshift($elems, array_pop($subdomains));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    $domain = implode(&amp;#39;.&amp;#39;, $elems);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $this-&amp;gt;_domain = $domain;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $this-&amp;gt;_domain;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    public function getHeadersForUrl($url, $followOnLocation = true)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $ch = curl_init();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        curl_setopt($ch, CURLOPT_URL, $url);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        curl_setopt($ch, CURLOPT_HEADER, true);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        curl_setopt($ch, CURLOPT_NOBODY, true);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $followOnLocation);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        curl_setopt($ch, CURLOPT_MAXREDIRS, 10);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;        $data = curl_exec($ch);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;        return $data;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Fedora on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/fedora/</link>
+    <description>Recent content in Fedora on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 15 Jun 2015 16:25:22 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/fedora/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Preparing Fedora for development with PHP Storm</title>
+      <link>http://example.com/php/developer-setup.html</link>
+      <pubDate>Mon, 15 Jun 2015 16:25:22 +0000</pubDate>
+      
+      <guid>http://example.com/php/developer-setup.html</guid>
+      <description>&lt;p&gt;Today I was asked to prepare a workstation system for development with PHP Storm, this was my first time using Fedora over the popular Ubuntu so here&amp;rsquo;s how it went.&lt;/p&gt;
+
+&lt;p&gt;Starting out, I visited the PHP Storm website hosted by the friendly people over at JetBrains to get a hold of my favourite IDE to develop with.
+The package comes as a compressed tar ball that needs extracting with your favourite decompression software of choice.&lt;/p&gt;
+
+&lt;p&gt;After extracting the IDE it is time to do install it, when I attempted this I quickly ran in to a problem with the open source version of Java that comes pre-installed with Fedora.
+To remedy this you need to get the Oracle version of the Java Run Times to install and run PHP Storm successfully.&lt;/p&gt;
+
+&lt;p&gt;After installing Java it is important that you tell Fedora to use Oracle&amp;rsquo;s version over the pre-installed OpenJDK mentioned before.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;alternatives --install /usr/bin/java java /usr/java/latest/jre/bin/java 200000&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;This will force Fedora to use this specific version of Java over the default, the procedure is similar to using an alias.&lt;/p&gt;
+
+&lt;p&gt;After we have Fedora setup to use the correct version of Java we can happily install and run PHP Storm.
+CD in to your extracted PHP Storm folder we created earlier.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd bin
+./phpstorm.sh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;During the process you will be given the option to create a shortcut meaning you won&amp;rsquo;t need to use the terminal to launch the IDE.
+With that said, you can now happily use PHP Storm to develop your applications, be wary if you switch your Java version back to open source as it may not be supported.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SELinux and connecting to Mysql databases on Red Hat based distributions</title>
+      <link>http://example.com/linux/se-linux-and-connecting-to-a-mysql-database.html</link>
+      <pubDate>Fri, 07 Nov 2014 10:53:06 +0000</pubDate>
+      
+      <guid>http://example.com/linux/se-linux-and-connecting-to-a-mysql-database.html</guid>
+      <description>&lt;p&gt;SELinux can be restrictive by defult but prevent alot of security issues. One thing we found while trying it is that by default it will block network connections from being made via the httpd daemon. This is an issue if say on a development system you are running php via the apache module.&lt;/p&gt;
+
+&lt;p&gt;To resolve this simply login via root or sudo to root privilige and run the following command:
+    setsebool -P httpd_can_network_connect on
+You should now be able to connect to connect to your database. This will also enable things like web api, curl calls and other php that requires network access.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SELinux Configuration for Alternative Document Root</title>
+      <link>http://example.com/linux/selinux-configuration-for-alternative-document-root.html</link>
+      <pubDate>Sat, 04 Oct 2014 12:19:52 +0000</pubDate>
+      
+      <guid>http://example.com/linux/selinux-configuration-for-alternative-document-root.html</guid>
+      <description>&lt;p&gt;SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.&lt;/p&gt;
+
+&lt;p&gt;By default SELinux is configured expecting Apache to be using /var/www as its document root.&lt;/p&gt;
+
+&lt;p&gt;If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.&lt;/p&gt;
+
+&lt;p&gt;If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.&lt;/p&gt;
+
+&lt;p&gt;First of all you should double check what types http has:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -l &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep http
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;We specifically need read/write access so lets grep for that:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -l &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep http &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep rw
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;For me that shows the type: httpd_sys_rw_content_t&lt;/p&gt;
+
+&lt;p&gt;We now need to add this to our custom document root:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;/.*&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;?’
+restorecon -R -v /opt/Projects/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Fedora Live USB Key Creation</title>
+      <link>http://example.com/fedora/fedora-live-usb-key-creation.html</link>
+      <pubDate>Wed, 10 Sep 2014 17:38:09 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/fedora-live-usb-key-creation.html</guid>
+      <description>&lt;p&gt;I have had continual problems getting most of my USB keys to work as liveusb drives.&lt;/p&gt;
+
+&lt;p&gt;This is pretty awkward however it looks like I have now found a solution that works. Instead of using the official Fedora live USB creator, we are going to use something called livecd-iso-to-disk&lt;/p&gt;
+
+&lt;p&gt;First of all install it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo yum -y install livecd-tools
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then this is your command to create the liveusb. Note you need to set the sdX to whichever your USB key is using, and of course make sure the path to the iso file is correct&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo livecd-iso-to-disk --format --msdos --reset-mbr --overlay-size-mb &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; --home-size-mb &lt;span class=&#34;m&#34;&gt;512&lt;/span&gt; ~/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso /dev/sdc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Getting Skype Working on Fedora 20</title>
+      <link>http://example.com/fedora/getting-skype-working-on-fedora-20.html</link>
+      <pubDate>Fri, 17 Jan 2014 14:45:29 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/getting-skype-working-on-fedora-20.html</guid>
+      <description>&lt;p&gt;I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&amp;rsquo;t completely smooth, there were a few hoops I had to jump through.&lt;/p&gt;
+
+&lt;p&gt;I am making a note of these here for my own future reference and to help out any one else hitting problems like these.&lt;/p&gt;
+
+&lt;p&gt;To install Skype on Fedora 20 64bit, the first thing you need to do is download the &lt;a href=&#34;http://www.skype.com/en/download-skype/skype-for-linux/&#34; target=&#34;_blank&#34;&gt;Fedora 32bit RPM from Skype&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;To install this you should use Yum so that dependancies are handled properly:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
+After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
+One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.&lt;/p&gt;
+
+&lt;p&gt;Here is the process in commands:&lt;/p&gt;
+
+&lt;p&gt;Firstly remove the package and install the i686 version&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;yum remove libvpx.x86_64
+yum install libvpx.i686
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then install Skype&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then reinstall the 64 bit version of libvpx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; yum install libvpx.x86_64 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then reinstall the programs that were removed when I removed libvpx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo gnome-open /usr/share/applications/skype.desktop
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Change the line that reads &lt;strong&gt;Exec=skype %U&lt;/strong&gt; to the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Exec=env PULSE_LATENCY_MSEC=30 skype %U&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Restart Skype and the audio issues should be resolved.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Upgrading from Fedora 19 to 20 using FedUp</title>
+      <link>http://example.com/fedora/upgrading-from-fedora-19-to-20-using-fedup.html</link>
+      <pubDate>Fri, 03 Jan 2014 19:32:48 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/upgrading-from-fedora-19-to-20-using-fedup.html</guid>
+      <description>&lt;p&gt;I decided to upgrade to the latest version because why not, its the first Friday of the year.&lt;/p&gt;
+
+&lt;p&gt;The first thing to do is head over to &lt;a href=&#34;https://fedoraproject.org/wiki/FedUp&#34; target=&#34;_blank&#34;&gt;this page&lt;/a&gt; which explains how to use the tool.&lt;/p&gt;
+
+&lt;p&gt;I spotted the note about the 19-20 upgrade not working unless you install the bleeding edge version of the tool so thats to do first:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y --enablerepo=updates-testing install fedup
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You also need to make sure that your system is fully up to date so lets do that. Once this is done you probably want to reboot to be on the safe side.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y update
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once that is all done then you need to run the fedup command itself:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y update fedup fedora-release
+sudo fedup --network 20
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;I did this though and had an issue with RMPFusion. To fix that you need to run this command, then run the fedup command again:&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-20
+sudo fedup --network 20
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once fedup completes successfully you can reboot and will have an upgrade option as your first GRUB option when booting up. Select that to start the main upgrade.
+It takes a while, make a brew or something.&lt;/p&gt;
+
+&lt;p&gt;Once you log in, you will no doubt notice some of your Gnome Shell Extensions are not working. Thankfully the process of upgrading these is pretty painless, just head over to
+&lt;a href=&#34;https://extensions.gnome.org/local/&#34; target=&#34;_blank&#34;&gt;https://extensions.gnome.org/local/&lt;/a&gt; and you will see all your extensions. Any that are not compatible with your new version of Gnome Shell will have OUTDATED written where the on/off slider usually resides. Those with upgraded versions will have an upgrade button. Click that for each one, accepting the prompt.
+When that&amp;rsquo;s done, refresh the page and you should see all your upgraded extensions are now working.&lt;/p&gt;
+
+&lt;p&gt;For me the only one I&amp;rsquo;m really going to miss is the &lt;a href=&#34;https://extensions.gnome.org/extension/352/middle-click-to-close-in-overview/&#34; target=&#34;_blank&#34;&gt;Quick Close in Overview&lt;/a&gt; which is really handy, hopefully will be updated soon.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Fedora Yum Update Failing - RPMFusion &#43; Solution</title>
+      <link>http://example.com/fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html</link>
+      <pubDate>Thu, 02 Jan 2014 10:42:59 +0000</pubDate>
+      
+      <guid>http://example.com/fedora/fedora-yum-update-failing-rpmfusion-plus-solution.html</guid>
+      <description>&lt;p&gt;I found that Fedora was completely failing to update with the normal GUI based software update system. A prompt would be repeatedly displayed and then the process would die.&lt;/p&gt;
+
+&lt;p&gt;To see what was really going on I ran yum update from the command line&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y update
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This died with the following error message:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Couldn&#39;t open file /etc/pki/rpm-gpg/RPM-GPG-KEY-rpmfusion-nonfree-fedora-19
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It looks like something has been corrupted. A quick google around describes some possible causes and solutions however I thought I would try the obvious one first and just reenable RPMFusion.&lt;/p&gt;
+
+&lt;p&gt;To do that you can run this simple command (again in the command line):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;su -c &#39;yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I did this and then ran the yum update command again and everything is fixed.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

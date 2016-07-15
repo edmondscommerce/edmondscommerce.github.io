@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Linux on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/linux/</link>
+    <description>Recent content in Linux on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 07 May 2015 10:32:04 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Running out of disk space but df shows you have lots of space left</title>
+      <link>http://example.com/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html</link>
+      <pubDate>Thu, 07 May 2015 10:32:04 +0000</pubDate>
+      
+      <guid>http://example.com/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html</guid>
+      <description>&lt;p&gt;Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;Filesystem      Inodes   IUsed  IFree IUse% Mounted on
+/dev/xvda1     &lt;span class=&#34;m&#34;&gt;2621440&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;2621440&lt;/span&gt;      &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  100% /
+udev            &lt;span class=&#34;m&#34;&gt;124879&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;398&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;124481&lt;/span&gt;    1% /dev
+tmpfs           &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;288&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126604&lt;/span&gt;    1% /run
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;4&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126888&lt;/span&gt;    1% /run/lock
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126891&lt;/span&gt;    1% /run/shm
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126891&lt;/span&gt;    1% /run/user
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; i in /var/*&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; find &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; wc -l&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Compile NGINX with PageSpeed and ModSecurity on CentOS</title>
+      <link>http://example.com/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html</link>
+      <pubDate>Tue, 11 Nov 2014 14:06:37 +0000</pubDate>
+      
+      <guid>http://example.com/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html</guid>
+      <description>&lt;p&gt;ModSecurity is a brilliant addition to web servers to block any nefarious requests before they hit your application.
+This improves security and reduces load if your server comes under attack as the requests are killed very quickly.&lt;/p&gt;
+
+&lt;p&gt;PageSpeed is a module provided by Google to automatically improve the performance of your web pages in the browser. In a stroke it can offer a much more responsive front end with just a few configuration options.&lt;/p&gt;
+
+&lt;p&gt;Nginx is a very fast and lightweight web server ideal for using with back end servers such as PHP-FPM.&lt;/p&gt;
+
+&lt;p&gt;Here is a script that will download and compile Nginx with the two modules and also apply the correct ModSecurity configuration.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Please run as root&amp;quot;&lt;/span&gt;
+yum install gcc-c++ pcre-dev pcre-devel zlib-devel make unzip
+
+&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1.9.32.2&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1.7.7&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;MODSEC_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2.8.0
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_EXTRA_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; --with-http_realip_module --with-http_ssl_module &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/opt/nginx_with_pagespeed_and_mod_security
+
+mkdir -p &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Mod Security&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Installing dependencies, grabbing the repo, checking out the tag for our version and building it&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;------------&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+yum install libtool httpd-devel libxml2 libxml2-devel
+git clone https://github.com/SpiderLabs/ModSecurity.git
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ModSecurity
+git checkout tags/v&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;MODSEC_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+./autogen.sh
+./configure --enable-standalone-module --disable-mlogc
+make
+make install
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; --add-module=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/ModSecurity/nginx/modsecurity &amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Mod Security Config and Rules&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;-----------------------------&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;For nginx, we have to get all the config and cat it all into one single config file&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+wget https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended
+cat modsecurity.conf-recommended  &amp;gt; /etc/nginx/modsecurity.conf
+wget https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master -O owasp-modsecurity-crs.tar.gz
+tar -xvzf owasp-modsecurity-crs.tar.gz
+&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;find . -type d -name SpiderLabs-owasp-modsecurity-crs*&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+cat &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/modsecurity_crs_10_setup.conf.example &amp;gt;&amp;gt; /etc/nginx/modsecurity.conf
+cat &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/base_rules/modsecurity_*.conf &amp;gt;&amp;gt; /etc/nginx/modsecurity.conf
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; f in &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;find &lt;span class=&#34;nv&#34;&gt;$CRS_DIR&lt;/span&gt; -type f -name *.data&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;FILE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;basename &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;cp &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; /etc/nginx/&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$FILE&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+cp ModSecurity/unicode.mapping /etc/nginx/unicode.mapping
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Page Speed&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;----------&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Downlading the pagespeed version and building this&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+wget https://github.com/pagespeed/ngx_pagespeed/archive/release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta.zip
+unzip release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta.zip
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ngx_pagespeed-release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta/
+wget https://dl.google.com/dl/page-speed/psol/&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+tar -xzvf &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz  &lt;span class=&#34;c1&#34;&gt;# extracts to psol/&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; --add-module=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/ngx_pagespeed-release-&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;-beta &amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Nginx&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;-----&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;Finally, compiling Nginx with our extra modules and the added modules and installing it&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+wget http://nginx.org/download/nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+tar -xvzf nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/
+./configure &lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$NGINX_EXTRA_MODULES&lt;/span&gt;
+make
+sudo make install
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;COMPLETED INSTALL - CHECKING&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;checking the nginx version now, should be &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; and you should see our modules&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+nginx -V
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;And now doing a config test&amp;quot;&lt;/span&gt;
+/etc/init.d/nginx configtest
+
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;SCRIPT COMPLETED&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;However, you are not there yet&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;You need to go and look at the /etc/nginx/modsecurity.conf file and change settings there as appropriate&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Also you need to modify your nginx vhost config - see:&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SELinux and connecting to Mysql databases on Red Hat based distributions</title>
+      <link>http://example.com/linux/se-linux-and-connecting-to-a-mysql-database.html</link>
+      <pubDate>Fri, 07 Nov 2014 10:53:06 +0000</pubDate>
+      
+      <guid>http://example.com/linux/se-linux-and-connecting-to-a-mysql-database.html</guid>
+      <description>&lt;p&gt;SELinux can be restrictive by defult but prevent alot of security issues. One thing we found while trying it is that by default it will block network connections from being made via the httpd daemon. This is an issue if say on a development system you are running php via the apache module.&lt;/p&gt;
+
+&lt;p&gt;To resolve this simply login via root or sudo to root privilige and run the following command:
+    setsebool -P httpd_can_network_connect on
+You should now be able to connect to connect to your database. This will also enable things like web api, curl calls and other php that requires network access.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SELinux Configuration for Alternative Document Root</title>
+      <link>http://example.com/linux/selinux-configuration-for-alternative-document-root.html</link>
+      <pubDate>Sat, 04 Oct 2014 12:19:52 +0000</pubDate>
+      
+      <guid>http://example.com/linux/selinux-configuration-for-alternative-document-root.html</guid>
+      <description>&lt;p&gt;SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.&lt;/p&gt;
+
+&lt;p&gt;By default SELinux is configured expecting Apache to be using /var/www as its document root.&lt;/p&gt;
+
+&lt;p&gt;If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.&lt;/p&gt;
+
+&lt;p&gt;If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.&lt;/p&gt;
+
+&lt;p&gt;First of all you should double check what types http has:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -l &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep http
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;We specifically need read/write access so lets grep for that:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -l &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep http &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep rw
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;For me that shows the type: httpd_sys_rw_content_t&lt;/p&gt;
+
+&lt;p&gt;We now need to add this to our custom document root:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;/.*&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;?’
+restorecon -R -v /opt/Projects/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Nice Gnome Shell Theme - Elegance Colours</title>
+      <link>http://example.com/linux/nice-gnome-shell-theme-elegance-colours.html</link>
+      <pubDate>Thu, 02 Oct 2014 09:11:11 +0000</pubDate>
+      
+      <guid>http://example.com/linux/nice-gnome-shell-theme-elegance-colours.html</guid>
+      <description>
+
+&lt;p&gt;One of the nice features of Gnome Shell is that, with the help of the &lt;a href=&#34;https://extensions.gnome.org/extension/19/user-themes/&#34; target=&#34;_blank&#34;&gt;User Theme&lt;/a&gt; extension, you can really customise
+your desktop experience to be something personalised.&lt;/p&gt;
+
+&lt;p&gt;For me, the first thing is to set my desktop background to be a nice picture - something with wide open spaces, mountains and lots of sky.&lt;/p&gt;
+
+&lt;p&gt;The next thing though is to set up a user theme. I like transparency and themes that allow my well chosen background image to shine through.&lt;/p&gt;
+
+&lt;p&gt;For this reason I chose the &lt;a href=&#34;https://github.com/satya164/elegance-colors&#34; target=&#34;_blank&#34;&gt;Elegance Colors&lt;/a&gt; theme as it has a &amp;ldquo;clear&amp;rdquo; preset which also includes functionality to set the colour scheme based
+on the background image which is pretty slick I think.&lt;/p&gt;
+
+&lt;p&gt;For installation instructions, please see the &lt;a href=&#34;https://github.com/satya164/elegance-colors/blob/master/README.md&#34; target=&#34;_blank&#34;&gt;README on Github&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;quick-fedora-instructions-are-here&#34;&gt;Quick Fedora instructions are here:&lt;/h2&gt;
+
+&lt;h3 id=&#34;create-repo&#34;&gt;Create Repo&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo sh -c &lt;span class=&#34;s2&#34;&gt;&amp;quot; echo &amp;#39;[home_satya164_elegance-colors]&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;name=Elegance Colors Gnome Shell theme (Fedora_20)&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;type=rpm-md&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;baseurl=http://download.opensuse.org/repositories/home:/satya164:/elegance-colors/Fedora_20/&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;gpgcheck=1&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;gpgkey=http://download.opensuse.org/repositories/home:/satya164:/elegance-colors/Fedora_20/repodata/repomd.xml.key&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;enabled=1&amp;#39; &amp;gt; /etc/yum.repos.d/elegance-colors.repo&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;install-theme&#34;&gt;Install Theme&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo yum install gnome-shell-theme-elegance-colors
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;run-the-setup&#34;&gt;Run the Setup&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;elegance-colors
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;switch-to-the-theme&#34;&gt;Switch to the Theme&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;gsettings &lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; org.gnome.shell.extensions.user-theme name &lt;span class=&#34;s1&#34;&gt;&amp;#39;elegance-colors&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;now-run-the-gui-and-set-it-up&#34;&gt;Now run the GUI and set it up&lt;/h3&gt;
+
+&lt;p&gt;For this you can hit simply search for &amp;lsquo;Elegance Colors&amp;rsquo; from the dash to load the GUI.&lt;/p&gt;
+
+&lt;p&gt;In the GUI you have presets and if you want transparency just choose the clear one. After that of course you can customise as you see fit&lt;/p&gt;
+
+&lt;h2 id=&#34;fonts&#34;&gt;Fonts&lt;/h2&gt;
+
+&lt;p&gt;To make the most of Fedora, its well worth following &lt;a href=&#34;http://worldofgnome.org/how-to-greatly-improve-font-rendering-under-fedora-20/&#34; target=&#34;_blank&#34;&gt;these instructions&lt;/a&gt; to improve font rendering.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Mute Chrome/Chromium in Gnome Shell</title>
+      <link>http://example.com/linux/mute-chrome-slash-chromium-in-gnome-shell.html</link>
+      <pubDate>Mon, 04 Aug 2014 10:09:42 +0000</pubDate>
+      
+      <guid>http://example.com/linux/mute-chrome-slash-chromium-in-gnome-shell.html</guid>
+      <description>&lt;p&gt;You might not be aware that in Gnome Shell and likely anything else using Linux you can easily block sound from entire applications.&lt;/p&gt;
+
+&lt;p&gt;For me this means blocking annoying auto playing videos with sound that are cropping up as I&amp;rsquo;m trying to listen to some nice tunes whilst I work.&lt;/p&gt;
+
+&lt;p&gt;To block the sound is very easy, simply go to the sound control panel which in Gnome Shell is access via the top right panel.&lt;/p&gt;
+
+&lt;p&gt;Once into the sound section, go to the right most tab where you can control sounds on an application by application basis. Simply turn off the annoying onces.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/assets/mute-chromium.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Beautiful :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GUI Editor Alike Terminal Editor</title>
+      <link>http://example.com/linux/gui-editor-alike-terminal-editor.html</link>
+      <pubDate>Wed, 30 Jul 2014 17:50:40 +0000</pubDate>
+      
+      <guid>http://example.com/linux/gui-editor-alike-terminal-editor.html</guid>
+      <description>&lt;p&gt;Came across an interesting Github project today - a command line text editor that is designed to look and feel and largely behave like a GUI text editor such as Sublime.&lt;/p&gt;
+
+&lt;p&gt;Meet &lt;a href=&#34;https://github.com/slap-editor/slap&#34; target=&#34;_blank&#34;&gt;Slap&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Installation is trivial assuming you already have node installed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm -g install slap
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once its installed you can open any file as you would with any other cli text editor&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;slap my-file.php
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Immediate impressions are quite positive. A familiar feeling file browser in the left column is coupled with a text editing pane on the right that responds well to mouse clicks and familiar key presses.
+The text highlighting is very nice and things like brace matching are also included.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately for me it seems that mouse usage often lead to garbage characters being inserted into the text which render it unusable for the moment though this could be an issue specific to my machine.&lt;/p&gt;
+
+&lt;p&gt;Definitely a project to keep an eye on though if you like trying new CLI text editors. That said I&amp;rsquo;m writing this post in SPF13 Vim which I&amp;rsquo;m pretty happy with :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Prevent Ctrl&#43;S Freezing Your Terminal</title>
+      <link>http://example.com/linux/prevent-ctrl-plus-s-freezing-your-terminal.html</link>
+      <pubDate>Wed, 11 Jun 2014 10:30:25 +0000</pubDate>
+      
+      <guid>http://example.com/linux/prevent-ctrl-plus-s-freezing-your-terminal.html</guid>
+      <description>&lt;p&gt;As someone who types a lot of text everyday and am generally quite keen not to lose my work, I tend to hit the key combination [Ctrl]+[S] quite a lot.
+In fact its almost become muscle memory that every sentence or two I will hit that combination.&lt;/p&gt;
+
+&lt;p&gt;When working on a terminal, this can have the unfortunate outcome that the terminal freezes up. For more time than I would like to admit, I thought that this was a Linux bug
+And found myself frequently restarting terminal sessions that had locked up.&lt;/p&gt;
+
+&lt;p&gt;Then I discovered that you can unlock this when it freezes by hitting [Ctrl]+[Q]. However this is a bit of a pain.&lt;/p&gt;
+
+&lt;p&gt;I have now discovered a way of turning off this behaviour completely which is a real relief. Simply add the following to your .bashrc file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#Prevent Ctrl+S Freezing Terminal
+stty -ixon
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Credit goes to this Stackoverflow post:
+&lt;a href=&#34;http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal&#34; target=&#34;_blank&#34;&gt;http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Pipe Viewer for an Easy CLI Progress Bar</title>
+      <link>http://example.com/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html</link>
+      <pubDate>Mon, 17 Mar 2014 14:58:14 +0000</pubDate>
+      
+      <guid>http://example.com/linux/using-pipe-viewer-for-an-easy-cli-progress-bar.html</guid>
+      <description>&lt;p&gt;If you have a large database file to import or any other longer running process that involves piping data from one place to another then this little utility should definitely be in your arsenal.&lt;/p&gt;
+
+&lt;p&gt;Simply enough you use this to give you a progress indication when you are piping large amounts of data.&lt;/p&gt;
+
+&lt;p&gt;To use this on a mysql import (which is where I am most likely to use this) you would do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;pv ./dumpfile.sql &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; mysql -u&lt;span class=&#34;nv&#34;&gt;$USER&lt;/span&gt; -p&lt;span class=&#34;nv&#34;&gt;$PASS&lt;/span&gt; dbname
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This will then give you a simple progress bar and very usefully, an ETA that indicates how much time is left For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; 308MB 0:07:57 [ 216kB/s] [===============&amp;gt;                                          ] 10% ETA 1:08:32
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To install the utility you should first of all just try &lt;code&gt;yum install pv&lt;/code&gt;. If that doesn&amp;rsquo;t work then you can read more about installing for your distribution here:
+&lt;a href=&#34;http://www.ivarch.com/programs/pv.shtml&#34; target=&#34;_blank&#34;&gt;http://www.ivarch.com/programs/pv.shtml&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Vim Locking Up, Always When you are Ready to Save? Solution</title>
+      <link>http://example.com/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html</link>
+      <pubDate>Fri, 04 Oct 2013 10:33:41 +0000</pubDate>
+      
+      <guid>http://example.com/linux/vim-locking-up-always-when-you-are-ready-to-save-solution.html</guid>
+      <description>&lt;p&gt;If you are constantly frustated by Vim freezing up on you are editing a file on a server then this is quite possibly your problem, and your solution.&lt;/p&gt;
+
+&lt;p&gt;The issue is that most text editors and IDEs have [ctrl]+[s] mapped to save. If you do a lot of file editing then you probably bash the [ctrl]+[s] combo all the time, without even thinking about it&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;Now back to Vim. As it is running in the terminal then it can be frozen by using the [ctrl]+[s] combination. You probably weren&amp;rsquo;t aware of that feature.&lt;/p&gt;
+
+&lt;p&gt;To bring things back to life, just hit the [ctrl]+[q] combo. There are ways to permanently disable this which you can try.&lt;/p&gt;
+
+&lt;p&gt;For full information on this, check out this great &lt;a href=&#34;http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal&#34; target=&#34;_blank&#34;&gt;stack exchange page&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Linux Sun Java repo</title>
+      <link>http://example.com/linux/linux-sun-java-repo.html</link>
+      <pubDate>Tue, 15 Jan 2013 10:58:24 +0000</pubDate>
+      
+      <guid>http://example.com/linux/linux-sun-java-repo.html</guid>
+      <description>&lt;p&gt;Recently I setup a machine with Linux Mint.&lt;/p&gt;
+
+&lt;p&gt;One of the things that was I needed to install was an up to date version of Sun Java. However, for various reasons, this no longer appears in the official repos.&lt;/p&gt;
+
+&lt;p&gt;Thankfully there is a different repo available here &lt;a href=&#34;http://www.duinsoft.nl/packages.php?t=en&#34; title=&#34;http://www.duinsoft.nl/packages.php?t=en&#34; target=&#34;_blank&#34;&gt;&lt;a href=&#34;http://www.duinsoft.nl/packages.php?t=en&#34; target=&#34;_blank&#34;&gt;http://www.duinsoft.nl/packages.php?t=en&lt;/a&gt;&lt;/a&gt; where you can download the latest version and ensure that it is updated&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Linux Mint 14 / Ubuntu 12.10 Slow Wifi with Ath9k Drivers &#43; Solution</title>
+      <link>http://example.com/linux/linux-mint-14-ubuntu-12-10-slow-wifi-with-ath9k-drivers-solution.html</link>
+      <pubDate>Wed, 12 Dec 2012 10:44:52 +0000</pubDate>
+      
+      <guid>http://example.com/linux/linux-mint-14-ubuntu-12-10-slow-wifi-with-ath9k-drivers-solution.html</guid>
+      <description>&lt;p&gt;I upgrade my laptop to the latest release of Linux Mint 14 MATE edition. Everything is working beautifully apart from the wireless which, whilst functional, was cripplingly slow.&lt;/p&gt;
+
+&lt;p&gt;After a load of searching and testing, the solution that worked for me was:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo -s
+
+iwconfig wlan0 rate 54M
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;options ath9k nohwcrypt=1&amp;quot;&lt;/span&gt; &amp;gt; /etc/modprobe.d/ath9k.conf
+
+reboot
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you copy and paste the above into a terminal it will force the wifi speed to 54M and will make sure hardware crypt is disabled and finally reboot your machine.&lt;/p&gt;
+
+&lt;p&gt;I did this and my wifi speed is now perfectly fast, I&amp;rsquo;m a happy bunny :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Wget For Beginners</title>
+      <link>http://example.com/linux/wget-for-beginners.html</link>
+      <pubDate>Mon, 19 Nov 2012 08:02:25 +0000</pubDate>
+      
+      <guid>http://example.com/linux/wget-for-beginners.html</guid>
+      <description>&lt;h3&gt;What is Wget in general ?&lt;/h3&gt;
+
+&lt;p&gt;Wget is a free utility for non-interactive download of file from the web. The user doesn’t need to login system every time &lt;a href=&#34;http://www.gnu.org/software/wget/&#34; rel=&#34;nofollow&#34;&gt;Wget&lt;/a&gt; can download the entire web page or mirroring the entire web page. If download crashed or stop for various reason Wget will start download again from where it stopped. It is highly recommended for downloading file from web with slow network connections.&lt;/p&gt;
+
+&lt;h2&gt;How to Use Wget ? &lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget -t 10 www.google.com&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If network connection fails Wget will to try to reconnect 20 times in default.With -t command we can specify how many times it need to  reconnect.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget -p --convert-links -r www.google.com -o logfile&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This command will download the site -p and &amp;ndash;convert will make sure all linked files are linked to downloaded document such as images and external links it enables complete offline viewing. Log file can be enabled with -O command to view the output message.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget --spider --force-html www.google.com&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&amp;ndash;spider Will check the webpage is existent or not.
+&amp;ndash;force  It will enforce the file type that have to be downloaded.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget -u mozilla www.google.com&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;some site access allowed to certain user &lt;a href=&#34;http://www.user-agents.org/&#34; rel=&#34;nofollow&#34;&gt;agents&lt;/a&gt;. So to access with certain user agent you can use this command.&lt;/p&gt;
+
+&lt;p&gt;Ftp connection download is achieved by&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;wget -r ftp://username:password@ftp.example.com&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Tip: Have Git Branch Displayed in Bash Prompt</title>
+      <link>http://example.com/linux/tip-have-git-branch-displayed-in-bash-prompt.html</link>
+      <pubDate>Wed, 07 Nov 2012 16:53:02 +0000</pubDate>
+      
+      <guid>http://example.com/linux/tip-have-git-branch-displayed-in-bash-prompt.html</guid>
+      <description>&lt;p&gt;This is a very small tip, but one that can really save accidents in the long term.&lt;/p&gt;
+
+&lt;p&gt;To display the current branch in git simply add the following to your .bashrc in your home directory :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;__git_ps1 &lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt; 
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;git symbolic-ref HEAD 2&amp;gt;/dev/null&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; -n &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$b&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;printf&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot; (%s)&amp;quot;&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;##refs/heads/&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;PS1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;debian_chroot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:+(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$debian_chroot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\$( __git_ps1 ) \$\[\033[00m\] &amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This is based on the Linux Mint prompt so is nicely coloured as well.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Rsync For Beginners</title>
+      <link>http://example.com/linux/rsync-for-beginners-2.html</link>
+      <pubDate>Mon, 05 Nov 2012 16:42:47 +0000</pubDate>
+      
+      <guid>http://example.com/linux/rsync-for-beginners-2.html</guid>
+      <description>&lt;h3&gt;What is Rsync in general ?&lt;/h3&gt;
+
+&lt;p&gt;Rsync works like the &lt;a href=&#34;http://linux.about.com/od/commands/l/blcmdl1_rcp.htm&#34; rel=&#34;nofollow&#34;&gt;rcp&lt;/a&gt; command in linux. It is used to copy files across machines. It uses efficient checksum algorithm that looks for modified files by time and size. It is used for two purposes:&lt;/p&gt;
+
+&lt;h2&gt;Backup&lt;/h2&gt;
+ 
+
+&lt;p&gt;Rsync is used to transfer file from the local to a remote machine. By default Rsync will use rsh, however you can instead use &lt;a href=&#34;http://linux.about.com/od/commands/l/blcmdl1_ssh.htm&#34; rel=&#34;nofollow&#34;&gt;ssh&lt;/a&gt; for high security. Compressed files are transferred to save file transfer time and reduce the load on the network. It helps to transfer bulk files in minutes.&lt;/p&gt;
+
+&lt;h2&gt;Mirroring&lt;/h2&gt;
+
+&lt;p&gt;Rsync can synchronize file between two servers location(i.e) local and remote. By using the checksum algorithm it updates local files only if it is updated in remote server.&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;How to use Rsync&lt;/h3&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;rsync -avze ssh -p2020 root@server.com:/sitepath/files   /localdata&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This command transfer files from remote server to local machine.&lt;/p&gt;
+
+&lt;p&gt;a  Archive. It is denotes all related files and documents.
+v  Verbose.It will display status message as it is processing.
+z  Compression.It achives better compression ratio.
+e  It allows to chose alternative remote shell program for communication.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;rsync -avze ssh -p2020 --exclude home/var/cache root@server.com:/sitepath/files /localdata&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This command will transfer files from remote server to local machine by excluding cache folder.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;rsync -avz /sitepath/files root@server.com:/localdata &lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This command will  transfer all file from local to remote server. It is uses default remote shell protocol.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zend_db_statement on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/zend_db_statement/</link>
+    <description>Recent content in Zend_db_statement on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 02 Feb 2010 15:22:32 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/zend_db_statement/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Zend Framework - Reusing Prepared Zend_Db_Statements</title>
+      <link>http://example.com/zend-framework/zend-framework-reusing-prepared-zend_db_statements.html</link>
+      <pubDate>Tue, 02 Feb 2010 15:22:32 +0000</pubDate>
+      
+      <guid>http://example.com/zend-framework/zend-framework-reusing-prepared-zend_db_statements.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Zend_Db_Statements directly as well as using the Zend_Db_Table family of classes for Active Record et al then you might find the following little tip useful.&lt;/p&gt;
+
+&lt;p&gt;By default, if you run a query using something like&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt; public function query($sql, $params=false) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	if(empty($params)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		$stmt = $this-&amp;gt;getAdapter()-&amp;gt;query($sql);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}else {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		$stmt = $this-&amp;gt;getAdapter()-&amp;gt;query($sql, $params);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	return $stmt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;then every time you call your query method, you will be preparing the statement again.&lt;/p&gt;
+
+&lt;p&gt;Of course that&amp;rsquo;s not really a good idea if you are repeating the same query multiple times simply changing the parameters to be passed in.&lt;/p&gt;
+
+&lt;p&gt;In that kind of scenario you can do something like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$stmt = $db-&amp;gt;query($sql, $params);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$result1 = $stmt-&amp;gt;fetch();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$stmt-&amp;gt;execute($params2);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$result2 = $stmt-&amp;gt;fetch();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Heres an example of a chunk of code that is working out a category path from an ecommerce system for a particular category id.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$stmt = $db-&amp;gt;query(&amp;quot;select c.parent_id, cd.categories_name from categories c join categories_description cd using(categories_id) &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;where categories_id = ?&amp;quot;, array($categories_id));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;while(false!==($r=$stmt-&amp;gt;fetch())){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$categoryString[]=$r[&amp;#39;categories_name&amp;#39;];&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	if($r[&amp;#39;parent_id&amp;#39;]==0){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		break;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;//Note this bit - we are just re executing the statement with some new parameters.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$stmt-&amp;gt;execute(array($r[&amp;#39;parent_id&amp;#39;]));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This tip alone can add a lot of speed if you are doing repetitive statements&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

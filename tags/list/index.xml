@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>List on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/list/</link>
+    <description>Recent content in List on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 11 Mar 2013 15:29:34 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/list/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Restrict Access Using .htaccess File Rules in PHP</title>
+      <link>http://example.com/php/restrict-access-using-htaccess-file-rules-in-php.html</link>
+      <pubDate>Mon, 11 Mar 2013 15:29:34 +0000</pubDate>
+      
+      <guid>http://example.com/php/restrict-access-using-htaccess-file-rules-in-php.html</guid>
+      <description>&lt;p&gt;The function below is one that we have used a few times to allow certain &amp;ldquo;admin only&amp;rdquo; assets to be accessed or visible on the front end of a website.&lt;/p&gt;
+
+&lt;p&gt;The theory is that the htaccess file in the admin folder will be kept up to date and can therefore be used as the authoritative list of IP addresses that are allowed to access admin assets.&lt;/p&gt;
+
+&lt;p&gt;This function is simple enough and should be useful anywhere that you use htaccess to protect a certain folder and would like to implement the same white list rules in other places without having to maintain a duplicate list of authorised IP addresses.&lt;/p&gt;
+
+&lt;p&gt;The function also uses &lt;a href=&#34;http://www.php.net/manual/en/language.variables.scope.php#language.variables.scope.static&#34; title=&#34;PHP.net Static Variables&#34; target=&#34;_blank&#34;&gt;static variables&lt;/a&gt; - a lesser known bit of PHP functionality which can be a nice easy performance optimisation when working with procedural PHP code. If a function will be called many times and will always return the same result in a single request, you can actually cache that result to a static variable and serve that on any subsequent requests.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function isAllowedIp() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    static $pass = null;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if ($pass !== null) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $pass;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $pass=false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $customer_ip = $_SERVER[&amp;#39;REMOTE_ADDR&amp;#39;];    &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $htaccess = file_get_contents(&amp;#39;admin/.htaccess&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    preg_match_all(&amp;#39;%allow from ([0-9.]+)%&amp;#39;, $htaccess, $matches);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($matches[1] as $ip) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ($ip == $customer_ip) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $pass = true; //this is stored statically for perfomance reasons&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            return true;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    return false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Performance Problems</title>
+      <link>http://example.com/magento/magento-performance-problems.html</link>
+      <pubDate>Mon, 16 Apr 2012 08:56:48 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-performance-problems.html</guid>
+      <description>&lt;p&gt;If you are having performance issues with your Magento store and you are running on a dedicated or VPS server that you think should be up to the task of running your store properly but you continue to have performance problems then this post is for you.&lt;/p&gt;
+
+&lt;p&gt;Having decent server specification is only the first step on the road to having a high performance Magento store. Without proper configuration your server is not going to make the best use of its resources and that could make the difference of literally seconds or even tens of seconds of page load time.&lt;/p&gt;
+
+&lt;p&gt;The first and most important thing to check is that you are running a PHP opcode cacher such as APC. Opcode caching takes your PHP source code and compiles it to opcodes and then stores this in a cache. This opcode is actually what is run when people visit your store and the process of creating it, especially if you have a very large application with lots of file (like Magento), can be a real performance bottleneck. This problem is easily resolved by having APC installed and configured. If you are not sure, ring your hosting company and find out and if you don&amp;rsquo;t have it running, ask them to set it up for you.&lt;/p&gt;
+
+&lt;p&gt;The next thing to check is MySQL configuration. The standard MySQL configuration defaults were set when server hardware and memory was a tiny fraction of what it is today and that means that the configuration is generally way too sparse with allocation of memory for caching and other optimisations. Tweaking MySQL can be a little tricky, its definitely not something you should do if you are not sure, but it is well worth getting someone to optimise your MySQL configuration.&lt;/p&gt;
+
+&lt;p&gt;After that, the next major performance gain with Magento is to make proper use of block caching. Magento has a brilliant built in feature where every block (page section) can be cached so that next time someone visits the page, the logic used to generate that section of page (for example a best sellers list) does not have to be run, we simply redisplay the cached copy of that block&amp;rsquo;s HTML.&lt;/p&gt;
+
+&lt;p&gt;Beyond these three steps there are still many more things that can be done to improve the performance of your Magento store. If you would like professional help getting the best out of your server and Magento with a view to getting the lowest possible page load speeds then get in touch with Edmonds Commerce today.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP List Function Silently Failing? Solution</title>
+      <link>http://example.com/php/php-list-function-silently-failing-solution.html</link>
+      <pubDate>Wed, 28 Mar 2012 12:01:50 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-list-function-silently-failing-solution.html</guid>
+      <description>&lt;p&gt;If you use PHP&amp;rsquo;s &lt;a href=&#34;http://php.net/manual/en/function.list.php&#34;&gt;list&lt;/a&gt; function to quickly extract array values out into dollar variables then you might have an issue where it just doesn&amp;rsquo;t work for some reason.&lt;/p&gt;
+
+&lt;p&gt;The problem is that list only works with numeric arrays. If you are using an associative array (with strings for keys instead of numbers) then list will not work.&lt;/p&gt;
+
+&lt;p&gt;There is any easy solution though, simply change:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$array = array(&amp;#39;a&amp;#39;=&amp;gt;1, &amp;#39;b&amp;#39;=&amp;gt;2, &amp;#39;c&amp;#39;=&amp;gt;3);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;list($a, $b, $c) = $array;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$array = array(&amp;#39;a&amp;#39;=&amp;gt;1, &amp;#39;b&amp;#39;=&amp;gt;2, &amp;#39;c&amp;#39;=&amp;gt;3);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;list($a, $b, $c) = array_values($array);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And it will work as you expect.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Linux LS command for Directories only</title>
+      <link>http://example.com/linux/linux-ls-command-for-directories-only.html</link>
+      <pubDate>Tue, 10 Jan 2012 12:58:31 +0000</pubDate>
+      
+      <guid>http://example.com/linux/linux-ls-command-for-directories-only.html</guid>
+      <description>&lt;p&gt;If you have a large folder that contains a lot of files but you only want to see what directories are in there, then this little snippet is for you:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+ls -d -- */
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You may decide to make an alias for it&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+echo &amp;quot;alias lld=&#39;ls -alFhd -- */&#39;&amp;quot; &amp;gt;&amp;gt; ~/.bashrc
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento &#34;Products per Page on Grid Allowed Values&#34; Configuration Not Working &#43; Solution</title>
+      <link>http://example.com/magento/magento-products-per-page-on-grid-allowed-values-configuration-not-working-solution.html</link>
+      <pubDate>Thu, 01 Sep 2011 13:53:31 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-products-per-page-on-grid-allowed-values-configuration-not-working-solution.html</guid>
+      <description>&lt;p&gt;If you are getting a &lt;i&gt;little bit frustrated&lt;/i&gt; trying to figure out why the admin configuration for the number of products to display on a page and the options in the products per page drop down are not working then this is quite possibly your soluiton.&lt;/p&gt;
+
+&lt;p&gt;The template file in question is in catalog/product/list/toolbar.phtml&lt;/p&gt;
+
+&lt;p&gt;You will see it refererences the block Mage_Catalog_Block_Product_List_Toolbar&lt;/p&gt;
+
+&lt;p&gt;So far so good, it all looks like it should be working but it just isn&amp;rsquo;t.&lt;/p&gt;
+
+&lt;p&gt;The issue can be that in your theme&amp;rsquo;s layout XML file, some values are being set for this with some XML that looks like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;setDefaultListPerPage&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;10&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;setDefaultGridPerPage&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;8&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;addPagerLimit&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;mode&amp;gt;&lt;/span&gt;list&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mode&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;10&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;addPagerLimit&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;mode&amp;gt;&lt;/span&gt;list&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mode&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;20&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;addPagerLimit&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;mode&amp;gt;&lt;/span&gt;list&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mode&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;30&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If that XML is there, then these actions are being called against your block object with these parameters, effectively overwriting your admin values.&lt;/p&gt;
+
+&lt;p&gt;To get the admin values to be respected, you need to comment out or totally remove this XML from your layout, clear your cache and you are in business.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ubuntu ACL Access Control Lists</title>
+      <link>http://example.com/ubuntu/ubuntu-acl-access-control-lists.html</link>
+      <pubDate>Fri, 30 Jul 2010 09:37:15 +0000</pubDate>
+      
+      <guid>http://example.com/ubuntu/ubuntu-acl-access-control-lists.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are working in Linux and need to set some more complex permissions than the straight user, group everyone RWX style, then you can.&lt;/p&gt;
+
+&lt;p&gt;Working in Ubuntu, you need to first of all install ACL&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo apt-get install acl
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now before you can use ACL, you need to enable it on whichever volumes you want to use it on. To do this you have to edit your fstab (which if you do it wrong can cause problems so make sure you back it up!)&lt;/p&gt;
+
+&lt;p&gt;In the options column of the fstab for the volume you are working with, you need to add acl, eg:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+/dev/mapper/server-root /               ext4    errors=remount-ro 0 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;becomes&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+/dev/mapper/server-root /               ext4    acl,errors=remount-ro 0 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now you need to remount&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mount -o remount /
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now you need to check acl is working:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mount | grep acl
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;you should see a line with acl in there&lt;/p&gt;
+
+&lt;p&gt;Now to recursively set an ACL for a particular user giving full access on a folder structure, use this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+setfacl -Rm u:user:rwX,d:u:user:rwX /path/to/folder
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To fully understand ACL, hit the man pages&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+man acl
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

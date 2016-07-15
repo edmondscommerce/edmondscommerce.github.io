@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Google Checkout on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/google-checkout/</link>
+    <description>Recent content in Google Checkout on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 26 Mar 2009 10:48:57 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/google-checkout/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Google Checkout, 501 Error with Mod Security &#43; Solution</title>
+      <link>http://example.com/security/google-checkout-501-error-with-mod-security-solution.html</link>
+      <pubDate>Thu, 26 Mar 2009 10:48:57 +0000</pubDate>
+      
+      <guid>http://example.com/security/google-checkout-501-error-with-mod-security-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are pulling your hair out trying to figure out why you are seeing a 501 error in your Google Checkout integration console I may well have the answer and solution for you.&lt;/p&gt;
+
+&lt;p&gt;This is the error message you will see in the integration console.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+ 	We encountered an error trying to access your server at https://domain.co.uk/googlecheckout/api/ -- the error we got is Sending failed with HTTP response code: 501. Response body was: &amp;lt;HTML&amp;gt; &amp;lt;HEAD&amp;gt; &amp;lt;TITLE&amp;gt;501 Not Implemented&amp;lt;/TITLE&amp;gt; &amp;lt;/HEAD&amp;gt; &amp;lt;BODY&amp;gt; &amp;lt;H1&amp;gt;Not Implemented&amp;lt;/H1&amp;gt; The page you are looking for cannot be displayed because a header value in the request does not match certain configuration settings on the Web server.&amp;lt;P&amp;gt; &amp;lt;HR&amp;gt; &amp;lt;ADDRESS&amp;gt; Web Server at domain.co.uk &amp;lt;/ADDRESS&amp;gt; &amp;lt;/BODY&amp;gt; &amp;lt;/HTML&amp;gt; &amp;lt;!-- - Unfortunately, Microsoft has added a clever new - &amp;quot;feature&amp;quot; to Internet Explorer. If the text of - an error&#39;s message is &amp;quot;too small&amp;quot;, specifically - less than 512 bytes, Internet Explorer returns - its own error message. You can turn that off, - but it&#39;s pretty tricky to find switch called - &amp;quot;smart error messages&amp;quot;. That means, of course, - that short error messages are censored by default. - IIS always returns error messages that are long - enough to make Internet Explorer happy. The - workaround is pretty simple: pad the error - message with a big comment like this to push it - over the five hundred and twelve bytes minimum. - Of course, that&#39;s exactly what you&#39;re reading - right now. --&amp;gt; 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The first thing to do is log into your server via SSH and examine the error logs.&lt;/p&gt;
+
+&lt;p&gt;find the error logs, open the file up in vi using this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+vi error_log
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then go to the bottom of the file using the ```shift
+ + [g] shortcut. Then to search backwards in the log use the following command:&lt;/p&gt;
+
+&lt;p&gt;[code]
+?ModSecurity&lt;/p&gt;
+
+&lt;p&gt;```&lt;/p&gt;
+
+&lt;p&gt;If you find something with this error message then you have mod security installed. If you search around you may well find an error message like this:&lt;/p&gt;
+
+&lt;blockquote&gt;
+[Thu Mar 26 10:22:11 2009] [error] [client 94.229.166.12] ModSecurity: Access denied with code 501 (phase 2). Match of &#34;rx (?:^(?:application\\/x-www-form-urlencoded(?:;(?:\\s?charset\\s?=\\s?[\\w\\d\\-]{1,18})?)??$|multipart/form-data;)|text/xml)&#34; against &#34;REQUEST_HEADERS:Content-Type&#34; required. [file &#34;/etc/httpd/modsecurity.d/modsecurity_crs_30_http_policy.conf&#34;] [line &#34;71&#34;] [id &#34;960010&#34;] [msg &#34;Request content type is not allowed by policy&#34;] [severity &#34;WARNING&#34;] [tag &#34;POLICY/ENCODING_NOT_ALLOWED&#34;] [hostname &#34;247electrical.co.uk&#34;] [uri &#34;/googlecheckout/api&#34;] [unique_id &#34;-UMIen8AAAEAAFsDLH4AAAAB&#34;]
+&lt;/blockquote&gt;
+
+&lt;p&gt;This error message tells us which particular rule is causing it to fail. What we need to do now is either edit this rule or disable it altogether. I will first try to edit it so that the request can get through, but the rule is still active. The rule we need to edit is in this rules file:&lt;/p&gt;
+
+&lt;p&gt;modsecurity_crs_30_http_policy.conf&lt;/p&gt;
+
+&lt;p&gt;and is on line 71.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m no mod security expert. Having had a quick look through the documentation I am not sure how to edit this rule to allow Google Checkout callbacks through. So for the time being I am going to disable this particular rule altogether by adding a  # in front of lines 70,71 and 72.&lt;/p&gt;
+
+&lt;p&gt;If any mod security experts out there read this blog and know a better solution please do post it in the comments.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

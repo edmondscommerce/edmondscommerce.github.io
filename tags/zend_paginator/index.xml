@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zend_paginator on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/zend_paginator/</link>
+    <description>Recent content in Zend_paginator on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 27 Jan 2010 17:26:08 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/zend_paginator/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Zend Paginator - Actually Pretty Painless :)</title>
+      <link>http://example.com/zend-framework/zend-paginator-actually-pretty-painless.html</link>
+      <pubDate>Wed, 27 Jan 2010 17:26:08 +0000</pubDate>
+      
+      <guid>http://example.com/zend-framework/zend-paginator-actually-pretty-painless.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+With some trepidation I decided that I really had to implement pagination into a Zend Framework project I am working on. Zend Framework is great, but some of the sections can be a little tricky to get your head around at first attempt.&lt;/p&gt;
+
+&lt;p&gt;However, less than an hour after first looking at it, I have now got my system spitting out results in a nicely paginated ten at a time. The documentation on the Zend Framework reference is a little sparse but suffice to say that if you are using Zend_Db then actually its pretty easy.&lt;/p&gt;
+
+&lt;p&gt;The only bit that is a little tricky is getting the actual page controls to display, as you are left to code your own (though they do supply some code).&lt;/p&gt;
+
+&lt;p&gt;One major irritation with the Zend Framework reference guide is that I seem to be unable to copy and paste the code examples, it ends up looking like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;      &amp;lt;!--&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   2.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;      See http://developer.yahoo.com/ypatterns/pattern.php?pattern=searchpagination&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   3.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;      --&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   4.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;       &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   5.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;pageCount&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   6.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;      &amp;lt;div class=&amp;quot;paginationControl&amp;quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   7.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;      &amp;lt;!-- Previous page link --&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   8.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;isset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;previous&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;   9.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;lt;a href=&amp;quot;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;page&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;previous&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&amp;quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;  10.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;          &amp;lt; Previous&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;  11.&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;lt;/a&amp;gt; |&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;  12.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;note the line numbers, great.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://teethgrinder.co.uk/perm.php?a=Zend-Framework-MySQL-DB-Pagination-Tutorial&#34;&gt;this tutorial was really useful though:&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Here is some code snippets:&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;Controller&lt;/h3&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function viewAction(){        &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;view-&amp;gt;input = $input = $this-&amp;gt;_request-&amp;gt;getPost(&amp;#39;search&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $paginator = $this-&amp;gt;_model-&amp;gt;tableSearchAllPaginator($input);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $paginator-&amp;gt;setCurrentPageNumber($this-&amp;gt;_getParam(&amp;#39;page&amp;#39;));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;view-&amp;gt;paginator = $paginator;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;h3&gt;Model&lt;/h3&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function tableSearchAllPaginator($input, $fields_to_select=null){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $table = $this-&amp;gt;getTable();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $select = $table-&amp;gt;select();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $fields = $table-&amp;gt;info(Zend_Db_Table_Abstract::COLS);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if(!empty($input)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            foreach($fields as $field) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $select-&amp;gt;orWhere(&amp;quot;$field like ?&amp;quot;, &amp;quot;%$input%&amp;quot;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if(!empty($fields_to_select)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $select-&amp;gt;columns($fields_to_select);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $paginator = new Zend_Paginator(new Zend_Paginator_Adapter_DbTableSelect($select));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $paginator;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;h3&gt;View Script&lt;/h3&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;echo $this-&amp;gt;partial(&amp;#39;_viewtable_page.phtml&amp;#39;, array(&amp;#39;paginator&amp;#39;=&amp;gt;$this-&amp;gt;paginator, &amp;#39;controller&amp;#39;=&amp;gt;&amp;#39;products&amp;#39;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;h3&gt;View Table Page Partial&lt;/h3&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;if (count($this-&amp;gt;paginator)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;#39;&amp;lt;h4&amp;gt;Found &amp;#39; . count($this-&amp;gt;paginator) . &amp;#39; Results&amp;lt;/h4&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;#39;&amp;lt;table class=&amp;quot;grid&amp;quot;&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach($this-&amp;gt;paginator as $k=&amp;gt;$row) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //EC_Debug::dump($k);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $row = $row-&amp;gt;toArray();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //EC_Debug::diedump($row);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if($k == 0) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            echo &amp;#39;&amp;lt;tr&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            foreach($row as $f=&amp;gt;$v) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                echo &amp;quot;&amp;lt;th&amp;gt;$f&amp;lt;/th&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            echo &amp;#39;&amp;lt;/tr&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        echo &amp;#39;&amp;lt;tr&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        foreach($row as $f=&amp;gt;$v) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $extra = &amp;#39;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if($f==&amp;#39;id&amp;#39;) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $extra = &amp;#39;&amp;lt;a href=&amp;quot;&amp;#39; . $this-&amp;gt;url(array(&amp;#39;controller&amp;#39;=&amp;gt;$this-&amp;gt;controller, &amp;#39;action&amp;#39;=&amp;gt;&amp;#39;edit&amp;#39;, &amp;#39;id&amp;#39;=&amp;gt;$v), null, true) . &amp;#39;&amp;quot;&amp;gt;&amp;lt;img src=&amp;quot;&amp;#39; . $this-&amp;gt;baseUrl() . &amp;#39;/style/icons/application_edit.png&amp;quot; border=&amp;quot;0&amp;quot; alt=&amp;quot;edit&amp;quot;&amp;gt;&amp;lt;/a&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $extra .= &amp;#39; &amp;lt;a href=&amp;quot;&amp;#39; . $this-&amp;gt;url(array(&amp;#39;controller&amp;#39;=&amp;gt;$this-&amp;gt;controller, &amp;#39;action&amp;#39;=&amp;gt;&amp;#39;delete&amp;#39;, &amp;#39;id&amp;#39;=&amp;gt;$v), null, true) . &amp;#39;&amp;quot;&amp;gt;&amp;lt;img src=&amp;quot;&amp;#39; . $this-&amp;gt;baseUrl() . &amp;#39;/style/icons/cancel.png&amp;quot; border=&amp;quot;0&amp;quot; alt=&amp;quot;delete&amp;quot;&amp;gt;&amp;lt;/a&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            echo &amp;quot;&amp;lt;td&amp;gt;$extra $v&amp;lt;/td&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        echo &amp;#39;&amp;lt;/tr&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;#39;&amp;lt;/table&amp;gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo $this-&amp;gt;paginationControl($this-&amp;gt;paginator, &amp;#39;Sliding&amp;#39;, &amp;#39;_paginator.php&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}else{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;#39;no results...&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;h3&gt;Pagination Controls Partial&lt;/h3&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;pageCount&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;&amp;lt;div class=&amp;quot;pagination&amp;quot;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;isset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;previous&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;  &amp;lt;a href=&amp;quot;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;page&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;previous&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&amp;quot;&amp;gt;« PREV&amp;lt;/a&amp;gt; -&lt;/span&gt;
+&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;endif&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+
+&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+    &lt;span class=&#34;cm&#34;&gt;/* Page links */&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;pagesInRange&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$page&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    &amp;lt;a href=&amp;quot;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;page&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$page&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&amp;quot; &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$page&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;current&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;id=&amp;quot;selected&amp;quot;&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;endif&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&amp;lt;?&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$page&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;endforeach&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+
+&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;isset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;next&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; - &amp;lt;a href=&amp;quot;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;page&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;next&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&amp;quot;&amp;gt;Next &amp;gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;endif&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;endif&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

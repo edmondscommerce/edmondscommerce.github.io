@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Decode on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/decode/</link>
+    <description>Recent content in Decode on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 25 Jul 2013 15:05:08 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/decode/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP Base64 Decode if Encoded Otherwise Leave Intact</title>
+      <link>http://example.com/php/php-base64-decode-if-encoded-otherwise-leave-intact.html</link>
+      <pubDate>Thu, 25 Jul 2013 15:05:08 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-base64-decode-if-encoded-otherwise-leave-intact.html</guid>
+      <description>&lt;p&gt;I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).&lt;/p&gt;
+
+&lt;p&gt;However to really make things interesting, they didn&amp;rsquo;t always do this so you couldn&amp;rsquo;t just go and decode everything.&lt;/p&gt;
+
+&lt;p&gt;Here is the solution I came up with:&lt;/p&gt;
+
+&lt;p&gt;First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;preg_replace_callback(&amp;#39;%&amp;gt;([^&amp;lt;]+?)&amp;lt;%&amp;#39;, array($this, &amp;#39;_decode&amp;#39;), $response)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then the callback function is a method on the same object hence the use of array($this, &amp;lsquo;_decode&amp;rsquo;)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Decode from bas64 if it actually is base64 encoded in the first place&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * If not return the raw string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param $matches&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function _decode($matches)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $raw=$matches[1];&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $decoded = base64_decode($raw, true);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $return=$decoded;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if(false === $decoded){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $return=$raw;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }elseif(base64_encode($decoded) != $raw){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $return=$raw;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;#39;&amp;gt;&amp;lt;![CDATA[&amp;#39; . $return . &amp;#39;]]&amp;gt;&amp;lt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&amp;rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.&lt;/p&gt;
+
+&lt;p&gt;If it doesn&amp;rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.&lt;/p&gt;
+
+&lt;p&gt;By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.&lt;/p&gt;
+
+&lt;p&gt;Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.&lt;/p&gt;
+
+&lt;p&gt;However - one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&amp;rsquo;t mind compromising the data a little which I didn&amp;rsquo;t for my purposes) then you can do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;//have to utf8 encode it to fix the fact its not properly encoded at their end&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$xml = simplexml_load_string(utf8_encode($response));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it, another crazy API defeated and bent to my will!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Symfony2 on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/symfony2/</link>
+    <description>Recent content in Symfony2 on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 09 Dec 2013 18:43:03 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/symfony2/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Symfony2 Twig  &#39;DateTime could not be converted to string&#39;</title>
+      <link>http://example.com/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html</link>
+      <pubDate>Mon, 09 Dec 2013 18:43:03 +0000</pubDate>
+      
+      <guid>http://example.com/symfony2/symfony2-twig-datetime-could-not-be-converted-to-string.html</guid>
+      <description>&lt;p&gt;I just hit an interesting issue with a nice and easy solution once you understand what is going on.
+On a current project I making heavy use of the &lt;a href=&#34;https://github.com/sensiolabs/SensioGeneratorBundle&#34; target=&#34;_blank&#34;&gt;SensioGeneratorBundle&lt;/a&gt; to generate CRUD etc. So far its working really nicely.&lt;/p&gt;
+
+&lt;p&gt;However I started to see an issue with one of my entities that Twig was not handling a DateTime column properly but others were being handled fine.&lt;/p&gt;
+
+&lt;p&gt;Looking through the Twig template I noticed this:&lt;/p&gt;
+
+&lt;p&gt;{% codeblock lang:html+jinja]
+{% raw]
+  {%- for field, metadata in fields]
+            {%- if loop.first and (&amp;lsquo;show&amp;rsquo; in actions)]&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;            &amp;lt;td&amp;gt;&amp;lt;a href=&amp;quot;{{ &amp;quot;{{ path(&#39;&amp;quot; ~ route_name_prefix ~ &amp;quot;_show&#39;, { &#39;id&#39;: entity.id }) }}&amp;quot; }}&amp;quot;&amp;gt;{{ &#39;{{ entity.&#39; ~ field|replace({&#39;_&#39;: &#39;&#39;}) ~ &#39; }}&#39; }}&amp;lt;/a&amp;gt;&amp;lt;/td&amp;gt;
+
+        {%- elseif metadata.type in [&#39;date&#39;, &#39;datetime&#39;]]
+
+            &amp;lt;td&amp;gt;{{ &#39;{% if entity.&#39; ~ field|replace({&#39;_&#39;: &#39;&#39;}) ~ &#39;]{{ entity.&#39; ~ field|replace({&#39;_&#39;: &#39;&#39;}) ~ &#39;|date(\&#39;Y-m-d H:i:s\&#39;) }}{% endif]&#39; }}&amp;lt;/td&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;{% endraw]
+{% endcodeblock]&lt;/p&gt;
+
+&lt;p&gt;What this means is that the first entity will never have the DateTime handling. Of course you probably don&amp;rsquo;t want a DateTime to be the first entity so I think this is reasonable.&lt;/p&gt;
+
+&lt;p&gt;To fix this, all you need to do is make sure that your Doctrine class does not declare the first property as a DateTime.&lt;/p&gt;
+
+&lt;p&gt;If you have a primary key or unique reference property then try to get this as the first declared property in your Doctrine entity class and then rebuild the CRUD and the problem goes away.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Faker Symfony2 Integration</title>
+      <link>http://example.com/symfony2/faker-symfony2-integration.html</link>
+      <pubDate>Mon, 02 Dec 2013 20:43:49 +0000</pubDate>
+      
+      <guid>http://example.com/symfony2/faker-symfony2-integration.html</guid>
+      <description>&lt;p&gt;Generating test data is a crucial part of properly testing your code. If you have to hard code your test data or fixtures then you might be tempted to use only a small number of test entities.&lt;/p&gt;
+
+&lt;p&gt;To help with this you can use the brilliant &lt;a href=&#34;https://github.com/fzaninotto/Faker&#34; target=&#34;_blank&#34;&gt;Faker&lt;/a&gt; library to generate your test data. The Faker library is designed purely to generate test data and has a range of providers for all kinds of data.&lt;/p&gt;
+
+&lt;p&gt;As if that wasn&amp;rsquo;t good enough, you can leverage all the power of this library in your Symfony2 development by simply installing this Symfony2 bundle, &lt;a href=&#34;https://github.com/willdurand/BazingaFakerBundle/blob/master/Resources/doc/index.md&#34; target=&#34;_blank&#34;&gt;BazingaFakerBundle&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Installation is a breeze with Composer and then simply reference your entities in the configuration and run the command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;app/console faker:populate
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To generate your entities programmatically rather than as a command line action (perhaps as part of a unit or functional test) you can use this code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;//Faker load test data&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$populator = $this-&amp;gt;getContainer()-&amp;gt;get(&amp;#39;faker.populator&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$insertedPks = $populator-&amp;gt;execute();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach ($insertedPks as $class =&amp;gt; $pks) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $reflClass = new \ReflectionClass($class);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $shortClassName = $reflClass-&amp;gt;getShortName();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    printf(&amp;quot;\nFaker: Inserted %s new %s objects\n&amp;quot;, count($pks), $shortClassName);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

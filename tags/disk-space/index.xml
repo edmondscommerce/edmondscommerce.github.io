@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Disk Space on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/disk-space/</link>
+    <description>Recent content in Disk Space on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 07 May 2015 10:32:04 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/disk-space/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Running out of disk space but df shows you have lots of space left</title>
+      <link>http://example.com/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html</link>
+      <pubDate>Thu, 07 May 2015 10:32:04 +0000</pubDate>
+      
+      <guid>http://example.com/linux/vps/server/running-out-of-disk-space-but-df-shows-you-have-lots-of-space-left.html</guid>
+      <description>&lt;p&gt;Had a strange occurency this morning with an server reporting it had no disk space when disk usage according to df was at 50%. After some head scratching I decided to read the man page for the df command and came across the -i flag. According the man page this lists inode information instead of block usage. After running it I got the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;Filesystem      Inodes   IUsed  IFree IUse% Mounted on
+/dev/xvda1     &lt;span class=&#34;m&#34;&gt;2621440&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;2621440&lt;/span&gt;      &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  100% /
+udev            &lt;span class=&#34;m&#34;&gt;124879&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;398&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;124481&lt;/span&gt;    1% /dev
+tmpfs           &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;     &lt;span class=&#34;m&#34;&gt;288&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126604&lt;/span&gt;    1% /run
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;4&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126888&lt;/span&gt;    1% /run/lock
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126891&lt;/span&gt;    1% /run/shm
+none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;126891&lt;/span&gt;    1% /run/user
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So it turned out that the system had reached its max inodes so the next line of investigation was to find any excess of files in an directory. Which was sone by using:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; i in /var/*&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; find &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; wc -l&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

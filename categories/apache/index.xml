@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Apache on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/apache/</link>
+    <description>Recent content in Apache on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 03 Dec 2014 15:08:37 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/apache/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Blocking Direct IP Access in Apache</title>
+      <link>http://example.com/apache/blocking-direct-ip-access-in-apache.html</link>
+      <pubDate>Wed, 03 Dec 2014 15:08:37 +0000</pubDate>
+      
+      <guid>http://example.com/apache/blocking-direct-ip-access-in-apache.html</guid>
+      <description>&lt;p&gt;If you are using Name based virtual hosts, you may want to simply block any bots etc that try to access your server by direct IP address. It&amp;rsquo;s unlikely a real user would try to hit your server by using the actual IP address.&lt;/p&gt;
+
+&lt;p&gt;To do this, you can use this Virtual Host config:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;VirtualHost *:80&amp;gt;
+    ServerName 123.123.123.123
+    Redirect 403 /
+    ErrorDocument 403 &amp;quot;No&amp;quot;
+    DocumentRoot /dev/null/
+    UseCanonicalName Off
+    UserDir disabled
+&amp;lt;/VirtualHost&amp;gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Of course, please change the IP to the real server IP address(es)&lt;/p&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it, anyone trying to hit the server by IP address will get a simple 403 error.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Apache Mod Rewrite and Escaped Hashes (and other characters)</title>
+      <link>http://example.com/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html</link>
+      <pubDate>Mon, 22 Apr 2013 13:57:49 +0000</pubDate>
+      
+      <guid>http://example.com/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html</guid>
+      <description>&lt;p&gt;If you are having issues with mod rewrite apparently abandoning sections of variables after encoded hashes then this could be your solution.&lt;/p&gt;
+
+&lt;p&gt;The use case is particularly clear when using mod_rewrite in front of a search engine (such as Solr which I am really enjoying working with at the moment).&lt;/p&gt;
+
+&lt;p&gt;Imagine someone search for a partcode ABC#123&lt;/p&gt;
+
+&lt;p&gt;This gets encoded to search/abc%23123&lt;/p&gt;
+
+&lt;p&gt;Your rewritten search term will then be mangled by Apache and your search script will only actually see ABC. That is of course a problem and the solution is not really clear.&lt;/p&gt;
+
+&lt;p&gt;After a bit of searching around I found the solution is to add a B flag to your mod_rewrite rule so that mod_rewrite will escape these characters so that they are cleanly passed through.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;RewriteRule ^(.*)search/(.*)$ advanced_search_result.php?keywords=$2 [L,B]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Apache Mod Rewrite Escaped Slashes Problem &#43; Solution</title>
+      <link>http://example.com/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html</link>
+      <pubDate>Thu, 11 Apr 2013 11:05:20 +0000</pubDate>
+      
+      <guid>http://example.com/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html</guid>
+      <description>&lt;p&gt;As part of our Magento SEO service, the first thing we do is to make sure there are no issues with the crawlability and general health of the clients web site.&lt;/p&gt;
+
+&lt;p&gt;Whilst working on the Google Webmaster Tools crawl errors for a client I noticed one specific and intruiging problem for which I couldn&amp;rsquo;t immediately see the reason, everything looked to be set up perfectly.&lt;/p&gt;
+
+&lt;p&gt;Certain URLs were getting 404 responses. The URL was being parsed by mod_rewrite but everything looked fine so why was apache giving a 404?&lt;/p&gt;
+
+&lt;p&gt;The problem turns out to be that the URLs contain escaped slashes (eg search/KTA-mb667k2%2F2g),&lt;/p&gt;
+
+&lt;p&gt;The problem is that Apache actually handles the escaped slash and helpfully converts it to a real slash. That then means that it is trying to look in a sub folder that does not exist and hence the 404.&lt;/p&gt;
+
+&lt;p&gt;Chances are you don&amp;rsquo;t want escaped slashes to really be thought of as real directory separating slashes, especially if you are using mod_rewrite.&lt;/p&gt;
+
+&lt;p&gt;The answer is a simple one liner to be added to your vhost.conf or httpd.conf.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+AllowEncodedSlashes On
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Plesk Wildcard Subdomains</title>
+      <link>http://example.com/apache/plesk-wildcard-subdomains.html</link>
+      <pubDate>Wed, 22 Jul 2009 11:48:37 +0000</pubDate>
+      
+      <guid>http://example.com/apache/plesk-wildcard-subdomains.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Want to setup wildcard subdomains on a Plesk box?&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://rackerhacker.com/2007/08/10/using-wildcard-subdomains-in-plesk/&#34;&gt;http://rackerhacker.com/2007/08/10/using-wildcard-subdomains-in-plesk/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Plesk &#43; Mod Security</title>
+      <link>http://example.com/apache/plesk-mod-security.html</link>
+      <pubDate>Mon, 15 Jun 2009 09:55:37 +0000</pubDate>
+      
+      <guid>http://example.com/apache/plesk-mod-security.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are trying to modify your mod_security configuration on a plesk server and have tried using htaccess files you have probably realised that it won&amp;rsquo;t work. That&amp;rsquo;s a good thing, it makes it harder for people to screw up your server by turning off this protection.&lt;/p&gt;
+
+&lt;p&gt;Instead the way to do it is to edit the vhost.conf file located in the conf folder in the domain / sub domain root (the folder containing the httpdocs folder).&lt;/p&gt;
+
+&lt;p&gt;You can apply any settings you want to this file and then run the following command to get Plesk to rebuild your httpd configuration including your new settings. This is working with Plesk the way it was intended to be used and is a better solution that the htaccess file approach.&lt;/p&gt;
+
+&lt;p&gt;The command to rebuild your Apache configuration when you make a change to the vhost.conf ssl_vhost.conf file is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+        /usr/local/psa/admin/bin/websrvmng -a -v
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This rebuilds the configuration for ALL virtual hosts. It shouldn&amp;rsquo;t take more than a few seconds, obviously you then need to restart Apache.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Apache, mod_rewrite and SEO</title>
+      <link>http://example.com/search-engine-optimisation/mod_rewrite/apache/apache-mod_rewrite-and-seo.html</link>
+      <pubDate>Tue, 04 Mar 2008 11:26:55 +0000</pubDate>
+      
+      <guid>http://example.com/search-engine-optimisation/mod_rewrite/apache/apache-mod_rewrite-and-seo.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Dynamic database driven web sites tend to use various GET variables to define which content to display on that particular page. This is perfectly normal and reasonable. However it does make things a little confusing for search engine spiders as not every GET variable pertains to alternative content. Often GET is used for session, or maybe referrer tracking - or pretty much any piece of information which your web site may use.&lt;/p&gt;
+
+&lt;p&gt;This can mean that your product page about fluffy banana shaped teddy bears has the address&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mysite.com/index.php?cat=123&amp;amp;amp;product=333&amp;amp;amp;breadcrumb=123_43_2&amp;amp;amp;session_id=89o7324kjhlef8y234h
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not only does this make life difficult for search engine spiders, but its not exactly the most memorable url for your visitors either.&lt;/p&gt;
+
+&lt;p&gt;There is a solution and its called mod_rewrite.&lt;/p&gt;
+
+&lt;p&gt;Apache is part of the LAMP stack which is one of the most popular software and operating system combinations used to power web servers. Mod_rewrite is a particular plugin for Apache which allows you to create rules which will rewrite urls when they meet specific criteria.&lt;/p&gt;
+
+&lt;p&gt;The only really tricky part about setting up rewrite rules is that by neccessity they rely on regular expressions. Regular expressions can seem like a dark art at first, and often even for a seasoned coder familiar with a bit of regex, decoding someone elses expression can take a bit of brain power to say the least!&lt;/p&gt;
+
+&lt;p&gt;However there is no real reason to worry as all you really need to do is to learn how to achieve what you want. You do not need to learn the ins and outs of every particular regex function or operator.&lt;/p&gt;
+
+&lt;p&gt;For example take this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+
+RewriteEngine On
+
+RewriteRule ^(.*)\.p(.*).html$ product.php?products_id=$2&amp;amp;amp;%{QUERY_STRING} [L]
+
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This rewrite rule will take a url in the form of:
+mysite.com/whatever-you-want-here.p.[products_id].html&lt;/p&gt;
+
+&lt;p&gt;And automatically convert it so that to your web system it is the url:
+mysite.com/product.php?products_id=[products_id]&lt;/p&gt;
+
+&lt;p&gt;All you need to do now is devise a nice way of dynamically generating all of those nice keyword rich urls for your product pages and you are in business.&lt;/p&gt;
+
+&lt;p&gt;If you want any help enabling the power of mod_rewrite to give your web site properly search engine friendly URLS, get in touch today.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

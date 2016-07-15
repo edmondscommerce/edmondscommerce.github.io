@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Character Set on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/character-set/</link>
+    <description>Recent content in Character Set on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 26 May 2010 17:06:10 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/character-set/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>MySQL Bulk Update Collation and Character Set for Entire Database</title>
+      <link>http://example.com/mysql/mysql-bulk-update-collation-and-character-set-for-entire-database.html</link>
+      <pubDate>Wed, 26 May 2010 17:06:10 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-bulk-update-collation-and-character-set-for-entire-database.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to change the character set and collation for all columns and tables on an entire database then check out this little PHP script.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s currently Zend Framework based, though only for the database adapter - you could easily modify this to suit your own database connection.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt;/* collationChange&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * Edmonds Commerce&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * www.edmondscommerce.co.uk&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * info@edmondscommerce.co.uk&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * 0844 357 0201&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * Description:&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * Bulk Change the Collation and Character Set for an Entire Database&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * Inspiration Came from Here:&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * http://serverfault.com/questions/65043/alter-charset-and-collation-in-all-columns-in-all-tables-in-mysql&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; * &lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//get Db connection etc&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;require&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;../_top.php&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$db&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Zend_Registry&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;dbAdapter&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$dbName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;SET_THE_DB_NAME&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$character_set&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;utf8&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$collation&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;utf8_general_ci&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$stmt&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$db&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;SELECT distinct CONCAT( &amp;#39;alter table &amp;#39;, TABLE_SCHEMA, &amp;#39;.&amp;#39;, TABLE_NAME, &amp;#39;  CONVERT TO CHARACTER SET &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;$character_set&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; COLLATE &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;$collation&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;;&amp;#39; ) as query, TABLE_NAME as t FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = &amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;$dbName&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39;;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;while&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$r&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$stmt&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;fetch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()){&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;$db&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;query&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]);&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;lt;h3&amp;gt;Done &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$r&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;t&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;lt;/h3&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

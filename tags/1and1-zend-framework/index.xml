@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>1and1 Zend Framework on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/1and1-zend-framework/</link>
+    <description>Recent content in 1and1 Zend Framework on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 11 Apr 2009 10:28:44 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/1and1-zend-framework/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Zend Framework 1and1 Index Controller 404s &#43; Solution</title>
+      <link>http://example.com/zend-framework/zend-framework-1and1-index-controller-404s-solution.html</link>
+      <pubDate>Sat, 11 Apr 2009 10:28:44 +0000</pubDate>
+      
+      <guid>http://example.com/zend-framework/zend-framework-1and1-index-controller-404s-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Been tearing my hair out this morning trying to figure out why a Zend Framework based app was giving me 404 messages on any actions that specified the index controller. To explain, any URL that ended with /index or index/{action_name} would give me the ugly 1and1 404 message.&lt;/p&gt;
+
+&lt;p&gt;locally of course it worked fine. I messed around with my error controller but it seemed that the ZF app wasn&amp;rsquo;t even being consulted, this was a lower level 404 error.&lt;/p&gt;
+
+&lt;p&gt;After some digging around, the solution is to disable something called MultiViews. The MultiViews option allows a file to be called even if the extension is not loaded, so index would look for any files called index, regardless of their extension.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m not really sure why you would want this behaviour, maybe that&amp;rsquo;s why I have never encountered it before. Anyway, to disable it and get your app working the way you want, simply add the following line to your htaccess file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Options -MultiViews
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For information, this is my full htaccess file that works on 1and1 hosting:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [NC,L]
+RewriteRule ^.*$ /path/from/docroot/public/ [NC,L]
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This particular app is running from a subfolder. If your public folder is the document root then that line would simply be /&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

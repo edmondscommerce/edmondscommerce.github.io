@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Phpunit on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/phpunit/</link>
+    <description>Recent content in Phpunit on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 09 Nov 2012 17:34:45 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/phpunit/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Setting up database testing in PHPUnit</title>
+      <link>http://example.com/php/setting-up-database-testing-in-phpunit.html</link>
+      <pubDate>Fri, 09 Nov 2012 17:34:45 +0000</pubDate>
+      
+      <guid>http://example.com/php/setting-up-database-testing-in-phpunit.html</guid>
+      <description>&lt;p&gt;I have recently been trying to write unit tests for a piece of code that reads and writes to a database.&lt;/p&gt;
+
+&lt;p&gt;As I have spent far too much time trying to get this to work, this is here to act as an &lt;em&gt;aide-mémoire &lt;/em&gt;for the next time that I have to do this.&lt;/p&gt;
+
+&lt;p&gt;This is the actual class that is used&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;require_once&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/DataPump.php&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * These are required to ensure that the PDO object in the class is able to work correctly&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * @backupGlobals disabled&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * @backupStaticAttributes disabled&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;DataPumpTest&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PHPUnit_Extensions_Database_TestCase&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This is the object that will be tested&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * @var DataPump&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$object&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;  &lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * only instantiate pdo once for test clean-up/fixture load&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * @var PDO&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pdo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * @var type &lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$conn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * Sets up the fixture, for example, opens a network connection.&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This method is called before a test is executed.&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setUp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;object&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;DataPump&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * Tears down the fixture, for example, closes a network connection.&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This method is called after a test is executed.&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;tearDown&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;  &lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;  &lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;conn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;===&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$pdo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$pdo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PDO&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;mysql:dbname=testing_database;host=localhost&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;dbUserName&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;dbPassword&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;conn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createDefaultDBConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$pdo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;ross_testing&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;conn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createMySQLXMLDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/datapump.xml&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This is here to ensure that the database is working correctly&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;testDataBaseConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;  &lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;products&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$prod&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$queryTable&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createQueryTable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;products&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;SELECT * FROM products&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$expectedTable&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getTable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;products&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;//Here we check that the table in the database matches the data in the XML file&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;assertTablesEqual&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$expectedTable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$queryTable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This is where you can put your actual tests&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The following steps need to be taken to get everything here to work.&lt;/p&gt;
+
+&lt;p&gt;You need to create the testing database and tables before you can do anything else. This includes the tables that you will be reading from and the tables that you will eventually write to.&lt;/p&gt;
+
+&lt;p&gt;You then need to create an XML file for the data that you are expecting. I suggest checking that the data from the read table is included in this, so you can confirm that you are working with the correct data.&lt;/p&gt;
+
+&lt;p&gt;You can generate the data that is already in the database using the following command
+&lt;code&gt;
+mysqldump &amp;ndash;xml -t -u username -p testing_database products &amp;gt; datapump.xml
+&lt;/code&gt;
+Which will give you a file like this&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;mysqldump&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;xmlns:xsi=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;http://www.w3.org/2001/XMLSchema-instance&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;database&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;testing_database&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;table_data&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;row&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_id&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;1000001&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_quantity&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;31&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_model&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;example1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/row&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;row&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_id&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;1000002&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_quantity&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;15&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_model&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;example2&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/row&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/table_data&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/database&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mysqldump&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The two variables in the assertTablesEqual methods are just strings, which means if after you have set everything up and the test is failing, it is possible to export them to check where the differences are.&lt;/p&gt;
+
+&lt;p&gt;The big problem I had was that some export methods escaped ampersands, whilst others did not. Correcting this allowed the test to path.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHPUnit and PDOException &#43; Solution</title>
+      <link>http://example.com/php/phpunit-and-pdoexception-solution.html</link>
+      <pubDate>Thu, 01 Nov 2012 12:30:21 +0000</pubDate>
+      
+      <guid>http://example.com/php/phpunit-and-pdoexception-solution.html</guid>
+      <description>&lt;p&gt;I recently needed to run a test suite against a couple of classes that were making use of PDO.&lt;/p&gt;
+
+&lt;p&gt;When I tried to run the I got the following errors in the output for every test&lt;/p&gt;
+
+&lt;p&gt;PDOException: You cannot serialize or unserialize PDO instances&lt;/p&gt;
+
+&lt;p&gt;There is a quick way around this you just need to add the following lines to the class level doc block&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @backupGlobals disabled&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @backupStaticAttributes disabled&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;A full explanation of these, and other annotations can be found &lt;a title=&#34;PHP Unit Appendix B. Annotations&#34; href=&#34;http://www.phpunit.de/manual/current/en/appendixes.annotations.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento or Zend Framework Session issues with PHPUnit and session_start()</title>
+      <link>http://example.com/php/magento-or-zend-framework-session-issues-with-phpunit-and-session_start.html</link>
+      <pubDate>Fri, 24 Feb 2012 16:07:57 +0000</pubDate>
+      
+      <guid>http://example.com/php/magento-or-zend-framework-session-issues-with-phpunit-and-session_start.html</guid>
+      <description>&lt;p&gt;If you are having issues running unit tests that work with sessions and call session_start(), you might see error messages like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;output started at &amp;ldquo;PHPUnit/Util/Printer.php:173&amp;rdquo;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;If you do, the solution is fairly simple. Just add the flag &amp;ndash;stderr to PHPUnit eg&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+ phpunit --stderr mytest.php
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you are using Netbeans, you simply need to add this to your PHPUnit script setting in&lt;/p&gt;
+
+&lt;p&gt;Tools-&amp;gt;Options-&amp;gt;PHP-&amp;gt;Unit Test&lt;/p&gt;
+
+&lt;p&gt;eg /opt/lampp/bin/phpunit &amp;ndash;stderr&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/Screenshot-600x323.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHPUnit, LAMP, Magento and Netbeans</title>
+      <link>http://example.com/netbeans/phpunit-lamp-magento-and-netbeans.html</link>
+      <pubDate>Tue, 10 Jan 2012 13:11:10 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/phpunit-lamp-magento-and-netbeans.html</guid>
+      <description>&lt;p&gt;When using PHPUnit with xampp the first the to do is install PHPUnit through pear. You usually need to update pear first, after that you should be able to follow the instructions &lt;a href=&#34;http://pear.phpunit.de/&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Getting PHPUnit working with Magento is fairly straight forward. It&amp;rsquo;s just a case of including Mage.php and then calling Mage::app(); in the setup method of your test class:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;require_once&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;../app/Mage.php&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;TemplateTest&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PHPUnit_Framework_TestCase&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setUp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;app&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;testExample&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$helper&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;helper&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;core&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;assertTrue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$helper&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;instanceof&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage_Core_Helper_Data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Magento isn&amp;#39;t running!&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you use NetBeans as your IDE you&amp;rsquo;ll be glad to know that it has support for running your tests directly without having to use a terminal. This does require a bit of configuration. You need to tell NetBeans where the PHPUnit script is under Tools &amp;gt; Options &amp;gt; PHP &amp;gt; Unit Testing. If you are using it with XAMPP it will be located at /opt/lampp/bin/phpunit. To begin running the tests you then go Run &amp;gt; Test Project and NetBeans will ask you where your tests are. After that you will get a &amp;ldquo;Test File&amp;rdquo; source folder in the Projects pane. You can now right click each test file and choose &amp;ldquo;Run file&amp;rdquo; and netbeans will run it. If you have xdebug setup the debug option also works nicely.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

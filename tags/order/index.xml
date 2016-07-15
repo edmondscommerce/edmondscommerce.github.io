@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Order on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/order/</link>
+    <description>Recent content in Order on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 07 Feb 2011 18:27:50 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/order/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Extending Magento Objects with Custom Attributes</title>
+      <link>http://example.com/magento/extending-magento-objects-with-custom-attributes.html</link>
+      <pubDate>Mon, 07 Feb 2011 18:27:50 +0000</pubDate>
+      
+      <guid>http://example.com/magento/extending-magento-objects-with-custom-attributes.html</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s fairly common that you need to add in some custom data to a Magento object.&lt;/p&gt;
+
+&lt;p&gt;The most common scenario is products and its totally handled via the admin side. However if you need to extend something like the order object to store custom order information then things get a little bit more tricky, but it&amp;rsquo;s fairly easy still.&lt;/p&gt;
+
+&lt;p&gt;If you are extending an order, you also need to make sure that you extend in the &amp;ldquo;flat table&amp;rdquo; way as opposed to the standard EAV way otherwise things won&amp;rsquo;t work as you expect.&lt;/p&gt;
+
+&lt;p&gt;If you just want to add in a simple text attribute then you can do the following:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Edit your config.xml and set up the installer section, the following needs to be within the&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&amp;lt;/global&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;tags&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c&#34;&gt;&amp;lt;!-- RESOURCES - Install etc //--&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;resources&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;custommodule_setup&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;setup&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;module&amp;gt;&lt;/span&gt;EdmondsCommerce_CustomModule&lt;span class=&#34;nt&#34;&gt;&amp;lt;/module&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;c&#34;&gt;&amp;lt;!--&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;                    	Points to&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;                    	app/code/local/EdmondsCommerce_CustomModule/sql/custommodule_setup/mysql4-install-0.0.1.php&lt;/span&gt;
+
+&lt;span class=&#34;c&#34;&gt;                    	Sets mysql4-install-0.1.0.php to be a class of type Mage_Sales_Model_Mysql4_Setup&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;                    	Passes &amp;#39;core_setup&amp;#39; as a connection &amp;#39;type&amp;#39; :)&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;                    --&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;class&amp;gt;&lt;/span&gt;Mage_Sales_Model_Mysql4_Setup&lt;span class=&#34;nt&#34;&gt;&amp;lt;/class&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/setup&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;connection&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use&amp;gt;&lt;/span&gt;core_setup&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/connection&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/custommodule_setup&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/resources&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Note this bit:
+&lt;class&gt;Mage_Sales_Model_Mysql4_Setup&lt;/class&gt;&lt;/p&gt;
+
+&lt;p&gt;Its important you specify the correct setup model for the object you are extending. Just take a look at the core module config.xml file to find out. In the above example we are setting up to extend the order object which uses the flat table storage system.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Your installer file
+app/code/local/EdmondsCommerce/CustomModule/sql/custommodule_setup/mysql4-install-0.1.0.php&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;cm&#34;&gt;/* @var $installer Mage_Sales_Model_Mysql4_Setup */&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$installer&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$installer&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;startSetup&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+
+&lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;* Adds an attribute of the code custommodule_info to the order object&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;* As this is a flat table, it adds the column to the table for you&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;**/&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$installer&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;addAttribute&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;order&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;custommodule_info&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;type&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;text&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$installer&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;endSetup&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then access any Magento page and your installer should run and update the schema for you.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Add Order Status History Comment</title>
+      <link>http://example.com/magento/magento-add-order-status-history-comment.html</link>
+      <pubDate>Mon, 07 Feb 2011 16:30:12 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-add-order-status-history-comment.html</guid>
+      <description>&lt;p&gt;Adding an order status history comment to a Magento order object is easy, when you know how!&lt;/p&gt;
+
+&lt;p&gt;There is a very helpful Mage_Sales_Model_Order::addStatusHistoryComment() method which will take a comment and optional order status and either just save the comment or save the comment and update the order status.&lt;/p&gt;
+
+&lt;p&gt;However I found that it didn&amp;rsquo;t quite work for me. Reading the docblock on the Mage_Sales_Model_Order::addStatusHistory() method, it turns out that it won&amp;rsquo;t take effect unless the order object itself is saved.&lt;/p&gt;
+
+&lt;p&gt;So in a nutshell this is how to add a comment to an order in Magento&lt;/p&gt;
+
+&lt;script type=&#34;text/javascript&#34; src=&#34;http://snipt.net/embed/4d4c11ac1ca65bc817bc92976958501a&#34;&gt;&lt;/script&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>OpenERP UK - Open Source Enterprise Class ERP</title>
+      <link>http://example.com/openerp/openerp-uk-open-source-enterprise-class-erp.html</link>
+      <pubDate>Fri, 07 Jan 2011 11:49:56 +0000</pubDate>
+      
+      <guid>http://example.com/openerp/openerp-uk-open-source-enterprise-class-erp.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+OpenERP is a fully featured enterprise class open source ERP system that thanks to it&amp;rsquo;s modular structure can support all kinds of business models and requirements ranging from Retail to E-Commerce to Manufacturing to Services and beyond.&lt;/p&gt;
+
+&lt;p&gt;OpenERP is written in a language called Python, widely regarded as an excellent language thanks to it&amp;rsquo;s power, cross platform compatibility and ease of development.&lt;/p&gt;
+
+&lt;p&gt;Thanks to being open source, you can experiment or even implement OpenERP for you business without any up front costs, licence costs, vendor lock in or any of the other big drawbacks of standard paid for ERP packages.&lt;/p&gt;
+
+&lt;p&gt;This means you can dip your toe in the water initially and roll out further integration and functionality as you are ready for it and your business requires it.&lt;/p&gt;
+
+&lt;p&gt;There is a wide global network of specialist agencies supporting the OpenERP package and at it&amp;rsquo;s centre is a large development house based in Belgium that is entirely devoted to the platform. This kind of business backed open source package is great news for you because it ensures that there will be professional support and training available and you can expect the platform to continue developing in the future, making it an excellent platform to invest into.&lt;/p&gt;
+
+&lt;p&gt;This is similar to the way that Magento, our most highly recommended open source ecommerce package, is backed by Varien - a large and well funded company that is pushing the platform and really making it an enterprise class platform.&lt;/p&gt;
+
+&lt;p&gt;Of course the logical best of breed combination is to use the awesome front end functionality of Magento for your e-commerce stores and hook this into OpenERP&amp;rsquo;s excellent business management functionality.&lt;/p&gt;
+
+&lt;p&gt;If you would like to discuss OpenERP or Magento or of course both for your business, get in touch today.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

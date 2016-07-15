@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Exception on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/exception/</link>
+    <description>Recent content in Exception on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 12 May 2011 11:20:58 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/exception/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP Custom Error and Exception Handler - Make PHP Stricter</title>
+      <link>http://example.com/php/php-custom-error-and-exception-handler-make-php-stricter.html</link>
+      <pubDate>Thu, 12 May 2011 11:20:58 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-custom-error-and-exception-handler-make-php-stricter.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you prefer a coding style that doesn&amp;rsquo;t let you get away with as much as PHP does by default then you may like this trick.&lt;/p&gt;
+
+&lt;p&gt;As standard PHP will let you get away with quite a lot of things that are probably not a good idea. Some times that can be great, allowing you to quickly prototype things or achieve results quickly without having to go through nit picking your code.&lt;/p&gt;
+
+&lt;p&gt;However on the other hand if you are working on a production system that you would really rather complained as much as possible in the dev stage to help to minimise the likelihood that bugs will creep through to production then this looseness can work against you.&lt;/p&gt;
+
+&lt;p&gt;For this reason I often use this trick to make PHP much more fussy and strict and make errors much more obvious and easier to deal with.&lt;/p&gt;
+
+&lt;p&gt;First of all, we need to create a custom error handler. This will override the standard error handling in PHP and allow us to do what we want. What I am going to do is convert all of the standard PHP errors into exceptions.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Error Handler&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function ec_error_handler($severity, $message, $filename, $lineno) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if (error_reporting() == 0) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    //if (error_reporting() &amp;amp; $severity) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    throw new ErrorException($message, 0, $severity, $filename, $lineno);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    //}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You will notice that 2 lines are commented out. If uncommented, this will respect the error reporting settings of PHP. Commented out it throws an exception regardless of PHP error reporting settings.&lt;/p&gt;
+
+&lt;p&gt;To make PHP use this function as my error handler we do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;set_error_handler(&amp;#39;ec_error_handler&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So now every PHP error, notice etc is being converted into an exception. This gives me the ability to view stack traces and see exactly which file, line etc is involved so tracking issues down is a snap.&lt;/p&gt;
+
+&lt;p&gt;Now though I want a nice system to capture these exceptions and dump this info to the screen.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Exception Handler&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function ec_exceptions_handler(Exception $e) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    ob_start();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(1, &amp;#39;Uncaught Exception&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(2, $e-&amp;gt;getMessage());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(3, &amp;#39;Line &amp;#39; . $e-&amp;gt;getLine() . &amp;#39; of &amp;#39; . $e-&amp;gt;getFile());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($e-&amp;gt;getTrace() as $t) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        var_dump($t);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    dumpObjects();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $exceptionMessage = ob_get_clean();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo $exceptionMessage;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    exit(1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This function starts the output buffer then dumps a large amount of information including the message, line and file for the exception. The full stack trace.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s also dumping all global objects using another function.&lt;/p&gt;
+
+&lt;p&gt;This output is captured into a variable with ob_get_clean(). At this point, you might decide to log this variable to a file, database, ticketing system etc - I leave that bit to you. Finally the info is dumped to the screen and the program exits.&lt;/p&gt;
+
+&lt;p&gt;Of course this is not something you should do in a production environment, this level of information on a production system is a welcome invitation to hackers to exploit you. However in a secure local dev environment its exactly what you need.&lt;/p&gt;
+
+&lt;p&gt;To get PHP to use this exception handler, we do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;set_exception_handler(&amp;#39;ec_exceptions_handler&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Here are the other functions you will need:&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Dump Objects&lt;/b&gt;
+This one simply var dumps all the objects as they are at the time of the exception. This may be overkill for your situation, I leave that up to you.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function dumpObjects() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(1, &amp;#39;Dumping Objects&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($GLOBALS as $g) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (is_object($g)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            h(2, get_class($g));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            var_dump($g);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;b&gt;H Tag Helper&lt;/b&gt;
+And this is just a html helper to create H tags&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function h($n, $m){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;quot;&amp;lt;h$n&amp;gt;$m&amp;lt;/h$n&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    flush();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;I hope you find this useful. Feel free to add any comments etc below.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Dataflow Images Not Working &#43; Solution</title>
+      <link>http://example.com/magento/magento-dataflow-images-not-working-solution.html</link>
+      <pubDate>Thu, 17 Feb 2011 16:03:49 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-dataflow-images-not-working-solution.html</guid>
+      <description>&lt;p&gt;If you are struggling to understand why Magento is not finding images that are definitely there, the problem may well be that you are not prefixing your image with a slash, i.e for a new image we would put:&lt;/p&gt;
+
+&lt;p&gt;/image.jpg&lt;/p&gt;
+
+&lt;p&gt;and the image would be in&lt;/p&gt;
+
+&lt;p&gt;media/import/image.jpg&lt;/p&gt;
+
+&lt;p&gt;Unfortunately whoever wrote the Dataflow product importer though it would be a good idea to silently capture all exceptions on image imports which removes any useful error messages that might occur (such as no image at media/importimage.jpg)&lt;/p&gt;
+
+&lt;p&gt;If you would prefer to fix this, you can override Mage_Catalog_Model_Convert_Adapter_Product&lt;/p&gt;
+
+&lt;p&gt;Copy the saveRow() method into your overriding class and then change this bit&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;foreach ($imageData as $file =&amp;gt; $fields) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            try {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $filepath = Mage::getBaseDir(&amp;#39;media&amp;#39;) . DS . &amp;#39;import&amp;#39; . trim($file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $product-&amp;gt;addImageToMediaGallery($filepath, $fields);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            } catch (Exception $e) {}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To something like this&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;foreach ($imageData as $file =&amp;gt; $fields) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            //try {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $filepath = Mage::getBaseDir(&amp;#39;media&amp;#39;) . DS . &amp;#39;import&amp;#39; . trim($file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $product-&amp;gt;addImageToMediaGallery($filepath, $fields);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;           //} catch (Exception $e) {}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Detailed Exception Dump - Version 3</title>
+      <link>http://example.com/magento/magento-detailed-exception-dump-version-3.html</link>
+      <pubDate>Tue, 08 Feb 2011 13:17:04 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-detailed-exception-dump-version-3.html</guid>
+      <description>&lt;p&gt;Continuing with trying to improve the developer experience with Magento a key element has been my quest for a detailed exception dump that can also handle the various object recursion issues in Magento that can cause all kinds of issues when developing.&lt;/p&gt;
+
+&lt;p&gt;Here is my most up to date version of the detailedExceptionDump method.&lt;/p&gt;
+
+&lt;p&gt;Its designed to go into a customised version of Mage that you should ONLY use on development environemnts. I will leave the particular usage of this method to you, though it would make sense to also modify the printException method as a starting point.&lt;/p&gt;
+
+&lt;script type=&#34;text/javascript&#34; src=&#34;http://snipt.net/embed/a72f23e55dd732511c71a0d72260ab8b&#34;&gt;&lt;/script&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Debugging - An Introduction to Magento Exception Logging and Developer Mode</title>
+      <link>http://example.com/magento/magento-debugging-an-introduction-to-magento-exception-logging-and-developer-mode.html</link>
+      <pubDate>Mon, 29 Nov 2010 10:18:58 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-debugging-an-introduction-to-magento-exception-logging-and-developer-mode.html</guid>
+      <description>&lt;p&gt;One of the first stumbling blocks newcomers to Magento might find is that when things go wrong, they don&amp;rsquo;t know how to find out what it is that&amp;rsquo;s actually going wrong.&lt;/p&gt;
+
+&lt;p&gt;This is because Magento does an excellent job of keeping all of the error information away from people browsing the site. This is without a doubt a very good thing. Error messages can often contain information that would help an attacker compromise your system.&lt;/p&gt;
+
+&lt;p&gt;What Magento does instead (if you have it enabled) is to log all error information to log files which you can then access via FTP etc to view the error information. This is in much the same way as a well configured web server will not display error information generated by PHP itself but will instead display the &amp;ldquo;white screen of death&amp;rdquo; and log the error information to a file.&lt;/p&gt;
+
+&lt;p&gt;Magento exceptions can range from minor notices to major issues but not fatal errors. If PHP has a fatal error then this will be handled by PHP itself.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Magento Exception Logging&lt;/h2&gt;
+If you are experiencing errors with Magento, the first thing you need to do is to make sure exception logging is enabled.&lt;/p&gt;
+
+&lt;p&gt;In the admin go to:&lt;/p&gt;
+
+&lt;p&gt;System-&amp;gt;Configuration &amp;gt; Developer &amp;gt; Log Settings &amp;gt; Enabled = Yes&lt;/p&gt;
+
+&lt;p&gt;You can also set custom locations for your error log files, though the defaults are normally fine. Make sure the folder is writeable.&lt;/p&gt;
+
+&lt;p&gt;Now if you are having errors, you can look in var/log at the exception.log and/or system.log files that have been generated.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Magento Developer Mode&lt;/h2&gt;
+If you are developing locally and you would like to make Magento dump error information to screen instead of logging to a file, this is very easy to do. You simply need to set the site to run in Developer Mode.&lt;/p&gt;
+
+&lt;p&gt;The most secure way to do this (in the sense that you won&amp;rsquo;t accidently set your live store in Developer Mode) is to edit your local apache configuration and add this line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+SetEnv MAGE_IS_DEVELOPER_MODE &amp;quot;true&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You need to set this up in the directory you are running Magento, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+&amp;lt;Directory &amp;quot;/opt/lampp/htdocs&amp;quot;&amp;gt;
+    #
+    # Possible values for the Options directive are &amp;quot;None&amp;quot;, &amp;quot;All&amp;quot;,
+    # or any combination of:
+    #   Indexes Includes FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
+    #
+    # Note that &amp;quot;MultiViews&amp;quot; must be named *explicitly* --- &amp;quot;Options All&amp;quot;
+    # doesn&#39;t give it to you.
+    #
+    # The Options directive is both complicated and important.  Please see
+    # http://httpd.apache.org/docs/2.2/mod/core.html#options
+    # for more information.
+    #
+    #Options Indexes FollowSymLinks
+    # XAMPP
+    Options Indexes FollowSymLinks ExecCGI Includes
+        SetEnv MAGE_IS_DEVELOPER_MODE &amp;quot;true&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now any Magento site you run from within that folder (or any sub folder) will be running in Developer Mode when you are working locally, but will still be in the much more secure normal mode on the live server, without you having to edit any files within Magento itself.&lt;/p&gt;
+
+&lt;p&gt;If you prefer, you can add this line to your .htaccess file, or you can edit the index.php file to force Developer Mode however with either of these approaches there is always the risk you will accidently upload this file and set your live store into Developer Mode.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Enable Exception Logging</title>
+      <link>http://example.com/magento/magento-enable-exception-logging.html</link>
+      <pubDate>Mon, 15 Nov 2010 14:55:19 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-enable-exception-logging.html</guid>
+      <description>&lt;p&gt;Magento has some great exception logging functionality which is invaluable when trying to figure out why things aren&amp;rsquo;t working.&lt;/p&gt;
+
+&lt;p&gt;However, like a lot of settings in Magento, its tucked away in the configuration and its not always easy to remember how to enable it.&lt;/p&gt;
+
+&lt;p&gt;So here it is:&lt;/p&gt;
+
+&lt;p&gt;System-&amp;gt;Configuration-&amp;gt;Developer-&amp;gt;Log Settings&lt;/p&gt;
+
+&lt;p&gt;Once its enabled, the log files will be created in /var/logs/&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Zend Framework Error Invalid bind-variable name &#43; Solution</title>
+      <link>http://example.com/zend-framework/zend-framework-error-invalid-bind-variable-name-solution.html</link>
+      <pubDate>Wed, 03 Feb 2010 12:55:28 +0000</pubDate>
+      
+      <guid>http://example.com/zend-framework/zend-framework-error-invalid-bind-variable-name-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you encounter the error :&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Invalid bind-variable name xxxxxx&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;When trying to use named bound parameters with Zend Framework, then you are probably using the Mysqli adapter. Unfortunately this doesn&amp;rsquo;t actually support named parameters, but the Exception message isn&amp;rsquo;t really clear on that, despite being thrown in this block of code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt; } else if ($val[0] == &amp;#39;:&amp;#39;) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	if ($this-&amp;gt;_adapter-&amp;gt;supportsParameters(&amp;#39;named&amp;#39;) === false) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		 * @see Zend_Db_Statement_Exception&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		 */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		require_once &amp;#39;Zend/Db/Statement/Exception.php&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		throw new Zend_Db_Statement_Exception(&amp;quot;Invalid bind-variable name &amp;#39;$val&amp;#39;&amp;quot;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The Exception should really say:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;You are trying to use named parameters with an adapter that doesn&amp;rsquo;t support them&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The solution is easy, just switch your adapter from Mysqli to Pdo_Mysql&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento More Detailed Exception Log</title>
+      <link>http://example.com/magento/magento-more-detailed-exception-log.html</link>
+      <pubDate>Wed, 10 Jun 2009 12:52:59 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-more-detailed-exception-log.html</guid>
+      <description>&lt;p&gt;Magento has a nice feature which logs exceptions to file and then generally displays a non scary message to the site user. Its not always true, some exceptions do get through and then generate reports.&lt;/p&gt;
+
+&lt;p&gt;For exceptions that are caught and logged though, (if you have logging enabled) you will find the exception log in the var/logs folder. However the exception log only contains the getTraceAsString info, which is heavily truncated and often pretty much useless. To get around this you can modify the logException method in Mage.php.&lt;/p&gt;
+
+&lt;p&gt;Note, editing Mage.php directly is not generally a good idea and any edits will get nuked every time you upgrade. However for local development work this little edit is OK I think.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt; public static function logException(Exception $e)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (!self::getConfig()) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            return;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $file = Mage::getStoreConfig(&amp;#39;dev/log/exception_file&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //self::log(&amp;quot;n&amp;quot;.$e-&amp;gt;getTraceAsString(), Zend_Log::ERR, $file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $exceptionString = &amp;quot;nnnLogged Exception:nn&amp;quot; . $e-&amp;gt;getMessage() . &amp;quot;nn&amp;quot; . $e-&amp;gt;getTraceAsString();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        /*foreach($e-&amp;gt;getTrace() as $t){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $exceptionString .= var_export($t, true);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }*/&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        self::log($exceptionString, Zend_Log::ERR, $file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Note I experimented with echoing out each trace as detailed in &lt;a href=&#34;http://www.edmondscommerce.co.uk/blog/zend-framework/zend-framework-more-detailed-stack-trace/&#34;&gt;this post&lt;/a&gt;, however I found that this caused a fatal error due to some kind of recursion so I have commented it out. The only real change is that I have logged also the Exception message, which is generally the most useful bit of info and will actually help you understand what has gone wrong, in which file and on which line.&lt;/p&gt;
+
+&lt;p&gt;Hope this helps someone else out. If you have any suggestions on a cleaner or better way to do this please do post it / link it in the comments.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

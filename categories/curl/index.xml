@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Curl on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/curl/</link>
+    <description>Recent content in Curl on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 18 Jul 2008 13:09:13 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/curl/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP, cURL, CURLOPT FOLLOWLOCATION and open basedir Or Safe Mode</title>
+      <link>http://example.com/curl/php-curl-curlopt_followlocation-and-open_basedir-or-safe-mode.html</link>
+      <pubDate>Fri, 18 Jul 2008 13:09:13 +0000</pubDate>
+      
+      <guid>http://example.com/curl/php-curl-curlopt_followlocation-and-open_basedir-or-safe-mode.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are trying to get a curl script which needs follow on location functionality to run on a server which has either open_basedir or safe mode enabled you will get an error message similar to the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;CURLOPT_FOLLOWLOCATION cannot be activated when in safe_mode or an open_basedir is set&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;After a bit of digging, some kind soul has put a workaround &lt;a href=&#34;http://au.php.net/manual/ro/function.curl-setopt.php#71313&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Here is how to use the function&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function curl($url){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$go = curl_init($url);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_URL, $url);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;//follow on location problems&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if (ini_get(&amp;#39;open_basedir&amp;#39;) == &amp;#39;&amp;#39; &amp;amp;&amp;amp; ini_get(&amp;#39;safe_mode&amp;#39; == &amp;#39;Off&amp;#39;)){&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_FOLLOWLOCATION, $l);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$syn = curl_exec($go);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}else{&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$syn = curl_redir_exec($go);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;curl_close($go);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;return $syn;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//follow on location problems workaround&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;function curl_redir_exec($ch)&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;static $curl_loops = 0;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;static $curl_max_loops = 20;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if ($curl_loops++ &amp;gt;= $curl_max_loops)&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$curl_loops = 0;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;return FALSE;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;curl_setopt($ch, CURLOPT_HEADER, true);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$data = curl_exec($ch);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;list($header, $data) = explode(&amp;quot;\n\n&amp;quot;, $data, 2);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if ($http_code == 301 || $http_code == 302)&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$matches = array();&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;preg_match(&amp;#39;/Location:(.*?)\n/&amp;#39;, $header, $matches);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$url = @parse_url(trim(array_pop($matches)));&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if (!$url)&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//couldn&amp;#39;t process the url to redirect to&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$curl_loops = 0;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;return $data;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$last_url = parse_url(curl_getinfo($ch, CURLINFO_EFFECTIVE_URL));&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if (!$url[&amp;#39;scheme&amp;#39;])&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$url[&amp;#39;scheme&amp;#39;] = $last_url[&amp;#39;scheme&amp;#39;];&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if (!$url[&amp;#39;host&amp;#39;])&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$url[&amp;#39;host&amp;#39;] = $last_url[&amp;#39;host&amp;#39;];&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;if (!$url[&amp;#39;path&amp;#39;])&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$url[&amp;#39;path&amp;#39;] = $last_url[&amp;#39;path&amp;#39;];&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$new_url = $url[&amp;#39;scheme&amp;#39;] . &amp;#39;://&amp;#39; . $url[&amp;#39;host&amp;#39;] . $url[&amp;#39;path&amp;#39;] . ($url[&amp;#39;query&amp;#39;]?&amp;#39;?&amp;#39;.$url[&amp;#39;query&amp;#39;]:&amp;#39;&amp;#39;);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;curl_setopt($ch, CURLOPT_URL, $new_url);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;return curl_redir_exec($ch);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;} else {&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$curl_loops=0;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;return $data;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP Save Images Using cURL</title>
+      <link>http://example.com/php/curl/php-save-images-using-curl.html</link>
+      <pubDate>Tue, 18 Mar 2008 14:53:47 +0000</pubDate>
+      
+      <guid>http://example.com/php/curl/php-save-images-using-curl.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Some hosts disabled the ini setting allow_url_fopen. This also means that the ability to easily grab images by calling imagecreatefromjpeg($img) where $img is a url for an external image does not work.&lt;/p&gt;
+
+&lt;p&gt;This is a shame as this technique is pretty easy..&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$remote_img = &amp;#39;http://www.somwhere.com/images/image.jpg&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$img = imagecreatefromjpeg($remote_img);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$path = &amp;#39;images/&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;imagejpeg($img, $path);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;However I was tearing my hair out trying to get a product feed integration system to work on a host that has disabled the allow_url_fopen mechanism which meant the above wouldnt work.&lt;/p&gt;
+
+&lt;p&gt;Thankfully cURL was still working. So here is the function I made for grabbing and saving an image using cURL instead:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;//Alternative Image Saving Using cURL seeing as allow_url_fopen is disabled - bummer&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;function save_image($img,$fullpath){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$ch = curl_init ($img);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	curl_setopt($ch, CURLOPT_HEADER, 0);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$rawdata=curl_exec($ch);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	curl_close ($ch);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	if(file_exists($fullpath)){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		unlink($fullpath);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$fp = fopen($fullpath,&amp;#39;x&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	fwrite($fp, $rawdata);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	fclose($fp); &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Another Problem Solved :-)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using cURL with XAMPP</title>
+      <link>http://example.com/curl/xampp/using-curl-with-xampp.html</link>
+      <pubDate>Wed, 27 Feb 2008 11:36:51 +0000</pubDate>
+      
+      <guid>http://example.com/curl/xampp/using-curl-with-xampp.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you have read through this blog, you will realise that I am a big fan of the cURL library for PHP. Also, when using windows to code - I like to use the XAMPP package to give me easy access to an Apache, PHP and MySQL stack.&lt;/p&gt;
+
+&lt;p&gt;So here is my quick guide to getting XAMPP to work with cURL. Its really easy:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Navigate to your root XAMPP folder&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Search for all files and folder with this search query: php*.ini&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Open up all of the files in your favourite windows text editor (try notepad++)&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Do a find and replace:  Find &lt;em&gt;;extension=php_curl.dll &lt;/em&gt;and replace with&lt;em&gt; extension=php_curl.dll &lt;/em&gt;(you are just removing the semi colon). Make sure you select to replace in all opened documents&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;File -&amp;gt; Save All Documents&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Restart Apache using the XAMPP control panel&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Thats it - enjoy using cURL.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Building Spiders: Grab Data, Post Forms and Interact with Web Sites Automatically</title>
+      <link>http://example.com/php/curl/spidering/firefox/programming/building-spiders-grab-data-post-forms-and-interact-with-web-sites-automatically.html</link>
+      <pubDate>Thu, 14 Feb 2008 11:56:16 +0000</pubDate>
+      
+      <guid>http://example.com/php/curl/spidering/firefox/programming/building-spiders-grab-data-post-forms-and-interact-with-web-sites-automatically.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+One of the most useful and powerful things you can do with PHP is to create a programme which will simulate a web browser and can grab data, post data to forms and generally interact with other web sites - automatically.&lt;/p&gt;
+
+&lt;p&gt;For PHP to be able to work like this it must have the CURL library installed and active. It is the CURL library which actually handles all of the interaction and PHP is my scripting language of choice for interacting with CURL.&lt;/p&gt;
+
+&lt;p&gt;A simple CURL function is like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function curl($url){&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$timeout = &amp;#39;300&amp;#39;; //how long before CURL gives up on this page&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$go = curl_init();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_URL, $url);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_RETURNTRANSFER, 1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_FOLLOWLOCATION, 1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_TIMEOUT, $timeout);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$page = curl_exec($go);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_close($go);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;return $page;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This function when called and echoed will output the entire html of the $url specified.&lt;/p&gt;
+
+&lt;p&gt;For grabbing data from this page to be inserted into a database (for example when spidering a suppliers web site for product information to be inserted into your site) we then use regular expressions to find what we are looking for and then insert that into the database.&lt;/p&gt;
+
+&lt;p&gt;so for example if we wanted to grab the product title and we knew that this was wrapped in a h1 tag with the class &amp;ldquo;product title&amp;rdquo; we could use this regexp to grab this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$page = curl($url);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$pattern = &amp;#39;%&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;&amp;lt;h1 class=&amp;quot;product_title&amp;quot;&amp;gt;(.+?)&amp;lt;/h1&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;%i&amp;#39;;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;preg_match($pattern,$page,$matches);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;print_r($matches); //we can see the entire array of matches and choose which we want to insert into the database&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;We can also Post data to web sites using curl. This allows us to do all kinds of things including grabbing data that is displayed on the submission of post forms. Here is an example Curl Post Function:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function curl_post($url,$post_data){&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;$timeout = &amp;#39;300&amp;#39;; //how long before CURL gives up on this page&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$go = curl_init();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_URL, $url);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_RETURNTRANSFER, 1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_FOLLOWLOCATION, 1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt ($go, CURLOPT_TIMEOUT, $timeout);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;//now for the post section&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_setopt($go, CURLOPT_POST, true);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;curl_setopt($go, CURLOPT_POSTFIELDS, $post_data);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$page = curl_exec($go);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;curl_close($go);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;return $page;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;It can be tricky to figure out exactly what data should be in the post string. To help you out though is this incredibly handy addon for firefox: &lt;a href=&#34;https://addons.mozilla.org/en-US/firefox/addon/3829&#34; target=&#34;_blank&#34;&gt;Live Http Headers&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This addon lets you see exactly what is going on between your browser and the web site you are visiting. This can quickly and easily give you the information you need to replicate the same behaviour with your CURL script.&lt;/p&gt;
+
+&lt;p&gt;Edmonds Commerce specialise in working with PHP and CURL. If you have any spidering, screen scraping or other application that requires PHP to actively interact with other web sites - &lt;a href=&#34;http://www.edmondscommerce.co.uk/contact-about-curl-and-php.html&#34;&gt;get in touch today&lt;/a&gt; to see how we can help you benefit from this incredibly powerful technique.&lt;/p&gt;
+
+&lt;p&gt;Related Resources&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.phpfour.com/blog/2008/01/20/php-http-class/&#34; rel=&#34;nofollow&#34;&gt;&lt;a href=&#34;http://www.phpfour.com/blog/2008/01/20/php-http-class/&#34; target=&#34;_blank&#34;&gt;http://www.phpfour.com/blog/2008/01/20/php-http-class/&lt;/a&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.phpclasses.org/browse/package/1988.html&#34; rel=&#34;nofollow&#34;&gt;&lt;a href=&#34;http://www.phpclasses.org/browse/package/1988.html&#34; target=&#34;_blank&#34;&gt;http://www.phpclasses.org/browse/package/1988.html&lt;/a&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.phpit.net/article/using-curl-php/&#34; rel=&#34;nofollow&#34;&gt;&lt;a href=&#34;http://www.phpit.net/article/using-curl-php/&#34; target=&#34;_blank&#34;&gt;http://www.phpit.net/article/using-curl-php/&lt;/a&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://skeymedia.com/intro-to-curl-with-php/&#34; rel=&#34;nofollow&#34;&gt;&lt;a href=&#34;http://skeymedia.com/intro-to-curl-with-php/&#34; target=&#34;_blank&#34;&gt;http://skeymedia.com/intro-to-curl-with-php/&lt;/a&gt;&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Magento Problem on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/magento-problem/</link>
+    <description>Recent content in Magento Problem on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 05 Apr 2013 15:44:14 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/magento-problem/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Category Move Error Exception General error: 1205 &#43; solution</title>
+      <link>http://example.com/magento/magento-category-move-error-exception-general-error-1205-solution.html</link>
+      <pubDate>Fri, 05 Apr 2013 15:44:14 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-category-move-error-exception-general-error-1205-solution.html</guid>
+      <description>&lt;p&gt;There is a problem in Magento that when you try to move a category by dragging it in the admin, it can cause the above error, whilst causing the rest of the site to slow down.&lt;/p&gt;
+
+&lt;p&gt;This is caused by the system trying to re-index every product within the space of a transaction.&lt;/p&gt;
+
+&lt;p&gt;An easy way to get round this is to switch the indexing mode from auto to manual and then move the categories.&lt;/p&gt;
+
+&lt;p&gt;You will still need to re-index the site, but this can be run on a cron when the site is quite.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to get a configurable products parent in Magento</title>
+      <link>http://example.com/magento/how-to-get-a-configurable-products-parent-in-magento.html</link>
+      <pubDate>Fri, 20 Jan 2012 15:19:23 +0000</pubDate>
+      
+      <guid>http://example.com/magento/how-to-get-a-configurable-products-parent-in-magento.html</guid>
+      <description>&lt;p&gt;I recently needed magento to be able to load a product, and if that product was part of a configurable product detect this and return the parent product if that existed. Looking around google I came across this code snippet and thought it should work&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$_product = Mage::getModel(&amp;#39;catalog/product&amp;#39;)-&amp;gt;load($productId);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$parentIdArray = $_product-&amp;gt;loadParentProductIds()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                 -&amp;gt;getData(&amp;#39;parent_product_ids&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;if(!empty($parentIdArray)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    // do something&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The problem is that the loadParentProductIds method was depreciated in 1.4.2.0 and I&amp;rsquo;m running 1.6. The new way of doing detecting if a product has a parent is to do this&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$configurable_product_model = Mage::getModel(&amp;#39;catalog/product_type_configurable&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$parentIdArray= $configurable_product_model-&amp;gt;getParentIdsByChild($productId);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;if(!empty($parentIdArray)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    // do something&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Using this method I overrode the Mage_Catalog_Model_Product class and added this method, which will always return a configurable product if the product is associated with one. Be aware, that if you products belong to more than one configurable product you will have to modify the logic&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;public function getConfigurableProduct() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	switch ($this-&amp;gt;type_id) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		case &amp;#39;configurable&amp;#39;:&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			return $this;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			break;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		default:&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$configurable_product_model = Mage::getModel(&amp;#39;catalog/product_type_configurable&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$parentId= $configurable_product_model-&amp;gt;getParentIdsByChild($this-&amp;gt;getId());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			if(isset($parentId[0])) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				$this-&amp;gt;load($parentId[0]);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			break;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;	return $this;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Console Log not working in Magento &#43; solution</title>
+      <link>http://example.com/magento/console-log-not-working-in-magento-solution.html</link>
+      <pubDate>Fri, 16 Dec 2011 13:10:11 +0000</pubDate>
+      
+      <guid>http://example.com/magento/console-log-not-working-in-magento-solution.html</guid>
+      <description>&lt;p&gt;If you are writing any javascript in magento and try to debug using console.log, you may find that nothing happens in Chrome, but everything works as expected in Firefox.&lt;/p&gt;
+
+&lt;p&gt;The reason for this is that varien have included a blank console object to prevent any calls to the console throwing an error if a console isn&amp;rsquo;t defined. However they explicitly check for firebug, which means if your running chrome the built in console is replaced.&lt;/p&gt;
+
+&lt;p&gt;To fix this you need to edit the js/varien/js.js file and find the following line
+&lt;code&gt;
+ if (!(&amp;ldquo;console&amp;rdquo; in window) || !(&amp;ldquo;firebug&amp;rdquo; in console))
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Replace the line with the following
+&lt;code&gt;
+ if (!(&amp;ldquo;console&amp;rdquo; in window) || typeof console !== &amp;lsquo;object&amp;rsquo;)
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;and you can start console logging in chrome&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento javascript stopped working &#43; solution</title>
+      <link>http://example.com/magento/magento-javascript-stopped-working-solution.html</link>
+      <pubDate>Thu, 11 Aug 2011 14:52:58 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-javascript-stopped-working-solution.html</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve just spent to long trying to fix an infuriating problem with a simple fix. If you create a new theme from scratch and suddenly realise that none of your magento javascript is working, it could be because you&amp;rsquo;ve included jQuery and forgotten to include the noConflict argument.&lt;/p&gt;
+
+&lt;p&gt;If you have included jQuery, then make sure the following line is included at the top of your page.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+jQuery.noConflict();
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Install Problem &#43; Solution &#39;sales_flat_quote&#39; already exists</title>
+      <link>http://example.com/magento/magento-install-problem-solution-sales_flat_quote-already-exists.html</link>
+      <pubDate>Tue, 10 Mar 2009 14:48:16 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-install-problem-solution-sales_flat_quote-already-exists.html</guid>
+      <description>&lt;p&gt;Trying to do a clean install of Magento 1.2.1.2 I kept hitting this SQL error.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Base table or view already exists: 1050 Table &amp;lsquo;sales_flat_quote&amp;rsquo; already exists&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;In the end I opted to manually edit the related install file and add DELETE IF EXISTS statements before each CREATE TABLE statement.&lt;/p&gt;
+
+&lt;p&gt;The file in question is located here:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;/app/code/core/Mage/Sales/sql/sales_setup&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;and the problem file is&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;mysql4-install-0.9.0.php&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The solution is to edit the file and add DROP TABLE IF EXISTS statements before each CREATE TABLE statement&lt;/p&gt;
+
+&lt;p&gt;eg&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;DROP TABLE IF EXISTS  `{$installer-&amp;gt;getTable(&amp;#39;sales_flat_quote&amp;#39;)}`;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;CREATE TABLE `{$installer-&amp;gt;getTable(&amp;#39;sales_flat_quote&amp;#39;)}` (.....&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;I have created an issue on their bug tracker &lt;a href=&#34;http://www.magentocommerce.com/bug-tracking/issue/?issue=5517&#34; rel=&#34;nofollow&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

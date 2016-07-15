@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Attribute Sets on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/attribute-sets/</link>
+    <description>Recent content in Attribute Sets on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 18 Apr 2012 17:48:13 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/attribute-sets/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Update Magento category attribute sort order from the database</title>
+      <link>http://example.com/magento/update-magento-category-attribute-sort-order-from-the-database.html</link>
+      <pubDate>Wed, 18 Apr 2012 17:48:13 +0000</pubDate>
+      
+      <guid>http://example.com/magento/update-magento-category-attribute-sort-order-from-the-database.html</guid>
+      <description>&lt;p&gt;If you have written your own modules, and need to rearrange the order that your attributes or displayed in, or change anything else, you can use the following SQL statements to fix their order.&lt;/p&gt;
+
+&lt;p&gt;First you need to get the attribute group that the attributes are under. This can be done by running the following&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;attribute_group_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;attribute_group_name&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eav_attribute_group&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This will give all of the different tabs for categories as well as the products. Find the group ID that you need and then run the following command to see all of the attributes associated with it&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_code&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eav_entity_attribute&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eea&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eav_attribute&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_group_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Here we are using the group_id of 4 which gives the following result
+&lt;img src=&#34;http://example.com/images/screenshot2-600x234.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The sort_order is the attribute that you need to change to move the attributes around the page. If the sort order is sequential then a simple trick to add some padding is to run the following command&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;UPDATE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eav_entity_attribute&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sort_order&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sort_order&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;10&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;attribute_group_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Which will multiple each sort order by 10 allowing you to move the attributes around easier.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Attributes and Attribute Sets - An Explanation</title>
+      <link>http://example.com/magento/magento-attributes-and-attribute-sets-an-explanation.html</link>
+      <pubDate>Sat, 25 Jul 2009 10:37:58 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-attributes-and-attribute-sets-an-explanation.html</guid>
+      <description>&lt;p&gt;One of the really cool and powerful features of Magento compared to other more traditional ecommerce platforms is the way that product information is handled. On a traditional system you will likely have one or a small number of tables to store product information. For each element of product information there is a column on these tables. This might be things like price, weight, model code etc etc.&lt;/p&gt;
+
+&lt;p&gt;But lets imagine that you sell T shirts. So you decide that you want to add a new column to your system to store the following bits of info:&lt;/p&gt;
+
+&lt;p&gt;size
+material
+male/female&lt;/p&gt;
+
+&lt;p&gt;Ok no problem, you add these columns to your table, modify your administration system and front end to display this extra info. Easy enough. You also decide to modify your search page so that people can search by T shirt size, material or mens/womens so your search is much easier to use.&lt;/p&gt;
+
+&lt;p&gt;However, lets say you find a new supplier for footwear. You want to add all these new products to your system but you also want to be able to store the extra information related to shoes, for example:&lt;/p&gt;
+
+&lt;p&gt;UK Size
+European Size
+Upper
+Sole&lt;/p&gt;
+
+&lt;p&gt;Of course you can go ahead and add a bunch more columns to your table and store this info. However, now you have the issue that you need to edit your front end to only display the shoe related info for shoes and only the T shirt related info for T shirts. You can probably figure out a way to handle this, but I&amp;rsquo;m sure you can start to see the problem. This approach doesn&amp;rsquo;t scale well. Lets say instead of 2 main product types you have 200 or even 2000.&lt;/p&gt;
+
+&lt;p&gt;In the end what ends up happening is that you only store basic specific information about a product and then all the finer details go into the product description. Thats fine, but its not great. Also you have to lose your nice new search functionality.&lt;/p&gt;
+
+&lt;p&gt;Magento deals with this in an entirely different way. Instead of having the traditional spreadsheet like database table relationships (1 row for each product), Magento does things differently and stores 1 item of information per row (over simplified but enough to illustrate my point). This means that there is no limit to how many elements of information can be stored for each product.&lt;/p&gt;
+
+&lt;p&gt;Magento Groups these attributes (as it calls them) into attribute sets. An attribute set is simply enough a collection of attributes. There is a default attribute set which you would generally make a copy of and then customise for each kind of product you want to have custom attributes for. So continuing our T shirts and shoes example, you would make a new attribute set called T shirts, based on the Default set, and also one for shoes.&lt;/p&gt;
+
+&lt;p&gt;The T shirts attribute set will contain all the standard attributes (such as price, title etc) inherited from the default set, but we can also add in our custom attributes. Same goes for the shoes.&lt;/p&gt;
+
+&lt;p&gt;Then when we want to add a new product (lets say a T shirt) we select the T shirts attribute set so that we then have fields to enter information for our custom T shirt attributes.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

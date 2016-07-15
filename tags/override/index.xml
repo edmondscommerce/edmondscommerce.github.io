@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Override on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/override/</link>
+    <description>Recent content in Override on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 26 Apr 2012 12:35:29 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/override/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Extending Mage Core Encryption Model to handle Legacy Passwords</title>
+      <link>http://example.com/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html</link>
+      <pubDate>Thu, 26 Apr 2012 12:35:29 +0000</pubDate>
+      
+      <guid>http://example.com/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html</guid>
+      <description>&lt;p&gt;If you are migrating from an old ecommerce package into Magento, you may well want to extend Magento&amp;rsquo;s password hashing system so that it can understand the passwords that are hashed by the previous system and customers can log in using their old passwords without any hassle.&lt;/p&gt;
+
+&lt;p&gt;You would start off by overriding the Mage_Core_Model_Encryption class like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;class EdmondsCommerce_LegacyPassword_Model_Encryption extends Mage_Core_Model_Encryption {&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Validate hash against hashing method (with or without salt)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Extended to support the legacy password hashing of the previous system&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param string $password&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param string $hash&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return bool&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @throws Exception&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function validateHash($password, $hash) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (/*password matches legacy pattern (as stored hash in DB)*/) {            &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            // create a hash of the plain text password and compare to the stored hash&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            return $hashed_pass == $hashval;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //default magento hashing from here&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return parent::validateHash($password, $hash);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;However, you will find that the standard model override does not work and you may start vigorous hair pulling at this point.&lt;/p&gt;
+
+&lt;p&gt;The answer though is that your override XML is actually fine, but it isn&amp;rsquo;t being used. This is because of the getEncryptor model in Mage_Core_Helper_Data creates the model using &amp;lsquo;new&amp;rsquo; rather than getModel.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return Mage_Core_Model_Encryption&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function getEncryptor()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ($this-&amp;gt;_encryptor === null) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $encryptionModel = (string)Mage::getConfig()-&amp;gt;getNode(self::XML_PATH_ENCRYPTION_MODEL);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if ($encryptionModel) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $this-&amp;gt;_encryptor = new $encryptionModel;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            } else {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $this-&amp;gt;_encryptor = Mage::getModel(&amp;#39;core/encryption&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;            $this-&amp;gt;_encryptor-&amp;gt;setHelper($this);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $this-&amp;gt;_encryptor;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The class name to use for the encryptor is stored in the config.xml for Mage_Core.&lt;/p&gt;
+
+&lt;p&gt;The solution here is to replicate this XML in your config.xml and also make your legacy module depend on Mage_Core so that it get loaded afterwards and can override the XML.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;modules&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;EdmondsCommerce_LegacyPassword&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.1.1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;depends&amp;gt;&lt;/span&gt;Mage_Core&lt;span class=&#34;nt&#34;&gt;&amp;lt;/depends&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/EdmondsCommerce_LegacyPassword&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/modules&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;models&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;core&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;encryption&amp;gt;&lt;/span&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;span class=&#34;nt&#34;&gt;&amp;lt;/encryption&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/core&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/models&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;helpers&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;core&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;encryption_model&amp;gt;&lt;/span&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;span class=&#34;nt&#34;&gt;&amp;lt;/encryption_model&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/core&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/helpers&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/global&amp;gt;&lt;/span&gt;    
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Easy once you understand. Another gotcha you have to look out for though!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Overiding XML Case Inconsistency Continues</title>
+      <link>http://example.com/magento/magento-overiding-xml-case-inconsistency-continues.html</link>
+      <pubDate>Tue, 23 Jun 2009 14:57:16 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-overiding-xml-case-inconsistency-continues.html</guid>
+      <description>&lt;p&gt;Had another tearing hair out moment when trying to figure out why my helper override was working fine,  but my block override wasn&amp;rsquo;t working. Here is the result:&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;helper working, block not working:&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;modules&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;EC_CatalogSearch&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.1.0&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/EC_CatalogSearch&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/modules&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;helpers&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;catalogSearch&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;data&amp;gt;&lt;/span&gt;EC_CatalogSearch_Helper_Data&lt;span class=&#34;nt&#34;&gt;&amp;lt;/data&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/catalogSearch&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/helpers&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;blocks&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;catalogSearch&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;result&amp;gt;&lt;/span&gt;EC_CatalogSearch_Block_Result&lt;span class=&#34;nt&#34;&gt;&amp;lt;/result&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/catalogSearch&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/blocks&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/global&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;then after a load of messing about, this one does work:&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;helper and block both working&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;modules&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;EC_CatalogSearch&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.1.0&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/EC_CatalogSearch&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/modules&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;helpers&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;catalogSearch&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;data&amp;gt;&lt;/span&gt;EC_CatalogSearch_Helper_Data&lt;span class=&#34;nt&#34;&gt;&amp;lt;/data&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/catalogSearch&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/helpers&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;blocks&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;catalogsearch&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;result&amp;gt;&lt;/span&gt;EC_CatalogSearch_Block_Result&lt;span class=&#34;nt&#34;&gt;&amp;lt;/result&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/catalogsearch&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/blocks&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/global&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;yeah exactly :S&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Onestepcheckout on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/onestepcheckout/</link>
+    <description>Recent content in Onestepcheckout on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 24 Apr 2014 19:17:35 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/onestepcheckout/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>SagePay, OneStepCheckout, &#39;Transaction could not be cancelled and order was not created, cart was modified while customer on payment pages&#39;</title>
+      <link>http://example.com/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html</link>
+      <pubDate>Thu, 24 Apr 2014 19:17:35 +0000</pubDate>
+      
+      <guid>http://example.com/magento/sagepay-onestepcheckout-transaction-could-not-be-cancelled-and-order-was-not-created-cart-was-modified-while-customer-on-payment-pages.html</guid>
+      <description>&lt;p&gt;I spent this morning dealing with a Magento sit that was unable to process Credit Card payments when they were placed with SagePay.&lt;/p&gt;
+
+&lt;p&gt;When a customer tried to place an order they were able to enter that card details, but were then presented with an alert with the following message&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Your order could not be completed, please try again. Thanks.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;They were using the &lt;a href=&#34;https://github.com/ebizmarts/sage-pay-suite-ce&#34; target=&#34;_blank&#34;&gt;EbizMarts SagePay CE Module&lt;/a&gt;, so I had a look around to see if the error was known&lt;/p&gt;
+
+&lt;p&gt;It appears that a recent release of the SagePay Module introduces some additional checks before creating the order and the current release of the &lt;a href=&#34;http://www.onestepcheckout.com/&#34; target=&#34;_blank&#34;&gt;OneStepCheckout&lt;/a&gt; is not compatible with this.&lt;/p&gt;
+
+&lt;p&gt;If you look straight at the SagePay Logs you may also see the following errors, which may indicate the same problem.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;DEBUG: 4028 : The related transaction cannot be found.&lt;/li&gt;
+&lt;li&gt;DEBUG: Your order could not be completed, please try again. Thanks.
+
+&lt;ul&gt;
+&lt;li&gt;CRIT: Transaction XXXXXXXXX-XXXX-XX-XX-XX-XX-XX could not be cancelled and order was not created, cart was modified while customer on payment pages.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Thankfully there is a simple fix for this. In the &lt;strong&gt;app/code/local/Idev/OneStepCheckout/controllers/IndexController.php&lt;/strong&gt; file you need to add the following line to the indexAction method&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;Mage::getSingleton(&amp;#39;checkout/session&amp;#39;)-&amp;gt;setCartWasUpdated(false);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Just before&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$this-&amp;gt;loadLayout();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and then everything will work correctly.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

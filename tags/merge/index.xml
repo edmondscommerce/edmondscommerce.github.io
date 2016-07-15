@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Merge on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/merge/</link>
+    <description>Recent content in Merge on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 29 Jan 2014 11:39:19 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/merge/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Clean Up Meld Files when Git Merging</title>
+      <link>http://example.com/git/clean-up-meld-files-when-git-merging.html</link>
+      <pubDate>Wed, 29 Jan 2014 11:39:19 +0000</pubDate>
+      
+      <guid>http://example.com/git/clean-up-meld-files-when-git-merging.html</guid>
+      <description>&lt;p&gt;If you do a Git Merge using Meld (a brilliant Linux diff tool) then you might find that there are a bunch of files created that you need to clear up.&lt;/p&gt;
+
+&lt;p&gt;These files will be copies of the merged files and can be safely removed as everything you should need to know is already in Git.&lt;/p&gt;
+
+&lt;p&gt;I wrote the following quick function to find all of these files and remove them. You could add this as a function to your bashrc file if you need to do this regularly.&lt;/p&gt;
+
+&lt;p&gt;Here is the BASH snippet:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;git status -su &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep -P &lt;span class=&#34;s2&#34;&gt;&amp;quot;\.BACKUP|BASE|LOCAL|REMOTE\.&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; cut -f2 -d&lt;span class=&#34;s2&#34;&gt;&amp;quot; &amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; xargs rm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Merging Forks for Composer</title>
+      <link>http://example.com/composer/merging-forks-for-composer.html</link>
+      <pubDate>Thu, 05 Dec 2013 19:53:16 +0000</pubDate>
+      
+      <guid>http://example.com/composer/merging-forks-for-composer.html</guid>
+      <description>&lt;p&gt;I am really enjoying using Composer with a Symfony2 project that I am currently working on.&lt;/p&gt;
+
+&lt;p&gt;Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
+JMS/SerializerBundle to handle the actual encoding into JSON.&lt;/p&gt;
+
+&lt;p&gt;The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&amp;rsquo;t want that. I want my property and entity names to be the same across formats.&lt;/p&gt;
+
+&lt;p&gt;A bit of digging and I found &lt;a href=&#34;https://github.com/passkey1510/JMSSerializerBundle&#34; target=&#34;_blank&#34;&gt;this fork&lt;/a&gt; which features a fix for exactly this problem, brilliant!&lt;/p&gt;
+
+&lt;p&gt;However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
+the minimum version requirements of the FOSRest bundle. Problem.&lt;/p&gt;
+
+&lt;p&gt;The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
+git merge remote/passkey1510/master
+git push
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.&lt;/p&gt;
+
+&lt;p&gt;I can now reference my fork in my composer.json file like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;quot;repositories&amp;quot;: [
+        {
+            &amp;quot;url&amp;quot;: &amp;quot;https://github.com/edmondscommerce/JMSSerializerBundle.git&amp;quot;,
+            &amp;quot;type&amp;quot;: &amp;quot;vcs&amp;quot;
+        },
+],
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now running a &lt;code&gt;composer update --dev&lt;/code&gt; and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.&lt;/p&gt;
+
+&lt;p&gt;And that is it, problem solved :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>A Great Way to Simplify Git Merges</title>
+      <link>http://example.com/git/a-great-way-to-simplify-git-merges.html</link>
+      <pubDate>Thu, 26 Sep 2013 17:34:04 +0000</pubDate>
+      
+      <guid>http://example.com/git/a-great-way-to-simplify-git-merges.html</guid>
+      <description>&lt;p&gt;If you are struggling with a git merge with a long list of failed merge files then this little trick might be helpful.&lt;/p&gt;
+
+&lt;p&gt;The standard approach is to go file by file and use git mergetool to open the files in a tool like Meld and then manually manage the differences. In many cases though you know exactly which version you want and this is simply a laborious process that doesn&amp;rsquo;t really require human input.&lt;/p&gt;
+
+&lt;p&gt;The solution to this is deceptively simple. All you need to do is to check out the file from the branch you want to keep the version of. If you have an entire directory where you know that the branch (for example master) has the correct version then you can check out that entire directory.&lt;/p&gt;
+
+&lt;p&gt;You might find that sensible use of this technique can save you lots of time and really make the mergetool the one you use for the files where you really do need to merge.&lt;/p&gt;
+
+&lt;p&gt;Thanks to &lt;a href=&#34;http://stackoverflow.com/questions/914939/simple-tool-to-accept-theirs-or-accept-mine-on-a-whole-file-using-git?answertab=active#tab-top&#34;&gt;this StackOverflow answer&lt;/a&gt; for simplifying this for me.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ubuntu Git Install 1.7.5 and Why</title>
+      <link>http://example.com/git/ubuntu-git-install-1-7-4-and-why.html</link>
+      <pubDate>Thu, 09 Jun 2011 12:42:13 +0000</pubDate>
+      
+      <guid>http://example.com/git/ubuntu-git-install-1-7-4-and-why.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Git a lot, you probably want to run the latest version. Scroll down for some reasons why.&lt;/p&gt;
+
+&lt;p&gt;The standard repository version for Ubuntu is 1.7.1, the current latest is 1.7.5 and there are some significant differences.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;How to Upgrade Git&lt;/h2&gt;
+To get 1.7.5 on Ubuntu without too much messing about you can do the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;1. Set up this PPA:&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo add-apt-repository ppa:pdoes/ppa/ubuntu
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h3&gt;2. Now run an aptitude update and upgrade git&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo apt-get update
+sudo aptitude upgrade git
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h3&gt;3. Now check your git version&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+git --version
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h3&gt;Full Script for the lazy&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo add-apt-repository ppa:pdoes/ppa/ubuntu &amp;amp;&amp;amp; sudo apt-get update &amp;amp;&amp;amp; sudo aptitude upgrade &amp;amp;&amp;amp; git --version
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h2&gt;Why Upgrade Git?&lt;/h2&gt;
+We have been having lots of merge hassles casued purely by white space changes. Apparently with 1.7.4 new recursive merge strategies came into play that should alleviate this pain and make merging a lot less hassle.&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;Merge Ignore Whitespace&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+git merge -s recursive -Xignore-space-change $BRANCH_NAME
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Less hassle equals more productive and happier developers :)&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

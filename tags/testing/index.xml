@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Testing on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/testing/</link>
+    <description>Recent content in Testing on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 15 Apr 2015 12:02:28 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Repeating Behat Scenarios when Testing Magento with SmartStep</title>
+      <link>http://example.com/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html</link>
+      <pubDate>Wed, 15 Apr 2015 12:02:28 +0000</pubDate>
+      
+      <guid>http://example.com/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html</guid>
+      <description>&lt;p&gt;When behat testing Magento I found myself repeating the same Homepage &amp;gt; Category &amp;gt; Product &amp;gt; Add-to-cart &amp;gt; Cart page scenario for a variety of tests - checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.&lt;/p&gt;
+
+&lt;p&gt;I didn&amp;rsquo;t want to copy-paste the whole procedure because if I changed, say the &lt;code&gt;.product-list&lt;/code&gt; class, I&amp;rsquo;d have to update each of the Scenarios. Bit of a kick in the face to &lt;a href=&#34;http://en.wikipedia.org/wiki/Don%27t_repeat_yourself&#34; target=&#34;_blank&#34;&gt;DRY&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step &lt;code&gt;Given I have added to cart&lt;/code&gt; or similar, but this defeats the object of using Gherkin to write the tests.&lt;/p&gt;
+
+&lt;p&gt;Fortunately KnpLabs have soled this problem with &lt;a href=&#34;https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md&#34; target=&#34;_blank&#34;&gt;SmartSteps&lt;/a&gt;. This allows you to create a Scanerio that you want to be repeatable by tagging it as a &lt;code&gt;@smartStep&lt;/code&gt;. Once it&amp;rsquo;s tagged, you can easily embed that scenario into a new one by having a step &lt;code&gt;Given [scenario name]&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;###Adding SmartSteps to your behat tests&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;In &lt;code&gt;composer.json&lt;/code&gt;, add a new dependency
+&lt;code&gt;
+&amp;quot;knplabs/friendly-contexts&amp;quot;: &amp;quot;dev-master&amp;quot;
+&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;In &lt;code&gt;behat.yml&lt;/code&gt;
+```
+default:
+extensions:
+    Knp\FriendlyContexts\Extension:
+        smartTag: smartStep&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;- Tag your scenario
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;@smartStep
+  Scenario: I arrive on the site and add a product to cart
+    When I am on &amp;ldquo;/&amp;rdquo;
+    Then I follow &amp;ldquo;My category&amp;rdquo;
+    Then I follow &amp;ldquo;My product&amp;rdquo;
+    Then I press &amp;ldquo;Add to Cart&amp;rdquo;
+    And I should see &amp;ldquo;was added to your shopping cart&amp;rdquo;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;- And then use the Scenario in any other scenarios with
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Given I arrive on the site and add a product to cart
+```&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Behat</title>
+      <link>http://example.com/behat/behat.html</link>
+      <pubDate>Wed, 01 Apr 2015 12:04:12 +0000</pubDate>
+      
+      <guid>http://example.com/behat/behat.html</guid>
+      <description>&lt;p&gt;I love Behat. One of the great things about it is that it has been built to be very extensible, so if it doesn&amp;rsquo;t do exactly what you need then it&amp;rsquo;s really quite easy to to customise the way it works without having to do any hacking on the core code. This is because it makes extensive use of an Observer Pattern like Hooks system.&lt;/p&gt;
+
+&lt;p&gt;If you want to have your Behat tests fail as soon as a scenario fails - ideal when you are running a large suite of tests and trying to fix issues - then simply add in this method into a Context class.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;   &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    /** @AfterScenario */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function dieOnFailedScenario(Behat\Behat\Hook\Scope\AfterScenarioScope $scope)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (99 === $scope-&amp;gt;getTestResult()-&amp;gt;getResultCode()) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if (isset($_SERVER[&amp;#39;BEHAT_DIE_ON_FAILURE&amp;#39;])) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                die(&amp;quot;\n\nBEHAT_DIE_ON_FAILURE is defined\n\nKilling Full Process\n\n\n\n&amp;quot;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            } else {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                echo &amp;quot;\n\nTo die on failure, please run:\nexport BEHAT_DIE_ON_FAILURE=true;\n\n&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then in your terminal, simply export BEHAT_DIE_ON_FAILURE=true and then the next time you run your tests, the process will die and you can go and fix the problems.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Behat and emulating mobile browsers using chrome</title>
+      <link>http://example.com/behat/behat-and-emulating-mobile-browsers-using-chrome.html</link>
+      <pubDate>Tue, 03 Feb 2015 13:00:25 +0000</pubDate>
+      
+      <guid>http://example.com/behat/behat-and-emulating-mobile-browsers-using-chrome.html</guid>
+      <description>&lt;p&gt;Lets admit it not all mobile sites are responsive as they were created when responsive sites were in their infancy or just did not exist. Along with that and even if a site is responsive some elements, images, styles and javascript maybe exclusive to mobile user agents or excluded all together due to file size concerns.&lt;/p&gt;
+
+&lt;p&gt;It would be useful to test a site when it is dealing with a mobile user agent. However you don not always need a actual mobile browser thanks to chromes mobile device emulation. Although it is not useful it can at lest be used to do some testing when site responds to specific user agents. Chromes mobile emulation can be driven with behat using the following example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;default&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;extensions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+    &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;Behat\MinkExtension&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;base_url&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;http://urltotest.com/&amp;quot;&lt;/span&gt;
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;default_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_firefox_session&lt;/span&gt;
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;goutte&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;~&lt;/span&gt;
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;sessions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+        &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;goutte_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+          &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;goutte&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;guzzle_parameters&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+              &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;ssl.certificate_authority&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;false&lt;/span&gt;
+        &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_chrome_mobile_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+          &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium2&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;browser&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;chrome&lt;/span&gt;
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;capabilities&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+              &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;extra_capabilities&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+                &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;chromeOptions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+                  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;mobileEmulation&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+                    &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;deviceName&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;Google&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s&#34;&gt;Nexus&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s&#34;&gt;5&amp;quot;&lt;/span&gt;
+        &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_chrome_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+          &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium2&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;browser&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;chrome&lt;/span&gt;
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;capabilities&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+              &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;extra_capabilities&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+                &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;chromeOptions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+                  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+                    &lt;span class=&#34;p p-Indicator&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;--start-maximized&amp;quot;&lt;/span&gt;
+                    &lt;span class=&#34;p p-Indicator&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;--test-type&amp;quot;&lt;/span&gt;
+        &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_firefox_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+          &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium2&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;browser&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;firefox&lt;/span&gt;
+  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;suites&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+    &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;my_suite&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;contexts&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+        &lt;span class=&#34;p p-Indicator&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;FeatureContext&lt;/span&gt;
+        &lt;span class=&#34;p p-Indicator&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;Behat\MinkExtension\Context\MinkContext&lt;/span&gt;
+
+&lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;chrome_mobile&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;extensions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+    &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;Behat\MinkExtension&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;default_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_chrome_mobile_session&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;With Behat and Mink we are able to pass extra parameters to the chrome selnium driver using the extra_capabilities options. In the above example we enable mobile emulation using the &amp;ldquo;Google Nexus 5&amp;rdquo; profile. To drive tests using this we have two options.&lt;/p&gt;
+
+&lt;p&gt;Specify the profile at run time using:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;bin/behat -p chrome
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Alternative you can tag specific scenarios to use a given profile by using the following tag above the scenario you want to affect:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;@mink:selenium_chrome_mobile_session
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Multiple Behat and Mink profiles for testing multiple browsers</title>
+      <link>http://example.com/behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html</link>
+      <pubDate>Tue, 03 Feb 2015 12:20:36 +0000</pubDate>
+      
+      <guid>http://example.com/behat/multiple-behat-and-mink-profiles-for-testing-multiple-browsers.html</guid>
+      <description>&lt;p&gt;Behat makes it easy to write and run automated testing in browser and in most cases where functionality is not javascript driven then testing in a single browser is fine.&lt;/p&gt;
+
+&lt;p&gt;However if you are testing Javascript driven functionality then it is best to have multiple profiles for multiple browsers without having to write the scenario multiple times with different tagsi for different sessions. Luckily behat support defination of multiple profiles which inherit from a single default profile for all your browser needs. You simply need to set up your bhat yaml config file like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;default&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;extensions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+    &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;Behat\MinkExtension&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;base_url&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;http://someurl.com&amp;quot;&lt;/span&gt;
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;default_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_firefox_session&lt;/span&gt;
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;goutte&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;~&lt;/span&gt;
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;sessions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+        &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;goutte_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+          &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;goutte&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;guzzle_parameters&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+              &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;ssl.certificate_authority&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;false&lt;/span&gt;
+        &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_chrome_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+          &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium2&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;browser&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;chrome&lt;/span&gt;
+        &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_firefox_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+          &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium2&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+            &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;browser&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;firefox&lt;/span&gt;
+  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;suites&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+    &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;my_suite&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;contexts&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+        &lt;span class=&#34;p p-Indicator&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;FeatureContext&lt;/span&gt;
+        &lt;span class=&#34;p p-Indicator&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;Behat\MinkExtension\Context\MinkContext&lt;/span&gt;
+
+&lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;chrome&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;extensions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+    &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;Behat\MinkExtension&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;default_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_chrome_session&lt;/span&gt;
+
+&lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;firefox&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+  &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;extensions&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+    &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;Behat\MinkExtension&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; 
+      &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;default_session&lt;/span&gt;&lt;span class=&#34;p p-Indicator&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;l l-Scalar l-Scalar-Plain&#34;&gt;selenium_firefox_session&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The to run the crome profile for example use the -p option flag on the behat command as show:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;bin/behat -p chrome
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Apache JMeter For Load Testing</title>
+      <link>http://example.com/load-testing/using-apache-jmeter-for-load-testing.html</link>
+      <pubDate>Tue, 27 May 2014 13:01:39 +0000</pubDate>
+      
+      <guid>http://example.com/load-testing/using-apache-jmeter-for-load-testing.html</guid>
+      <description>&lt;p&gt;Load testing is something that you really need a decent solution for. A simple tool such as Apache Bench (ab) is overly simplistic for todays web applications.&lt;/p&gt;
+
+&lt;p&gt;After some research I decided to use Apache Jmeter as the tool of choice. It is written in Java so easy enough to run on any platform.
+It features a GUI which is ideal for creating your tests, then a command line version which is what you should use to run your tests.&lt;/p&gt;
+
+&lt;p&gt;For my purposes I wanted to feed in a large list of URLs, for that I followed these instructions:
+&lt;a href=&#34;http://asciiville.com/musings/coder/how-to-feed-jmeter-from-csv&#34; target=&#34;_blank&#34;&gt;http://asciiville.com/musings/coder/how-to-feed-jmeter-from-csv&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This allows you to create a csv file with your choice of URLs. It was actually quite hard to find a decent and succint guide to getting this set up but thankfully that page fitted my requirements.&lt;/p&gt;
+
+&lt;p&gt;Once I started to run the test I quickly realised that my system was grinding to a halt with out of memory errors. A bit more searching yielded this page which advises on how to properly run Jmeter including the fact that you really should run it on the command line for proper testing.
+&lt;a href=&#34;http://blazemeter.com/blog/jmeter-performance-and-tuning-tips&#34; target=&#34;_blank&#34;&gt;http://blazemeter.com/blog/jmeter-performance-and-tuning-tips&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How To Prototype For Mobile Devices Fast &amp; Easy?</title>
+      <link>http://example.com/web-design/how-to-prototype-for-mobile-devices-fast-easy.html</link>
+      <pubDate>Mon, 29 Jul 2013 11:29:32 +0000</pubDate>
+      
+      <guid>http://example.com/web-design/how-to-prototype-for-mobile-devices-fast-easy.html</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;http://example.com/images/ProtoIO.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As a designer who is keen on usability and user centric, well tested web systems I was in a desperate need of silly fast and useful mobile prototyping system. Up until recently I’ve used paper prototyping and later uploading images on various smart phones (always struggling with inaccurate representation of actual interface size, look and feel of the interactions).&lt;/p&gt;
+
+&lt;p&gt;Thankfully, that is the past and the future holds much brighter and functional solution for &lt;a href=&#34;https://proto.io/&#34; title=&#34;Proto.io - Rapid fast mobile prototyping&#34; target=&#34;_blank&#34;&gt;rapid fast mobile prototyping thanks to Proto.io &lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I see that they have been around for a while, which only brings lots of benefits to us – usability testers and designers. Prototyping application interface is improved and it has some really good functionality, although there is still room to grow like to support keyboard commands, more tutorials and find a way of making the overall work flow more intuitive as I found it hard to get into. Thankfully, proto.io team has created video tutorials for some of the most important questions.&lt;/p&gt;
+
+&lt;p&gt;Once I got the basic idea and figured out some work-arounds, I was able to upload my mobile site design in the application and create a working prototype. It is awesome, how fast and easy it is to test the prototypes on various devices. The most important feature I found is that I can access the fully working prototype from whatever device.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Chrome Auto Populate Form Fields - Form Fuzzer</title>
+      <link>http://example.com/chrome/chrome-auto-populate-form-fields-form-fuzzer.html</link>
+      <pubDate>Thu, 13 Sep 2012 10:42:59 +0000</pubDate>
+      
+      <guid>http://example.com/chrome/chrome-auto-populate-form-fields-form-fuzzer.html</guid>
+      <description>&lt;p&gt;If you ever used Webmaster Tools in Firefox but have now switched to using Chrom(e|ium) instead then you probably miss the form filler - especially if you ever need to test checkouts or other form intensive web site user stories.&lt;/p&gt;
+
+&lt;p&gt;A nice little extension that I just discovered takes care of this, &lt;a href=&#34;https://chrome.google.com/webstore/detail/cbpplldpcdcfejdaldmnfhlodoadjhii&#34; target=&#34;_blank&#34;&gt;Chrome Form Fuzzer&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You can configure it for simple form filling or with a little creative configuration it could easily be used for security testing and more in depth testing to ensure that input is being sanitised and filtered properly.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>VirtualBox Images For Download of Various Linux and Other Open Source Systems</title>
+      <link>http://example.com/virtualbox/virtualbox-images-for-download-of-various-linux-and-other-open-source-systems.html</link>
+      <pubDate>Thu, 23 Feb 2012 12:42:17 +0000</pubDate>
+      
+      <guid>http://example.com/virtualbox/virtualbox-images-for-download-of-various-linux-and-other-open-source-systems.html</guid>
+      <description>&lt;p&gt;Virtualbox is an amazing tool for testing and developing on various systems.&lt;/p&gt;
+
+&lt;p&gt;Now it&amp;rsquo;s even easier as there is a nicely organised repository of clean VirtualBox images you can download and get running with in a matter of minutes.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://virtualboxes.org/&#34;&gt;http://virtualboxes.org/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;We are going to use them for some &lt;a href=&#34;http://www.edmondscommerce.co.uk&#34;&gt;Magento&lt;/a&gt; performance optimisation testing on various platforms as we perfect our &lt;a href=&#34;http://www.edmondscommerce.co.uk/magento/magento-optimised-hosting/&#34;&gt;Magento Server Optimisation&lt;/a&gt; skills and try to benchmark some new ideas.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHPUnit, LAMP, Magento and Netbeans</title>
+      <link>http://example.com/netbeans/phpunit-lamp-magento-and-netbeans.html</link>
+      <pubDate>Tue, 10 Jan 2012 13:11:10 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/phpunit-lamp-magento-and-netbeans.html</guid>
+      <description>&lt;p&gt;When using PHPUnit with xampp the first the to do is install PHPUnit through pear. You usually need to update pear first, after that you should be able to follow the instructions &lt;a href=&#34;http://pear.phpunit.de/&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Getting PHPUnit working with Magento is fairly straight forward. It&amp;rsquo;s just a case of including Mage.php and then calling Mage::app(); in the setup method of your test class:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;require_once&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;../app/Mage.php&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;TemplateTest&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PHPUnit_Framework_TestCase&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setUp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;app&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;testExample&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$helper&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;helper&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;core&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;assertTrue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$helper&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;instanceof&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage_Core_Helper_Data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Magento isn&amp;#39;t running!&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you use NetBeans as your IDE you&amp;rsquo;ll be glad to know that it has support for running your tests directly without having to use a terminal. This does require a bit of configuration. You need to tell NetBeans where the PHPUnit script is under Tools &amp;gt; Options &amp;gt; PHP &amp;gt; Unit Testing. If you are using it with XAMPP it will be located at /opt/lampp/bin/phpunit. To begin running the tests you then go Run &amp;gt; Test Project and NetBeans will ask you where your tests are. After that you will get a &amp;ldquo;Test File&amp;rdquo; source folder in the Projects pane. You can now right click each test file and choose &amp;ldquo;Run file&amp;rdquo; and netbeans will run it. If you have xdebug setup the debug option also works nicely.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Freely Available Windows Virtual Machines for Testing IE</title>
+      <link>http://example.com/linux/freely-available-windows-virtual-machines-for-testing-ie.html</link>
+      <pubDate>Thu, 13 Oct 2011 18:06:26 +0000</pubDate>
+      
+      <guid>http://example.com/linux/freely-available-windows-virtual-machines-for-testing-ie.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to test your code against the (ahem) interesting interpretations of the various iterations of Internet Explorer then this is a great resource for you.&lt;/p&gt;
+
+&lt;p&gt;Turns out Microsoft have thrown web devs a bone by offering free virtual machine images with the various IE/OS flavours for you to test on. You can download them &lt;a href=&#34;http://www.microsoft.com/download/en/details.aspx?id=11575&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you use VirtualBox and also a *nix based operating system such as Linux or OSX then you can use &lt;a href=&#34;https://github.com/xdissent/ievms&#34;&gt;this, frankly awesome, bash script&lt;/a&gt; to automatically download one or all of these machines and fully set them up in VirtualBox for you.&lt;/p&gt;
+
+&lt;p&gt;VirtualBox, if you are not aware, is a freely available Virtualisation platform allowing you to run other operating systems on your desktop. On todays powerful machines its perfectly easy to run Linux as your core operating system and then for either running windows only apps or for testing dodgy browsers, you can fire up one of these VMs.&lt;/p&gt;
+
+&lt;p&gt;Bear in mind that they are not for keeps, you will need to reset them every 30 days due to the fact that they can not be activated. For our purposes though this is not really a problem.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Usage&lt;/h2&gt;
+Please note all of this has been copied and pasted from &lt;a href=&#34;http://www.webupd8.org/2011/09/test-websites-in-internet-explorer-9-8.html&#34;&gt;here&lt;/a&gt;. Posted here for reference only, all original attribution and credit goes to webupd8.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Before proceeding, make sure you have the latest VirtualBox installed - you can find Ubuntu installation instructions HERE. You&amp;rsquo;ll also need &amp;ldquo;curl&amp;rdquo; (for both Linux and OSX) and &amp;ldquo;unrar&amp;rdquo; (Linux only). In Ubuntu, install them using the command below:
+```&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;sudo apt-get install curl unrar&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+
+2. To download and run the CODE, use the following command in a terminal:
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;curl -s &lt;a href=&#34;https://raw.github.com/xdissent/ievms/master/ievms.sh&#34; target=&#34;_blank&#34;&gt;https://raw.github.com/xdissent/ievms/master/ievms.sh&lt;/a&gt; | bash&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;If you want to check out the bash source before running it, you can find it @ GitHub.
+
+The above command will download Windows WHDs for IE7, IE8 and IE9. If you only need one Internet Explorer version, you can run:
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;curl -s &lt;a href=&#34;https://raw.github.com/xdissent/ievms/master/ievms.sh&#34; target=&#34;_blank&#34;&gt;https://raw.github.com/xdissent/ievms/master/ievms.sh&lt;/a&gt; | IEVMS_VERSIONS=&amp;ldquo;9&amp;rdquo; bash&lt;/p&gt;
+
+&lt;p&gt;```
+Where &amp;ldquo;9&amp;rdquo; is the IE version you want (you can also add two versions here, like &amp;ldquo;7 9&amp;rdquo;).&lt;/p&gt;
+
+&lt;p&gt;At this point, the download should start and it will take a while so be patient.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quickly testing HTML with Firebug</title>
+      <link>http://example.com/debugging/quickly-testing-html-with-firebug.html</link>
+      <pubDate>Wed, 05 Oct 2011 12:13:18 +0000</pubDate>
+      
+      <guid>http://example.com/debugging/quickly-testing-html-with-firebug.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Ever need to quickly test some HTML that you copied from some where?&lt;/p&gt;
+
+&lt;p&gt;If you have Firebug installed, you can open a new tab, go the the HTML tab in Firebug, click edit and paste your HTML and Firefox will render it. This is faster than having to open a text editor, paste the contents and save the file, but JavaScript on load events won&amp;rsquo;t fire.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Selenium Web Application Testing Platform</title>
+      <link>http://example.com/php/selenium-web-application-testing-platform.html</link>
+      <pubDate>Thu, 29 Jan 2009 12:51:15 +0000</pubDate>
+      
+      <guid>http://example.com/php/selenium-web-application-testing-platform.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+As internet applications get more and more complex and start to become more like desktop applications and less like electronic brochures, they can become more and more complex to test to ensure that everything is working properly.&lt;/p&gt;
+
+&lt;p&gt;There are numerous strategies to cope with this including the development of &amp;ldquo;test based&amp;rdquo; development, where tests are written at the same time, or even before, the actual code of the site is. This way, any changes to the codebase can quickly be checked for bugs by running the test suite.&lt;/p&gt;
+
+&lt;p&gt;One interesting addition to this philosophy is &lt;a href=&#34;http://seleniumhq.org/&#34; rel=&#34;nofollow&#34;&gt;selenium&lt;/a&gt; which takes this idea a bit further and actually automates browser based testing.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

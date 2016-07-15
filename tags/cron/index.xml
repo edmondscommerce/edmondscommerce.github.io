@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cron on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/cron/</link>
+    <description>Recent content in Cron on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 21 Feb 2013 15:06:39 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/cron/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Simple Bash Single Process Enforcement</title>
+      <link>http://example.com/bash/simple-bash-single-process-enforcement.html</link>
+      <pubDate>Thu, 21 Feb 2013 15:06:39 +0000</pubDate>
+      
+      <guid>http://example.com/bash/simple-bash-single-process-enforcement.html</guid>
+      <description>&lt;p&gt;If you have a bash script that you want to make sure there is only ever one instance of, for example something triggered by cron that might not have finished the next time cron tries to trigger it then you might like this little snippet:&lt;/p&gt;
+
+&lt;p&gt;This is built for running Magento shell scripts (if you don&amp;rsquo;t know about these, check them out) that are run on cron.&lt;/p&gt;
+
+&lt;p&gt;Also note the logging that keeps log files&lt;/p&gt;
+
+&lt;p&gt;Note the use of a character class in grep means it wont match itself - nice eh :)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;HOUR&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;date +&lt;span class=&#34;s1&#34;&gt;&amp;#39;%H:%M&amp;#39;&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;RUNNING&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;ps waux &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep &lt;span class=&#34;s2&#34;&gt;&amp;quot;longrunner[.]php&amp;quot;&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$RUNNING&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Its not running, we can now run it&amp;quot;&lt;/span&gt;
+    php -f /home/my/public_html/shell/longrunner.php -- import &amp;gt; /home/my/public_html/var/log/mylog.txt 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1
+    cp -f  /home/my/public_html/var/log/my.txt /home/my/public_html/var/log/&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;HOUR&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.my.txt
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;COMPLETED&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;It is running, aborting running this time&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Cron not Working in Magento &#43;Solution</title>
+      <link>http://example.com/magento/cron-not-working-in-magento-solution.html</link>
+      <pubDate>Tue, 13 Nov 2012 16:34:33 +0000</pubDate>
+      
+      <guid>http://example.com/magento/cron-not-working-in-magento-solution.html</guid>
+      <description>&lt;p&gt;I recently had a Magento store that was not running cron jobs despite everything appearing to be set up correctly.&lt;/p&gt;
+
+&lt;p&gt;After tearing out my hair, I discovered that there was a cron job running that had not closed properly, which prevented any new cron jobs from starting.&lt;/p&gt;
+
+&lt;p&gt;This is because the cron.sh file that is used by magento checks the currently running processes, and if one exists quietly exits.&lt;/p&gt;
+
+&lt;p&gt;To check if this is the case you can run a modified line from the cron.sh file as set out below&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+ps auxwww | grep &amp;ldquo;/path/to/magento/cron.php&amp;rdquo; | grep -v grep | grep -v cron.sh
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;If this returns a line similar to the one below&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+root      2125  0.0  0.9 329896 40484 ?        S    Nov13   0:00 /usr/bin/php /path/to/magento/cron.php
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;You can kill the running job, which will allow cron to run normally. At this stage you should debug the cron tasks to see why the process stalled&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Linux Bash Scripting: Force Screen if not Cron Task</title>
+      <link>http://example.com/linux/linux-bash-scripting-force-screen-if-not-cron-task.html</link>
+      <pubDate>Thu, 30 Aug 2012 09:27:16 +0000</pubDate>
+      
+      <guid>http://example.com/linux/linux-bash-scripting-force-screen-if-not-cron-task.html</guid>
+      <description>&lt;p&gt;If you have a long running script that is designed to run as cron but may be run manually from the terminal then you may want to enforce screen so that the process can&amp;rsquo;t be aborted by the SSH terminal being closed for whatever reason.&lt;/p&gt;
+
+&lt;p&gt;We already blogged about how to &lt;a href=&#34;http://www.edmondscommerce.co.uk/linux/force-a-bash-script-to-run-in-screen/&#34; title=&#34;Linux Force Screen&#34;&gt;force running as screen here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This is an extension of this that also checks for running as Cron and if so, does not force screen.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# First off, ensure running from Cron and if not, Screen&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; -t &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Not running as Cron Task&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; -n &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$STY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;We are inside screen, good&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Not in a screen, please run with screen&amp;quot;&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Exiting&amp;quot;&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;exit&lt;/span&gt; 1
+    &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Running as Cron Task&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Simply paste this somewhere close to the top of your script before it does anything and this will work nicely.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Increase the Stabilty of your Magento cron</title>
+      <link>http://example.com/magento/increase-the-stabilty-of-your-magento-cron.html</link>
+      <pubDate>Fri, 24 Aug 2012 13:51:04 +0000</pubDate>
+      
+      <guid>http://example.com/magento/increase-the-stabilty-of-your-magento-cron.html</guid>
+      <description>&lt;p&gt;Sometimes when your cron process in Magento seems to not be working it is worth doubling up the ways it gets executed.&lt;/p&gt;
+
+&lt;p&gt;One reason for this is various extensions (notably EERP from boostmyshop) set up an override to ensure that the same cron task is not run a second time if it&amp;rsquo;s still running when the first run happens.&lt;/p&gt;
+
+&lt;p&gt;Often the cli setup for php is not configured with the same timeouts etc. that the web setup is.  Therefore one thing that can make your cron more &amp;ldquo;stable&amp;rdquo; is to use wget or curl to fetch the cron.php file rather than (or as well as) running the cron.sh script.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s what to add to the server&amp;rsquo;s crontab (/etc/crontab or crontab -e) to use wget to fire off the cron :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+* * * * * /usr/bin/wget -O- www.mycoolsite.com/cron.php &amp;gt; /dev/null 2&amp;gt; /dev/null
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That of course needs the url changing to match your domain.  It&amp;rsquo;s worth noting that having output and stderror piped to /dev/null in a crontab is probably not the best practice but given that any module can create cron tasks that output stuff, your sysadmin might dislike getting that emailed to them!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Server Migration - Synch Cron Tab via SSH</title>
+      <link>http://example.com/linux/server-migration-synch-cron-tab-via-ssh.html</link>
+      <pubDate>Wed, 04 Jan 2012 17:54:14 +0000</pubDate>
+      
+      <guid>http://example.com/linux/server-migration-synch-cron-tab-via-ssh.html</guid>
+      <description>&lt;p&gt;If you are handling a server migration and would like to have a scripted way to copy the crontab from one machine to the other then you might like this little snippet.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+
+ssh -p2020 root@123.123.123.123 &#39;crontab -l&#39; | crontab -
+
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will get the contents of the root crontab from one server and apply it to the current server, replacing any current cron tab settings.&lt;/p&gt;
+
+&lt;p&gt;This is nice if you want to have a repeatable server resynch process whilst you are migrating and the crontab on the old server may change&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Refresh all magento indexes</title>
+      <link>http://example.com/magento/refresh-all-magento-indexes.html</link>
+      <pubDate>Fri, 17 Jun 2011 15:10:02 +0000</pubDate>
+      
+      <guid>http://example.com/magento/refresh-all-magento-indexes.html</guid>
+      <description>&lt;p&gt;The indexes for your Magento site should be refreshed on a regular basis. To help you do this you can put the below code in a PHP file in the root of your web site and setup a scheduled task to call it periodically.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;require_once &amp;#39;app/Mage.php&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$app = Mage::app(&amp;#39;admin&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;umask(0);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;for ($i = 1; $i &amp;lt;= 8; $i++) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $process = Mage::getModel(&amp;#39;index/process&amp;#39;)-&amp;gt;load($i);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $process-&amp;gt;reindexAll();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP CLI</title>
+      <link>http://example.com/php/php-cli.html</link>
+      <pubDate>Wed, 08 Jun 2011 14:40:29 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-cli.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Running PHP on the command line, via cron etc there are a few common problems you can hit and from experience this my recommendations to avoid them.&lt;/p&gt;
+
+&lt;p&gt;It seems that (on CentOS at least) PHP does not display errors by default on the command line. You will want it to I assume so you can understand what has gone wrong with the cron task etc.&lt;/p&gt;
+
+&lt;p&gt;You can use php.ini files but its not always easy to know exactly which ini file is going to to be used. If certain settings are required, use the -d flag to set specific ini directives directly when you run PHP.&lt;/p&gt;
+
+&lt;p&gt;I have just had an issue where a script was running out of memory but no error message was displayed, despite the fact that display errors was turned on. However digging around showed that memory usage was hitting the limit and the script died silently. Increasing the memory limit fixed it.&lt;/p&gt;
+
+&lt;p&gt;Here is my standard PHP CLI runner:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+/usr/bin/php -d display_errors -d memory_limit=512M /path/to/php/file.php
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Cron Creating Lots of Files in Home Directory</title>
+      <link>http://example.com/linux/cron-creating-lots-of-files-in-home-directory.html</link>
+      <pubDate>Tue, 22 Sep 2009 15:55:14 +0000</pubDate>
+      
+      <guid>http://example.com/linux/cron-creating-lots-of-files-in-home-directory.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you have some cron jobs set up and you are finding large amounts of files saved in your home directory (or root) then perhaps you have the same issue I had.&lt;/p&gt;
+
+&lt;p&gt;I was using wget to call on some PHP scripts to run periodically. wget will do what it says on the tin and save the files. If you don&amp;rsquo;t want it to do that, you need to add the following in front of your wget command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+-O /dev/null 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;eg&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+wget -O /dev/null http://script.com/script.php
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

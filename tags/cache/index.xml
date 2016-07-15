@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cache on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/cache/</link>
+    <description>Recent content in Cache on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 04 Dec 2012 12:21:44 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/cache/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys</title>
+      <link>http://example.com/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</link>
+      <pubDate>Tue, 04 Dec 2012 12:21:44 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</guid>
+      <description>&lt;p&gt;If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.&lt;/p&gt;
+
+&lt;p&gt;Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.&lt;/p&gt;
+
+&lt;p&gt;When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.&lt;/p&gt;
+
+&lt;p&gt;For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Generate a nice unique block cache key&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param Mage_Core_Block_Abstract $block&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function ecCacheKey(Mage_Core_Block_Abstract $block){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $class = get_class($block);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $template = $block-&amp;gt;getTemplateFile();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $md5 = md5(var_export($block-&amp;gt;getData(), true));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $params = trim(implode(&amp;quot;,&amp;quot;, $block-&amp;gt;getRequest()-&amp;gt;getParams()), &amp;#39;,&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category=($block-&amp;gt;getCurrentCategory())?$block-&amp;gt;getCurrentCategory()-&amp;gt;getName():&amp;#39;no-category&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $store_id = Mage::app()-&amp;gt;getStore()-&amp;gt;getId();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;#39;edmondscommerce-&amp;#39;. $params . &amp;#39;-&amp;#39;. $category . &amp;#39;-&amp;#39; . $store_id . &amp;#39;-&amp;#39; . $class.&amp;#39;-&amp;#39;.$template.&amp;#39;-&amp;#39;.$md5;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You would use this in the following way:&lt;/p&gt;
+
+&lt;p&gt;In a block class, set up the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function _construct(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        parent::_construct();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;addData(array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_lifetime&amp;#39; =&amp;gt; 999999999,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_tags&amp;#39; =&amp;gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_key&amp;#39; =&amp;gt; Mage::helper(&amp;#39;blockcaching&amp;#39;)-&amp;gt;ecCacheKey($this)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ));&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Profiler Improved - Aoe_Profiler by Fabrizio Branca</title>
+      <link>http://example.com/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca.html</link>
+      <pubDate>Fri, 17 Aug 2012 15:31:32 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-profiler-improved-aoe_profiler-by-fabrizio-branca.html</guid>
+      <description>&lt;p&gt;The Magento profiler is useful when you are trying to discover what potential bottlenecks are in place in a specific Magento implementation that are slowing down the performance of the site. Often when doing this kind of analysis you might find that a particular block or extension is responsible for more than 70% of the total page load time. At this point you would choose to either optimise, cache or disable the block altogether to remove this performance bottleneck and improve page speed significantly.&lt;/p&gt;
+
+&lt;p&gt;If you have ever tried to use Magento&amp;rsquo;s built in profiler you will no doubt agree with Fabrizio&amp;rsquo;s comments that, when you have it working, the output is hard to read and not really very useful in terms of seeing what is actually going on.&lt;/p&gt;
+
+&lt;p&gt;To aid with this process and give us a nice colourful and friendly user interface to the Magento profiler, Fabrizio has built a Magento module that extends the default profiler and makes it a much more useful tool.&lt;/p&gt;
+
+&lt;p&gt;You can download the extension from &lt;a href=&#34;https://github.com/fbrnc/Aoe_Profiler&#34; title=&#34;Magento Aoe Profiler on Git Hub&#34; target=&#34;_blank&#34;&gt;git hub here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Read the full blog story &lt;a href=&#34;http://www.fabrizio-branca.de/magento-profiler.html&#34; title=&#34;Fabrizio Branch blog&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you would like some help optimising the performance of your Magento store, feel free to get in touch with Edmonds Commerce today and we can assist in getting the very best performance from your Magento web site.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Flush Everything Cache, Index, Images, JS, CSS in One Go</title>
+      <link>http://example.com/magento/magento-flush-everything-cache-index-images-js-css-in-one-go.html</link>
+      <pubDate>Sat, 03 Mar 2012 16:26:59 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-flush-everything-cache-index-images-js-css-in-one-go.html</guid>
+      <description>&lt;p&gt;If you are developing a Magento store and you would like a method you can call to completely clear everything out that might be cached or indexed etc then you will like this little snippet:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;public function flushEverything() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        Mage::app()-&amp;gt;getCacheInstance()-&amp;gt;flush();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        Mage::getModel(&amp;#39;core/design_package&amp;#39;)-&amp;gt;cleanMergedJsCss();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        Mage::getModel(&amp;#39;catalog/product_image&amp;#39;)-&amp;gt;clearCache();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $indexer    = Mage::getSingleton(&amp;#39;index/indexer&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        /* @var $indexer Mage_Index_Model_Indexer */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        foreach($indexer-&amp;gt;getProcessesCollection() as $process){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;              $process-&amp;gt;reindexEverything();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }  &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This flushes the cache storage, removes merged JS/CSS files, flushes the product image cache then loops through each index and reindexes.&lt;/p&gt;
+
+&lt;p&gt;Perhaps overkill but sometimes there&amp;rsquo;s nothing like the use of excessive force!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Merged CSS Clear Not Working &#43; Solution</title>
+      <link>http://example.com/magento/magento-merged-css-clear-not-working-solution.html</link>
+      <pubDate>Fri, 18 Nov 2011 18:42:27 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-merged-css-clear-not-working-solution.html</guid>
+      <description>&lt;p&gt;If you are having an issue with Magento and the optional Merge CSS Files (beta) turned on and it not updating with recent CSS changes, you may appreciate this.&lt;/p&gt;
+
+&lt;p&gt;Unlike other cached elements that are stored in var/cache, Magento stores the cached and minified CSS files in media/css&lt;/p&gt;
+
+&lt;p&gt;If you simply delete the contents of this folder, your CSS changes should kick in as Magento is forced to rebuild these files.&lt;/p&gt;
+
+&lt;p&gt;There is an option in cache management to flush CSS storage but for some reason this wasn&amp;rsquo;t working for me. Could be a permissions issue or something else I am not sure, we simply needed to get this change implemented (emergency live site fix) so flushing this folder manually did the trick.&lt;/p&gt;
+
+&lt;p&gt;Hope it helps someone else looking for Magento merged CSS clear not working, Magento CSS cache, Magento CSS Files beta&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP DomPDF Bug - page_cache.cls.php on line 66 dompdf &#43; Solution</title>
+      <link>http://example.com/php/php-dompdf-bug-page_cache-cls-php-on-line-66-dompdf-solution.html</link>
+      <pubDate>Fri, 24 Jun 2011 15:29:39 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-dompdf-bug-page_cache-cls-php-on-line-66-dompdf-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are struggling with a weird bug with DomPDF, something about it trying to connect to a postgres database..&lt;/p&gt;
+
+&lt;p&gt;well here is the solution that will get you up and running:&lt;/p&gt;
+
+&lt;p&gt;open the file and make the init method just return false&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;class Page_Cache {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    const DB_USER = &amp;quot;dompdf_page_cache&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    const DB_PASS = &amp;quot;some meaningful password&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    const DB_NAME = &amp;quot;dompdf_page_cache&amp;quot;;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    static private $__connection = null;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    function init() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (is_null(self::$__connection)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $con_str = &amp;quot;host=&amp;quot; . DB_HOST .&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    &amp;quot; dbname=&amp;quot; . self::DB_NAME .&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    &amp;quot; user=&amp;quot; . self::DB_USER .&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    &amp;quot; password=&amp;quot; . self::DB_PASS;&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;            if (!self::$__connection = pg_connect($con_str))&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                throw new Exception(&amp;quot;Database connection failed.&amp;quot;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Not sure really why this is trying to do this, obviously some kind of hard coded postgres caching system but anyway this fixed it.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Clear Cache to Correct Broken Code Completion</title>
+      <link>http://example.com/netbeans/netbeans-clear-cache-to-correct-broken-code-completion.html</link>
+      <pubDate>Wed, 16 Feb 2011 11:37:30 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-clear-cache-to-correct-broken-code-completion.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If your Netbeans project is behaving a bit weirdly with regards to code auto completion then this little fix might be for you.&lt;/p&gt;
+
+&lt;p&gt;Netbeans maintains a cache folder and it looks like this can get corrupted sometimes and need clearing out.&lt;/p&gt;
+
+&lt;p&gt;Close Netbeans down, empty your $HOME/.netbeans/6.9/var/cache/ folder and then restart Netbeans and hopefully that should fix it&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Block Caching - Get More Performance Easily in Magento</title>
+      <link>http://example.com/magento/magento-block-caching-get-more-performance-easily-in-magento.html</link>
+      <pubDate>Tue, 23 Nov 2010 14:22:22 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-block-caching-get-more-performance-easily-in-magento.html</guid>
+      <description>&lt;p&gt;If you dig a little deeper into Magento you will notice that there is a fully featured caching system lurking in there. However, as standard, it is quite under utilized.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m sure that the primary reason for this is that caching dynamic systems can cause admin user confusion and generally make things trickier. However all the tools are there waiting to be used if you want to push things a bit further.&lt;/p&gt;
+
+&lt;p&gt;Pretty much any Magento block can be cached - its great for things like a &amp;ldquo;best sellers&amp;rdquo; block or anything else that requires some processing and doesn&amp;rsquo;t really need to be up to the minute accurate for every page request.&lt;/p&gt;
+
+&lt;p&gt;To use block caching for a particular block, you just need to set three properties or methods. Note Magento&amp;rsquo;s use of Magic methods allows us to mix and match properties and methods easily!&lt;/p&gt;
+
+&lt;p&gt;Check this out:&lt;/p&gt;
+
+&lt;script type=&#34;text/javascript&#34; src=&#34;http://snipt.net/embed/6188b31b89656245850183eaed4094ab&#34;&gt;&lt;/script&gt;
+
+&lt;p&gt;We get asked a lot about optimising Magento performance and the first bit of advice is always to upgrade to the latest version. After that there are all kinds of things that can be done and implementing block caching like this is just one of them.&lt;/p&gt;
+
+&lt;p&gt;If you want to discuss optimising your Magento store for more speed and performance without necessarily having to upgrade your hosting environment, get in touch with Edmonds Commerce today!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

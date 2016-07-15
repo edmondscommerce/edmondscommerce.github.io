@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Method on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/method/</link>
+    <description>Recent content in Method on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 04 Dec 2012 12:21:44 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/method/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys</title>
+      <link>http://example.com/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</link>
+      <pubDate>Tue, 04 Dec 2012 12:21:44 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</guid>
+      <description>&lt;p&gt;If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.&lt;/p&gt;
+
+&lt;p&gt;Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.&lt;/p&gt;
+
+&lt;p&gt;When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.&lt;/p&gt;
+
+&lt;p&gt;For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
+/app/code/local/EdmondsCommerce/Helper/Data.php&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Generate a nice unique block cache key&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param Mage_Core_Block_Abstract $block&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function ecCacheKey(Mage_Core_Block_Abstract $block){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $class = get_class($block);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $template = $block-&amp;gt;getTemplateFile();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $md5 = md5(var_export($block-&amp;gt;getData(), true));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $params = trim(implode(&amp;quot;,&amp;quot;, $block-&amp;gt;getRequest()-&amp;gt;getParams()), &amp;#39;,&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category=($block-&amp;gt;getCurrentCategory())?$block-&amp;gt;getCurrentCategory()-&amp;gt;getName():&amp;#39;no-category&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $store_id = Mage::app()-&amp;gt;getStore()-&amp;gt;getId();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;#39;edmondscommerce-&amp;#39;. $params . &amp;#39;-&amp;#39;. $category . &amp;#39;-&amp;#39; . $store_id . &amp;#39;-&amp;#39; . $class.&amp;#39;-&amp;#39;.$template.&amp;#39;-&amp;#39;.$md5;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You would use this in the following way:&lt;/p&gt;
+
+&lt;p&gt;In a block class, set up the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function _construct(){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        parent::_construct();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;addData(array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_lifetime&amp;#39; =&amp;gt; 999999999,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_tags&amp;#39; =&amp;gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_key&amp;#39; =&amp;gt; Mage::helper(&amp;#39;blockcaching&amp;#39;)-&amp;gt;ecCacheKey($this)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ));&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Create Category Method</title>
+      <link>http://example.com/magento/magento-create-category-method.html</link>
+      <pubDate>Fri, 02 Mar 2012 18:30:04 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-create-category-method.html</guid>
+      <description>&lt;p&gt;Ideal to drop into a helper, this is a simplified create category method.&lt;/p&gt;
+
+&lt;p&gt;You need to specify the name, store_id and parent category id and can optionally set to active, anchor and change the display mode if you wish.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;public function createCategory($name, $store_id, $parent_id, $active = 0, $anchor = 0, $display_mode=&amp;#39;PRODUCTS&amp;#39;) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $parent = Mage::getModel(&amp;#39;catalog/category&amp;#39;)-&amp;gt;load($parent_id);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if($parent-&amp;gt;getId() != $parent_id){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            Mage::helper(&amp;#39;exception&amp;#39;)-&amp;gt;except(&amp;#39;Failed to load parent category&amp;#39;, &amp;#39;Fatal&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category = Mage::getModel(&amp;#39;catalog/category&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        /* @var $category Mage_Catalog_Model_Category */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                -&amp;gt;setStoreId($store_id)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                -&amp;gt;setPath($parent-&amp;gt;getPath())&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                -&amp;gt;setName($name)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                -&amp;gt;setUrlKey($name)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                -&amp;gt;setIsActive($active)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                -&amp;gt;setIsAnchor($anchor)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                -&amp;gt;setDisplayMode($display_mode)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                -&amp;gt;setAttributeSetId($category-&amp;gt;getDefaultAttributeSetId())&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category-&amp;gt;save();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $category;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP, __get() and empty() Not Working As You Expect? - Solution</title>
+      <link>http://example.com/php/php-__get-and-empty-not-working-as-you-expect-solution.html</link>
+      <pubDate>Fri, 19 Mar 2010 10:57:32 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-__get-and-empty-not-working-as-you-expect-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are tearing your hair out trying to figure out why empty($object-&amp;gt;property) = true when var_dump($object-&amp;gt;property) outputs a value - this might be the problem.&lt;/p&gt;
+
+&lt;p&gt;It arises if you are using the magic __get() method to serve up object properties.&lt;/p&gt;
+
+&lt;p&gt;Apparently PHP&amp;rsquo;s empty() function actually uses isset() to determine if the property is empty or not. To get this to work properly, you also need to declare a magic __isset() method.&lt;/p&gt;
+
+&lt;p&gt;This is how I got around this problem:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;public function __get($key){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	if(/* some condition to return your key */){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		return $this-&amp;gt;$key;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	return null;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;public function __isset($key){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	if(null===$this-&amp;gt;__get($key)){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		return false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	return true;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;thanks to Janci&amp;rsquo;s comment &lt;a href=&#34;http://www.php.net/manual/en/function.empty.php#93117&#34;&gt;here&lt;/a&gt;, I&amp;rsquo;m not sure how long that would have taken me to figure out on my own, but for sure you saved me a LOT of time. I hope this blog post helps out someone else who hits this same issue.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

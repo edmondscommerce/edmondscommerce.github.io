@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Warning on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/warning/</link>
+    <description>Recent content in Warning on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 30 Oct 2012 14:08:10 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/warning/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Warning: Header may not contain more than a single header, new line detected &#43; Solution</title>
+      <link>http://example.com/magento/magento-warning-header-may-not-contain-more-than-a-single-header-new-line-detected-solution.html</link>
+      <pubDate>Tue, 30 Oct 2012 14:08:10 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-warning-header-may-not-contain-more-than-a-single-header-new-line-detected-solution.html</guid>
+      <description>&lt;p&gt;If you are puzzled by the error message:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+Warning: Header may not contain more than a single header, new line detected
+&lt;/code&gt;
+When dealing with a Magento migration, you might want to double check you have not accidentally added a new line character to the end of your base_url field when you were updating the core_config_data table.&lt;/p&gt;
+
+&lt;p&gt;I just did this using phpMyadmin&amp;rsquo;s nifty ajax editing feature however I must have hit return by accident. Simply editing them again and making sure there is absolutely no white space at the end of the URL and the problem is solved.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP Custom Error and Exception Handler - Make PHP Stricter</title>
+      <link>http://example.com/php/php-custom-error-and-exception-handler-make-php-stricter.html</link>
+      <pubDate>Thu, 12 May 2011 11:20:58 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-custom-error-and-exception-handler-make-php-stricter.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you prefer a coding style that doesn&amp;rsquo;t let you get away with as much as PHP does by default then you may like this trick.&lt;/p&gt;
+
+&lt;p&gt;As standard PHP will let you get away with quite a lot of things that are probably not a good idea. Some times that can be great, allowing you to quickly prototype things or achieve results quickly without having to go through nit picking your code.&lt;/p&gt;
+
+&lt;p&gt;However on the other hand if you are working on a production system that you would really rather complained as much as possible in the dev stage to help to minimise the likelihood that bugs will creep through to production then this looseness can work against you.&lt;/p&gt;
+
+&lt;p&gt;For this reason I often use this trick to make PHP much more fussy and strict and make errors much more obvious and easier to deal with.&lt;/p&gt;
+
+&lt;p&gt;First of all, we need to create a custom error handler. This will override the standard error handling in PHP and allow us to do what we want. What I am going to do is convert all of the standard PHP errors into exceptions.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Error Handler&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function ec_error_handler($severity, $message, $filename, $lineno) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if (error_reporting() == 0) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    //if (error_reporting() &amp;amp; $severity) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    throw new ErrorException($message, 0, $severity, $filename, $lineno);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    //}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You will notice that 2 lines are commented out. If uncommented, this will respect the error reporting settings of PHP. Commented out it throws an exception regardless of PHP error reporting settings.&lt;/p&gt;
+
+&lt;p&gt;To make PHP use this function as my error handler we do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;set_error_handler(&amp;#39;ec_error_handler&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So now every PHP error, notice etc is being converted into an exception. This gives me the ability to view stack traces and see exactly which file, line etc is involved so tracking issues down is a snap.&lt;/p&gt;
+
+&lt;p&gt;Now though I want a nice system to capture these exceptions and dump this info to the screen.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Exception Handler&lt;/b&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function ec_exceptions_handler(Exception $e) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    ob_start();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(1, &amp;#39;Uncaught Exception&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(2, $e-&amp;gt;getMessage());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(3, &amp;#39;Line &amp;#39; . $e-&amp;gt;getLine() . &amp;#39; of &amp;#39; . $e-&amp;gt;getFile());&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($e-&amp;gt;getTrace() as $t) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        var_dump($t);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    dumpObjects();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $exceptionMessage = ob_get_clean();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo $exceptionMessage;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    exit(1);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This function starts the output buffer then dumps a large amount of information including the message, line and file for the exception. The full stack trace.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s also dumping all global objects using another function.&lt;/p&gt;
+
+&lt;p&gt;This output is captured into a variable with ob_get_clean(). At this point, you might decide to log this variable to a file, database, ticketing system etc - I leave that bit to you. Finally the info is dumped to the screen and the program exits.&lt;/p&gt;
+
+&lt;p&gt;Of course this is not something you should do in a production environment, this level of information on a production system is a welcome invitation to hackers to exploit you. However in a secure local dev environment its exactly what you need.&lt;/p&gt;
+
+&lt;p&gt;To get PHP to use this exception handler, we do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;set_exception_handler(&amp;#39;ec_exceptions_handler&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Here are the other functions you will need:&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Dump Objects&lt;/b&gt;
+This one simply var dumps all the objects as they are at the time of the exception. This may be overkill for your situation, I leave that up to you.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function dumpObjects() {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    h(1, &amp;#39;Dumping Objects&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($GLOBALS as $g) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (is_object($g)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            h(2, get_class($g));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            var_dump($g);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;b&gt;H Tag Helper&lt;/b&gt;
+And this is just a html helper to create H tags&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function h($n, $m){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    echo &amp;quot;&amp;lt;h$n&amp;gt;$m&amp;lt;/h$n&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    flush();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;I hope you find this useful. Feel free to add any comments etc below.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

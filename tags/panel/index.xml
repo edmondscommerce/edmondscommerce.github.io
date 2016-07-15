@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Panel on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/panel/</link>
+    <description>Recent content in Panel on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 05 May 2010 09:19:39 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/panel/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Ubuntu Restore Gnome Panels Script</title>
+      <link>http://example.com/ubuntu/ubuntu-restore-panels-script.html</link>
+      <pubDate>Wed, 05 May 2010 09:19:39 +0000</pubDate>
+      
+      <guid>http://example.com/ubuntu/ubuntu-restore-panels-script.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If your ubuntu panels go wonky check out this little script courtesy of &lt;a href=&#34;http://bithacker.posterous.com:&#34; target=&#34;_blank&#34;&gt;http://bithacker.posterous.com:&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+#!/bin/sh
+#
+# GNOME Panel Save / Restore
+# Writen by PhrankDaChicken
+#
+# http://ubuntu.online02.com
+#
+#
+# Updated to add restore defaults by jimjimovich
+# http://www.starryhope.com
+#
+#
+
+
+DIR=$(pwd)
+TITLE=&amp;quot;PanelRestore&amp;quot;
+
+Main () {
+	CHOICE=$(zenity --list --title &amp;quot;$TITLE&amp;quot; --hide-column 1 --text &amp;quot;What do you want to do?&amp;quot; --column &amp;quot;&amp;quot; --column &amp;quot;&amp;quot; \
+&amp;quot;0&amp;quot; &amp;quot;Save Panel Settings&amp;quot; \
+&amp;quot;1&amp;quot; &amp;quot;Restore Panel Settings&amp;quot; \
+&amp;quot;2&amp;quot; &amp;quot;Restore Default Panel Settings&amp;quot;)
+	if [ $CHOICE = 0 ]; then
+		Panel_Save
+	fi
+	if [ $CHOICE = 1 ]; then
+		Panel_Restore
+	fi
+	if [ $CHOICE = 2 ]; then
+		Panel_Defaults
+	fi	
+}
+
+Panel_Restore () {
+	FILE=$(zenity --title &amp;quot;$TITLE: Open File&amp;quot; --file-selection --file-filter &amp;quot;*.xml&amp;quot; )
+	if [ -n &amp;quot;$FILE&amp;quot; ]; then 
+		gconftool-2 --load &amp;quot;$FILE&amp;quot;
+		killall gnome-panel
+	fi
+	Main
+}
+
+Panel_Save () {
+	FILE=$(zenity --title &amp;quot;$TITLE: Save File&amp;quot; --file-selection --save --confirm-overwrite --filename &amp;quot;Gnome_Panel.xml&amp;quot; --file-filter &amp;quot;*.xml&amp;quot; )
+	if [ -n &amp;quot;$FILE&amp;quot; ]; then 
+		EXT=$(echo &amp;quot;$FILE&amp;quot; | grep &amp;quot;xml&amp;quot;)
+		if [ &amp;quot;$EXT&amp;quot; = &amp;quot;&amp;quot; ]; then
+			FILE=&amp;quot;$FILE.xml&amp;quot;
+		fi
+		gconftool-2 --dump /apps/panel &amp;gt; $FILE
+		zenity --info --title &amp;quot;$TITLE: File Saved&amp;quot; --text &amp;quot;File saved as: \n $FILE&amp;quot;
+	fi
+	Main
+}
+
+Panel_Defaults () {
+	zenity --question --text=&amp;quot;Are you sure you want to restore the default top and bottom panels?&amp;quot;
+	gconftool-2 --recursive-unset /apps/panel
+	rm -rf ~/.gconf/apps/panel
+	pkill gnome-panel
+	exit
+}
+
+Main
+
+# END OF Script
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;create a file called PanelRestore.sh, paste these contents into it and save and then make the file executable and run it.&lt;/p&gt;
+
+&lt;p&gt;life saver!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

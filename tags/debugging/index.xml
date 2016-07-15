@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Debugging on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/debugging/</link>
+    <description>Recent content in Debugging on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 12 Feb 2013 18:03:29 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/debugging/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>SQLSTATE[28000]: Invalid authorization specification: 1045 Access denied for user &#43; Solution</title>
+      <link>http://example.com/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html</link>
+      <pubDate>Tue, 12 Feb 2013 18:03:29 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html</guid>
+      <description>&lt;p&gt;I have recently been running some MySql scripts that wrote to a file.&lt;/p&gt;
+
+&lt;p&gt;These worked fine locally, but as soon as I deployed them I started to get the error above.&lt;/p&gt;
+
+&lt;p&gt;After much looking around I came across this solution.&lt;/p&gt;
+
+&lt;p&gt;When I was developing locally, I was connecting with a user that had global privileges. When I was running the code on the server I was connecting with a user that only had privileges for the database I was using.&lt;/p&gt;
+
+&lt;p&gt;The issue is that then FILE privilege is a Global setting, so the user did not have access to it, hence the access denied message.&lt;/p&gt;
+
+&lt;p&gt;Grant FILE privileges and you can connect as expected&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Register Shutdown Function not Working in Magento &#43; Solution</title>
+      <link>http://example.com/magento/register-shutdown-function-not-working-in-magento-solution.html</link>
+      <pubDate>Wed, 21 Nov 2012 20:07:40 +0000</pubDate>
+      
+      <guid>http://example.com/magento/register-shutdown-function-not-working-in-magento-solution.html</guid>
+      <description>&lt;p&gt;I am currently putting together an automated system that converts user input within Magento.&lt;/p&gt;
+
+&lt;p&gt;As this runs using cron, I will be unable to see if anything goes wrong, unless the errors are logged.&lt;/p&gt;
+
+&lt;p&gt;Now it is possible to set custom error and exception handlers that will log most things, but I needed to cover all bases and try to log in the event of a fatal error.&lt;/p&gt;
+
+&lt;p&gt;It is possible to do this by calling register_shutdown_function and checking for an error there - see &lt;a href=&#34;http://stackoverflow.com/questions/277224/how-do-i-catch-a-php-fatal-error&#34; title=&#34;Stack Overflow - How do I catch a PHP Fatal Error&#34;&gt;here&lt;/a&gt; for a full explanation on how to do this.&lt;/p&gt;
+
+&lt;p&gt;The problem I had was that this would not work within Magento. After a lot of going through the code it appears that if you have developer mode set to true, then your function will not be called. Once it is disabled the function works as expected.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Tip: How to get the right-click reload button in Chrome</title>
+      <link>http://example.com/web-development/tip-how-to-get-the-right-click-reload-button-in-chrome.html</link>
+      <pubDate>Wed, 14 Nov 2012 15:01:37 +0000</pubDate>
+      
+      <guid>http://example.com/web-development/tip-how-to-get-the-right-click-reload-button-in-chrome.html</guid>
+      <description>&lt;p&gt;Recently the good folks at chrome have added a feature where you can reload without the cache, which is in a right-click on the reload button, but I was really confused as some machines seem to have it and others don&amp;rsquo;t.&lt;/p&gt;
+
+&lt;p&gt;The key is whether developer tools is open or not! If you&amp;rsquo;re using a recent version of chrome, press F12 to open the developer tools and then you can right-click the reload button, and you get three options - Reload, Hard Reload (redownloads images) and Empty Cache and Hard Reload.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP Stack traces you can click on! (in PhpStorm)</title>
+      <link>http://example.com/php/php-stack-traces-you-can-click-on-in-phpstorm.html</link>
+      <pubDate>Fri, 07 Sep 2012 14:35:37 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-stack-traces-you-can-click-on-in-phpstorm.html</guid>
+      <description>&lt;p&gt;Having a stack trace is very handy at times but wouldn&amp;rsquo;t it be nice if you could click on the filename in the stack trace in your browser and your IDE take you to the file and line that it&amp;rsquo;s talking about?&lt;/p&gt;
+
+&lt;p&gt;Well, with PhpStorm and kint, you can!  Using a plugin called Remote Call, the PhpStorm IDE can listen on a port and go to files and line numbers via an ajax call.&lt;/p&gt;
+
+&lt;p&gt;To configure this, grab the latest version of kint, and copy it&amp;rsquo;s sample config to an actual config file, and edit the section about pathDisplayCallback to look like this :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$_kintSettings[&amp;#39;pathDisplayCallback&amp;#39;] = &amp;quot;_kintLine&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;function _kintLine( $file, $line = NULL ) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ( !$line ) { // means this is called from resource type dump&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                return $file;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;quot;&amp;lt;u&amp;gt;&amp;lt;a class=\&amp;quot;kint-ide-link\&amp;quot; href=\&amp;quot;http://localhost:8091/?message={$file}:{$line}\&amp;quot;&amp;gt;&amp;quot; . $file . &amp;quot;&amp;lt;/a&amp;gt;&amp;lt;/u&amp;gt; line &amp;lt;i&amp;gt;{$line}&amp;lt;/i&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can even be clever with regex to make the filenames be relative - for instance, we run our projects from a directory below one called, oddly enough &amp;ldquo;projects&amp;rdquo; and our function looks like this :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function _kintLine( $file, $line = NULL )&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $shortname = preg_replace(&amp;#39;#.*/[Pp]rojects/[^/]*/#&amp;#39;,&amp;#39;&amp;#39;,$file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ( !$line ) { // means this is called from resource type dump&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                return $shortname;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;quot;&amp;lt;u&amp;gt;&amp;lt;a class=\&amp;quot;kint-ide-link\&amp;quot; href=\&amp;quot;http://localhost:8091/?message={$file}:{$line}\&amp;quot;&amp;gt;&amp;quot; . $shortname . &amp;quot;&amp;lt;/a&amp;gt;&amp;lt;/u&amp;gt; line &amp;lt;i&amp;gt;{$line}&amp;lt;/i&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now, if you call Kint::trace(); from your file that you&amp;rsquo;ve included Kint.class.php from, you get a clickable stacktrace!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Format searched log files</title>
+      <link>http://example.com/bash/format-searched-log-files.html</link>
+      <pubDate>Thu, 16 Aug 2012 15:45:56 +0000</pubDate>
+      
+      <guid>http://example.com/bash/format-searched-log-files.html</guid>
+      <description>&lt;p&gt;When you are monitoring a log file you may want to narrow it down, and format the results. This simple one line command will break up the output from a log file to make it easier to quickly read&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+tail -f /path/to/log | grep &amp;ldquo;search term&amp;rdquo; | sed &amp;rsquo;s/(.*)/&amp;mdash;&amp;mdash;&amp;mdash;-\n\1\n&amp;mdash;&amp;mdash;&amp;mdash;-/&amp;rsquo;
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Live Images on Staging Without Absolute URLs (but a bit of JS)</title>
+      <link>http://example.com/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html</link>
+      <pubDate>Tue, 27 Mar 2012 11:05:49 +0000</pubDate>
+      
+      <guid>http://example.com/javascript/using-live-images-on-staging-without-absolute-urls-but-a-bit-of-js.html</guid>
+      <description>&lt;p&gt;If you have a staging copy of your site anywhere then you might not bother copying over your entire catalogue of product images etc.&lt;/p&gt;
+
+&lt;p&gt;You might decide to drop in absolute URLs for those images so that they are pulled from live. However you really don&amp;rsquo;t want absolute URLs in your code and you certainly don&amp;rsquo;t want that to go live because it just adds unnecessary bloat.&lt;/p&gt;
+
+&lt;p&gt;A nice trick you can do here is make a change to your staging site as follows. Of course ensure this change doesn&amp;rsquo;t go live, but it should be just one file so that&amp;rsquo;s easy to handle.&lt;/p&gt;
+
+&lt;p&gt;(Note this assumes you already have jQuery available on your page)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-javascript&#34; data-lang=&#34;javascript&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;script&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ready&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;nx&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;img&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;each&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(){&lt;/span&gt;
+        &lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;attr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;src&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;        
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;indexOf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;http&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)){&lt;/span&gt;
+            &lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;new_src&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;http://www.LIVEDOMAIN.co.uk/&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;nx&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;attr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;src&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;new_src&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;});&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;});&lt;/span&gt;    
+&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Don&amp;rsquo;t forget to change LIVEDOMAIN to be your real live domain&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento addAttributeToFilter() and addAttributeToSelect()</title>
+      <link>http://example.com/magento/magento-addattributetofilter-and-addattributetoselect.html</link>
+      <pubDate>Sat, 25 Feb 2012 19:49:58 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-addattributetofilter-and-addattributetoselect.html</guid>
+      <description>&lt;p&gt;These two  Magento functions looks more like there is no obvious difference between them, but there is.&lt;/p&gt;
+
+&lt;p&gt;addAttributeToFilter(&amp;lsquo;some_attribute1&amp;rsquo;,&amp;lsquo;attribute_value&amp;rsquo;) filters a Magento entity collection (e.g Products, categories) by only selecting entities that has &amp;lsquo;some_attribute&amp;rsquo; equal to &amp;lsquo;attribute_value&amp;rsquo; while&lt;/p&gt;
+
+&lt;p&gt;addAttributeToSelect(&amp;lsquo;some_attribute2&amp;rsquo;)  tells Magento to return add &amp;lsquo;some_attributes&amp;rsquo; to the set of properties that would be returned for a collection of entities.&lt;/p&gt;
+
+&lt;p&gt;A combination of these two functions could be  likened to &lt;code&gt;sql
+SELECT &#39;some_attribute2&#39; FROM Table WHERE &#39;some_attribute1&#39;=&#39;attribute_value&#39;
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP SimpleXML CData not loading &#43; solution</title>
+      <link>http://example.com/php/php-simplexml-cdata-not-loading-solution.html</link>
+      <pubDate>Mon, 12 Dec 2011 17:29:28 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-simplexml-cdata-not-loading-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+The php simpleXML object is my preferred way of working with XML, but it has some unusual quirks that can drive you up the wall. One of these is that, by default, it will not read CDATA within an XML file, and will just leave the node blank.&lt;/p&gt;
+
+&lt;p&gt;If you need to access this data then create your xml object like this&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+$xmlFile = &amp;ldquo;/path/to/xml/file.xml&amp;rdquo;;
+if (file_exists($xmlFile)) {
+$xml = simplexml_load_file($xmlFile,&amp;lsquo;SimpleXMLElement&amp;rsquo;, LIBXML_NOCDATA);
+echo $xml-&amp;gt;cDataNode;
+}
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento admin backend slow (quick speed tip)</title>
+      <link>http://example.com/magento/magento-admin-backend-slow-quick-speed-tip.html</link>
+      <pubDate>Mon, 14 Nov 2011 12:48:00 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-admin-backend-slow-quick-speed-tip.html</guid>
+      <description>&lt;p&gt;One of the things that can catch you out if you have a paranoid server admin is that various magento extensions will contact external servers (such as SagePay or Mailchimp).&lt;/p&gt;
+
+&lt;p&gt;If the server admin has blocked outbound web traffic (to avoid DDoS attacks and other malicious traffic), these extensions will slow you down at every step.&lt;/p&gt;
+
+&lt;p&gt;Simple answer, if you&amp;rsquo;re running magento, ensure you have outbound traffic enabled.  Also, don&amp;rsquo;t assume that just because you can use lynx, apt-get et al at the command prompt that you can as the web server user.  IPTables and pf both have checks for outbound user, so be sure to test as www-user or apache.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans &#43; Xdebug Not Highlighting Lines or Opening Files when Step Through Debugging &#43; Solution</title>
+      <link>http://example.com/php/netbeans-xdebug-not-highlighting-lines-or-opening-files-when-step-through-debugging-solution.html</link>
+      <pubDate>Fri, 14 Oct 2011 10:27:39 +0000</pubDate>
+      
+      <guid>http://example.com/php/netbeans-xdebug-not-highlighting-lines-or-opening-files-when-step-through-debugging-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Netbeans along with Xdebug to facilitate step through debugging when coding PHP then you may come across this issue.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s possible to get it into a semi working scenario where you can have working breakpoints and see variable values but you have no idea which bit of code you are actually stepped up to.&lt;/p&gt;
+
+&lt;p&gt;This can happen if your server path and project path are not correctly configured.&lt;/p&gt;
+
+&lt;p&gt;To resolve this simply go to your project properties, run configuration and then hit the advanced button.&lt;/p&gt;
+
+&lt;p&gt;The server path should be the absolute path to the project root on the server (eg /home/server/sites/blah/) and the project path should be the path on your local machine to the project files (eg /home/joseph/projects/blah/).&lt;/p&gt;
+
+&lt;p&gt;Stop any debugging sessions and then start another one up and if you have the paths set right, you should get the behaviour you expect where Netbeans highlights the current line of code and allows you to step through the code to figure out what&amp;rsquo;s going on.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quickly testing HTML with Firebug</title>
+      <link>http://example.com/debugging/quickly-testing-html-with-firebug.html</link>
+      <pubDate>Wed, 05 Oct 2011 12:13:18 +0000</pubDate>
+      
+      <guid>http://example.com/debugging/quickly-testing-html-with-firebug.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Ever need to quickly test some HTML that you copied from some where?&lt;/p&gt;
+
+&lt;p&gt;If you have Firebug installed, you can open a new tab, go the the HTML tab in Firebug, click edit and paste your HTML and Firefox will render it. This is faster than having to open a text editor, paste the contents and save the file, but JavaScript on load events won&amp;rsquo;t fire.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Developer Mode not Working &#43; Solution </title>
+      <link>http://example.com/magento/magento-developer-mode-not-working-solution.html</link>
+      <pubDate>Fri, 08 Jul 2011 14:14:22 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-developer-mode-not-working-solution.html</guid>
+      <description>&lt;p&gt;I in the middle of carrying out an upgrade for a client, which is causing the usual compatibility problems&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;Normally I rely on Developer mode to point me in the right direction with these, but in this case no matter what I did, I could not get magento to display errors.&lt;/p&gt;
+
+&lt;p&gt;Finally I came across a modified version of the App class in code/local/Mage, which carried out a reset of the Mage static variables, including developer mode. Reset developer mode to true after this line and everything will work as it should.&lt;/p&gt;
+
+&lt;p&gt;Just be sure not to upload it to the live server!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Detailed Exception Dump - Version 3</title>
+      <link>http://example.com/magento/magento-detailed-exception-dump-version-3.html</link>
+      <pubDate>Tue, 08 Feb 2011 13:17:04 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-detailed-exception-dump-version-3.html</guid>
+      <description>&lt;p&gt;Continuing with trying to improve the developer experience with Magento a key element has been my quest for a detailed exception dump that can also handle the various object recursion issues in Magento that can cause all kinds of issues when developing.&lt;/p&gt;
+
+&lt;p&gt;Here is my most up to date version of the detailedExceptionDump method.&lt;/p&gt;
+
+&lt;p&gt;Its designed to go into a customised version of Mage that you should ONLY use on development environemnts. I will leave the particular usage of this method to you, though it would make sense to also modify the printException method as a starting point.&lt;/p&gt;
+
+&lt;script type=&#34;text/javascript&#34; src=&#34;http://snipt.net/embed/a72f23e55dd732511c71a0d72260ab8b&#34;&gt;&lt;/script&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Debugging - An Introduction to Magento Exception Logging and Developer Mode</title>
+      <link>http://example.com/magento/magento-debugging-an-introduction-to-magento-exception-logging-and-developer-mode.html</link>
+      <pubDate>Mon, 29 Nov 2010 10:18:58 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-debugging-an-introduction-to-magento-exception-logging-and-developer-mode.html</guid>
+      <description>&lt;p&gt;One of the first stumbling blocks newcomers to Magento might find is that when things go wrong, they don&amp;rsquo;t know how to find out what it is that&amp;rsquo;s actually going wrong.&lt;/p&gt;
+
+&lt;p&gt;This is because Magento does an excellent job of keeping all of the error information away from people browsing the site. This is without a doubt a very good thing. Error messages can often contain information that would help an attacker compromise your system.&lt;/p&gt;
+
+&lt;p&gt;What Magento does instead (if you have it enabled) is to log all error information to log files which you can then access via FTP etc to view the error information. This is in much the same way as a well configured web server will not display error information generated by PHP itself but will instead display the &amp;ldquo;white screen of death&amp;rdquo; and log the error information to a file.&lt;/p&gt;
+
+&lt;p&gt;Magento exceptions can range from minor notices to major issues but not fatal errors. If PHP has a fatal error then this will be handled by PHP itself.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Magento Exception Logging&lt;/h2&gt;
+If you are experiencing errors with Magento, the first thing you need to do is to make sure exception logging is enabled.&lt;/p&gt;
+
+&lt;p&gt;In the admin go to:&lt;/p&gt;
+
+&lt;p&gt;System-&amp;gt;Configuration &amp;gt; Developer &amp;gt; Log Settings &amp;gt; Enabled = Yes&lt;/p&gt;
+
+&lt;p&gt;You can also set custom locations for your error log files, though the defaults are normally fine. Make sure the folder is writeable.&lt;/p&gt;
+
+&lt;p&gt;Now if you are having errors, you can look in var/log at the exception.log and/or system.log files that have been generated.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Magento Developer Mode&lt;/h2&gt;
+If you are developing locally and you would like to make Magento dump error information to screen instead of logging to a file, this is very easy to do. You simply need to set the site to run in Developer Mode.&lt;/p&gt;
+
+&lt;p&gt;The most secure way to do this (in the sense that you won&amp;rsquo;t accidently set your live store in Developer Mode) is to edit your local apache configuration and add this line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+SetEnv MAGE_IS_DEVELOPER_MODE &amp;quot;true&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You need to set this up in the directory you are running Magento, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+&amp;lt;Directory &amp;quot;/opt/lampp/htdocs&amp;quot;&amp;gt;
+    #
+    # Possible values for the Options directive are &amp;quot;None&amp;quot;, &amp;quot;All&amp;quot;,
+    # or any combination of:
+    #   Indexes Includes FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
+    #
+    # Note that &amp;quot;MultiViews&amp;quot; must be named *explicitly* --- &amp;quot;Options All&amp;quot;
+    # doesn&#39;t give it to you.
+    #
+    # The Options directive is both complicated and important.  Please see
+    # http://httpd.apache.org/docs/2.2/mod/core.html#options
+    # for more information.
+    #
+    #Options Indexes FollowSymLinks
+    # XAMPP
+    Options Indexes FollowSymLinks ExecCGI Includes
+        SetEnv MAGE_IS_DEVELOPER_MODE &amp;quot;true&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now any Magento site you run from within that folder (or any sub folder) will be running in Developer Mode when you are working locally, but will still be in the much more secure normal mode on the live server, without you having to edit any files within Magento itself.&lt;/p&gt;
+
+&lt;p&gt;If you prefer, you can add this line to your .htaccess file, or you can edit the index.php file to force Developer Mode however with either of these approaches there is always the risk you will accidently upload this file and set your live store into Developer Mode.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Collaborative Javascript Debugging - JSBin</title>
+      <link>http://example.com/javascript/collaborative-javascript-debugging-jsbin.html</link>
+      <pubDate>Mon, 15 Feb 2010 14:21:44 +0000</pubDate>
+      
+      <guid>http://example.com/javascript/collaborative-javascript-debugging-jsbin.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to work collaboratively on some Javascript then check out &lt;a href=&#34;http://jsbin.com&#34;&gt;JS Bin&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s just like &lt;a href=&#34;http://pastebin.com/&#34;&gt;pastebin&lt;/a&gt;, but with Javascript compatability, handy.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

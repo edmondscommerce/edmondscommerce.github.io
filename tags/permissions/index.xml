@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Permissions on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/permissions/</link>
+    <description>Recent content in Permissions on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 17 Sep 2012 15:00:01 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/permissions/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Transfer Server Permissions</title>
+      <link>http://example.com/linux/transfer-server-permissions.html</link>
+      <pubDate>Mon, 17 Sep 2012 15:00:01 +0000</pubDate>
+      
+      <guid>http://example.com/linux/transfer-server-permissions.html</guid>
+      <description>&lt;p&gt;So sometimes you might have a restored backup without the correct permissions (whether that be because the backup didn&amp;rsquo;t store the permissions, the file system refused to take them, or you simply forgot to add the -p flag to tar!) and you want to copy the permissions from one machine to another.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a little script to do just that that we found whilst browsing the internet to do just that (uses perl and find) :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;find / -type f -o -type d 2&amp;gt;/dev/null &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;read&lt;/span&gt; FILE&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;   perl -le&lt;span class=&#34;s1&#34;&gt;&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;    printf &amp;quot;chmod %o \&amp;quot;%s\&amp;quot;\n&amp;quot;, 07777 &amp;amp; (stat)[2], $_&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;    for @ARGV&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;  &amp;#39;&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$FILE&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt; &amp;gt; /tmp/file_perms.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you run that on the server with the correct permissions, then transfer the file to the server with the wrong permissions and run the file with the following command, it will fix the perms on that server :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sh /tmp/file_perms.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Which may save a lot of transfer time restoring a new backup.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Running PHP Scripts as Apache or a Shell User</title>
+      <link>http://example.com/linux/running-php-scripts-as-apache-or-a-shell-user.html</link>
+      <pubDate>Tue, 14 Aug 2012 14:05:32 +0000</pubDate>
+      
+      <guid>http://example.com/linux/running-php-scripts-as-apache-or-a-shell-user.html</guid>
+      <description>&lt;p&gt;If you have PHP scripts that need to be able to run via the web server as Apache and also be runnable directly on the command line then you may run into permissions issues, especially if those scripts are doing anything with files.&lt;/p&gt;
+
+&lt;p&gt;The scenario is that you run the script via the webserver and all of the files etc that are created are owned by Apache. Then you try to run on the command line and the script cannot run because it does not have permission to access Apache&amp;rsquo;s files. The opposite scenario is also true.&lt;/p&gt;
+
+&lt;p&gt;There are a few possible solutions to this but the most elegant and simple is to do the follwing.&lt;/p&gt;
+
+&lt;p&gt;Assuming you are running Centos, you first of all need to set Apache to run with a umask of 002. This means that files it creates will have read/write permissions for the Apache group as well as the Apache user.&lt;/p&gt;
+
+&lt;p&gt;To do this, simply add a line to the file /etc/sysconfig/httpd. You can do this in one command like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;umask 002&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/sysconfig/httpd
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then you need to restart Apache to apply this.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;service httpd restart
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You then need to add your shell user to the apache group. To do this you need to do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;vigr
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then find the line with your shell user and at the end add a comma and the word apache. This will add that user to the apache group along with it&amp;rsquo;s own group.&lt;/p&gt;
+
+&lt;p&gt;You will get a prompt to also edit etc/shadow. Agree to this and repeat the process.&lt;/p&gt;
+
+&lt;p&gt;You will then need to log out and log back in to apply those changes and that should resolve your permissions issues for good.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Vim Save File You Didn&#39;t Sudo Edit - </title>
+      <link>http://example.com/linux/vim-save-file-you-didnt-sudo-edit.html</link>
+      <pubDate>Tue, 08 Mar 2011 05:59:03 +0000</pubDate>
+      
+      <guid>http://example.com/linux/vim-save-file-you-didnt-sudo-edit.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+How many times have you edited a file in Vim, made your changes and then realised you don&amp;rsquo;t have write permissions when it comes to save it.&lt;/p&gt;
+
+&lt;p&gt;Well if you do it again, this tip is for you. You CAN save the file using this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;:w !sudo tee %
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Lifesaver!&lt;/p&gt;
+
+&lt;p&gt;This one direct from one of my personal favourite sites, &lt;a href=&#34;http://www.commandlinefu.com/commands/view/1204/save-a-file-you-edited-in-vim-without-the-needed-permissions&#34;&gt;Command Line Fu&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ubuntu ACL Access Control Lists</title>
+      <link>http://example.com/ubuntu/ubuntu-acl-access-control-lists.html</link>
+      <pubDate>Fri, 30 Jul 2010 09:37:15 +0000</pubDate>
+      
+      <guid>http://example.com/ubuntu/ubuntu-acl-access-control-lists.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are working in Linux and need to set some more complex permissions than the straight user, group everyone RWX style, then you can.&lt;/p&gt;
+
+&lt;p&gt;Working in Ubuntu, you need to first of all install ACL&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo apt-get install acl
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now before you can use ACL, you need to enable it on whichever volumes you want to use it on. To do this you have to edit your fstab (which if you do it wrong can cause problems so make sure you back it up!)&lt;/p&gt;
+
+&lt;p&gt;In the options column of the fstab for the volume you are working with, you need to add acl, eg:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+/dev/mapper/server-root /               ext4    errors=remount-ro 0 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;becomes&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+/dev/mapper/server-root /               ext4    acl,errors=remount-ro 0 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now you need to remount&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mount -o remount /
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now you need to check acl is working:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mount | grep acl
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;you should see a line with acl in there&lt;/p&gt;
+
+&lt;p&gt;Now to recursively set an ACL for a particular user giving full access on a folder structure, use this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+setfacl -Rm u:user:rwX,d:u:user:rwX /path/to/folder
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To fully understand ACL, hit the man pages&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+man acl
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Avoiding 777 Permissions</title>
+      <link>http://example.com/linux/avoiding-777-permissions.html</link>
+      <pubDate>Mon, 04 Jan 2010 15:15:31 +0000</pubDate>
+      
+      <guid>http://example.com/linux/avoiding-777-permissions.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to be able to write to a folder with PHP but you do not want to have to use 777 permissions then instead you have the option to use access control lists.&lt;/p&gt;
+
+&lt;p&gt;This simple command will allow you to give permissions to Apache only, whilst keeping the standard permissions secure (eg 770)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+setfacl -m u:apache:rwx directory/
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mint on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/mint/</link>
+    <description>Recent content in Mint on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 30 Jul 2013 15:57:06 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/mint/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Compiling Twitter Bootstrap&#39;s less files on Ubuntu 12.04/Mint 13</title>
+      <link>http://example.com/less-css/compiling-twitter-bootstraps-less-files-on-ubuntu-12-04mint-13.html</link>
+      <pubDate>Tue, 30 Jul 2013 15:57:06 +0000</pubDate>
+      
+      <guid>http://example.com/less-css/compiling-twitter-bootstraps-less-files-on-ubuntu-12-04mint-13.html</guid>
+      <description>&lt;p&gt;The version of lessc available in Ubuntu 12.04&amp;rsquo;s repositories is now out of date, stuck on version 1.2. When attempting to compile the bootstrap.less file to a proper CSS file, you&amp;rsquo;ll find it complaining with the following error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+NameError: #grid &amp;gt; .core is undefined in /path/to/folder/less/bootstrap.less
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is due to your lessc version being outdated, but with Ubuntu 12.04/Mint 13, lessc 1.3+ isn&amp;rsquo;t available in the repositories. You&amp;rsquo;ll also have issues because nodejs itself is outdated too.&lt;/p&gt;
+
+&lt;p&gt;To update both issue the following commands:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo apt-get update
+sudo apt-get install python-software-properties python g++ make
+sudo add-apt-repository ppa:chris-lea/node.js
+sudo apt-get update
+sudo apt-get install nodejs
+
+sudo apt-get autoremove node-less
+sudo npm install -g less
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;(Source: &lt;a href=&#34;http://askubuntu.com/questions/272780/ubuntu-12-10-lessc-1-3-3-installation&#34; target=&#34;_blank&#34;&gt;Ask Ubuntu&lt;/a&gt;)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to Restore Hibernate After Deleting and Recreating Your Swap Partition in Mint 13, Mint 14 and Ubuntu 12.04, Ubuntu 12.10</title>
+      <link>http://example.com/linux-mint/how-to-restore-hibernate-after-deleting-and-recreating-your-swap-partition-in-mint-13-mint-14-and-ubuntu-12-04-ubuntu-12-10.html</link>
+      <pubDate>Fri, 21 Dec 2012 15:06:53 +0000</pubDate>
+      
+      <guid>http://example.com/linux-mint/how-to-restore-hibernate-after-deleting-and-recreating-your-swap-partition-in-mint-13-mint-14-and-ubuntu-12-04-ubuntu-12-10.html</guid>
+      <description>&lt;p&gt;As part of increasing my swap space in order to hibernate (my previous setup had 4GB of swap but 8GB of RAM) I had deleted and recreated my swap partition. There was no change in the partition&amp;rsquo;s device files - it was still /dev/sda2, however my new swap partition seemed to be nonfunctional. This is down to the device&amp;rsquo;s UUID having changed.&lt;/p&gt;
+
+&lt;h2&gt;Finding your new UUID&lt;/h2&gt;
+
+&lt;p&gt;To find the new UUID, issue:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+$ ls -l /dev/disk/by-uuid/
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;rsquo;ll get this output. Just copy the UUID (the string of random letters and numbers), we&amp;rsquo;ll use this soon&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+total 0
+lrwxrwxrwx 1 root root 10 Dec 21 14:27 13823b29-79f5-485f-a260-ba4c4c7f2d92 -&amp;gt; ../../sda1
+lrwxrwxrwx 1 root root 10 Dec 21 14:27 65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69 -&amp;gt; ../../sda2
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h2&gt;Fixing swap on bootup&lt;/h2&gt;
+You&amp;rsquo;ll find that the new swap partition isn&amp;rsquo;t available on boot, nor can it be manually enabled using sudo swapon -a. To fix these, use your favourite text editor to open /etc/fstab and add the new UUID on the swap line&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+UUID=65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69 none            swap    sw              0       0
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Issue a sudo swapon -a and check your System Monitor. If you have available swap then you&amp;rsquo;re all good&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Fixing hibernate&lt;/h2&gt;
+Because fstab is used way after the system decides whether to resume from Hibernate you&amp;rsquo;ll need to update it on which partition it should resume from&lt;/p&gt;
+
+&lt;p&gt;Again, use your favourite text editor to open /etc/initramfs-tools/conf.d/resume. Add in your new UUID&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+RESUME=UUID=65056fdc-e6e7-4ed5-aa9b-9cc7f1bc2e69
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Update your configuration for it to take effect, and hibernate will work just fine again&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo update-initramfs -u
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Linux Mint 14 / Ubuntu 12.10 Slow Wifi with Ath9k Drivers &#43; Solution</title>
+      <link>http://example.com/linux/linux-mint-14-ubuntu-12-10-slow-wifi-with-ath9k-drivers-solution.html</link>
+      <pubDate>Wed, 12 Dec 2012 10:44:52 +0000</pubDate>
+      
+      <guid>http://example.com/linux/linux-mint-14-ubuntu-12-10-slow-wifi-with-ath9k-drivers-solution.html</guid>
+      <description>&lt;p&gt;I upgrade my laptop to the latest release of Linux Mint 14 MATE edition. Everything is working beautifully apart from the wireless which, whilst functional, was cripplingly slow.&lt;/p&gt;
+
+&lt;p&gt;After a load of searching and testing, the solution that worked for me was:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo -s
+
+iwconfig wlan0 rate 54M
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;options ath9k nohwcrypt=1&amp;quot;&lt;/span&gt; &amp;gt; /etc/modprobe.d/ath9k.conf
+
+reboot
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you copy and paste the above into a terminal it will force the wifi speed to 54M and will make sure hardware crypt is disabled and finally reboot your machine.&lt;/p&gt;
+
+&lt;p&gt;I did this and my wifi speed is now perfectly fast, I&amp;rsquo;m a happy bunny :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to get Compiz working with Linux Mint 13 (Maya) and MATE</title>
+      <link>http://example.com/linux/linux-mint/how-to-get-compiz-working-with-linux-mint-13-maya-and-mate.html</link>
+      <pubDate>Wed, 05 Sep 2012 10:28:01 +0000</pubDate>
+      
+      <guid>http://example.com/linux/linux-mint/how-to-get-compiz-working-with-linux-mint-13-maya-and-mate.html</guid>
+      <description>&lt;p&gt;With the Gnome world moving on to Gnome Shell and Unity some of us are finding frustrating  the lack of ability to tweak and configure afforded to us by Gnome 2. MATE has gone a long way to ensuring that we can continue to use the familiar desktop environment without the worry of using an outdated and insecure version of your favourite distribution.&lt;/p&gt;
+
+&lt;p&gt;One such area where an immense ability to configure our DE is Compiz which is no longer compatible with Gnome Shell. Using Compiz with MATE requires a little tweaking for it to work, but ultimately is as functional as it&amp;rsquo;s always been.&lt;/p&gt;
+
+&lt;h2&gt;Setting configurations&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;compiz --replace
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Because Compiz is installed out of the box on Mint 13 (Maya), this does work. However you&amp;rsquo;ll find yourself with ugly window decoration which doesn&amp;rsquo;t fit in with your windows.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mateconf-editor
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Navigate to &lt;strong&gt;/desktop/mate/session/required_components/windowmanager&lt;/strong&gt; and set the value to &lt;strong&gt;compiz&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;gconf-editor
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Navigate to &lt;strong&gt;/apps/metacity/general/theme&lt;/strong&gt; and set the value to your Metacity theme name. Mint&amp;rsquo;s default is &lt;strong&gt;Mint-X&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2&gt;Setting up Compiz plugins&lt;/h2&gt;
+
+&lt;p&gt;You might find you need to tell Compiz to use the new Window Decorator. In CompizConfigSettingsManager you&amp;rsquo;ll need to set the same into the Window Decoration plugin. Set the Command field to &lt;strong&gt;marco &amp;ndash;replace&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to enable some other Window Manager must-haves in the following plugins: &lt;strong&gt;Move Window&lt;/strong&gt;, &lt;strong&gt;Resize Window&lt;/strong&gt;, &lt;strong&gt;Grid&lt;/strong&gt; and &lt;strong&gt;Application Switcher&lt;/strong&gt; for alt+tab&lt;/p&gt;
+
+&lt;p&gt;This should be enough to get you going - I have the Scale plugin working (for Exposé style window switching)&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s still a little rough around the edges - here&amp;rsquo;s a few issues I still have, with solutions:
+&lt;h2&gt;Compiz occasionally crashes on MATE&lt;/h2&gt;
+Switch to another tty (Ctrl+Alt+F1) and run&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;marco --replace -d 0:0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Once back in your X display, run alt+F2 and run compiz &amp;ndash;replace again&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;Workspace switching doesn&amp;rsquo;t work in MATE&lt;/h2&gt;
+Set the amount of workspaces you&amp;rsquo;d like in CCSM &amp;gt; General Options &amp;gt; Desktop Size. Set your Horizontal Virtual Size and set Vertical Virtual Size to 1
+Set your panel&amp;rsquo;s workspace switcher to Number of Workspaces: 1&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Xdebug &#34;Waiting for connection&#34; Ubuntu 12.04 Mint13 &#43;SOLUTION</title>
+      <link>http://example.com/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution.html</link>
+      <pubDate>Thu, 21 Jun 2012 17:07:20 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-xdebug-waiting-for-connection-ubuntu-12-04-mint13-solution.html</guid>
+      <description>&lt;p&gt;If you have issues with netbeans and xdebug not connecting on recent distros, you might find that netbeans is listening on tcp6 and xdebug connecting on plain tcp.&lt;/p&gt;
+
+&lt;p&gt;To check if this is the case, run the following command whilst netbeans is &amp;ldquo;waiting for connection&amp;rdquo; (change 9000 if you&amp;rsquo;ve set a different port) :-&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;netstat -aln | grep 9000&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;if you get a line similar to the following (specifically tcp6 and not just tcp), it may well be that xdebug can&amp;rsquo;t connect over ipv6 :-
+&lt;code&gt;tcp6       0      0 :::9000                 :::*                    LISTEN&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;One solution is to disable ipv6, which can be done by creating the file /etc/sysctl.d/10-disable-ipv6.conf with the following contents :-
+&lt;code&gt;net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;then run (as root or sudo)
+&lt;code&gt;sysctl -p /etc/sysctl.d/10-disable-ipv6.conf&lt;/code&gt;
+and restart netbeans.  Suddenly, netbeans will listen on tcp (ipv4) and xdebug will connect.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Linux Mint 13 (MATE) Fix Ugly Netbeans (or other Java)</title>
+      <link>http://example.com/netbeans/linux-mint-13-mate-fix-ugly-netbeans-or-other-java.html</link>
+      <pubDate>Tue, 12 Jun 2012 16:26:12 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/linux-mint-13-mate-fix-ugly-netbeans-or-other-java.html</guid>
+      <description>&lt;p&gt;If you are using a Java application on your nice new Linux Mint desktop and are wondering why its so damn ugly, this might be your solution.&lt;/p&gt;
+
+&lt;p&gt;It looks like there is an issue with Java detecting your standard system style, fonts etc so it reverts to something pretty hideous.&lt;/p&gt;
+
+&lt;p&gt;One easy solution to at least get it looking alright (and also fixing a bug with menus and maximisation) is to set your netbeans conf to the following.&lt;/p&gt;
+
+&lt;p&gt;Simply go to your netbeans folder and look for an etc folder.&lt;/p&gt;
+
+&lt;p&gt;Inside there is a file called netbeans.conf&lt;/p&gt;
+
+&lt;p&gt;Back that up (rename to netbeans.conf.backup) and create a new file called netbeans.conf&lt;/p&gt;
+
+&lt;p&gt;Then paste this in:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+
+# ${HOME} will be replaced by JVM user.home system property
+netbeans_default_userdir=&amp;quot;${HOME}/.netbeans/7.1.2&amp;quot;
+
+# Options used by NetBeans launcher by default, can be overridden by explicit
+# command line switches:
+netbeans_default_options=&amp;quot;-J-client -J-Xss2m -J-Xms32m -J-XX:PermSize=32m -J-Dapple.laf.useScreenMenuBar=true -J-Dapple.awt.graphics.UseQuartz=true -J-Dsun.java2d.noddraw=true -J-Dsun.zip.disableMemoryMapping=true&amp;quot;
+
+#trying to fix teh UGLY
+netbeans_default_options=&amp;quot;${netbeans_default_options} --laf Nimbus -J-Dswing.aatext=true -J-Dawt.useSystemAAFontSettings=lcd&amp;quot;
+
+# Note that default -Xmx and -XX:MaxPermSize are selected for you automatically.
+# You can find these values in var/log/messages.log file in your userdir.
+# The automatically selected value can be overridden by specifying -J-Xmx or
+# -J-XX:MaxPermSize= here or on the command line.
+
+# If you specify the heap size (-Xmx) explicitly, you may also want to enable
+# Concurrent Mark &amp;amp; Sweep garbage collector. In such case add the following
+# options to the netbeans_default_options:
+# -J-XX:+UseConcMarkSweepGC -J-XX:+CMSClassUnloadingEnabled -J-XX:+CMSPermGenSweepingEnabled
+# (see http://wiki.netbeans.org/FaqGCPauses)
+
+# Default location of JDK, can be overridden by using --jdkhome &amp;lt;dir&amp;gt;:
+netbeans_jdkhome=&amp;quot;/opt/java/64/jre1.7.0_04&amp;quot;
+
+# Additional module clusters, using ${path.separator} (&#39;;&#39; on Windows or &#39;:&#39; on Unix):
+#netbeans_extraclusters=&amp;quot;/absolute/path/to/cluster1:/absolute/path/to/cluster2&amp;quot;
+
+# If you have some problems with detect of proxy settings, you may want to enable
+# detect the proxy settings provided by JDK5 or higher.
+# In such case add -J-Djava.net.useSystemProxies=true to the netbeans_default_options.
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

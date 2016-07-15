@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Redirect on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/redirect/</link>
+    <description>Recent content in Redirect on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 25 Feb 2014 15:58:02 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/redirect/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Redirect to previous page in Magento after logout</title>
+      <link>http://example.com/magento/redirect-to-previous-page-in-magento-after-logout.html</link>
+      <pubDate>Tue, 25 Feb 2014 15:58:02 +0000</pubDate>
+      
+      <guid>http://example.com/magento/redirect-to-previous-page-in-magento-after-logout.html</guid>
+      <description>&lt;p&gt;By default Magento sends a user to a logoutSuccess page after they choose to log out. This is &amp;lsquo;hard-baked&amp;rsquo; into the Customer controller&amp;rsquo;s logout action in the line &lt;code&gt;$this-&amp;gt;_redirect(&#39;*/*/logoutSuccess&#39;);&lt;/code&gt;. You can choose to set the Javascript redirect in the template &lt;code&gt;customer/logout.phtml&lt;/code&gt;, but a better idea is to bypass the logout success page entirely.&lt;/p&gt;
+
+&lt;p&gt;The way to do this is to override the &lt;code&gt;logoutAction()&lt;/code&gt; method in the &lt;code&gt;customerController&lt;/code&gt;:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.magentocommerce.com/wiki/5_-_modules_and_development/0_-_module_development_in_magento/how_to_overload_a_controller&#34; target=&#34;_blank&#34;&gt;Rewrite the customer controller as documented here&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Override the &lt;code&gt;logoutAction()&lt;/code&gt; method&lt;/li&gt;
+&lt;li&gt;Set the redirect as below&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;require_once&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Mage/Customer/controllers/AccountController.php&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+
+    &lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;EdmondsCommerce_LogoutRedirect_AccountController&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage_Customer_AccountController&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;logoutAction&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getSingleton&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;core/session&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getLastUrl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;_getSession&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;logout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+                &lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setBeforeAuthUrl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getUrl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+    
+            &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;_redirectUrl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

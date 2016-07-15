@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Github on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/github/</link>
+    <description>Recent content in Github on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 05 Dec 2013 19:53:16 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/github/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Merging Forks for Composer</title>
+      <link>http://example.com/composer/merging-forks-for-composer.html</link>
+      <pubDate>Thu, 05 Dec 2013 19:53:16 +0000</pubDate>
+      
+      <guid>http://example.com/composer/merging-forks-for-composer.html</guid>
+      <description>&lt;p&gt;I am really enjoying using Composer with a Symfony2 project that I am currently working on.&lt;/p&gt;
+
+&lt;p&gt;Recently though I found an issue where I am using the FOSRest Bundle to provide JSON API functionality. This in turn uses the
+JMS/SerializerBundle to handle the actual encoding into JSON.&lt;/p&gt;
+
+&lt;p&gt;The problem is that the JMS bundle converts camelCase to snake_case and I decided I really didn&amp;rsquo;t want that. I want my property and entity names to be the same across formats.&lt;/p&gt;
+
+&lt;p&gt;A bit of digging and I found &lt;a href=&#34;https://github.com/passkey1510/JMSSerializerBundle&#34; target=&#34;_blank&#34;&gt;this fork&lt;/a&gt; which features a fix for exactly this problem, brilliant!&lt;/p&gt;
+
+&lt;p&gt;However on trying to get this to install with Composer I simply could not get it to work. Further investigation shows that the version of the JMS bundle that this fork does not meet
+the minimum version requirements of the FOSRest bundle. Problem.&lt;/p&gt;
+
+&lt;p&gt;The solution in the end was to fork the JMSSerializerBundle Directly then pull this down locally. Once I had that locally I then added the fork with the fix I need as another remote:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git remote add passkey1510 git@github.com:passkey1510/JMSSerializerBundle.git
+git merge remote/passkey1510/master
+git push
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Those three commands added the other fork as another remote allowing me to pull in the commits that feature the fix I need. Finally I pushed this back up to github.&lt;/p&gt;
+
+&lt;p&gt;I can now reference my fork in my composer.json file like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;quot;repositories&amp;quot;: [
+        {
+            &amp;quot;url&amp;quot;: &amp;quot;https://github.com/edmondscommerce/JMSSerializerBundle.git&amp;quot;,
+            &amp;quot;type&amp;quot;: &amp;quot;vcs&amp;quot;
+        },
+],
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now running a &lt;code&gt;composer update --dev&lt;/code&gt; and composer successfully brought in my fork of the Serializerbundle with the extra fixes to allow the property names to stay in camelCase.&lt;/p&gt;
+
+&lt;p&gt;And that is it, problem solved :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Octopress auto building the site locally for one blog post</title>
+      <link>http://example.com/octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html</link>
+      <pubDate>Tue, 03 Dec 2013 17:47:30 +0000</pubDate>
+      
+      <guid>http://example.com/octoress/octopress-auto-building-the-site-locally-for-one-blog-post.html</guid>
+      <description>&lt;p&gt;Setting up a blog post using Octopress involves writing up your Markdown content, building the site, and previewing it.&lt;/p&gt;
+
+&lt;p&gt;This can be time-consuming when writing posts, having to run several commands repeatedly. Here&amp;rsquo;s a few lines you can put into a bash script and run once each time:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;PATHTOLATEST&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;ls -t source/_posts &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; head -1&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$PATHTOLATEST&lt;/span&gt;
+bundle &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; rake isolate&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$PATHTOLATEST&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+bundle &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; rake generate&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+bundle &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; rake preview&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The PATHTOLATEST variable finds the latest post&lt;/li&gt;
+&lt;li&gt;echo the variable for debugging purposes&lt;/li&gt;
+&lt;li&gt;rake isolate instructs octopress to build the site with only the latest blog post&lt;/li&gt;
+&lt;li&gt;rake generate builds the site&lt;/li&gt;
+&lt;li&gt;rake preview initialises the web server&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;From then you can make changes to your post, and the site will be automatically regenerated. This uses a file watcher so it&amp;rsquo;s helpful to keep the terminal open to watch for it building, or having errors&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento 2 Source Code Available on GitHub</title>
+      <link>http://example.com/magento/magento-2-source-code-available-on-github.html</link>
+      <pubDate>Mon, 23 Jan 2012 07:37:53 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-2-source-code-available-on-github.html</guid>
+      <description>&lt;p&gt;Magento version two is coming. For those of us who are eagerly awaiting the next major version of the most popular and powerful open source e-commerce platform, you can now see, track and download the code on GitHub.&lt;/p&gt;
+
+&lt;p&gt;Not had chance to have an in depth look as yet but we expect great things!&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/magento/magento2&#34;&gt;https://github.com/magento/magento2&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Symfony Moving to Github Source Control</title>
+      <link>http://example.com/symfony/symfony-moving-to-github-source-control.html</link>
+      <pubDate>Wed, 13 Jan 2010 17:01:04 +0000</pubDate>
+      
+      <guid>http://example.com/symfony/symfony-moving-to-github-source-control.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+My favourite PHP framework of the moment, Symfony, is now moving to my favourite version control system - Git.&lt;/p&gt;
+
+&lt;p&gt;read more about it &lt;a href=&#34;http://www.symfony-project.org/blog/2010/01/13/symfony-2-migration-to-git&#34;&gt;Symfony 2 Migration to Git&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Its only for the version 2 release, but its a nice step forwards. Github is a really nice system.&lt;/p&gt;
+
+&lt;p&gt;The blog post also mentions this great online Git book:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://progit.org/&#34;&gt;Pro Git&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Not actually come across that before, will be handy.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Bash on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/bash/</link>
+    <description>Recent content in Bash on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 17 Jun 2015 12:06:25 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/bash/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Removing untracked files but not git ignored ones</title>
+      <link>http://example.com/git/removing-untracked-files-but-not-git-ignored-ones.html</link>
+      <pubDate>Wed, 17 Jun 2015 12:06:25 +0000</pubDate>
+      
+      <guid>http://example.com/git/removing-untracked-files-but-not-git-ignored-ones.html</guid>
+      <description>&lt;p&gt;Quite often you drop a load of files in to a git repo, such as a Magento extension, and then immediately regret it. But now you have a pile of files scattered across the repo and no way to Ctrl+Z out of the situation.&lt;/p&gt;
+
+&lt;p&gt;This leaves us with some options:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;git reset --hard HEAD&lt;/code&gt;, but that&amp;rsquo;ll only revert any changes to &lt;em&gt;tracked&lt;/em&gt; files. What about the untracked files in &lt;code&gt;git status&lt;/code&gt;?&lt;/li&gt;
+&lt;li&gt;Manually &lt;code&gt;rm -rf file1 file2 folder1 folder2&lt;/code&gt; but that&amp;rsquo;s a lot of copypasting.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;git clean -f&lt;/code&gt;, but that &lt;em&gt;will remove all untracked files, including your gitignored ones&lt;/em&gt;, so we don&amp;rsquo;t want that.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The best way is to &lt;strong&gt;automate the &lt;code&gt;rm -rf&lt;/code&gt; procedure&lt;/strong&gt; mentioned above using the following command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git status --porcelain | sed &#39;s#^...##&#39; | while read f; do rm -rf $f; done
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The TL;DR of this command is that it outputs &lt;code&gt;git status&lt;/code&gt; in a parseable way, and then loops over each file/folder and deletes it. You can see a &lt;a href=&#34;http://explainshell.com/explain?cmd=git+status+--porcelain+%7C+sed+%27s%23%5E...%23%23%27+%7C+while+read+f%3B+do+rm+-rf+%24f%3B+done&#34; target=&#34;_blank&#34;&gt;full command breakdown here&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Cron Script to Change Gnome Shell Wallpaper</title>
+      <link>http://example.com/gnome-shell/cron-script-to-change-gnome-shell-wallpaper.html</link>
+      <pubDate>Tue, 10 Mar 2015 13:09:06 +0000</pubDate>
+      
+      <guid>http://example.com/gnome-shell/cron-script-to-change-gnome-shell-wallpaper.html</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve recently upgraded to Fedora 21 and one of my extensions was not compatible with the updated Gnome Shell version.&lt;/p&gt;
+
+&lt;p&gt;I tried some variations but found that it seemed to be having a big negative impact on performance. A simpler option was required.&lt;/p&gt;
+
+&lt;p&gt;Here it is - a simple BASH script that you can Cron up to change your background&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/usr/bin/env bash&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;PID&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;pgrep gnome-session&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;DBUS_SESSION_BUS_ADDRESS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;grep -z DBUS_SESSION_BUS_ADDRESS /proc/&lt;span class=&#34;nv&#34;&gt;$PID&lt;/span&gt;/environ&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;cut -d&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; -f2-&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;GSETTINGS_BACKEND&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;dconf 
+gsettings &lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; org.gnome.desktop.background picture-uri &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;quot;file://&amp;#39;&lt;/span&gt;/home/joseph/Pictures/Wallpapers/&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;ls /home/joseph/Pictures/Wallpapers/ &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; shuf -n 1&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;quot;&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Add this line to your crontab to change&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;*/5 * * * * /home/joseph/Pictures/Wallpapers/CHANGE.bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Obviously you need to change paths etc but this works nicely&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Combined CSV</title>
+      <link>http://example.com/bash/combined-csv.html</link>
+      <pubDate>Wed, 10 Dec 2014 17:23:36 +0000</pubDate>
+      
+      <guid>http://example.com/bash/combined-csv.html</guid>
+      <description>&lt;p&gt;Here is a quick BASH one liner to combine a folder of csv or similar files into one combined file with a header.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;h&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; f in *&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; !&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$h&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt; tail -n +2 &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt; &amp;gt;&amp;gt; combined.txt&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; cat &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt; &amp;gt; combined.txt&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;h&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;More readably, you can see it like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# has header been set, starts as no&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;h&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+&lt;span class=&#34;c1&#34;&gt;# foreach file in current directory&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; f in *
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; 
+    &lt;span class=&#34;c1&#34;&gt;# if header has been set&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; !&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$h&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt; 
+        &lt;span class=&#34;c1&#34;&gt;# append the contents of the file starting from line 2 into the combined file&lt;/span&gt;
+        tail -n +2 &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt; &amp;gt;&amp;gt; combined.txt
+    &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; 
+        &lt;span class=&#34;c1&#34;&gt;# overwrite the combined file with the contents of the file, including header&lt;/span&gt;
+        cat &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt; &amp;gt; combined.txt
+        &lt;span class=&#34;c1&#34;&gt;# and mark the header as having been set&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;h&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; 
+    &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt; 
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;That&amp;rsquo;s it, pretty easy really&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Bash Script to Kill Sleeping MySQL Processes</title>
+      <link>http://example.com/bash/bash-script-to-kill-sleeping-mysql-processes.html</link>
+      <pubDate>Mon, 08 Dec 2014 12:52:03 +0000</pubDate>
+      
+      <guid>http://example.com/bash/bash-script-to-kill-sleeping-mysql-processes.html</guid>
+      <description>&lt;p&gt;Pretty much what is says on the tin, if for some reason you have a large amount of sleeping MySQL processes and you want to quickly clear them all out, this little BASH script will do the job.&lt;/p&gt;
+
+&lt;p&gt;I leave it to you to decide how to handle the DBUSER and DBPASS variables&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+mysql -u &lt;span class=&#34;nv&#34;&gt;$DBUSER&lt;/span&gt; -p&lt;span class=&#34;nv&#34;&gt;$DBPASS&lt;/span&gt; -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;select &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;-- * &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;id&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;from information_schema.processlist &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;where command = &amp;#39;Sleep&amp;#39; &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;and time &amp;gt; 1 &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;and host =&amp;#39;localhost&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;read&lt;/span&gt; id&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; 
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;id&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$id&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;continue&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;kill &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$id&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    mysql -u &lt;span class=&#34;nv&#34;&gt;$DBUSER&lt;/span&gt; -p&lt;span class=&#34;nv&#34;&gt;$DBPASS&lt;/span&gt; -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;kill &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$id&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Composer Run Utility BASH Script</title>
+      <link>http://example.com/composer/composer-run-utility-bash-script.html</link>
+      <pubDate>Tue, 25 Nov 2014 09:18:18 +0000</pubDate>
+      
+      <guid>http://example.com/composer/composer-run-utility-bash-script.html</guid>
+      <description>&lt;p&gt;I thought I would post up this little snippet of BASH script that I tend to use with projects that use composer.&lt;/p&gt;
+
+&lt;p&gt;It combines an install/update mechanism for composer itself and then runs through the composer install process and dumps the optimised autoloader.&lt;/p&gt;
+
+&lt;p&gt;Hope you find it useful:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;DIR&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt; dirname &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;BASH_SOURCE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[0]&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pwd&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Checking for Composer&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;COMPOSER_CMD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;which composer&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$COMPOSER_CMD&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Installing Composer&amp;quot;&lt;/span&gt;
+    curl -sS https://getcomposer.org/installer &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; php -- --install-dir&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;bin
+    &lt;span class=&#34;nv&#34;&gt;COMPOSER_CMD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;which composer&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Updating Composer&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;$COMPOSER_CMD&lt;/span&gt; selfupdate
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Running Composer&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$DIR&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$COMPOSER_CMD&lt;/span&gt; update
+&lt;span class=&#34;nv&#34;&gt;$COMPOSER_CMD&lt;/span&gt; dumpautoload -o
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Done..&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>URGENT update BASH - big security issue</title>
+      <link>http://example.com/security/urgent-update-bash-big-security-issue.html</link>
+      <pubDate>Thu, 25 Sep 2014 15:18:14 +0000</pubDate>
+      
+      <guid>http://example.com/security/urgent-update-bash-big-security-issue.html</guid>
+      <description>
+
+&lt;p&gt;Shell Shock is a BASH exploit that can allow the running of arbitrary commands on Linux servers.&lt;/p&gt;
+
+&lt;p&gt;This is a newly discovered bug and affects a very large number of servers.&lt;/p&gt;
+
+&lt;p&gt;There is a patch, you should ensure that your server&amp;rsquo;s BASH version is updated ASAP.&lt;/p&gt;
+
+&lt;h3 id=&#34;centos-redhat-etc&#34;&gt;Centos, Redhat etc&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;yum clean all; yum -y update bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;###Ubuntu, Debian etc&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;apt-get install --only-upgrade bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To check if you are vulnerable, you can run this code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;env X=&amp;quot;() { :;} ; echo VULNERABLE&amp;quot; /bin/sh -c &amp;quot;echo completed&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you see VULNERABLE then you need to update BASH.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Prevent Ctrl&#43;S Freezing Your Terminal</title>
+      <link>http://example.com/linux/prevent-ctrl-plus-s-freezing-your-terminal.html</link>
+      <pubDate>Wed, 11 Jun 2014 10:30:25 +0000</pubDate>
+      
+      <guid>http://example.com/linux/prevent-ctrl-plus-s-freezing-your-terminal.html</guid>
+      <description>&lt;p&gt;As someone who types a lot of text everyday and am generally quite keen not to lose my work, I tend to hit the key combination [Ctrl]+[S] quite a lot.
+In fact its almost become muscle memory that every sentence or two I will hit that combination.&lt;/p&gt;
+
+&lt;p&gt;When working on a terminal, this can have the unfortunate outcome that the terminal freezes up. For more time than I would like to admit, I thought that this was a Linux bug
+And found myself frequently restarting terminal sessions that had locked up.&lt;/p&gt;
+
+&lt;p&gt;Then I discovered that you can unlock this when it freezes by hitting [Ctrl]+[Q]. However this is a bit of a pain.&lt;/p&gt;
+
+&lt;p&gt;I have now discovered a way of turning off this behaviour completely which is a real relief. Simply add the following to your .bashrc file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#Prevent Ctrl+S Freezing Terminal
+stty -ixon
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Credit goes to this Stackoverflow post:
+&lt;a href=&#34;http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal&#34; target=&#34;_blank&#34;&gt;http://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Bash Delete Everything But - Handy Function for your bashrc File</title>
+      <link>http://example.com/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html</link>
+      <pubDate>Fri, 11 Apr 2014 11:23:16 +0000</pubDate>
+      
+      <guid>http://example.com/bash/bash-delete-everything-but-handy-function-for-your-bashrc-file.html</guid>
+      <description>&lt;p&gt;For me the use case was a cache directory that I wanted to clear out everything apart from one particular file that was expensive
+to create and didn&amp;rsquo;t need to be cleared for my purposes&lt;/p&gt;
+
+&lt;p&gt;I decided to add this to my ~/.bashrc file for ease of use in future.&lt;/p&gt;
+
+&lt;p&gt;Here is the function&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Remove Everything But&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; rmbut&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;BUT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$@&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    ls &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep -v *&lt;span class=&#34;nv&#34;&gt;$BUT&lt;/span&gt;* &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;read&lt;/span&gt; f&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; rm -rf &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To use the function, simply &lt;code&gt;cd&lt;/code&gt; to the directory you want to clear out and then call &lt;code&gt;rmbut MyFileIWantToKeep&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Finding out the biggest folders in a Magento or other website root</title>
+      <link>http://example.com/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html</link>
+      <pubDate>Tue, 04 Mar 2014 16:10:19 +0000</pubDate>
+      
+      <guid>http://example.com/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html</guid>
+      <description>&lt;p&gt;Often pulling down a Magento or other site you&amp;rsquo;ll find a load of files that have been dumped in the web root. Downloading these is often pointless and takes extra time, so you&amp;rsquo;ll want to exclude them from an rsync (using the &lt;code&gt;--exclude &#39;path&#39;&lt;/code&gt; paramter).&lt;/p&gt;
+
+&lt;p&gt;A simple bash command for this is:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;du -m --max-depth&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; --exclude media &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort -n
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This invokes &lt;code&gt;du&lt;/code&gt; to show each direct subfolder&amp;rsquo;s contents&amp;rsquo; size, and pipes it through to &lt;code&gt;sort&lt;/code&gt; to rank them in increasing size. The sizes are in MB. See &lt;a href=&#34;http://explainshell.com/explain?cmd=du+-m+--max-depth%3D1+--exclude+media+|+sort+-n&#34; target=&#34;_blank&#34;&gt;a more broken down explanation here&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Clean Up Meld Files when Git Merging</title>
+      <link>http://example.com/git/clean-up-meld-files-when-git-merging.html</link>
+      <pubDate>Wed, 29 Jan 2014 11:39:19 +0000</pubDate>
+      
+      <guid>http://example.com/git/clean-up-meld-files-when-git-merging.html</guid>
+      <description>&lt;p&gt;If you do a Git Merge using Meld (a brilliant Linux diff tool) then you might find that there are a bunch of files created that you need to clear up.&lt;/p&gt;
+
+&lt;p&gt;These files will be copies of the merged files and can be safely removed as everything you should need to know is already in Git.&lt;/p&gt;
+
+&lt;p&gt;I wrote the following quick function to find all of these files and remove them. You could add this as a function to your bashrc file if you need to do this regularly.&lt;/p&gt;
+
+&lt;p&gt;Here is the BASH snippet:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;git status -su &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep -P &lt;span class=&#34;s2&#34;&gt;&amp;quot;\.BACKUP|BASE|LOCAL|REMOTE\.&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; cut -f2 -d&lt;span class=&#34;s2&#34;&gt;&amp;quot; &amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; xargs rm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Bash Find Files and Echo Filename and Contents</title>
+      <link>http://example.com/bash/bash-find-files-and-echo-filename-and-contents.html</link>
+      <pubDate>Mon, 13 Jan 2014 17:18:55 +0000</pubDate>
+      
+      <guid>http://example.com/bash/bash-find-files-and-echo-filename-and-contents.html</guid>
+      <description>&lt;p&gt;I thought this one would be easy but actually its taken a bit of messing about.&lt;/p&gt;
+
+&lt;p&gt;The goal was to find files matching a pattern, in this case a file name, and then echo out the full path to the file and also the file contents.&lt;/p&gt;
+
+&lt;p&gt;If you are interested, the reason I was doing this was to understand the &lt;em&gt;interesting&lt;/em&gt; approach that the ORO Platform has taken to setting up the AppKernel bundles in Symfony2.&lt;/p&gt;
+
+&lt;p&gt;The command is here:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; find . -type f -iwholename &#39;*bundles.yml&#39; | xargs -I % bash -c &amp;quot;echo &#39;&#39;; echo &#39;----------------------&#39;; echo %; cat %; echo &#39;&#39;;&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I have added in some extra echos to make it format nicely but the main thing is that I am using xargs to handle the results from find.&lt;/p&gt;
+
+&lt;p&gt;The individual result is assigned to the % character. Then a sub shell is instantiated to manage a specific command that both echos % itself and then uses cat to echo the contents of %.&lt;/p&gt;
+
+&lt;p&gt;This gave me an output like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;----------------------
+./vendor/oro/platform/src/Oro/Bundle/ImportExportBundle/Resources/config/oro/bundles.yml
+bundles:
+    - Oro\Bundle\ImportExportBundle\OroImportExportBundle
+
+----------------------
+./vendor/oro/platform/src/Oro/Bundle/PlatformBundle/Resources/config/oro/bundles.yml
+bundles:
+    - { name: Symfony\Bundle\FrameworkBundle\FrameworkBundle, priority: -255 }
+    - { name: Symfony\Bundle\SecurityBundle\SecurityBundle, priority: -250 }
+    - { name: Symfony\Bundle\TwigBundle\TwigBundle, priority: -245 }
+    - { name: Symfony\Bundle\MonologBundle\MonologBundle, priority: -240 }
+    - { name: Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle, priority: -235 }
+    - { name: Symfony\Bundle\AsseticBundle\AsseticBundle, priority: -230 }
+    - { name: Doctrine\Bundle\DoctrineBundle\DoctrineBundle, priority: -225 }
+    - { name: Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle, priority: -220 }
+    - { name: Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle, priority: -215 }
+    - { name: JMS\SerializerBundle\JMSSerializerBundle, kernel: true, priority: -210 }
+    - { name: Knp\Bundle\PaginatorBundle\KnpPaginatorBundle, priority: -205 }
+    - { name: Knp\Bundle\MenuBundle\KnpMenuBundle, priority: -200 }
+    - { name: FOS\RestBundle\FOSRestBundle, priority: -195 }
+    - { name: FOS\JsRoutingBundle\FOSJsRoutingBundle, priority: -190 }
+    - { name: Nelmio\ApiDocBundle\NelmioApiDocBundle, priority: -185 }
+    - { name: BeSimple\SoapBundle\BeSimpleSoapBundle, priority: -180 }
+    - { name: Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle, priority: -175 }
+    - { name: Escape\WSSEAuthenticationBundle\EscapeWSSEAuthenticationBundle, priority: -170 }
+    - { name: Liip\ImagineBundle\LiipImagineBundle, priority: -165 }
+    - { name: Genemu\Bundle\FormBundle\GenemuFormBundle, priority: -155 }
+    - { name: A2lix\TranslationFormBundle\A2lixTranslationFormBundle, priority: -150 }
+    - { name: Lexik\Bundle\MaintenanceBundle\LexikMaintenanceBundle, priority: -145 }
+    - Oro\Bundle\PlatformBundle\OroPlatformBundle
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And you can see that the bundle file I was looking for is in the Platform Bundle.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Automatically convert old PHP file to camelCase </title>
+      <link>http://example.com/bash/automatically-convert-old-php-file-to-camelcase.html</link>
+      <pubDate>Thu, 17 Oct 2013 10:53:15 +0000</pubDate>
+      
+      <guid>http://example.com/bash/automatically-convert-old-php-file-to-camelcase.html</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve recently been working with an old project that uses a combination of different coding styles.&lt;/p&gt;
+
+&lt;p&gt;One of the more trivial annoyances with this is that the variables used through the project are a combination of $camelCase and $snake_case which throws of the coding standards tools that I use.&lt;/p&gt;
+
+&lt;p&gt;To get round this I have put a little script together that will convert $snake_case to $camelCase automatically.&lt;/p&gt;
+
+&lt;p&gt;Obviously, you will need to check the results of this to make sure that there are not variables that should not be changed, but it has saved me a lot of time doing this manually.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve added this to my .bash_allias file, though it could easily be turned into a standalone script if required&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;#Fix legacy code&lt;/span&gt;
+ cammelCase&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+   vim -E -s &lt;span class=&#34;nv&#34;&gt;$@&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;lt;&amp;lt;-EOF&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;   :%s#\%($\%(\k\+\)\)\@&amp;lt;=_\(\k\)#\u\1#g&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;   :update&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;   :quit&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;EOF&lt;/span&gt;
+ 
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Tab Complete for SSH and SCP</title>
+      <link>http://example.com/magento/bash/tab-complete-for-ssh-and-scp.html</link>
+      <pubDate>Fri, 26 Jul 2013 10:31:41 +0000</pubDate>
+      
+      <guid>http://example.com/magento/bash/tab-complete-for-ssh-and-scp.html</guid>
+      <description>&lt;p&gt;If you are required to connect to different servers, then remembering and typing in all of the details can become tiresome.&lt;/p&gt;
+
+&lt;p&gt;Thankfully there is simple solution to this, using the SSH config file.&lt;/p&gt;
+
+&lt;p&gt;To make use of this, create the following file ~/.ssh/config&lt;/p&gt;
+
+&lt;p&gt;In there add the following details&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;Host easyToRememberName
+    HostName 127.0.0.1
+    Port 2020
+    User ross
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You will then can tab completion on ssh and scp commands. You can see more of the options that can be set in the file &lt;a href=&#34;http://linux.die.net/man/5/ssh_config&#34; title=&#34;ssh config man page&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Side by Side diff on the command line</title>
+      <link>http://example.com/bash/side-by-side-diff-on-the-command-line.html</link>
+      <pubDate>Tue, 09 Jul 2013 17:25:18 +0000</pubDate>
+      
+      <guid>http://example.com/bash/side-by-side-diff-on-the-command-line.html</guid>
+      <description>&lt;p&gt;I have recently discovered a handy trick when comparing files on the command line.&lt;/p&gt;
+
+&lt;p&gt;Adding the -y command line options to diff will display the files side by side.&lt;/p&gt;
+
+&lt;p&gt;Using this with the &lt;a href=&#34;http://www.colordiff.org/&#34; title=&#34;Color Diff&#34; target=&#34;_blank&#34;&gt;Color Diff&lt;/a&gt; tool will help you transform this&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/normal-diff.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To this&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/color-diff-600x200.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Apache Log File Analysis Script</title>
+      <link>http://example.com/bash/apache-log-file-analysis-script.html</link>
+      <pubDate>Thu, 14 Mar 2013 14:17:48 +0000</pubDate>
+      
+      <guid>http://example.com/bash/apache-log-file-analysis-script.html</guid>
+      <description>&lt;p&gt;Here is a little bash script we knocked together to track down some malicious activity on a clients server.&lt;/p&gt;
+
+&lt;p&gt;Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.&lt;/p&gt;
+
+&lt;p&gt;Here is the script:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;###### SETUP ############&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;LOG_FOLDER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/www/vhosts/domain.co.uk/statistics/logs
+&lt;span class=&#34;nv&#34;&gt;ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LOG_FOLDER&lt;/span&gt;/access_log
+
+&lt;span class=&#34;nv&#34;&gt;HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;20000
+
+
+
+&lt;span class=&#34;c1&#34;&gt;######### FUNCTIONS ##############&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; title&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;---------------------------------&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$@&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;---------------------------------&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; urls_by_ip&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;IP&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;
+    tail -5000 &lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk -v &lt;span class=&#34;nv&#34;&gt;ip&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IP&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}&amp;#39;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort -rn &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; head -20
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; ip_addresses_by_user_agent&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;USERAGENT_STRING&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | grep &amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;USERAGENT_STRING&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;  | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;####### RUN REPORTS #############&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 URLs&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_URLS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$7&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_URLS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 URLS excluding POST data&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_URLS_WITHOUT_POST&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk -F&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; ?&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$7&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_URLS_WITHOUT_POST&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 IPs&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 user agents&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;IP Addresses for Top 3 User Agents&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;I&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; I&amp;lt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; I++&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;UA&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`echo &amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; | head -n &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$I&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | tail -n 1 | awk &amp;#39;{&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;=&amp;quot;&amp;quot;; print &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$0&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;}&amp;#39;`&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$UA&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;~~~~~~~~~~~~~~~~~~&amp;quot;&lt;/span&gt;
+    ip_addresses_by_user_agent &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$UA&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;    &amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

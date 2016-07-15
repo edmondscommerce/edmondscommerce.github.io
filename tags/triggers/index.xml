@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Triggers on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/triggers/</link>
+    <description>Recent content in Triggers on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 15 Jan 2011 12:26:09 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/triggers/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>MySQL Triggers - A Quick Guide</title>
+      <link>http://example.com/mysql/mysql-triggers-a-quick-guide.html</link>
+      <pubDate>Sat, 15 Jan 2011 12:26:09 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-triggers-a-quick-guide.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+MySQL has a nice feature that you may well not have used called Triggers.&lt;/p&gt;
+
+&lt;p&gt;These are little SQL statements that are tied to events on table and then perform some extra work.&lt;/p&gt;
+
+&lt;p&gt;The idea being that you will check the values for a row and if they meet some conditions you will take some further action. You might usually do this kind of thing in code but if you really must be certain that in a certain circumstance a certain action will be taken, then triggers are a good option because regardless which bit of code makes the change you can be sure your rules will be enforced.&lt;/p&gt;
+
+&lt;p&gt;Of course this ties you to a specific DB platform so its not something you should over use. There can also be performance issues so you need to bear that in mind.&lt;/p&gt;
+
+&lt;p&gt;Anyway, assuming you know what you are letting yourself in for and have read the &lt;a href=&#34;http://www.google.com/search?hl=en&amp;q=site%3Adev.mysql.com+triggers+5.0&amp;aq=f&amp;aqi=&amp;aql=&amp;oq=&#34;&gt;documentation&lt;/a&gt; here is my little summary.&lt;/p&gt;
+
+&lt;p&gt;First you need to give your trigger a name. Choose something descriptive.&lt;/p&gt;
+
+&lt;p&gt;Then you need to associate it to an even (UPDATE, INSERT etc) and also decide whether to do it BEFORE or AFTER. If you are not sure, use BEFORE - it&amp;rsquo;s generally the one you want to use.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;CREATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;TRIGGER&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;do_something&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BEFORE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;UPDATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;table&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The next bit is boiler plate as far as I can gather, just whack it in. It delimits your actual statement and tells it to be run for each updated row.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;  &lt;span class=&#34;k&#34;&gt;FOR&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;EACH&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ROW&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BEGIN&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then do your test&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;IF&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;OLD&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Note the NEW and OLD keywords there.&lt;/p&gt;
+
+&lt;p&gt;You have a choice of using the NEW and OLD keyword to access existing (OLD) and about to be set (NEW) data for each column.&lt;/p&gt;
+
+&lt;p&gt;Note also, this is only possible if you use the BEFORE event as opposed to AFTER, hence generally just sticking to using BEFORE&lt;/p&gt;
+
+&lt;p&gt;Now, enforce your requirements&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;another_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;and_another_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;and_another&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;cheese&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then wrap it up&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;END&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;IF&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;END&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;That&amp;rsquo;s it&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;BUT WAIT&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s another bit that I totally missed which caused me issues - you need to wrap the whole thing in a delimiter statement:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;delimiter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;//&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;...&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;the&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;statement&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;END&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;//&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;delimiter&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So the full final thing should look like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;delimiter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;//&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;CREATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;TRIGGER&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;do_something&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BEFORE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;UPDATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;table&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;FOR&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;EACH&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ROW&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BEGIN&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;IF&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;OLD&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;another_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;and_another_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NEW&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;and_another&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;cheese&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;END&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;IF&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;END&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;//&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;delimiter&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Another point to mention is - just use the CLI for handling these, don&amp;rsquo;t try to use phpMyAdmin etc - it doesn&amp;rsquo;t really work.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

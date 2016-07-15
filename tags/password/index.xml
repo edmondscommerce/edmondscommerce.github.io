@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Password on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/password/</link>
+    <description>Recent content in Password on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 26 Apr 2012 12:35:29 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/password/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Extending Mage Core Encryption Model to handle Legacy Passwords</title>
+      <link>http://example.com/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html</link>
+      <pubDate>Thu, 26 Apr 2012 12:35:29 +0000</pubDate>
+      
+      <guid>http://example.com/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html</guid>
+      <description>&lt;p&gt;If you are migrating from an old ecommerce package into Magento, you may well want to extend Magento&amp;rsquo;s password hashing system so that it can understand the passwords that are hashed by the previous system and customers can log in using their old passwords without any hassle.&lt;/p&gt;
+
+&lt;p&gt;You would start off by overriding the Mage_Core_Model_Encryption class like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;class EdmondsCommerce_LegacyPassword_Model_Encryption extends Mage_Core_Model_Encryption {&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Validate hash against hashing method (with or without salt)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Extended to support the legacy password hashing of the previous system&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param string $password&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param string $hash&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return bool&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @throws Exception&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function validateHash($password, $hash) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (/*password matches legacy pattern (as stored hash in DB)*/) {            &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            // create a hash of the plain text password and compare to the stored hash&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            return $hashed_pass == $hashval;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //default magento hashing from here&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return parent::validateHash($password, $hash);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;However, you will find that the standard model override does not work and you may start vigorous hair pulling at this point.&lt;/p&gt;
+
+&lt;p&gt;The answer though is that your override XML is actually fine, but it isn&amp;rsquo;t being used. This is because of the getEncryptor model in Mage_Core_Helper_Data creates the model using &amp;lsquo;new&amp;rsquo; rather than getModel.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return Mage_Core_Model_Encryption&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function getEncryptor()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ($this-&amp;gt;_encryptor === null) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $encryptionModel = (string)Mage::getConfig()-&amp;gt;getNode(self::XML_PATH_ENCRYPTION_MODEL);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if ($encryptionModel) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $this-&amp;gt;_encryptor = new $encryptionModel;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            } else {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $this-&amp;gt;_encryptor = Mage::getModel(&amp;#39;core/encryption&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;            $this-&amp;gt;_encryptor-&amp;gt;setHelper($this);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $this-&amp;gt;_encryptor;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The class name to use for the encryptor is stored in the config.xml for Mage_Core.&lt;/p&gt;
+
+&lt;p&gt;The solution here is to replicate this XML in your config.xml and also make your legacy module depend on Mage_Core so that it get loaded afterwards and can override the XML.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;modules&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;EdmondsCommerce_LegacyPassword&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.1.1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;depends&amp;gt;&lt;/span&gt;Mage_Core&lt;span class=&#34;nt&#34;&gt;&amp;lt;/depends&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/EdmondsCommerce_LegacyPassword&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/modules&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;models&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;core&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;encryption&amp;gt;&lt;/span&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;span class=&#34;nt&#34;&gt;&amp;lt;/encryption&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/core&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/models&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;helpers&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;core&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;encryption_model&amp;gt;&lt;/span&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;span class=&#34;nt&#34;&gt;&amp;lt;/encryption_model&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/core&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/helpers&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/global&amp;gt;&lt;/span&gt;    
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Easy once you understand. Another gotcha you have to look out for though!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Create Admin User Script</title>
+      <link>http://example.com/magento/magento-create-admin-user-script.html</link>
+      <pubDate>Mon, 31 Oct 2011 17:32:23 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-create-admin-user-script.html</guid>
+      <description>&lt;p&gt;Often we will be asked to work on a site and have to test backend features but without asking for admin passwords, so we need a way to create admin users without admin access.  Of course we already have file and database access.&lt;/p&gt;
+
+&lt;p&gt;For this, we use phpmyadmin or adminer to give us database access and run the following php script at the commandline :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; 
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Readln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+  &lt;span class=&#34;nv&#34;&gt;$handle&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;fopen&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php://stdin&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;r&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;rtrim&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;fgets&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$handle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Enter username [or hit enter for &amp;quot;someadminuser&amp;quot;]: &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Readln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+  &lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;someadminuser&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Enter password [or hit enter for the usual one]: &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$password&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Readln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Enter table prefix [or hit enter for none]: &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$prefix&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Readln&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$salt&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;EC&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Salted is : &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;empty&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$password&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$hash&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;md5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$salt&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$password&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$salt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$hash&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;20f808df3d6e913ec43164ad2e7be85e:EC&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;SQL for insert : &lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;EOT&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;insert&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;into&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;prefix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;admin_user&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;select&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;select&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;user_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;prefix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;admin_user&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;user_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;&amp;#39;Edmonds&amp;#39;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;first_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;&amp;#39;Commerce&amp;#39;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;last_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;&amp;#39;nojunkplease@mailinator.com&amp;#39;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;email&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;&amp;#39;$username&amp;#39;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;&amp;#39;$hash&amp;#39;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;password&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;now&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;created&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;NULL&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;modified&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;NULL&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;logdate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;lognum&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;reload_acl_flag&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;is_active&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;select&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;extra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;prefix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;admin_user&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;where&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;extra&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;is&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;not&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;extra&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+ 
+&lt;span class=&#34;nx&#34;&gt;insert&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;into&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;prefix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;admin_role&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;select&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;select&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;role_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;prefix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;admin_role&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;role_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;select&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;role_id&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;prefix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;admin_role&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;where&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;role_name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Administrators&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;parent_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;tree_level&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;sort_order&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;&amp;#39;U&amp;#39;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;role_type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;select&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;user_id&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;prefix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;admin_user&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;where&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;username&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;$username&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;user_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;&amp;#39;$username&amp;#39;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;role_name&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;\n&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;\n&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;EOT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The output looks like this :-
+&lt;code&gt;Enter username [or hit enter for &amp;ldquo;someadminuser&amp;rdquo;]:
+Enter password [or hit enter for the usual one]:
+Enter table prefix [or hit enter for none]:&lt;/p&gt;
+
+&lt;p&gt;Salted is : 20f808df3d6e913ec43164ad2e7be85e:EC&lt;/p&gt;
+
+&lt;p&gt;SQL for insert :
+insert into admin_user
+select
+(select max(user_id) + 1 from admin_user) user_id,
+&amp;lsquo;Edmonds&amp;rsquo; first_name,
+&amp;lsquo;Commerce&amp;rsquo; last_name,
+&amp;lsquo;nojunkplease@mailinator.com&amp;rsquo; email,
+&amp;lsquo;someadminuser&amp;rsquo; username,
+&amp;lsquo;20f808df3d6e913ec43164ad2e7be85e:EC&amp;rsquo; password,
+now() created,
+NULL modified,
+NULL logdate,
+0 lognum,
+0 reload_acl_flag,
+1 is_active,
+(select max(extra) from admin_user where extra is not null) extra;&lt;/p&gt;
+
+&lt;p&gt;insert into admin_role
+select
+(select max(role_id) + 1 from admin_role) role_id,
+(select role_id from admin_role where role_name = &amp;lsquo;Administrators&amp;rsquo;) parent_id,
+2 tree_level,
+0 sort_order,
+&amp;lsquo;U&amp;rsquo; role_type,
+(select user_id from admin_user where username = &amp;lsquo;someadminuser&amp;rsquo;) user_id,
+&amp;lsquo;someadminuser&amp;rsquo; role_name&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Which we can then copy and paste into the database admin.  No prizes for guessing the first programming language of the dev who wrote the script.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Run mysql commands with plesk username</title>
+      <link>http://example.com/plesk/run-mysql-commands-with-plesk-username.html</link>
+      <pubDate>Wed, 14 Sep 2011 15:33:04 +0000</pubDate>
+      
+      <guid>http://example.com/plesk/run-mysql-commands-with-plesk-username.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+There&amp;rsquo;s a little-known trick to using the plesk admin user password to access the mysql database that works on many a plesk machine.&lt;/p&gt;
+
+&lt;p&gt;Effectively the plesk admin password is stored in /etc/psa/.psa.shadow - in plain text.&lt;/p&gt;
+
+&lt;p&gt;This means that the following commands for instance work very well as root :
+&lt;ul&gt;
+    &lt;li&gt;mysql -uadmin -p&lt;code&gt;cat /etc/psa/.psa.shadow&lt;/code&gt;&lt;/li&gt;
+    &lt;li&gt;mytop -uadmin -p&lt;code&gt;cat /etc/psa/.psa.shadow&lt;/code&gt; -d[databasename]&lt;/li&gt;
+    &lt;li&gt;mysqldump &amp;ndash;user=admin &amp;ndash;password=&lt;code&gt;cat /etc/psa/.psa.shadow&lt;/code&gt; [databasename] &amp;gt; /dev/null&lt;/li&gt;
+&lt;/ul&gt;&lt;/p&gt;
+
+&lt;p&gt;Enjoy automating mysql stuff on your plesk servers!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>CentOS Very Slow SSH Password Prompt</title>
+      <link>http://example.com/linux/centos-very-slow-ssh-password-prompt.html</link>
+      <pubDate>Thu, 24 Feb 2011 17:49:11 +0000</pubDate>
+      
+      <guid>http://example.com/linux/centos-very-slow-ssh-password-prompt.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are finding it takes ages for a password prompt to come up when trying to connect to a CentOS server (and possibly others) this is a solution.&lt;/p&gt;
+
+&lt;p&gt;The cause is that your IP address does not have the correct reverse DNS etc settings.&lt;/p&gt;
+
+&lt;p&gt;You can of course try to fix all that but if you need a quick fix, you can edit the sshd configuration and disable&lt;/p&gt;
+
+&lt;p&gt;GSSAPIAuthentication yes&lt;/p&gt;
+
+&lt;p&gt;to: GSSAPIAuthentication no&lt;/p&gt;
+
+&lt;p&gt;and&lt;/p&gt;
+
+&lt;p&gt;UseDNS yes&lt;/p&gt;
+
+&lt;p&gt;to: UseDNS no&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Centos on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/centos/</link>
+    <description>Recent content in Centos on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 11 Nov 2014 14:06:37 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/centos/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Compile NGINX with PageSpeed and ModSecurity on CentOS</title>
+      <link>http://example.com/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html</link>
+      <pubDate>Tue, 11 Nov 2014 14:06:37 +0000</pubDate>
+      
+      <guid>http://example.com/linux/compile-nginx-with-pagespeed-and-modsecurity-on-centos.html</guid>
+      <description>&lt;p&gt;ModSecurity is a brilliant addition to web servers to block any nefarious requests before they hit your application.
+This improves security and reduces load if your server comes under attack as the requests are killed very quickly.&lt;/p&gt;
+
+&lt;p&gt;PageSpeed is a module provided by Google to automatically improve the performance of your web pages in the browser. In a stroke it can offer a much more responsive front end with just a few configuration options.&lt;/p&gt;
+
+&lt;p&gt;Nginx is a very fast and lightweight web server ideal for using with back end servers such as PHP-FPM.&lt;/p&gt;
+
+&lt;p&gt;Here is a script that will download and compile Nginx with the two modules and also apply the correct ModSecurity configuration.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Please run as root&amp;quot;&lt;/span&gt;
+yum install gcc-c++ pcre-dev pcre-devel zlib-devel make unzip
+
+&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1.9.32.2&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1.7.7&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;MODSEC_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2.8.0
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_EXTRA_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; --with-http_realip_module --with-http_ssl_module &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/opt/nginx_with_pagespeed_and_mod_security
+
+mkdir -p &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Mod Security&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Installing dependencies, grabbing the repo, checking out the tag for our version and building it&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;------------&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+yum install libtool httpd-devel libxml2 libxml2-devel
+git clone https://github.com/SpiderLabs/ModSecurity.git
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ModSecurity
+git checkout tags/v&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;MODSEC_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+./autogen.sh
+./configure --enable-standalone-module --disable-mlogc
+make
+make install
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; --add-module=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/ModSecurity/nginx/modsecurity &amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Mod Security Config and Rules&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;-----------------------------&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;For nginx, we have to get all the config and cat it all into one single config file&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+wget https://raw.githubusercontent.com/SpiderLabs/ModSecurity/master/modsecurity.conf-recommended
+cat modsecurity.conf-recommended  &amp;gt; /etc/nginx/modsecurity.conf
+wget https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master -O owasp-modsecurity-crs.tar.gz
+tar -xvzf owasp-modsecurity-crs.tar.gz
+&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;find . -type d -name SpiderLabs-owasp-modsecurity-crs*&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+cat &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/modsecurity_crs_10_setup.conf.example &amp;gt;&amp;gt; /etc/nginx/modsecurity.conf
+cat &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CRS_DIR&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/base_rules/modsecurity_*.conf &amp;gt;&amp;gt; /etc/nginx/modsecurity.conf
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; f in &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;find &lt;span class=&#34;nv&#34;&gt;$CRS_DIR&lt;/span&gt; -type f -name *.data&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;FILE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;basename &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;cp &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; /etc/nginx/&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$FILE&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;CMD&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+cp ModSecurity/unicode.mapping /etc/nginx/unicode.mapping
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Page Speed&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;----------&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Downlading the pagespeed version and building this&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+wget https://github.com/pagespeed/ngx_pagespeed/archive/release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta.zip
+unzip release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta.zip
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ngx_pagespeed-release-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;-beta/
+wget https://dl.google.com/dl/page-speed/psol/&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+tar -xzvf &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz  &lt;span class=&#34;c1&#34;&gt;# extracts to psol/&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; --add-module=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/ngx_pagespeed-release-&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NPS_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;-beta &amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Nginx&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;-----&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;Finally, compiling Nginx with our extra modules and the added modules and installing it&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$WORKING_DIRECTORY&lt;/span&gt;
+wget http://nginx.org/download/nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+tar -xvzf nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.tar.gz
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; nginx-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/
+./configure &lt;span class=&#34;nv&#34;&gt;$NGINX_ADD_MODULES&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$NGINX_EXTRA_MODULES&lt;/span&gt;
+make
+sudo make install
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;COMPLETED INSTALL - CHECKING&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;checking the nginx version now, should be &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$NGINX_VERSION&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; and you should see our modules&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+nginx -V
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;And now doing a config test&amp;quot;&lt;/span&gt;
+/etc/init.d/nginx configtest
+
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===============================================================================&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;SCRIPT COMPLETED&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;However, you are not there yet&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;You need to go and look at the /etc/nginx/modsecurity.conf file and change settings there as appropriate&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Also you need to modify your nginx vhost config - see:&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual#Configuration_Steps&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GoAccess - Nice CLI Access Log Parsing Tool (and how to install on CentOS)</title>
+      <link>http://example.com/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html</link>
+      <pubDate>Thu, 24 Apr 2014 12:40:27 +0000</pubDate>
+      
+      <guid>http://example.com/sysadmin/goaccess-nice-cli-access-log-parsing-tool-and-how-to-install-on-centos.html</guid>
+      <description>&lt;p&gt;Log files are probably the single most useful item on a web server when it comes to debugging. They are packed full of all the information you need to understand what is
+happening on the server and detect any potential issues.&lt;/p&gt;
+
+&lt;p&gt;Reading log files by hand is basically imposssible for any meaningful overall monitoring. You can of course do some grepping and other bash tools to gain more insights but some times it&amp;rsquo;s nice to just have a simple tool.&lt;/p&gt;
+
+&lt;p&gt;I am a big fan of tools like top, mytop, apachetop and ngxtop. GoAccess is a little bit different though, mainly it just seems a lot more fully featured.&lt;/p&gt;
+
+&lt;p&gt;Best thing to do is to try it. Here is how to install it on CentoOS&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum install ncurses-devel glib2-devel geoip-devel
+mkdir -p ~/goaccess
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ~/goaccess
+wget http://downloads.sourceforge.net/project/goaccess/0.7.1/goaccess-0.7.1.tar.gz
+tar -xzvf goaccess-0.7.1.tar.gz
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; goaccess-0.7.1/
+./configure --enable-geoip --enable-utf8
+make
+make install
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can read more about GoAccess here:
+&lt;a href=&#34;http://goaccess.prosoftcorp.com/&#34; target=&#34;_blank&#34;&gt;http://goaccess.prosoftcorp.com/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Installing Percona DB on a clean CentOS </title>
+      <link>http://example.com/percona/installing-percona-db-on-a-clean-centos.html</link>
+      <pubDate>Fri, 09 Nov 2012 15:22:41 +0000</pubDate>
+      
+      <guid>http://example.com/percona/installing-percona-db-on-a-clean-centos.html</guid>
+      <description>&lt;p&gt;Percona is a performance optimised fork of MySQL that has gained a lot of traction in the Magento-sphere as webmasters and sysadmins alike look to squeeze the most performance out of their hardware.&lt;/p&gt;
+
+&lt;p&gt;If you read the &lt;a href=&#34;http://example.com/platforms/magento&#34;&gt;Magento&lt;/a&gt; performance whitepaper then you will see they mention Percona DB there.&lt;/p&gt;
+
+&lt;p&gt;To install Percona on a standard CentOS release 6.2 (Final) server you would need to run the following commands:&lt;/p&gt;
+
+&lt;p&gt;First set up the repo:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;rpm -Uhv http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This should give you output like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Retrieving http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+Preparing...                ########################################### [100%]
+   1:percona-release        ########################################### [100%]
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then installing should be a simple case of running:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum install Percona-Server-client-55 Percona-Server-server-55
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;However I found that this generated the following error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Error: Percona-XtraDB-Cluster-client conflicts with Percona-Server-client-55
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The problem is because MySQL is already installed and needs to be removed. You can do this with this command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum remove mysql*
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;At which point running the install should work smoothly.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Creating RPMs</title>
+      <link>http://example.com/linux/creating-rpms.html</link>
+      <pubDate>Thu, 09 Aug 2012 16:24:34 +0000</pubDate>
+      
+      <guid>http://example.com/linux/creating-rpms.html</guid>
+      <description>
+
+&lt;p&gt;One thing that I often get asked as a package maintainer is how hard is it to make rpms?&lt;/p&gt;
+
+&lt;p&gt;Well, here&amp;rsquo;s a little secret, if you have the right tools, it&amp;rsquo;s actually quite easy.&lt;/p&gt;
+
+&lt;p&gt;The main tool I use is mezzanine - one of the people I worked with on the cAos Linux distributions wrote this toolset in perl, and it is installable even on debian-based distros.  His website is experiencing issues at the moment but it is &lt;a href=&#34;http://beta.kainx.org/&#34; title=&#34;http://beta.kainx.org/&#34;&gt;http://beta.kainx.org/&lt;/a&gt;.  If it&amp;rsquo;s still down and you want the rpm, rpm.pbone.net can find you an rpm.&lt;/p&gt;
+
+&lt;p&gt;The basics are that you need a folder that contains an &amp;ldquo;F&amp;rdquo; &amp;ldquo;P&amp;rdquo; and &amp;ldquo;S&amp;rdquo; directory, and yes, that is all uppercase.  The F folder contains a spec file similar to what&amp;rsquo;s below, the S folder contains the source files and the P directory is a clever little patch making system.&lt;/p&gt;
+
+&lt;p&gt;The spec file is almost exactly the same as a normal rpmbuild spec file and looks like this :-
+&lt;code&gt;
+#&lt;/p&gt;
+
+&lt;h1 id=&#34;spec-file-for-safe-rm&#34;&gt;spec file for safe-rm&lt;/h1&gt;
+
+&lt;p&gt;#
+Summary: Don&amp;rsquo;t rm various directorie
+Name: safe-rm
+Version: 0.8
+Release: 1
+License: GPL
+Group: Applications/Utilities
+Source: &lt;a href=&#34;https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz&#34; target=&#34;_blank&#34;&gt;https://launchpad.net/safe-rm/trunk/0.8/+download/safe-rm-0.8.tar.gz&lt;/a&gt;
+URL: &lt;a href=&#34;https://launchpad.net/safe-rm&#34; target=&#34;_blank&#34;&gt;https://launchpad.net/safe-rm&lt;/a&gt;
+Distribution: CentOS
+Packager: Martyn Ranyard &lt;a href=&#34;mailto:info@edmondscommerce.co.uk&#34; target=&#34;_blank&#34;&gt;info@edmondscommerce.co.uk&lt;/a&gt;
+Patch1000: safe-rm-0.8-example-conf.patch
+Requires: perl&lt;/p&gt;
+
+&lt;p&gt;%description
+Stop people accidentally removing directories with rm -rf&lt;/p&gt;
+
+&lt;p&gt;%changelog
+* Thu Aug 09 2012 Martyn Ranyard &lt;a href=&#34;mailto:info@edmondscommerce.co.uk&#34; target=&#34;_blank&#34;&gt;info@edmondscommerce.co.uk&lt;/a&gt;
+- Used the debian example config for the default config&lt;/p&gt;
+
+&lt;p&gt;%prep
+rm -rf $RPM_BUILD_ROOT/safe-rm-0.8
+zcat $RPM_SOURCE_DIR/safe-rm-0.8.tar.gz | tar -xvf -
+cd safe-rm-0.8
+%patch1000 -p1&lt;/p&gt;
+
+&lt;p&gt;%build&lt;/p&gt;
+
+&lt;p&gt;%install
+mkdir -p $RPM_BUILD_ROOT/usr/bin/
+mkdir -p $RPM_BUILD_ROOT/etc/
+mkdir -p $RPM_BUILD_ROOT/sbin/
+install -m 0755 safe-rm-0.8/safe-rm $RPM_BUILD_ROOT/usr/bin/safe-rm
+install -m 0644 safe-rm-0.8/safe-rm.conf $RPM_BUILD_ROOT/etc/safe-rm.conf
+cd $RPM_BUILD_ROOT/usr/bin/
+ln -s safe-rm rm
+cd -
+cd $RPM_BUILD_ROOT/sbin/
+ln -s /usr/bin/safe-rm rm
+cd -&lt;/p&gt;
+
+&lt;p&gt;%files
+/etc
+/etc/safe-rm.conf
+/usr
+/usr/bin
+/usr/bin/safe-rm
+/sbin
+/sbin/rm
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;You&amp;rsquo;ll notice the patch1000 lines reference a patch file, which mezzanine handily creates for you, first you run mzprep, which creates a work dir, then you add/edit files in there to make whatever you&amp;rsquo;re packaging build and install (to $RPM_BUILD_DIR) and then you run &amp;ldquo;mzpatch mypatchname.patch&amp;rdquo; and it creates the patch ready to be deployed.&lt;/p&gt;
+
+&lt;p&gt;To create the rpms, change back to the top level directory (the one containing F P &amp;amp; S) and type mzbuild.&lt;/p&gt;
+
+&lt;p&gt;It takes a bit of getting used to and a fair bit of fiddling but the end result is good solid rpms.&lt;/p&gt;
+
+&lt;p&gt;Note: it can also make deb files and slackware package files but KainX is the guy to talk to on that front.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>safe-rm - saves you from rm -rf /*</title>
+      <link>http://example.com/linux/safe-rm-saves-you-from-rm-rf.html</link>
+      <pubDate>Thu, 09 Aug 2012 15:59:14 +0000</pubDate>
+      
+      <guid>http://example.com/linux/safe-rm-saves-you-from-rm-rf.html</guid>
+      <description>&lt;p&gt;Okay, so it&amp;rsquo;s a sysadmin&amp;rsquo;s nightmare that you might when tired miss out a dot from an rm -rf ./* and whilst you shouldn&amp;rsquo;t run as root, there are times when permissions problems push you into it.&lt;/p&gt;
+
+&lt;p&gt;This little gem allows you to blacklist folders from rm (such as /etc /bin and other system directories, along with any custom ones you might want to protect).&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s in debian/ubuntu repositories so apt-get install safe-rm is quite useful, but it seems to be nowhere to be found for CentOS/RHEL, so we packaged it up (one of our employees used to be a package maintainer for a linux distro) for CentOS servers.&lt;/p&gt;
+
+&lt;p&gt;The original url for safe-rm is &lt;a href=&#34;https://launchpad.net/safe-rm&#34; title=&#34;https://launchpad.net/safe-rm&#34;&gt;https://launchpad.net/safe-rm&lt;/a&gt; and our rpm is available &lt;a href=&#34;http://www.edmondscommerce.co.uk/stuff/safe-rm-0.8-1.x86_64.rpm&#34; title=&#34;here&#34;&gt;here&lt;/a&gt; - Feel free to mirror this elsewhere.&lt;/p&gt;
+
+&lt;p&gt;Next up: &lt;a href=&#34;http://www.edmondscommerce.co.uk/linux/creating-rpms/&#34; title=&#34;how we created the rpm&#34;&gt;how we created the rpm&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>CentOS Very Slow SSH Password Prompt</title>
+      <link>http://example.com/linux/centos-very-slow-ssh-password-prompt.html</link>
+      <pubDate>Thu, 24 Feb 2011 17:49:11 +0000</pubDate>
+      
+      <guid>http://example.com/linux/centos-very-slow-ssh-password-prompt.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you are finding it takes ages for a password prompt to come up when trying to connect to a CentOS server (and possibly others) this is a solution.&lt;/p&gt;
+
+&lt;p&gt;The cause is that your IP address does not have the correct reverse DNS etc settings.&lt;/p&gt;
+
+&lt;p&gt;You can of course try to fix all that but if you need a quick fix, you can edit the sshd configuration and disable&lt;/p&gt;
+
+&lt;p&gt;GSSAPIAuthentication yes&lt;/p&gt;
+
+&lt;p&gt;to: GSSAPIAuthentication no&lt;/p&gt;
+
+&lt;p&gt;and&lt;/p&gt;
+
+&lt;p&gt;UseDNS yes&lt;/p&gt;
+
+&lt;p&gt;to: UseDNS no&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Install Git on Centos 5 - Install EPEL on Centos</title>
+      <link>http://example.com/git/install-git-on-centos-5-install-epel-on-centos.html</link>
+      <pubDate>Wed, 25 Aug 2010 16:35:23 +0000</pubDate>
+      
+      <guid>http://example.com/git/install-git-on-centos-5-install-epel-on-centos.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+To install Git on a Centos server you need to install something called EPEL first.&lt;/p&gt;
+
+&lt;p&gt;This is an extra repository of apps which you need to have accessible in order to install Git.&lt;/p&gt;
+
+&lt;p&gt;I tried other tutorials on the net that were quite extensive but didn&amp;rsquo;t work. In the end its just two commands:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Install EPEL:
+```&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;rpm -Uvh &lt;a href=&#34;http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-3.noarch.rpm&#34; target=&#34;_blank&#34;&gt;http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-3.noarch.rpm&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;a href=&amp;quot;http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F&amp;quot;&amp;gt;http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F&amp;lt;/a&amp;gt;
+
+2. Install Git + Git Daemon
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;yum install git git-daemon&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+For me to get it to work, I had to manually change the epel.repo file because I had created a non functional one previously. I got the warning:
+
+warning: /etc/yum.repos.d/epel.repo created as /etc/yum.repos.d/epel.repo.rpmnew
+
+So I just did the following:
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;cd /etc/yum.repos.d/
+mv epel.repo epel.repo.old
+mv epel.repo.rpmnew epel.repo&lt;/p&gt;
+
+&lt;p&gt;```&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

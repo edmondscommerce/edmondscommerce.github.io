@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Bad on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/bad/</link>
+    <description>Recent content in Bad on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 14 Mar 2013 14:17:48 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/bad/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Apache Log File Analysis Script</title>
+      <link>http://example.com/bash/apache-log-file-analysis-script.html</link>
+      <pubDate>Thu, 14 Mar 2013 14:17:48 +0000</pubDate>
+      
+      <guid>http://example.com/bash/apache-log-file-analysis-script.html</guid>
+      <description>&lt;p&gt;Here is a little bash script we knocked together to track down some malicious activity on a clients server.&lt;/p&gt;
+
+&lt;p&gt;Using a bit of awk etc to parse the log files we could quickly track down an IP address that was overloading the server and then take steps to block that person.&lt;/p&gt;
+
+&lt;p&gt;Here is the script:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;###### SETUP ############&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;LOG_FOLDER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/www/vhosts/domain.co.uk/statistics/logs
+&lt;span class=&#34;nv&#34;&gt;ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LOG_FOLDER&lt;/span&gt;/access_log
+
+&lt;span class=&#34;nv&#34;&gt;HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;20000
+
+
+
+&lt;span class=&#34;c1&#34;&gt;######### FUNCTIONS ##############&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; title&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;---------------------------------&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$@&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;---------------------------------&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; urls_by_ip&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;IP&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;
+    tail -5000 &lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk -v &lt;span class=&#34;nv&#34;&gt;ip&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IP&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; $1 ~ ip {freq[$7]++} END {for (x in freq) {print freq[x], x}}&amp;#39;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort -rn &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; head -20
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; ip_addresses_by_user_agent&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;USERAGENT_STRING&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;local&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | grep &amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;USERAGENT_STRING&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;  | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;####### RUN REPORTS #############&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 URLs&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_URLS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$7&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_URLS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 URLS excluding POST data&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_URLS_WITHOUT_POST&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk -F&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; ?&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$7&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_URLS_WITHOUT_POST&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 IPs&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | awk &amp;#39;{freq[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;]++} END {for (x in freq) {print freq[x], x}}&amp;#39; | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_IPS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;top 20 user agents&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`tail  -&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOW_MANY_ROWS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ACCESS_LOG&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | cut -d\  -f12- | sort | uniq -c | sort -rn | head -20`&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+
+title &lt;span class=&#34;s2&#34;&gt;&amp;quot;IP Addresses for Top 3 User Agents&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;I&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; I&amp;lt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; I++&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;UA&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;`echo &amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TOP_20_USER_AGENTS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot; | head -n &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$I&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; | tail -n 1 | awk &amp;#39;{&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;=&amp;quot;&amp;quot;; print &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$0&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;}&amp;#39;`&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$UA&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;~~~~~~~~~~~~~~~~~~&amp;quot;&lt;/span&gt;
+    ip_addresses_by_user_agent &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$UA&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;    &amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Apache Access Logs Find Spiders by Counting Requests to IP Addresses</title>
+      <link>http://example.com/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html</link>
+      <pubDate>Tue, 21 Aug 2012 13:24:37 +0000</pubDate>
+      
+      <guid>http://example.com/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html</guid>
+      <description>&lt;p&gt;If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;LOG_FILE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log
+&lt;span class=&#34;nv&#34;&gt;OUT_FILE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/tmp/spider_analysis
+
+&lt;span class=&#34;c1&#34;&gt;#This generates a file with the top 20 IP addresses by number of requests&lt;/span&gt;
+cat &lt;span class=&#34;nv&#34;&gt;$LOG_FILE&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk &lt;span class=&#34;s1&#34;&gt;&amp;#39;{print $1}&amp;#39;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; uniq -c &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort -nr &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; head -n &lt;span class=&#34;m&#34;&gt;20&lt;/span&gt; &amp;gt; &lt;span class=&#34;nv&#34;&gt;$OUT_FILE&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Top 20 IP addresses by number of request&amp;quot;&lt;/span&gt;
+cat &lt;span class=&#34;nv&#34;&gt;$OUT_FILE&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;#allow for loop to split on new line&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS_BAK&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IFS&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; i in &lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;cat &lt;span class=&#34;nv&#34;&gt;$OUT_FILE&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;COUNT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk &lt;span class=&#34;s1&#34;&gt;&amp;#39;{print $1}&amp;#39;&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;IP_ADD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; awk &lt;span class=&#34;s1&#34;&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;---------------------------------&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IP_ADD&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; has made &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$COUNT&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; requests&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Whois Information&amp;quot;&lt;/span&gt;
+    whois &lt;span class=&#34;nv&#34;&gt;$IP_ADD&lt;/span&gt; 
+    &lt;span class=&#34;c1&#34;&gt;#lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;---------------------------------&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# set that back&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IFS_BAK&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS_BAK&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You would use this to give you some idea of which IPs are hitting the server a lot.&lt;/p&gt;
+
+&lt;p&gt;Usually you would expect to see a lot of these being search engines which you likely want to allow. However if you see any domestic or other IP addresses then you may choose to block these.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

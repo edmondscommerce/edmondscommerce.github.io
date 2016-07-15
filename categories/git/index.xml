@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Git on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/git/</link>
+    <description>Recent content in Git on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 17 Jun 2015 12:06:25 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/git/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Removing untracked files but not git ignored ones</title>
+      <link>http://example.com/git/removing-untracked-files-but-not-git-ignored-ones.html</link>
+      <pubDate>Wed, 17 Jun 2015 12:06:25 +0000</pubDate>
+      
+      <guid>http://example.com/git/removing-untracked-files-but-not-git-ignored-ones.html</guid>
+      <description>&lt;p&gt;Quite often you drop a load of files in to a git repo, such as a Magento extension, and then immediately regret it. But now you have a pile of files scattered across the repo and no way to Ctrl+Z out of the situation.&lt;/p&gt;
+
+&lt;p&gt;This leaves us with some options:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;git reset --hard HEAD&lt;/code&gt;, but that&amp;rsquo;ll only revert any changes to &lt;em&gt;tracked&lt;/em&gt; files. What about the untracked files in &lt;code&gt;git status&lt;/code&gt;?&lt;/li&gt;
+&lt;li&gt;Manually &lt;code&gt;rm -rf file1 file2 folder1 folder2&lt;/code&gt; but that&amp;rsquo;s a lot of copypasting.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;git clean -f&lt;/code&gt;, but that &lt;em&gt;will remove all untracked files, including your gitignored ones&lt;/em&gt;, so we don&amp;rsquo;t want that.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The best way is to &lt;strong&gt;automate the &lt;code&gt;rm -rf&lt;/code&gt; procedure&lt;/strong&gt; mentioned above using the following command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git status --porcelain | sed &#39;s#^...##&#39; | while read f; do rm -rf $f; done
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The TL;DR of this command is that it outputs &lt;code&gt;git status&lt;/code&gt; in a parseable way, and then loops over each file/folder and deletes it. You can see a &lt;a href=&#34;http://explainshell.com/explain?cmd=git+status+--porcelain+%7C+sed+%27s%23%5E...%23%23%27+%7C+while+read+f%3B+do+rm+-rf+%24f%3B+done&#34; target=&#34;_blank&#34;&gt;full command breakdown here&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Clean Up Meld Files when Git Merging</title>
+      <link>http://example.com/git/clean-up-meld-files-when-git-merging.html</link>
+      <pubDate>Wed, 29 Jan 2014 11:39:19 +0000</pubDate>
+      
+      <guid>http://example.com/git/clean-up-meld-files-when-git-merging.html</guid>
+      <description>&lt;p&gt;If you do a Git Merge using Meld (a brilliant Linux diff tool) then you might find that there are a bunch of files created that you need to clear up.&lt;/p&gt;
+
+&lt;p&gt;These files will be copies of the merged files and can be safely removed as everything you should need to know is already in Git.&lt;/p&gt;
+
+&lt;p&gt;I wrote the following quick function to find all of these files and remove them. You could add this as a function to your bashrc file if you need to do this regularly.&lt;/p&gt;
+
+&lt;p&gt;Here is the BASH snippet:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;git status -su &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep -P &lt;span class=&#34;s2&#34;&gt;&amp;quot;\.BACKUP|BASE|LOCAL|REMOTE\.&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; cut -f2 -d&lt;span class=&#34;s2&#34;&gt;&amp;quot; &amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; xargs rm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>A Great Way to Simplify Git Merges</title>
+      <link>http://example.com/git/a-great-way-to-simplify-git-merges.html</link>
+      <pubDate>Thu, 26 Sep 2013 17:34:04 +0000</pubDate>
+      
+      <guid>http://example.com/git/a-great-way-to-simplify-git-merges.html</guid>
+      <description>&lt;p&gt;If you are struggling with a git merge with a long list of failed merge files then this little trick might be helpful.&lt;/p&gt;
+
+&lt;p&gt;The standard approach is to go file by file and use git mergetool to open the files in a tool like Meld and then manually manage the differences. In many cases though you know exactly which version you want and this is simply a laborious process that doesn&amp;rsquo;t really require human input.&lt;/p&gt;
+
+&lt;p&gt;The solution to this is deceptively simple. All you need to do is to check out the file from the branch you want to keep the version of. If you have an entire directory where you know that the branch (for example master) has the correct version then you can check out that entire directory.&lt;/p&gt;
+
+&lt;p&gt;You might find that sensible use of this technique can save you lots of time and really make the mergetool the one you use for the files where you really do need to merge.&lt;/p&gt;
+
+&lt;p&gt;Thanks to &lt;a href=&#34;http://stackoverflow.com/questions/914939/simple-tool-to-accept-theirs-or-accept-mine-on-a-whole-file-using-git?answertab=active#tab-top&#34;&gt;this StackOverflow answer&lt;/a&gt; for simplifying this for me.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>During git pull: error: RPC failed; result=56, HTTP code = 200 [x] KiB/s       fatal: The remote end hung up unexpectedly</title>
+      <link>http://example.com/git/during-git-pull-error-rpc-failed-result56-http-code-200-x-kibs-fatal-the-remote-end-hung-up-unexpectedly.html</link>
+      <pubDate>Mon, 16 Sep 2013 15:07:54 +0000</pubDate>
+      
+      <guid>http://example.com/git/during-git-pull-error-rpc-failed-result56-http-code-200-x-kibs-fatal-the-remote-end-hung-up-unexpectedly.html</guid>
+      <description>&lt;p&gt;If you receive this series of errors during a git pull (after the Receiving Objects stage):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+$ git pull
+Password for &#39;https://xxxxxxxxxx@bitbucket.org&#39;: 
+remote: Counting objects: 1011, done.
+remote: Compressing objects: 100% (394/394), done.
+error: RPC failed; result=56, HTTP code = 200 51 KiB/s      
+fatal: The remote end hung up unexpectedly
+fatal: early EOF
+fatal: index-pack failed
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;a quick solution is to use ssh to pull rather than the https protocol&lt;/p&gt;
+
+&lt;p&gt;Hope this helps&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Bitbucket on Windows using TortoiseGit</title>
+      <link>http://example.com/windows/magento/git/using-bitbucket-on-windows-using-tortoisegit-2.html</link>
+      <pubDate>Tue, 11 Jun 2013 12:00:31 +0000</pubDate>
+      
+      <guid>http://example.com/windows/magento/git/using-bitbucket-on-windows-using-tortoisegit-2.html</guid>
+      <description>&lt;h2&gt;Install TortoiseGit&lt;/h2&gt;
+
+&lt;p&gt;TortoiseGit is a Windows GIU for using Git on Windows, integrating nicely with Windows Explorer.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://code.google.com/p/tortoisegit/wiki/Download?tm=2&#34; target=&#34;_blank&#34;&gt;Download TortoiseGit&lt;/a&gt; and install it.&lt;/p&gt;
+
+&lt;h2&gt;Install and set up PuTTYgen&lt;/h2&gt;
+
+&lt;p&gt;PuTTYgen is a program used to create SSH keys on Windows, the Public-Private-Key encryption used by SSH in place of passwords, you&amp;rsquo;ll need these to authenticate with Bitbucket.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://the.earth.li/~sgtatham/putty/latest/x86/puttygen.exe&#34; target=&#34;_blank&#34;&gt;Download PuTTYgen&lt;/a&gt; and install it.&lt;/p&gt;
+
+&lt;p&gt;Once installed, you&amp;rsquo;ll need to set up a public and private key. Open PuTTYgen from your Start menu/screen and follow the instructions on the screen. Once you&amp;rsquo;ve generate the key, save both the Prive and Public keys to your computer.&lt;/p&gt;
+
+&lt;h2&gt;Add your keys to Bitbucket&lt;/h2&gt;
+
+&lt;ul&gt;
+    &lt;li&gt;Log in to Bitbucket navigate to Manage Account &gt; SSH Keys &gt; Add Key&lt;/li&gt;
+    &lt;li&gt;Right-click your public key file and open in a text editor&lt;/li&gt;
+    &lt;li&gt;Remove the lines beginning with -- and the Comment line&lt;/li&gt;
+    &lt;li&gt;Remove any remaining line breaks&lt;/li&gt;
+    &lt;li&gt;Prepend the key with &#34;ssh-rsa &#34; - including the space&lt;/li&gt;
+    &lt;li&gt;Paste this into the Key field&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Clone the repository&lt;/h2&gt;
+&lt;ul&gt;
+    &lt;li&gt;Right-click a folder in Explorer &gt; Git Clone&lt;/li&gt;
+    &lt;li&gt;Copy the repository access from the Repository&#39;s main page, on the right next to the SSH button&lt;/li&gt;
+    &lt;li&gt;Paste this into the URL field of TortoiseGit&lt;/li&gt;
+    &lt;li&gt;Tick Load Putty Key, and add your Private key from PuTTYgen&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Switching Branches&lt;/h2&gt;
+
+&lt;ul&gt;
+    &lt;li&gt;Enter your local repository&#39;s folder&lt;/li&gt;
+    &lt;li&gt;Right-click an empty space &gt; TortoiseGit &gt; Switch/Checkout...&lt;/li&gt;
+    &lt;li&gt;Select your branch from the dropdown&lt;/li&gt;
+
+&lt;/ul&gt;
+
+&lt;h2&gt;Committing changes&lt;/h2&gt;
+
+&lt;ul&gt;
+    &lt;li&gt;Right-click an empty space&lt;/li&gt;
+    &lt;li&gt;Click Git Commit -&gt; &#34;branchname&#34;&lt;/li&gt;
+    &lt;li&gt;Add a commit message&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;When you&amp;rsquo;re ready to push your changes to Bitbucket&lt;/p&gt;
+
+&lt;ul&gt;
+    &lt;li&gt;Right-click an empty space&lt;/li&gt;
+    &lt;li&gt;Click TortoiseGit &gt; Push...&lt;/li&gt;
+
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Managing Your Web Site and Code Version Control</title>
+      <link>http://example.com/git/managing-your-web-site-and-code-version-control.html</link>
+      <pubDate>Mon, 11 Mar 2013 18:22:29 +0000</pubDate>
+      
+      <guid>http://example.com/git/managing-your-web-site-and-code-version-control.html</guid>
+      <description>&lt;p&gt;Managing a web site posses many difficulties. On the technical side of things there are really two big problems which are the database and the code for the site.&lt;/p&gt;
+
+&lt;p&gt;Managing the database is currently the hardest thing to do right. The best you can do generally is to make sure you have a daily backup. Then if some thing should happen you would only lose up to 24 hours of new products, order and customers. Significantly more complex solutions are available that offer grater flexibility but these solutions usually depend on the hosting company to support it and often have a large setup cost.&lt;/p&gt;
+
+&lt;p&gt;Conversely, on the code management there are many solutions available that can be implemented easily and generally do not require the assistance of the hosting provider.
+To get your sites code base under control you need to use a version control system. A version control system is a system that remembers every change made to code at a given point in time and allows you to easily see the differences between different versions.&lt;/p&gt;
+
+&lt;p&gt;Been able to see the many different versions of all the files that make up the site gives you the following advantages:
+You can see when some thing changed.
+You can see what was changed.
+You can see who changed it.
+You can see why it was changed.
+You can see the logical progress of changes that lead to a given state.&lt;/p&gt;
+
+&lt;p&gt;Version control is important to maintaining a good code base for all the reasons above plus more (integration with issue tracking, deployment and other systems). It can also be invaluable in disaster recovery scenarios where some code has been altered and it&amp;rsquo;s negatively impacted the site even out side of the version control system. In such scenarios you can take what ever is on the live site and compare it with what is in the version control system really easily.&lt;/p&gt;
+
+&lt;p&gt;It used to be the case that using version control was quite a difficult and technical matter. Fortunately since then there are many tools and websites available to make the whole process much easier.&lt;/p&gt;
+
+&lt;p&gt;GitHub and Bitbucket are currently two really popular websites for hosting Git repositories and provide much material for helping new users along.&lt;/p&gt;
+
+&lt;p&gt;At Edmonds Commerce Git is our version control system of choice because it&amp;rsquo;s very powerful, highly flexible and integrates with many systems. There are several different clients available to help you along with Git but due to the flexibility that git offers to do certain things you may end up reverting to the command line.&lt;/p&gt;
+
+&lt;p&gt;Here is a list of alternative to the TortoiseGit (a popular Windows tool) client
+&lt;a href=&#34;http://alternativeto.net/software/tortoisegit/&#34; target=&#34;_blank&#34;&gt;http://alternativeto.net/software/tortoisegit/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Git and Sub Module Tips</title>
+      <link>http://example.com/git/git-and-sub-module-tips.html</link>
+      <pubDate>Thu, 24 Jan 2013 17:40:20 +0000</pubDate>
+      
+      <guid>http://example.com/git/git-and-sub-module-tips.html</guid>
+      <description>&lt;p&gt;Using sub modules in git is incredibly useful and allows for easier and more flexible working when working on component based large projects. In a nut shell the use of sub modules (as the name suggests) allows you to include a git repository as a part of another git repository in order to allow you to use the sub modules code without having to duplicate it&amp;rsquo;s content in to your repository.&lt;/p&gt;
+
+&lt;p&gt;&lt;h4&gt;Important commands you will need when working with sub modules&lt;/h4&gt;
+&lt;dl&gt;
+&lt;dt&gt;&lt;b&gt;git submodule init&lt;/b&gt;&lt;/dt&gt;
+&lt;dd&gt;This tells git to read the modules file and make your local repository aware of any sub modules. When you checkout a repository that uses sub modules nothing is done with them until you do this. You will need to run this at least after cloning a repo but possibly after pulling if new sub modules are added.&lt;/dd&gt;
+&lt;dt&gt;&lt;b&gt;git submodule update&lt;/b&gt;&lt;/dt&gt;
+&lt;dd&gt;This makes git to update the sub modules to match what the config says it should be. You will probably need this after cloning a repository for the first time or when you pull changes from a remote as some one may have updated the position of the sub module. When running this you should make sure that you don&amp;rsquo;t have any uncommitted changes in any submodules other wise you will lose them and find it hard to retrieve them.&lt;/dd&gt;
+&lt;dt&gt;&lt;b&gt;git submodule add absolute_path/url_to_repo location_of_repo_in_project&lt;/b&gt;&lt;/dt&gt;
+&lt;dd&gt;This command tells git to add the repository at the specified URL/path to the repository. Git will add it to the modules file. After adding it you need to commit. The path to the repo either needs to be the absolute path if you are working locally or the URL that is accessible via the Internet/LAN depending on your environment. It has to be like this so that it doesn&amp;rsquo;t matter where the repository that will be cloning the sub module is located&lt;/dd&gt;
+&lt;dt&gt;&lt;b&gt;git help submodule&lt;/b&gt;&lt;/dt&gt;
+&lt;dd&gt;Gives you the man page for the submodule command, an invaluable resource&lt;/dd&gt;
+&lt;/dl&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;h4&gt;Key facts when working with sub modules&lt;/h4&gt;
+&lt;h5&gt;Working in sub modules&lt;/h5&gt;
+If you want to modify contents of the sub module, that is make changes and commit them back to the sub modules repository, you can work just as normal. The only thing to watch out off is that when you first do &lt;em&gt;git submodule init; git submodule update;&lt;/em&gt; it will checkout what ever commit was specified. This means that the sub module might not be on an actual branch but instead only have a particular commit checkout. Make sure to checkout the relevant branch on the sub module before commencing work.&lt;/p&gt;
+
+&lt;p&gt;&lt;h5&gt;Updating a sub modules position on a remote repo&lt;/h5&gt;
+When &lt;em&gt;git submodule update&lt;/em&gt; runs it checkouts out the specified commit by the main repository. If there is no commit specified it will checkout the default branch (usually master). If you want it to checkout a specific branch this cannot be done in a literal sense. Instead what you have to do is checkout the top commit of that branch, then commit the changes to the sub module in main repository. This will ensure that the sub module is now at that position when &lt;em&gt;git submodule update&lt;/em&gt; is run. You will have to do this every time you want to update it&amp;rsquo;s position.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Git Diff Colours By Default</title>
+      <link>http://example.com/git/git-diff-colours-by-default.html</link>
+      <pubDate>Tue, 07 Aug 2012 14:48:08 +0000</pubDate>
+      
+      <guid>http://example.com/git/git-diff-colours-by-default.html</guid>
+      <description>&lt;p&gt;If you want to make git-diff use colours by default, try running this little command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;[color]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; branch = auto&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; diff = auto&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; status = auto&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;[color &amp;quot;branch&amp;quot;]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; current = yellow reverse&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; local = yellow&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; remote = green&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;[color &amp;quot;diff&amp;quot;]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; meta = yellow bold&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; frag = magenta bold&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; old = red&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; new = cyan&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;[color &amp;quot;status&amp;quot;]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; added = yellow&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; changed = green&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; untracked = cyan&amp;#39;&lt;/span&gt; &amp;gt;&amp;gt; ~/.gitconfig
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Simply copy and paste the above to your command line and hit return.&lt;/p&gt;
+
+&lt;p&gt;Then if you run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;git diff master..BRANCH
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You will get a nice coloured display&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Git Search History for Specific Line of Code or String</title>
+      <link>http://example.com/git/git-search-history-for-specific-line-of-code-or-string.html</link>
+      <pubDate>Fri, 09 Dec 2011 11:18:51 +0000</pubDate>
+      
+      <guid>http://example.com/git/git-search-history-for-specific-line-of-code-or-string.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to track down exactly how and when a particular change happened and you are not even sure exactly where it is (perhaps because its no longer present but you are not totally sure where it was supposed to be) then this little trick can be a life saver.&lt;/p&gt;
+
+&lt;p&gt;You can search git log for a specific string with the -S flag&lt;/p&gt;
+
+&lt;p&gt;eg, searching for a constant definition&lt;/p&gt;
+
+&lt;p&gt;git -log -SCONSTANT_NAME&lt;/p&gt;
+
+&lt;p&gt;very handy indeed :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quickly make a deploy folder from git</title>
+      <link>http://example.com/git/quickly-make-a-deploy-folder-from-git.html</link>
+      <pubDate>Mon, 14 Nov 2011 17:31:00 +0000</pubDate>
+      
+      <guid>http://example.com/git/quickly-make-a-deploy-folder-from-git.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+I needed to quickly generate a deploy folder that included all changes in the last two weeks. Using git and a little bit of bash magic I was able to put together a one liner to do this.&lt;/p&gt;
+
+&lt;p&gt;This works we use a public folder within our git structure which makes filtering the files easy, if you don&amp;rsquo;t have this then you will have to change the grep filter to match your needs. Obviously you can change the since filter to get the files you need.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;git log &amp;ndash;since=&amp;ldquo;2 weeks ago&amp;rdquo; &amp;ndash;name-status | grep public | sort | uniq | awk &amp;lsquo;{print $2}&amp;rsquo; | xargs -I % cp &amp;ndash;parents % /path/to/deploy&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Hope this helps in the future&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ubuntu Git Install 1.7.5 and Why</title>
+      <link>http://example.com/git/ubuntu-git-install-1-7-4-and-why.html</link>
+      <pubDate>Thu, 09 Jun 2011 12:42:13 +0000</pubDate>
+      
+      <guid>http://example.com/git/ubuntu-git-install-1-7-4-and-why.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Git a lot, you probably want to run the latest version. Scroll down for some reasons why.&lt;/p&gt;
+
+&lt;p&gt;The standard repository version for Ubuntu is 1.7.1, the current latest is 1.7.5 and there are some significant differences.&lt;/p&gt;
+
+&lt;p&gt;&lt;h2&gt;How to Upgrade Git&lt;/h2&gt;
+To get 1.7.5 on Ubuntu without too much messing about you can do the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;1. Set up this PPA:&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo add-apt-repository ppa:pdoes/ppa/ubuntu
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h3&gt;2. Now run an aptitude update and upgrade git&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo apt-get update
+sudo aptitude upgrade git
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h3&gt;3. Now check your git version&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+git --version
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h3&gt;Full Script for the lazy&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+sudo add-apt-repository ppa:pdoes/ppa/ubuntu &amp;amp;&amp;amp; sudo apt-get update &amp;amp;&amp;amp; sudo aptitude upgrade &amp;amp;&amp;amp; git --version
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;h2&gt;Why Upgrade Git?&lt;/h2&gt;
+We have been having lots of merge hassles casued purely by white space changes. Apparently with 1.7.4 new recursive merge strategies came into play that should alleviate this pain and make merging a lot less hassle.&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;Merge Ignore Whitespace&lt;/h3&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+git merge -s recursive -Xignore-space-change $BRANCH_NAME
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Less hassle equals more productive and happier developers :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Install Git on Centos 5 - Install EPEL on Centos</title>
+      <link>http://example.com/git/install-git-on-centos-5-install-epel-on-centos.html</link>
+      <pubDate>Wed, 25 Aug 2010 16:35:23 +0000</pubDate>
+      
+      <guid>http://example.com/git/install-git-on-centos-5-install-epel-on-centos.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+To install Git on a Centos server you need to install something called EPEL first.&lt;/p&gt;
+
+&lt;p&gt;This is an extra repository of apps which you need to have accessible in order to install Git.&lt;/p&gt;
+
+&lt;p&gt;I tried other tutorials on the net that were quite extensive but didn&amp;rsquo;t work. In the end its just two commands:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Install EPEL:
+```&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;rpm -Uvh &lt;a href=&#34;http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-3.noarch.rpm&#34; target=&#34;_blank&#34;&gt;http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-3.noarch.rpm&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;a href=&amp;quot;http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F&amp;quot;&amp;gt;http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F&amp;lt;/a&amp;gt;
+
+2. Install Git + Git Daemon
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;yum install git git-daemon&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+For me to get it to work, I had to manually change the epel.repo file because I had created a non functional one previously. I got the warning:
+
+warning: /etc/yum.repos.d/epel.repo created as /etc/yum.repos.d/epel.repo.rpmnew
+
+So I just did the following:
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;cd /etc/yum.repos.d/
+mv epel.repo epel.repo.old
+mv epel.repo.rpmnew epel.repo&lt;/p&gt;
+
+&lt;p&gt;```&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Using Git to Track DB Schema Changes with Git Hook</title>
+      <link>http://example.com/git/using-git-to-track-db-schema-changes-with-git-hook.html</link>
+      <pubDate>Thu, 28 Jan 2010 10:48:29 +0000</pubDate>
+      
+      <guid>http://example.com/git/using-git-to-track-db-schema-changes-with-git-hook.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you use Git for version control and you would like to also keep a track of your database schema (and possibly content though I&amp;rsquo;m not doing that due to potential file sizes / speed issues) then all you need to do is this simple step:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Go to your project folder and into the hidden .git folder, then a sub folder in there called hooks&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd .git/hooks 
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Create a file called pre-commit and open it in vim (or whatever text editor you like)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;vim pre-commit 
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Add a mysql dump command to that file and save it
+```&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;#!/bin/sh
+mysqldump -u DBUSER -pDBPASSWORD  DATABASE &amp;ndash;no-data=true &amp;gt; SQLVersionControl/vc.sql
+git add SQLVersionControl/vc.sql
+exit 0&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+(note this assumes you have a folder called SQLVersionControl in the root of your project. If you don&#39;t just create it.)
+
+No without any further effort, you will update the schema file on every commit.
+
+eg 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;git commit -am &amp;lsquo;this commit will include a mysql schema dump that has been run just before the commit - sweet :)&amp;rsquo;&lt;/p&gt;
+
+&lt;p&gt;```&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Git Ignore All Files Except PHP etc &#43; Solution</title>
+      <link>http://example.com/git/git-ignore-all-files-except-php-etc-solution.html</link>
+      <pubDate>Thu, 02 Jul 2009 09:41:54 +0000</pubDate>
+      
+      <guid>http://example.com/git/git-ignore-all-files-except-php-etc-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Using Git for version control is great, but if like my you work on a lot of different projects then everything you can do to save time setting Git up is well worth it.&lt;/p&gt;
+
+&lt;p&gt;One of the features of Git is the ability to only track certain files and ignore other files. For me that means I only want to track files I am likely to be editing and ignore images, flash files and whatever other junk is floating around in a project.&lt;/p&gt;
+
+&lt;p&gt;The solution (and all credit and thanks to the kind people on #Git on Freenode IRC) is this .gitignore file. This file will ignore everything except files with the extensions that you set. Dead easy.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+#ignore everything apart from php, css, xml, htaccess, sql, js
+*
+!*/
+!*.php
+!*.css
+!*.xml
+!*.htaccess
+!*.sql
+!*.js
+
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

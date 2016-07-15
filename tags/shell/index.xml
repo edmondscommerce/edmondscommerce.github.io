@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Shell on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/shell/</link>
+    <description>Recent content in Shell on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 04 Mar 2014 16:10:19 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/shell/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Finding out the biggest folders in a Magento or other website root</title>
+      <link>http://example.com/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html</link>
+      <pubDate>Tue, 04 Mar 2014 16:10:19 +0000</pubDate>
+      
+      <guid>http://example.com/bash/finding-out-the-biggest-folders-in-a-magento-or-other-website-root.html</guid>
+      <description>&lt;p&gt;Often pulling down a Magento or other site you&amp;rsquo;ll find a load of files that have been dumped in the web root. Downloading these is often pointless and takes extra time, so you&amp;rsquo;ll want to exclude them from an rsync (using the &lt;code&gt;--exclude &#39;path&#39;&lt;/code&gt; paramter).&lt;/p&gt;
+
+&lt;p&gt;A simple bash command for this is:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;du -m --max-depth&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; --exclude media &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sort -n
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This invokes &lt;code&gt;du&lt;/code&gt; to show each direct subfolder&amp;rsquo;s contents&amp;rsquo; size, and pipes it through to &lt;code&gt;sort&lt;/code&gt; to rank them in increasing size. The sizes are in MB. See &lt;a href=&#34;http://explainshell.com/explain?cmd=du+-m+--max-depth%3D1+--exclude+media+|+sort+-n&#34; target=&#34;_blank&#34;&gt;a more broken down explanation here&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Tab Complete for SSH and SCP</title>
+      <link>http://example.com/magento/bash/tab-complete-for-ssh-and-scp.html</link>
+      <pubDate>Fri, 26 Jul 2013 10:31:41 +0000</pubDate>
+      
+      <guid>http://example.com/magento/bash/tab-complete-for-ssh-and-scp.html</guid>
+      <description>&lt;p&gt;If you are required to connect to different servers, then remembering and typing in all of the details can become tiresome.&lt;/p&gt;
+
+&lt;p&gt;Thankfully there is simple solution to this, using the SSH config file.&lt;/p&gt;
+
+&lt;p&gt;To make use of this, create the following file ~/.ssh/config&lt;/p&gt;
+
+&lt;p&gt;In there add the following details&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;Host easyToRememberName
+    HostName 127.0.0.1
+    Port 2020
+    User ross
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You will then can tab completion on ssh and scp commands. You can see more of the options that can be set in the file &lt;a href=&#34;http://linux.die.net/man/5/ssh_config&#34; title=&#34;ssh config man page&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Simple Bash Single Process Enforcement</title>
+      <link>http://example.com/bash/simple-bash-single-process-enforcement.html</link>
+      <pubDate>Thu, 21 Feb 2013 15:06:39 +0000</pubDate>
+      
+      <guid>http://example.com/bash/simple-bash-single-process-enforcement.html</guid>
+      <description>&lt;p&gt;If you have a bash script that you want to make sure there is only ever one instance of, for example something triggered by cron that might not have finished the next time cron tries to trigger it then you might like this little snippet:&lt;/p&gt;
+
+&lt;p&gt;This is built for running Magento shell scripts (if you don&amp;rsquo;t know about these, check them out) that are run on cron.&lt;/p&gt;
+
+&lt;p&gt;Also note the logging that keeps log files&lt;/p&gt;
+
+&lt;p&gt;Note the use of a character class in grep means it wont match itself - nice eh :)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;HOUR&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;date +&lt;span class=&#34;s1&#34;&gt;&amp;#39;%H:%M&amp;#39;&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;RUNNING&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;ps waux &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep &lt;span class=&#34;s2&#34;&gt;&amp;quot;longrunner[.]php&amp;quot;&lt;/span&gt;&lt;span class=&#34;sb&#34;&gt;`&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$RUNNING&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Its not running, we can now run it&amp;quot;&lt;/span&gt;
+    php -f /home/my/public_html/shell/longrunner.php -- import &amp;gt; /home/my/public_html/var/log/mylog.txt 2&amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;1
+    cp -f  /home/my/public_html/var/log/my.txt /home/my/public_html/var/log/&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;HOUR&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;.my.txt
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;COMPLETED&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;It is running, aborting running this time&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Shell Scripts and Memory Limit Woes &#43; Solution</title>
+      <link>http://example.com/magento/magento-shell-scripts-and-memory-limit-woes-solution.html</link>
+      <pubDate>Wed, 19 Dec 2012 11:53:48 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-shell-scripts-and-memory-limit-woes-solution.html</guid>
+      <description>&lt;p&gt;OK so you love Magento&amp;rsquo;s shell scripts! They are great for quickly putting together bulk processes that have full access to the Magento ORM.&lt;/p&gt;
+
+&lt;p&gt;These kinds of shell scripts will often require above normal amounts of RAM for the kind of heavy lifting they lend themselves well to. If you are finding your script is banging against some mysterious memory limit that really shouldn&amp;rsquo;t be there then perhaps this is your answer:&lt;/p&gt;
+
+&lt;p&gt;You might see an error message such as this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20 bytes)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The reason this might be happening is that one of the things the abstract shell class does is parse the .htaccess file and apply any PHP configuration it finds. This is pretty slick and I can definitely see the value of it however if you are not aware its happening and you have a memory limit defined in a .htaccess file then it will be applied to your shell environment.&lt;/p&gt;
+
+&lt;p&gt;The solution is up to you, edit the htaccess file or override this method in your shell class so that it doesn&amp;rsquo;t do things you do not want:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Parse .htaccess file and apply php settings to shell script&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function _applyPhpVariables()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $htaccess = $this-&amp;gt;_getRootPath() . &amp;#39;.htaccess&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (file_exists($htaccess)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            // parse htaccess file&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $data = file_get_contents($htaccess);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $matches = array();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            preg_match_all(&amp;#39;#^\s+?php_value\s+([a-z_]+)\s+(.+)$#siUm&amp;#39;, $data, $matches, PREG_SET_ORDER);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if ($matches) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                foreach ($matches as $match) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    @ini_set($match[1], $match[2]);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            preg_match_all(&amp;#39;#^\s+?php_flag\s+([a-z_]+)\s+(.+)$#siUm&amp;#39;, $data, $matches, PREG_SET_ORDER);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if ($matches) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                foreach ($matches as $match) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                    @ini_set($match[1], $match[2]);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Xdebug PHP and Command Line Scripts</title>
+      <link>http://example.com/php/xdebug-php-and-command-line-scripts.html</link>
+      <pubDate>Tue, 21 Aug 2012 16:31:15 +0000</pubDate>
+      
+      <guid>http://example.com/php/xdebug-php-and-command-line-scripts.html</guid>
+      <description>&lt;p&gt;I had a requirement to use Xdebug to step through a PHP script that is being run on the command line.&lt;/p&gt;
+
+&lt;p&gt;Oh no I thought, this is bound to be really complicated to figure out because I normally use the web browser and I have never done this before.&lt;/p&gt;
+
+&lt;p&gt;Pleasant surprise, its actually really easy to do this, all you need to do on the command line is run the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;XDEBUG_CONFIG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;idekey=netbeans-xdebug&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then get your IDE (PHPStorm for me) listening for Xdebug and then run your PHP file on the command line.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;php ./myfile.php
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;That&amp;rsquo;s it, it just works.&lt;/p&gt;
+
+&lt;p&gt;One caveat (which I actually quite like) is that it will now ALWAYS get picked up by xdebug which could get in your way. To stop this, simply unset the variable like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;unset&lt;/span&gt; XDEBUG_CONFIG
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Format searched log files</title>
+      <link>http://example.com/bash/format-searched-log-files.html</link>
+      <pubDate>Thu, 16 Aug 2012 15:45:56 +0000</pubDate>
+      
+      <guid>http://example.com/bash/format-searched-log-files.html</guid>
+      <description>&lt;p&gt;When you are monitoring a log file you may want to narrow it down, and format the results. This simple one line command will break up the output from a log file to make it easier to quickly read&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+tail -f /path/to/log | grep &amp;ldquo;search term&amp;rdquo; | sed &amp;rsquo;s/(.*)/&amp;mdash;&amp;mdash;&amp;mdash;-\n\1\n&amp;mdash;&amp;mdash;&amp;mdash;-/&amp;rsquo;
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>CentOS &#43; Sun Java &#43; Amazon AMTU 2</title>
+      <link>http://example.com/amazon/centos-sun-java-amazon-amtu-2.html</link>
+      <pubDate>Tue, 14 Aug 2012 17:33:31 +0000</pubDate>
+      
+      <guid>http://example.com/amazon/centos-sun-java-amazon-amtu-2.html</guid>
+      <description>&lt;p&gt;In a follow up to our popular blog post describing the process of getting AMTU 1 set up on a Centos server, this post describes how to get the latest version 2 of AMTU running.&lt;/p&gt;
+
+&lt;p&gt;Things have moved on and thankfully it is a lot easier than it was.&lt;/p&gt;
+
+&lt;p&gt;Firstly get Sun Java installed. You will need to get the URL for downloading the RPM from here:
+&lt;a href=&#34;http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html&#34; target=&#34;_blank&#34;&gt;http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Accept the agreement, download the correct RPM version and then pause it. Copy the download URL and paste it into this command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /tmp
+wget &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;paste-url&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;-here&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+rpm - jre &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;hit tab to complete&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now check the correct java version is being used:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;java -version
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You should get something looking like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+[root@94 tmp]# java -version
+java version &amp;amp;quot;1.7.0_05&amp;amp;quot;
+Java(TM) SE Runtime Environment (build 1.7.0_05-b06)
+Java HotSpot(TM) 64-Bit Server VM (build 23.1-b03, mixed mode)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now you can install AMTU&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;wget https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh
+chmod +x AMTU_unix.sh
+./AMTU_unix.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Keep hitting enter to get to the bottom of the terms and then agree, agree to all the other options. That is AMTU installed.&lt;/p&gt;
+
+&lt;p&gt;The final step is to configure this using the CLI configure utitlity.&lt;/p&gt;
+
+&lt;p&gt;You need to create an xml file for the AMTU configuration. You can see a sample file in /opt/amtu/xml/sample.xml.&lt;/p&gt;
+
+&lt;p&gt;Lets copy that file and then edit it accordingly.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /opt/amtu/xml
+cp sample.xml configuration.xml
+vim configuration.xml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You do need to be signed up for MWS to get some of the keys etc that are required. If not already, go to this page and hit the sign up button.
+&lt;a href=&#34;https://developer.amazonservices.co.uk/index.html&#34; target=&#34;_blank&#34;&gt;https://developer.amazonservices.co.uk/index.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Once you have updated the XML configuration you run this command to apply it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;/opt/amtu/Utilities/configure SETUP /opt/amtu/xml/configuration.xml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you get some error messages at this point, edit the configuration and try again. Once you have the configuration set you can start the daemon.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;/opt/AMTU/Utilities/amtu_daemon start
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Git Diff Colours By Default</title>
+      <link>http://example.com/git/git-diff-colours-by-default.html</link>
+      <pubDate>Tue, 07 Aug 2012 14:48:08 +0000</pubDate>
+      
+      <guid>http://example.com/git/git-diff-colours-by-default.html</guid>
+      <description>&lt;p&gt;If you want to make git-diff use colours by default, try running this little command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;[color]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; branch = auto&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; diff = auto&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; status = auto&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;[color &amp;quot;branch&amp;quot;]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; current = yellow reverse&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; local = yellow&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; remote = green&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;[color &amp;quot;diff&amp;quot;]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; meta = yellow bold&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; frag = magenta bold&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; old = red&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; new = cyan&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;[color &amp;quot;status&amp;quot;]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; added = yellow&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; changed = green&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt; untracked = cyan&amp;#39;&lt;/span&gt; &amp;gt;&amp;gt; ~/.gitconfig
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Simply copy and paste the above to your command line and hit return.&lt;/p&gt;
+
+&lt;p&gt;Then if you run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;git diff master..BRANCH
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You will get a nice coloured display&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Writing Robust Bash Shell Scripts</title>
+      <link>http://example.com/bash/writing-robust-bash-shell-scripts.html</link>
+      <pubDate>Sun, 15 Jan 2012 19:28:02 +0000</pubDate>
+      
+      <guid>http://example.com/bash/writing-robust-bash-shell-scripts.html</guid>
+      <description>&lt;p&gt;Found this great article on writing bash scripts defensively. Glad to say most of the advice we are already following with our bash scripts however there are a couple of new things I intend to roll in on Monday.&lt;/p&gt;
+
+&lt;p&gt;Recommended reading for anyone scripting in Bash.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.davidpashley.com/articles/writing-robust-shell-scripts.html&#34;&gt;http://www.davidpashley.com/articles/writing-robust-shell-scripts.html&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Server Migration - Pipe Tar from Server to Server using Netcat</title>
+      <link>http://example.com/linux/server-migration-pipe-tar-from-server-to-server-using-netcat.html</link>
+      <pubDate>Fri, 06 Jan 2012 14:17:46 +0000</pubDate>
+      
+      <guid>http://example.com/linux/server-migration-pipe-tar-from-server-to-server-using-netcat.html</guid>
+      <description>&lt;p&gt;If you need to transfer a large amount of data from one server to another you might normally create a large tar archive, send it across and then untar it on the other end.&lt;/p&gt;
+
+&lt;p&gt;However a slightly slicker and easier repeated way of doing this is to pipe tar directly from one server to the other doing all three steps in one go.&lt;/p&gt;
+
+&lt;p&gt;For this you would create a script on each server. You could of course type the commands directly but in the interests of easy repeatability and removing the scope for human error, scripts are my preferred way of doing this kind of task.&lt;/p&gt;
+
+&lt;p&gt;Old server script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+#!/bin/bash
+
+cd /var/www/vhosts
+
+# where new server IP is 123.123.123.123 and 9999 is the port the new server is listening on
+tar -xvj . | nc 123.123.123.123 9999
+
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;New Server Script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+#!/bin/bash
+
+cd /var/www/vhosts
+
+nc -l 9999 | tar -xvf --same-owner
+
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now save these scripts and make them executable (chmod +x)&lt;/p&gt;
+
+&lt;p&gt;Now run the new server script on the new server and then run the old server script. You should quickly see the list of files being transferred appearing in both terminals.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s it.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP CLI</title>
+      <link>http://example.com/php/php-cli.html</link>
+      <pubDate>Wed, 08 Jun 2011 14:40:29 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-cli.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Running PHP on the command line, via cron etc there are a few common problems you can hit and from experience this my recommendations to avoid them.&lt;/p&gt;
+
+&lt;p&gt;It seems that (on CentOS at least) PHP does not display errors by default on the command line. You will want it to I assume so you can understand what has gone wrong with the cron task etc.&lt;/p&gt;
+
+&lt;p&gt;You can use php.ini files but its not always easy to know exactly which ini file is going to to be used. If certain settings are required, use the -d flag to set specific ini directives directly when you run PHP.&lt;/p&gt;
+
+&lt;p&gt;I have just had an issue where a script was running out of memory but no error message was displayed, despite the fact that display errors was turned on. However digging around showed that memory usage was hitting the limit and the script died silently. Increasing the memory limit fixed it.&lt;/p&gt;
+
+&lt;p&gt;Here is my standard PHP CLI runner:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+/usr/bin/php -d display_errors -d memory_limit=512M /path/to/php/file.php
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Netbeans Bash Syntax Highlighting</title>
+      <link>http://example.com/netbeans/netbeans-bash-syntax-highlighting.html</link>
+      <pubDate>Mon, 29 Nov 2010 16:44:15 +0000</pubDate>
+      
+      <guid>http://example.com/netbeans/netbeans-bash-syntax-highlighting.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+The bash shell is awesome and scripting using a combination of PHP and Bash is a favourite technique of mine.&lt;/p&gt;
+
+&lt;p&gt;I want to be able to do it all in Netbeans but if you have the PHP flavour of Netbeans then its missing shell scripting support as standard. To get it to work easily, simply install the C/C++ plugin by going to Tools-&amp;gt;Plugins-&amp;gt;Available Plugins and ticking the C/C++ box.&lt;/p&gt;
+
+&lt;p&gt;It would be great if Netbeans would include bash scripting in with the PHP module so we can keep Netbeans as trim as possible, however this solution gives the desired result so I&amp;rsquo;m happy enough :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>View HTML Files from the Command Line - Linux</title>
+      <link>http://example.com/linux/view-html-files-from-the-command-line-linux.html</link>
+      <pubDate>Thu, 12 Aug 2010 11:10:44 +0000</pubDate>
+      
+      <guid>http://example.com/linux/view-html-files-from-the-command-line-linux.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you ever want to have a quick look at a html file from the command line (eg when SSHing into a server) then you will love this little app.&lt;/p&gt;
+
+&lt;p&gt;Called w3m, its a basic text based browser that will render your html into readable formatted text right on the command line.&lt;/p&gt;
+
+&lt;p&gt;This is great for me as I often create log files in a HTML format, before this the only way to read them was to either have them web accessible or download them and view them locally in the browser.&lt;/p&gt;
+
+&lt;p&gt;Now with this little app I can view them right in situ - dead handy.&lt;/p&gt;
+
+&lt;p&gt;To install on Cent OS just&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+yum install w3m
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>16 Really Useful Shell Commands</title>
+      <link>http://example.com/linux/16-really-useful-shell-commands.html</link>
+      <pubDate>Wed, 05 May 2010 15:37:12 +0000</pubDate>
+      
+      <guid>http://example.com/linux/16-really-useful-shell-commands.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Check out this blog post by NuBlue, &lt;a href=&#34;http://blog.nublue.co.uk/16-really-useful-shell-commands-for-web-developers/&#34;&gt;16 Really Useful Shell Commands&lt;/a&gt;..&lt;/p&gt;
+
+&lt;p&gt;A good intro to some of the most commonly used shell commands with nice explanations, well done guys :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Command Line Fu</title>
+      <link>http://example.com/linux/command-line-fu.html</link>
+      <pubDate>Fri, 19 Mar 2010 15:31:07 +0000</pubDate>
+      
+      <guid>http://example.com/linux/command-line-fu.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Just discovered this site - some handy little command line snippets there&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.commandlinefu.com/commands/browse/sort-by-votes&#34;&gt;http://www.commandlinefu.com/commands/browse/sort-by-votes&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;for example some &lt;a href=&#34;http://www.commandlinefu.com/commands/matching/scp/c2Nw/sort-by-votes&#34;&gt;SCP&lt;/a&gt; goodness.&lt;/p&gt;
+
+&lt;p&gt;Definitely one I will be using again :)&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

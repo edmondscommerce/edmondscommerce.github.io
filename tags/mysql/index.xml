@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mysql on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/mysql/</link>
+    <description>Recent content in Mysql on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 08 Dec 2014 12:52:03 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/mysql/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Bash Script to Kill Sleeping MySQL Processes</title>
+      <link>http://example.com/bash/bash-script-to-kill-sleeping-mysql-processes.html</link>
+      <pubDate>Mon, 08 Dec 2014 12:52:03 +0000</pubDate>
+      
+      <guid>http://example.com/bash/bash-script-to-kill-sleeping-mysql-processes.html</guid>
+      <description>&lt;p&gt;Pretty much what is says on the tin, if for some reason you have a large amount of sleeping MySQL processes and you want to quickly clear them all out, this little BASH script will do the job.&lt;/p&gt;
+
+&lt;p&gt;I leave it to you to decide how to handle the DBUSER and DBPASS variables&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/bin/bash&lt;/span&gt;
+mysql -u &lt;span class=&#34;nv&#34;&gt;$DBUSER&lt;/span&gt; -p&lt;span class=&#34;nv&#34;&gt;$DBPASS&lt;/span&gt; -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;select &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;-- * &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;id&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;from information_schema.processlist &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;where command = &amp;#39;Sleep&amp;#39; &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;and time &amp;gt; 1 &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;and host =&amp;#39;localhost&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;read&lt;/span&gt; id&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; 
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;id&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$id&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;continue&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;kill &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$id&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    mysql -u &lt;span class=&#34;nv&#34;&gt;$DBUSER&lt;/span&gt; -p&lt;span class=&#34;nv&#34;&gt;$DBPASS&lt;/span&gt; -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;kill &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$id&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SELinux and connecting to Mysql databases on Red Hat based distributions</title>
+      <link>http://example.com/linux/se-linux-and-connecting-to-a-mysql-database.html</link>
+      <pubDate>Fri, 07 Nov 2014 10:53:06 +0000</pubDate>
+      
+      <guid>http://example.com/linux/se-linux-and-connecting-to-a-mysql-database.html</guid>
+      <description>&lt;p&gt;SELinux can be restrictive by defult but prevent alot of security issues. One thing we found while trying it is that by default it will block network connections from being made via the httpd daemon. This is an issue if say on a development system you are running php via the apache module.&lt;/p&gt;
+
+&lt;p&gt;To resolve this simply login via root or sudo to root privilige and run the following command:
+    setsebool -P httpd_can_network_connect on
+You should now be able to connect to connect to your database. This will also enable things like web api, curl calls and other php that requires network access.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Simple Database Migrations</title>
+      <link>http://example.com/php/simple-database-migrations.html</link>
+      <pubDate>Mon, 28 Apr 2014 13:22:34 +0000</pubDate>
+      
+      <guid>http://example.com/php/simple-database-migrations.html</guid>
+      <description>&lt;p&gt;Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.&lt;/p&gt;
+
+&lt;p&gt;It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.&lt;/p&gt;
+
+&lt;p&gt;Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.&lt;/p&gt;
+
+&lt;p&gt;Here is the code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;mysql_fetch_assoc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;db_query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;select version from db_migrations order by version desc limit 0,1&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$current_version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;version&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;version&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$di&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;DirectoryIterator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/migrations&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$di&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;cm&#34;&gt;/* @var $f DirectoryIterator */&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;isDot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;())&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;continue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pathinfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getFilename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PATHINFO_EXTENSION&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;explode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#1 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;];&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;is_numeric&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#2 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$current_version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#3 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;empty&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;ksort&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SORT_NUMERIC&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;require&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/migrations/&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;h&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Database Migrations - running migration &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nx&#34;&gt;db_query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;insert into db_migrations set version = &amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39; &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Substring not Returning Anything &#43; Solution</title>
+      <link>http://example.com/mysql/mysql-substring-not-returning-anything-solution.html</link>
+      <pubDate>Tue, 20 Aug 2013 10:54:20 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-substring-not-returning-anything-solution.html</guid>
+      <description>&lt;p&gt;If you are puzzled why your simple usage of the MySQL SUBSTRING() function is not returning anything this could be your solution.&lt;/p&gt;
+
+&lt;p&gt;The substring function allows you to specify a string (eg a column), the start character and the length. If you are used to languages like PHP then you are probably used to this kind of function regarding 0 as the starting character. In fact this function regards 1 as the starting character. If you specify 0 then you simply won&amp;rsquo;t get any results.&lt;/p&gt;
+
+&lt;p&gt;This does not work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+SELECT SUBSTRING(column, 0, 10) as tenchars
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This does work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+SELECT SUBSTRING(column, 1, 10) as tenchars
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>ERROR 1062 (23000) at line [Line No]: Duplicate entry for key &#39;[Key Name]&#39;</title>
+      <link>http://example.com/mysql/error-1062-23000-at-line-line-no-duplicate-entry-for-key-key-name.html</link>
+      <pubDate>Tue, 02 Jul 2013 14:09:53 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/error-1062-23000-at-line-line-no-duplicate-entry-for-key-key-name.html</guid>
+      <description>&lt;p&gt;Importing a database dump from one location using mysqldump, and them importing it into a blank database I received this error:&lt;/p&gt;
+
+&lt;p&gt;ERROR 1062 (23000) at line [Line No]: Duplicate entry for key &amp;lsquo;[Key Name]&amp;rsquo;&lt;/p&gt;
+
+&lt;p&gt;The issue here is that a constraint is set up to prevent two rows containing the same value. Although key checks are disabled, it still can&amp;rsquo;t add the rows. Sometimes as a useful technique to just get it running locally (obviously there&amp;rsquo;s an issue here which does need resolving), simply change the &amp;ldquo;INSERT INTO&amp;rdquo; statement to &amp;ldquo;INSERT IGNORE INTO&amp;rdquo;, which will skip that entry.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Implementation of Jewellery Site (White Label)</title>
+      <link>http://example.com/featured/magento-implementation-of-jewellery-site-white-label.html</link>
+      <pubDate>Wed, 20 Feb 2013 20:19:01 +0000</pubDate>
+      
+      <guid>http://example.com/featured/magento-implementation-of-jewellery-site-white-label.html</guid>
+      <description>&lt;p&gt;As part of our white label service we provided the development and design implementation requirements for a large London agency to deliver a high quality Magento site on budget and time.&lt;/p&gt;
+
+&lt;p&gt;The site required some customised functionality along with a full bespoke design implementation.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://example.com/images/screenshot-thumb1.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SQLSTATE[28000]: Invalid authorization specification: 1045 Access denied for user &#43; Solution</title>
+      <link>http://example.com/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html</link>
+      <pubDate>Tue, 12 Feb 2013 18:03:29 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html</guid>
+      <description>&lt;p&gt;I have recently been running some MySql scripts that wrote to a file.&lt;/p&gt;
+
+&lt;p&gt;These worked fine locally, but as soon as I deployed them I started to get the error above.&lt;/p&gt;
+
+&lt;p&gt;After much looking around I came across this solution.&lt;/p&gt;
+
+&lt;p&gt;When I was developing locally, I was connecting with a user that had global privileges. When I was running the code on the server I was connecting with a user that only had privileges for the database I was using.&lt;/p&gt;
+
+&lt;p&gt;The issue is that then FILE privilege is a Global setting, so the user did not have access to it, hence the access denied message.&lt;/p&gt;
+
+&lt;p&gt;Grant FILE privileges and you can connect as expected&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>&#34;Base table or view already exists: 1050 Table ‘*’ already exists&#34; After Deleting Tables</title>
+      <link>http://example.com/magento/base-table-or-view-already-exists-1050-table-already-exists-after-deleting-tables.html</link>
+      <pubDate>Tue, 08 Jan 2013 16:27:02 +0000</pubDate>
+      
+      <guid>http://example.com/magento/base-table-or-view-already-exists-1050-table-already-exists-after-deleting-tables.html</guid>
+      <description>&lt;p&gt;If for example you&amp;rsquo;re removing an extension and want to clear out its information from the database, you&amp;rsquo;ll need to establish the rows and tables it&amp;rsquo;s inserted, as well as some standard Magento table entries.&lt;/p&gt;
+
+&lt;p&gt;So you&amp;rsquo;ve removed everything, cleared your cache and now you go to the homepage to check everything is all good, and boom, PDOException:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Base table or view already exists: 1050 Table ‘*’ already exists
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In my case it was &lt;code&gt;salesrule&lt;/code&gt;, which made me question why it was trying to create the table afresh. The reason I got this is that I&amp;rsquo;d erroneously removed salesrule_setup from core_resource, and therefore Magento was reinstalling the module. Reinstating the row, and clearing my cache solved the issue&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Run Multiple MySQL Queries in a Single Function</title>
+      <link>http://example.com/php/run-multiple-mysql-queries-in-a-single-function.html</link>
+      <pubDate>Wed, 14 Nov 2012 12:45:09 +0000</pubDate>
+      
+      <guid>http://example.com/php/run-multiple-mysql-queries-in-a-single-function.html</guid>
+      <description>&lt;p&gt;If you want to be able to run multiple queries in a single function call, for example doing the classic drop table blah; create table blah; then you might like this function.&lt;/p&gt;
+
+&lt;p&gt;The use case is for things like database migration systems which you might copy and paste chunks of SQL including multiple queries from things like phpMyAdmin&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * Run multiple queries passed in as a single string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * This is optimised for copying and pasting from phpMyAdmin&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * Handy for things like database migration systems&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * @param string $sql  multiple queries terminated with ; and a new line&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;function multiQuery($sql)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $sqls = preg_split(&amp;#39;%;$%m&amp;#39;, trim($sql));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    foreach ($sqls as $q) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (empty($q)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            continue;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        mysql_query($q); //suggest you replace this with your custom query function or if not throw in some extra error checking at least&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Setting up database testing in PHPUnit</title>
+      <link>http://example.com/php/setting-up-database-testing-in-phpunit.html</link>
+      <pubDate>Fri, 09 Nov 2012 17:34:45 +0000</pubDate>
+      
+      <guid>http://example.com/php/setting-up-database-testing-in-phpunit.html</guid>
+      <description>&lt;p&gt;I have recently been trying to write unit tests for a piece of code that reads and writes to a database.&lt;/p&gt;
+
+&lt;p&gt;As I have spent far too much time trying to get this to work, this is here to act as an &lt;em&gt;aide-mémoire &lt;/em&gt;for the next time that I have to do this.&lt;/p&gt;
+
+&lt;p&gt;This is the actual class that is used&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;require_once&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/DataPump.php&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * These are required to ensure that the PDO object in the class is able to work correctly&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * @backupGlobals disabled&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * @backupStaticAttributes disabled&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;DataPumpTest&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PHPUnit_Extensions_Database_TestCase&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This is the object that will be tested&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * @var DataPump&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$object&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;  &lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * only instantiate pdo once for test clean-up/fixture load&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * @var PDO&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pdo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * @var type &lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$conn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * Sets up the fixture, for example, opens a network connection.&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This method is called before a test is executed.&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setUp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;object&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;DataPump&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * Tears down the fixture, for example, closes a network connection.&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This method is called after a test is executed.&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;tearDown&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;  &lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;  &lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;conn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;===&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$pdo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$pdo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PDO&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;mysql:dbname=testing_database;host=localhost&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;dbUserName&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;dbPassword&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;conn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createDefaultDBConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$pdo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;ross_testing&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;conn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createMySQLXMLDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/datapump.xml&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This is here to ensure that the database is working correctly&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;testDataBaseConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;  &lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;products&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$prod&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$queryTable&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getConnection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;createQueryTable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;products&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;SELECT * FROM products&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$expectedTable&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getDataSet&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getTable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;products&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;//Here we check that the table in the database matches the data in the XML file&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;assertTablesEqual&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$expectedTable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$queryTable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;nx&#34;&gt; &lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This is where you can put your actual tests&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The following steps need to be taken to get everything here to work.&lt;/p&gt;
+
+&lt;p&gt;You need to create the testing database and tables before you can do anything else. This includes the tables that you will be reading from and the tables that you will eventually write to.&lt;/p&gt;
+
+&lt;p&gt;You then need to create an XML file for the data that you are expecting. I suggest checking that the data from the read table is included in this, so you can confirm that you are working with the correct data.&lt;/p&gt;
+
+&lt;p&gt;You can generate the data that is already in the database using the following command
+&lt;code&gt;
+mysqldump &amp;ndash;xml -t -u username -p testing_database products &amp;gt; datapump.xml
+&lt;/code&gt;
+Which will give you a file like this&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;mysqldump&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;xmlns:xsi=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;http://www.w3.org/2001/XMLSchema-instance&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;database&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;testing_database&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;table_data&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;row&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_id&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;1000001&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_quantity&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;31&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_model&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;example1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/row&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;row&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_id&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;1000002&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_quantity&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;15&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;products_model&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;example2&lt;span class=&#34;nt&#34;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/row&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/table_data&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/database&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mysqldump&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The two variables in the assertTablesEqual methods are just strings, which means if after you have set everything up and the test is failing, it is possible to export them to check where the differences are.&lt;/p&gt;
+
+&lt;p&gt;The big problem I had was that some export methods escaped ampersands, whilst others did not. Correcting this allowed the test to path.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Installing Percona DB on a clean CentOS </title>
+      <link>http://example.com/percona/installing-percona-db-on-a-clean-centos.html</link>
+      <pubDate>Fri, 09 Nov 2012 15:22:41 +0000</pubDate>
+      
+      <guid>http://example.com/percona/installing-percona-db-on-a-clean-centos.html</guid>
+      <description>&lt;p&gt;Percona is a performance optimised fork of MySQL that has gained a lot of traction in the Magento-sphere as webmasters and sysadmins alike look to squeeze the most performance out of their hardware.&lt;/p&gt;
+
+&lt;p&gt;If you read the &lt;a href=&#34;http://example.com/platforms/magento&#34;&gt;Magento&lt;/a&gt; performance whitepaper then you will see they mention Percona DB there.&lt;/p&gt;
+
+&lt;p&gt;To install Percona on a standard CentOS release 6.2 (Final) server you would need to run the following commands:&lt;/p&gt;
+
+&lt;p&gt;First set up the repo:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;rpm -Uhv http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This should give you output like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Retrieving http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+Preparing...                ########################################### [100%]
+   1:percona-release        ########################################### [100%]
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then installing should be a simple case of running:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum install Percona-Server-client-55 Percona-Server-server-55
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;However I found that this generated the following error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Error: Percona-XtraDB-Cluster-client conflicts with Percona-Server-client-55
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The problem is because MySQL is already installed and needs to be removed. You can do this with this command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum remove mysql*
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;At which point running the install should work smoothly.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL 5.1 to 5.5 Migration</title>
+      <link>http://example.com/mysql/mysql-5-1-to-5-5-migration.html</link>
+      <pubDate>Tue, 18 Sep 2012 11:09:09 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-5-1-to-5-5-migration.html</guid>
+      <description>&lt;p&gt;According to pretty much every source there&amp;rsquo;s only one sensible way to migrate from 5.0, 5.1 or 5.2 to 5.5 of mysql (or mariadb/percona for that matter), and it&amp;rsquo;s not pretty (for a server with only two active magento installations for instance, this will take about 3 hours).&lt;/p&gt;
+
+&lt;p&gt;The answer is that you have to do an sql dump and restore.  This does take an age but does at least provide the reassurance that you are going to have nice clean databases after the upgrade.&lt;/p&gt;
+
+&lt;p&gt;So the commands are :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mysqldump --all-databases --routines --events &amp;gt; fulldump.sql
+mysqldump mysql --tables user &amp;gt; users.sql
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then upgrade mysql binaries to 5.5 and empty the database directory - such as /var/lib/mysql and start mysql with it&amp;rsquo;s script (e.g. /etc/init.d/mysql start).   Note, if you&amp;rsquo;re using a distribution that doesn&amp;rsquo;t come with start scripts, you may want to run mysql_install as root before starting mysql however you start it.&lt;/p&gt;
+
+&lt;p&gt;Then the following will restore the databases and users :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mysql -u root &lt;span class=&#34;c1&#34;&gt;# add -p if you set up a default password when upgrading/installing 5.5&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\r&lt;/span&gt; mysql
+&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; users.sql
+&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; fulldump.sql
+FLUSH PRIVILEGES&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\q&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Getting a Billing Address from the Magento Orders Table</title>
+      <link>http://example.com/magento/getting-a-billing-address-from-the-magento-orders-table.html</link>
+      <pubDate>Thu, 13 Sep 2012 10:40:28 +0000</pubDate>
+      
+      <guid>http://example.com/magento/getting-a-billing-address-from-the-magento-orders-table.html</guid>
+      <description>&lt;p&gt;I recently had to generate a report listing the details of all orders from a magento store that matched certain parameters.&lt;/p&gt;
+
+&lt;p&gt;There was a requirement that the billing address should be included in this, and I wanted to do this all in SQL if possible.&lt;/p&gt;
+
+&lt;p&gt;The biggest problem was formatting the address as there is a value in the address table called suffix, which contains the County information, but is not a required value.&lt;/p&gt;
+
+&lt;p&gt;As I was adding in line breaks to the select, this meant for all of the orders that did not have the value, then there would be a blank line using a standard CONCAT statement.&lt;/p&gt;
+
+&lt;p&gt;What I found was that it is possible to add an IF statement to the CONCAT query, which gives the required result.&lt;/p&gt;
+
+&lt;p&gt;This is done like this&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;-- Other Values that are needed --&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;CONCAT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;firstname&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;ss&#34;&gt;&amp;quot; &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lastname&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;ss&#34;&gt;&amp;quot;\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; 
+        &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;street&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;ss&#34;&gt;&amp;quot;\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; 
+        &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;city&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; 
+            &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;suffix&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;IS&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NOT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; 
+                &lt;span class=&#34;n&#34;&gt;CONCAT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;ss&#34;&gt;&amp;quot;\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;suffix&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;
+                &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+              &lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;ss&#34;&gt;&amp;quot;\n&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; 
+        &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;postcode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;ss&#34;&gt;&amp;quot;Billing Address&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sales_flat_order&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sfo&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sales_flat_order_address&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;parent_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;billing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;address_type&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;billing&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;-- add your WHERE conditions --&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get all product attributes for a magento object using SQL</title>
+      <link>http://example.com/magento/get-all-product-attributes-for-a-magento-object-using-sql.html</link>
+      <pubDate>Wed, 15 Aug 2012 14:17:17 +0000</pubDate>
+      
+      <guid>http://example.com/magento/get-all-product-attributes-for-a-magento-object-using-sql.html</guid>
+      <description>&lt;p&gt;Sometimes you may want to quickly compare all of the attributes that object (category / product) has in magento. The EAV structure of the database makes this difficult to do this simply, so this is a query that will do it for you&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt; 
+        &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sku&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_code&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;CASE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backend_type&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;WHEN&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;varchar&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_varchar&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;WHEN&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;int&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;WHEN&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;text&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_text&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;WHEN&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;decimal&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_decimal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;WHEN&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;datetime&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;THEN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_datetime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;
+           &lt;span class=&#34;k&#34;&gt;ELSE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backend_type&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;END&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;is_required&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;required&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;catalog_product_entity&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;LEFT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eav_attribute&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_type_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_type_id&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;LEFT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;catalog_product_entity_varchar&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_varchar&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_varchar&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_varchar&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backend_type&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;varchar&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;LEFT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;catalog_product_entity_int&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_int&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backend_type&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;int&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;LEFT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;catalog_product_entity_text&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_text&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_text&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_text&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backend_type&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;text&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;LEFT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;catalog_product_entity_decimal&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_decimal&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_decimal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_decimal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backend_type&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;decimal&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;LEFT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;JOIN&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;catalog_product_entity_datetime&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_datetime&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_datetime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entity_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce_datetime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attribute_id&lt;/span&gt; 
+        &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ea&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backend_type&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;datetime&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ce&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sku&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;YOUR_SKU&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AS&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tab&lt;/span&gt;
+  &lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tab&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;ss&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This version of the query will only return values that are not blank, but if you only run the sub query it will give you every value.
+Replace catalog_product* for catalog_category to get the values for a category. You will also have to use a different selector than SKU.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>MySQL Server Gone Away - Large Packets the Issue?</title>
+      <link>http://example.com/mysql/mysql-server-gone-away-large-packets-the-issue.html</link>
+      <pubDate>Wed, 15 Aug 2012 12:58:23 +0000</pubDate>
+      
+      <guid>http://example.com/mysql/mysql-server-gone-away-large-packets-the-issue.html</guid>
+      <description>&lt;p&gt;If you are scratching your head trying to figure out why you keep getting MySQL server gone away error messages despite the fact you have bumped up all the timeout etc configurations to high values then this could be your solution.&lt;/p&gt;
+
+&lt;p&gt;MySQL will also give you this error if you try to send a packet that is larger than the packet size defined. We had an application that was using MariaDB which has a default max allowed packet of 16M by default.&lt;/p&gt;
+
+&lt;p&gt;The application in question was sending large amounts of data to be stored and so the solution to the gone away issues was simply to increase the max_allowed_packet configuration in my.cnf, restart the mysql daemon and the problems are sorted.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dataflow on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/dataflow/</link>
+    <description>Recent content in Dataflow on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 17 Feb 2011 16:03:49 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/dataflow/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Dataflow Images Not Working &#43; Solution</title>
+      <link>http://example.com/magento/magento-dataflow-images-not-working-solution.html</link>
+      <pubDate>Thu, 17 Feb 2011 16:03:49 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-dataflow-images-not-working-solution.html</guid>
+      <description>&lt;p&gt;If you are struggling to understand why Magento is not finding images that are definitely there, the problem may well be that you are not prefixing your image with a slash, i.e for a new image we would put:&lt;/p&gt;
+
+&lt;p&gt;/image.jpg&lt;/p&gt;
+
+&lt;p&gt;and the image would be in&lt;/p&gt;
+
+&lt;p&gt;media/import/image.jpg&lt;/p&gt;
+
+&lt;p&gt;Unfortunately whoever wrote the Dataflow product importer though it would be a good idea to silently capture all exceptions on image imports which removes any useful error messages that might occur (such as no image at media/importimage.jpg)&lt;/p&gt;
+
+&lt;p&gt;If you would prefer to fix this, you can override Mage_Catalog_Model_Convert_Adapter_Product&lt;/p&gt;
+
+&lt;p&gt;Copy the saveRow() method into your overriding class and then change this bit&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;foreach ($imageData as $file =&amp;gt; $fields) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            try {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $filepath = Mage::getBaseDir(&amp;#39;media&amp;#39;) . DS . &amp;#39;import&amp;#39; . trim($file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $product-&amp;gt;addImageToMediaGallery($filepath, $fields);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            } catch (Exception $e) {}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To something like this&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;foreach ($imageData as $file =&amp;gt; $fields) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            //try {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $filepath = Mage::getBaseDir(&amp;#39;media&amp;#39;) . DS . &amp;#39;import&amp;#39; . trim($file);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $product-&amp;gt;addImageToMediaGallery($filepath, $fields);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;           //} catch (Exception $e) {}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Dataflow Not Updating Some Columns / Attributes &#43; Solution</title>
+      <link>http://example.com/magento/magento-dataflow-not-updating-some-columns-attributes.html</link>
+      <pubDate>Fri, 10 Dec 2010 14:32:20 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-dataflow-not-updating-some-columns-attributes.html</guid>
+      <description>&lt;p&gt;If you are scratching your head trying to figure out why Magento Dataflow seems to be totally ignoring the values you are putting in some columns (for me it was qty_increments and enable_qty_increments) then this is your solution.&lt;/p&gt;
+
+&lt;p&gt;In a nutshell, Dataflow totally ignores some columns despite including them in the output file - quite a few actually.&lt;/p&gt;
+
+&lt;p&gt;I am planning to release an extension that generally tidies up the behaviour of Dataflow and also includes creation of Attribute Sets and Categories which has come up as a requirement for a client project. However this little nugget of fun has cost me a few hours so I thought I would share the solution straight away.&lt;/p&gt;
+
+&lt;p&gt;The columns that are updated by dataflow are controlled by the modules (in this case Mage_Catalog) config.xml file. If you want to enable extra columns you need to create a simple custom module to override that xml.&lt;/p&gt;
+
+&lt;p&gt;This is the contents of the config.xml&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;&amp;lt;!--&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * EdmondsCommerce&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * www.edmondscommerce.co.uk&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * info@edmondscommerce.co.uk&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * +44 (0)844 357 0201&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * NOTICE OF LICENSE&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * This source file is subject to the Open Software License (OSL 3.0)&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * It is available through the world-wide-web at this URL:&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * http://opensource.org/licenses/osl-3.0.php&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; *&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * @category   EdmondsCommerce&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * @package    EdmondsCommerce_DataFlow&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * @copyright  Copyright (c) 2010 Edmonds Commerce (http://www.edmondscommerce.co.uk)&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)&lt;/span&gt;
+&lt;span class=&#34;c&#34;&gt; --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;modules&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;EdmondsCommerce_DataFlow&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;depends&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;Mage_Catalog&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;Mage_Dataflow&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                  &lt;span class=&#34;nt&#34;&gt;&amp;lt;/depends&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.1.0&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/EdmondsCommerce_DataFlow&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/modules&amp;gt;&lt;/span&gt;
+       &lt;span class=&#34;nt&#34;&gt;&amp;lt;admin&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;fieldsets&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;catalog_product_dataflow&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;qty&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;to_number&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/to_number&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/qty&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;min_qty&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;to_number&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/to_number&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/min_qty&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;is_qty_decimal&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/is_qty_decimal&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;backorders&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/backorders&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;min_sale_qty&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;to_number&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/to_number&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/min_sale_qty&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;max_sale_qty&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;to_number&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/to_number&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/max_sale_qty&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;is_in_stock&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory_other&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory_other&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;configurable&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;grouped&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/is_in_stock&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;notify_stock_qty&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/notify_stock_qty&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;manage_stock&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;configurable&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;grouped&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/manage_stock&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- EdmondsCommerce added //--&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;enable_qty_increments&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;configurable&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;grouped&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/enable_qty_increments&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;qty_increments&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;configurable&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;grouped&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/qty_increments&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- EdmondsCommerce ends //--&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;image&amp;gt;&amp;lt;img&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/img&amp;gt;&amp;lt;/image&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;small_image&amp;gt;&amp;lt;img&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/img&amp;gt;&amp;lt;/small_image&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;thumbnail&amp;gt;&amp;lt;img&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/img&amp;gt;&amp;lt;/thumbnail&amp;gt;&lt;/span&gt;
+
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;store&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;/store&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;websites&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;/websites&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;sku&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;/sku&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;attribute_set&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;ignore&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/ignore&amp;gt;&amp;lt;/attribute_set&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;type&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;ignore&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/ignore&amp;gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;name&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;required&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/required&amp;gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;description&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;required&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/required&amp;gt;&amp;lt;/description&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;short_description&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;required&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/required&amp;gt;&amp;lt;/short_description&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;weight&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;required&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/required&amp;gt;&amp;lt;/weight&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;price&amp;gt;&amp;lt;external&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/external&amp;gt;&amp;lt;required&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/required&amp;gt;&amp;lt;/price&amp;gt;&lt;/span&gt;
+
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;tax_class_id&amp;gt;&amp;lt;required&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/required&amp;gt;&amp;lt;/tax_class_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;category_ids&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;ignore&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/ignore&amp;gt;&amp;lt;/category_ids&amp;gt;&lt;/span&gt;
+
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;entity_id&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;internal&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/internal&amp;gt;&amp;lt;ignore&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/ignore&amp;gt;&amp;lt;/entity_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;old_id&amp;gt;&amp;lt;internal&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/internal&amp;gt;&amp;lt;/old_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;tier_price&amp;gt;&amp;lt;internal&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/internal&amp;gt;&amp;lt;/tier_price&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;media_gallery&amp;gt;&amp;lt;internal&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/internal&amp;gt;&amp;lt;/media_gallery&amp;gt;&lt;/span&gt;
+
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;entity_type_id&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;/entity_type_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;attribute_set_id&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;ignore&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/ignore&amp;gt;&amp;lt;/attribute_set_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;type_id&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;ignore&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/ignore&amp;gt;&amp;lt;/type_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;created_at&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;/created_at&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;updated_at&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;/updated_at&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;item_id&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;/item_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_id&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;/product_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;stock_id&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;/stock_id&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;required_options&amp;gt;&amp;lt;system&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/system&amp;gt;&amp;lt;ignore&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/ignore&amp;gt;&amp;lt;/required_options&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/catalog_product_dataflow&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/fieldsets&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/admin&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you look towards the middle you will see this bit:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;            &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- EdmondsCommerce added //--&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;enable_qty_increments&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;configurable&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;grouped&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/enable_qty_increments&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;qty_increments&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;inventory&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/inventory&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;use_config&amp;gt;&lt;/span&gt;1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/use_config&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;product_type&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;simple&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;virtual&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;configurable&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;grouped&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product_type&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/qty_increments&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- EdmondsCommerce ends //--&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If there are any other columns you need to enable then you will need to do something similar.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

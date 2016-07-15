@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>String on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/string/</link>
+    <description>Recent content in String on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 25 Jul 2013 15:05:08 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/string/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP Base64 Decode if Encoded Otherwise Leave Intact</title>
+      <link>http://example.com/php/php-base64-decode-if-encoded-otherwise-leave-intact.html</link>
+      <pubDate>Thu, 25 Jul 2013 15:05:08 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-base64-decode-if-encoded-otherwise-leave-intact.html</guid>
+      <description>&lt;p&gt;I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).&lt;/p&gt;
+
+&lt;p&gt;However to really make things interesting, they didn&amp;rsquo;t always do this so you couldn&amp;rsquo;t just go and decode everything.&lt;/p&gt;
+
+&lt;p&gt;Here is the solution I came up with:&lt;/p&gt;
+
+&lt;p&gt;First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;preg_replace_callback(&amp;#39;%&amp;gt;([^&amp;lt;]+?)&amp;lt;%&amp;#39;, array($this, &amp;#39;_decode&amp;#39;), $response)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then the callback function is a method on the same object hence the use of array($this, &amp;lsquo;_decode&amp;rsquo;)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Decode from bas64 if it actually is base64 encoded in the first place&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * If not return the raw string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param $matches&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function _decode($matches)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $raw=$matches[1];&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $decoded = base64_decode($raw, true);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $return=$decoded;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if(false === $decoded){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $return=$raw;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }elseif(base64_encode($decoded) != $raw){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $return=$raw;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;#39;&amp;gt;&amp;lt;![CDATA[&amp;#39; . $return . &amp;#39;]]&amp;gt;&amp;lt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&amp;rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.&lt;/p&gt;
+
+&lt;p&gt;If it doesn&amp;rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.&lt;/p&gt;
+
+&lt;p&gt;By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.&lt;/p&gt;
+
+&lt;p&gt;Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.&lt;/p&gt;
+
+&lt;p&gt;However - one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&amp;rsquo;t mind compromising the data a little which I didn&amp;rsquo;t for my purposes) then you can do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;//have to utf8 encode it to fix the fact its not properly encoded at their end&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$xml = simplexml_load_string(utf8_encode($response));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it, another crazy API defeated and bent to my will!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHPStorm Regex Replace &#34;Malformed Replacement String&#34;</title>
+      <link>http://example.com/phpstorm/phpstorm-regex-replace-malformed-replacement-string.html</link>
+      <pubDate>Thu, 24 Jan 2013 17:39:08 +0000</pubDate>
+      
+      <guid>http://example.com/phpstorm/phpstorm-regex-replace-malformed-replacement-string.html</guid>
+      <description>&lt;p&gt;If you are struggling using PHPStorm to find and replace code with Regex rules then this is your solution.&lt;/p&gt;
+
+&lt;p&gt;The problem is that when using the $ sign in your replacement string it confuses it because PHP Storm uses the $ sign to represent sub pattern replacements.&lt;/p&gt;
+
+&lt;p&gt;Take the following example code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$data = array();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$form=$page-&amp;gt;find(&amp;#39;form.edit_product&amp;#39;, 0);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//standard inputs&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$inputs = $form-&amp;gt;find(&amp;#39;input[type=&amp;quot;text&amp;quot;]&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($inputs as $input){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $data[$input-&amp;gt;name]=$input-&amp;gt;value;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//radio inputs&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$inputs = $form-&amp;gt;find(&amp;#39;input[type=&amp;quot;radio&amp;quot;]&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($inputs as $input){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if($input-&amp;gt;checked){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $data[$input-&amp;gt;name]=$input-&amp;gt;value;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//checkbox inputs&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$inputs = $form-&amp;gt;find(&amp;#39;input[type=&amp;quot;checkbox&amp;quot;]&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($inputs as $input){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if($input-&amp;gt;checked){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $data[$input-&amp;gt;name]=$input-&amp;gt;value;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//textareas&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$textareas = $form-&amp;gt;find(&amp;#39;textarea&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($textareas as $textarea){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $data[$textarea-&amp;gt;name]=$textarea-&amp;gt;innertext;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And trying to replace the key being used in the data array with a processed one calling a method $this-&amp;gt;dataName($key) to generate the following code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$data = array();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$form=$page-&amp;gt;find(&amp;#39;form.edit_product&amp;#39;, 0);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//standard inputs&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$inputs = $form-&amp;gt;find(&amp;#39;input[type=&amp;quot;text&amp;quot;]&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($inputs as $input){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $data[$this-&amp;gt;dataName($input-&amp;gt;name)]=$input-&amp;gt;value;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//radio inputs&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$inputs = $form-&amp;gt;find(&amp;#39;input[type=&amp;quot;radio&amp;quot;]&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($inputs as $input){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if($input-&amp;gt;checked){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $data[$this-&amp;gt;dataName($input-&amp;gt;name)]=$input-&amp;gt;value;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//checkbox inputs&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$inputs = $form-&amp;gt;find(&amp;#39;input[type=&amp;quot;checkbox&amp;quot;]&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($inputs as $input){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if($input-&amp;gt;checked){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $data[$this-&amp;gt;dataName($input-&amp;gt;name)]=$input-&amp;gt;value;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//textareas&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$textareas = $form-&amp;gt;find(&amp;#39;textarea&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($textareas as $textarea){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $data[$this-&amp;gt;dataName($textarea-&amp;gt;name)]=$textarea-&amp;gt;innertext;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You might try the find pattern:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+\$data\[\$([^-]+)-&amp;gt;name\]
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And the replace pattern:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+\$data\[\$this-&amp;gt;dataName(\$$1-&amp;gt;name)\]
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;However this will give you the dreaded &lt;b&gt;&amp;ldquo;malformed replacement string&amp;rdquo;&lt;/b&gt; Error&lt;/p&gt;
+
+&lt;p&gt;The solution is simply to triple escape your dollar signs, so the replacement pattern becomes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+\\\$data\[\\\$this-&amp;gt;dataName(\\\$$1-&amp;gt;name\)\]
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And it works, woot!&lt;/p&gt;
+
+&lt;p&gt;Also when it does work, PHP Storms replacement preview feature is really quite nice&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP List Function Silently Failing? Solution</title>
+      <link>http://example.com/php/php-list-function-silently-failing-solution.html</link>
+      <pubDate>Wed, 28 Mar 2012 12:01:50 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-list-function-silently-failing-solution.html</guid>
+      <description>&lt;p&gt;If you use PHP&amp;rsquo;s &lt;a href=&#34;http://php.net/manual/en/function.list.php&#34;&gt;list&lt;/a&gt; function to quickly extract array values out into dollar variables then you might have an issue where it just doesn&amp;rsquo;t work for some reason.&lt;/p&gt;
+
+&lt;p&gt;The problem is that list only works with numeric arrays. If you are using an associative array (with strings for keys instead of numbers) then list will not work.&lt;/p&gt;
+
+&lt;p&gt;There is any easy solution though, simply change:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$array = array(&amp;#39;a&amp;#39;=&amp;gt;1, &amp;#39;b&amp;#39;=&amp;gt;2, &amp;#39;c&amp;#39;=&amp;gt;3);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;list($a, $b, $c) = $array;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$array = array(&amp;#39;a&amp;#39;=&amp;gt;1, &amp;#39;b&amp;#39;=&amp;gt;2, &amp;#39;c&amp;#39;=&amp;gt;3);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;list($a, $b, $c) = array_values($array);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And it will work as you expect.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP Split String on Word Break (No Regex or Arrays, Dead Simple)</title>
+      <link>http://example.com/php/php-split-string-on-word-break-no-regex-or-arrays-dead-simple.html</link>
+      <pubDate>Tue, 03 Jan 2012 17:32:27 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-split-string-on-word-break-no-regex-or-arrays-dead-simple.html</guid>
+      <description>&lt;p&gt;Need to take a string of text and shorten it down but make sure you split on a word break?&lt;/p&gt;
+
+&lt;p&gt;This little snippet might be exactly what you are looking for.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$text=substr($text, 0, strpos($text, &amp;#39; &amp;#39;, 50));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;effectively you are saying give me the position of the first space after character 50 and then chop the string there.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Git Search History for Specific Line of Code or String</title>
+      <link>http://example.com/git/git-search-history-for-specific-line-of-code-or-string.html</link>
+      <pubDate>Fri, 09 Dec 2011 11:18:51 +0000</pubDate>
+      
+      <guid>http://example.com/git/git-search-history-for-specific-line-of-code-or-string.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+If you need to track down exactly how and when a particular change happened and you are not even sure exactly where it is (perhaps because its no longer present but you are not totally sure where it was supposed to be) then this little trick can be a life saver.&lt;/p&gt;
+
+&lt;p&gt;You can search git log for a specific string with the -S flag&lt;/p&gt;
+
+&lt;p&gt;eg, searching for a constant definition&lt;/p&gt;
+
+&lt;p&gt;git -log -SCONSTANT_NAME&lt;/p&gt;
+
+&lt;p&gt;very handy indeed :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento View SQL For Collection</title>
+      <link>http://example.com/magento/magento-view-sql-for-collection.html</link>
+      <pubDate>Thu, 21 Oct 2010 10:46:19 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-view-sql-for-collection.html</guid>
+      <description>&lt;p&gt;If you are working with collections and would like to verify that the actual SQL being used is what you expect it to be then this little tip might prove really handy.&lt;/p&gt;
+
+&lt;p&gt;For any collection you can call the method getSelect(). This retrieves the actual Select object that handles the query.&lt;/p&gt;
+
+&lt;p&gt;If you cast this select object to a string, you get the raw SQL query, so for example the following is pretty handy:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;die(var_dump((string)$collection-&amp;gt;getSelect()));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This way you can tweak your collection filters etc and check that its doing what you expect it to be doing&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

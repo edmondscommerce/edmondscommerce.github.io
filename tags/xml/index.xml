@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Xml on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/tags/xml/</link>
+    <description>Recent content in Xml on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 25 Jul 2013 15:05:08 +0000</lastBuildDate>
+    <atom:link href="http://example.com/tags/xml/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP Base64 Decode if Encoded Otherwise Leave Intact</title>
+      <link>http://example.com/php/php-base64-decode-if-encoded-otherwise-leave-intact.html</link>
+      <pubDate>Thu, 25 Jul 2013 15:05:08 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-base64-decode-if-encoded-otherwise-leave-intact.html</guid>
+      <description>&lt;p&gt;I had a scenario where an API I was working with would sometimes base64 encode data (instead of using CDATA which is the more usual approach).&lt;/p&gt;
+
+&lt;p&gt;However to really make things interesting, they didn&amp;rsquo;t always do this so you couldn&amp;rsquo;t just go and decode everything.&lt;/p&gt;
+
+&lt;p&gt;Here is the solution I came up with:&lt;/p&gt;
+
+&lt;p&gt;First of all, take the raw response and run preg_replace_callback on it to grab all of the XML contents:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;preg_replace_callback(&amp;#39;%&amp;gt;([^&amp;lt;]+?)&amp;lt;%&amp;#39;, array($this, &amp;#39;_decode&amp;#39;), $response)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then the callback function is a method on the same object hence the use of array($this, &amp;lsquo;_decode&amp;rsquo;)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Decode from bas64 if it actually is base64 encoded in the first place&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * If not return the raw string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param $matches&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    protected function _decode($matches)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $raw=$matches[1];&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $decoded = base64_decode($raw, true);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $return=$decoded;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if(false === $decoded){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $return=$raw;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }elseif(base64_encode($decoded) != $raw){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $return=$raw;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return &amp;#39;&amp;gt;&amp;lt;![CDATA[&amp;#39; . $return . &amp;#39;]]&amp;gt;&amp;lt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;What this method does is first of all try calling decode with the optional strict flag. This makes the function return false if it thinks it isn&amp;rsquo;t base64 encoded. It would be great if this was enough but unfortunately you need to do more.&lt;/p&gt;
+
+&lt;p&gt;If it doesn&amp;rsquo;t return false at that stage, we do the real test which is to try encoding it back to base64 and make sure that the rencoded string matches the raw (before original decoding) string. If it was base64 encoded in the first place then this should match.&lt;/p&gt;
+
+&lt;p&gt;By doing this we can handle any kind of mixture of base64 encoded and plain text xml string and get it ready for simpleXMl.&lt;/p&gt;
+
+&lt;p&gt;Notice I am also wrapping the data in CDATA tags to help avoid XML issues when creating the simpleXml object.&lt;/p&gt;
+
+&lt;p&gt;However - one last trick. The reason they were using base64 encoding is because there was some dodgy non XML friendly characters in there. The solution here (if you don&amp;rsquo;t mind compromising the data a little which I didn&amp;rsquo;t for my purposes) then you can do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;//have to utf8 encode it to fix the fact its not properly encoded at their end&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$xml = simplexml_load_string(utf8_encode($response));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it, another crazy API defeated and bent to my will!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP SOAP Client Basic Template</title>
+      <link>http://example.com/php/php-soap-client-basic-template.html</link>
+      <pubDate>Mon, 08 Jul 2013 08:28:17 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-soap-client-basic-template.html</guid>
+      <description>&lt;p&gt;Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&amp;rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&amp;rsquo;m just unlucky?&lt;/p&gt;
+
+&lt;p&gt;In my experience decent API&amp;rsquo;s don&amp;rsquo;t use SOAP.&lt;/p&gt;
+
+&lt;p&gt;Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&amp;rsquo;t work), I&amp;rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; * Class Template Soap Client Consuming Class&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt; */&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;EdmondsCommerceSoap&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;edmondscommerce&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pass&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;NotReallyMyPassw0rd&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;test&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;connection_timeout&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;25&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;location&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;trace&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;//this is important if you want to be able to use the soapDebug method&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setAuthHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;Method&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapFault&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;h1&amp;gt;SoapFault: &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getMessage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;/h1&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;pre&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getTraceAsString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;/pre&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;h2&amp;gt;Debug Info:&amp;lt;/h2&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;var_dump&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;soapDebug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    * This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;    **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setAuthHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$auth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;username&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;MessageId&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;md5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()),&lt;/span&gt;
+            &lt;span class=&#34;s1&#34;&gt;&amp;#39;password&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;password&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$auth&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$k&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SoapHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Header&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__setSoapHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     *  This method gathers all debug info into a handy array ready for var_dump, log etc etc&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;soapDebug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;headers&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequestHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body_formatted&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;headers&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponseHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body_formatted&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+
+    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     * This method is purely to assist the debug method and simply makes generated XML readable&lt;/span&gt;
+&lt;span class=&#34;sd&#34;&gt;     **/&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;preg_replace&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/(&amp;gt;)(&amp;lt;)(\/*)/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;$1&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;$2$3&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strtok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!==&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/.+&amp;lt;\/\w[^&amp;gt;]*&amp;gt;$/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/^&amp;lt;\/\w/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/^&amp;lt;\w[^&amp;gt;]*[^\/]&amp;gt;.*$/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;endif&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;str_pad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strlen&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;STR_PAD_LEFT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strtok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;endwhile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP API Development Logging and Debugging</title>
+      <link>http://example.com/php/4145.html</link>
+      <pubDate>Thu, 14 Mar 2013 14:53:48 +0000</pubDate>
+      
+      <guid>http://example.com/php/4145.html</guid>
+      <description>&lt;p&gt;If you are ever working with API integrations, either in or out bound, then it might be useful to set up a simple dumb logging system to assist you with developing and debugging things.&lt;/p&gt;
+
+&lt;p&gt;Here is a really simple snippet to help you along with that.&lt;/p&gt;
+
+&lt;p&gt;It literally takes exactly what it has received and logs it with no messing about. Brilliant!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;raw_input&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;file_get_contents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php://input&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;_POST&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_POST&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;_GET&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_GET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;file_put_contents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;inboundXML.log&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;var_export&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Tip: Parse XML Values in bash e.g. Magento local.xml</title>
+      <link>http://example.com/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml.html</link>
+      <pubDate>Thu, 23 Aug 2012 11:37:58 +0000</pubDate>
+      
+      <guid>http://example.com/bash/tip-parse-xml-values-in-bash-e-g-magento-local-xml.html</guid>
+      <description>&lt;p&gt;Not the most elegant way to do this, and probably could do with some extra tweaks but it works for our purposes, so presented here in case it fits yours :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# xml_value path/to/file node_key&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; xml_value&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    grep &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;lt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$2&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;gt;.*&amp;lt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$2&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;s/&amp;lt;\!\[CDATA\[//&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;s/\]\]&amp;gt;//&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;s/^.*&amp;lt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$2&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/&amp;lt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$2&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; cut -f2 -d&lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; cut -f1 -d&lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;lt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;It also strips out the CDATA tags, which we needed to pull the database details from Magento&amp;rsquo;s local.xml&lt;/p&gt;
+
+&lt;p&gt;To use this to get, for example, the database host, you would use the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;DB_HOST&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;xml_value app/etc/local.xml host&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;To use this&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>CentOS &#43; Sun Java &#43; Amazon AMTU 2</title>
+      <link>http://example.com/amazon/centos-sun-java-amazon-amtu-2.html</link>
+      <pubDate>Tue, 14 Aug 2012 17:33:31 +0000</pubDate>
+      
+      <guid>http://example.com/amazon/centos-sun-java-amazon-amtu-2.html</guid>
+      <description>&lt;p&gt;In a follow up to our popular blog post describing the process of getting AMTU 1 set up on a Centos server, this post describes how to get the latest version 2 of AMTU running.&lt;/p&gt;
+
+&lt;p&gt;Things have moved on and thankfully it is a lot easier than it was.&lt;/p&gt;
+
+&lt;p&gt;Firstly get Sun Java installed. You will need to get the URL for downloading the RPM from here:
+&lt;a href=&#34;http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html&#34; target=&#34;_blank&#34;&gt;http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1637588.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Accept the agreement, download the correct RPM version and then pause it. Copy the download URL and paste it into this command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /tmp
+wget &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;paste-url&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;-here&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+rpm - jre &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;hit tab to complete&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now check the correct java version is being used:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;java -version
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You should get something looking like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+[root@94 tmp]# java -version
+java version &amp;amp;quot;1.7.0_05&amp;amp;quot;
+Java(TM) SE Runtime Environment (build 1.7.0_05-b06)
+Java HotSpot(TM) 64-Bit Server VM (build 23.1-b03, mixed mode)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now you can install AMTU&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;wget https://d28hcfptedr5ia.cloudfront.net/install/AMTU_unix.sh
+chmod +x AMTU_unix.sh
+./AMTU_unix.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Keep hitting enter to get to the bottom of the terms and then agree, agree to all the other options. That is AMTU installed.&lt;/p&gt;
+
+&lt;p&gt;The final step is to configure this using the CLI configure utitlity.&lt;/p&gt;
+
+&lt;p&gt;You need to create an xml file for the AMTU configuration. You can see a sample file in /opt/amtu/xml/sample.xml.&lt;/p&gt;
+
+&lt;p&gt;Lets copy that file and then edit it accordingly.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /opt/amtu/xml
+cp sample.xml configuration.xml
+vim configuration.xml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You do need to be signed up for MWS to get some of the keys etc that are required. If not already, go to this page and hit the sign up button.
+&lt;a href=&#34;https://developer.amazonservices.co.uk/index.html&#34; target=&#34;_blank&#34;&gt;https://developer.amazonservices.co.uk/index.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Once you have updated the XML configuration you run this command to apply it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;/opt/amtu/Utilities/configure SETUP /opt/amtu/xml/configuration.xml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you get some error messages at this point, edit the configuration and try again. Once you have the configuration set you can start the daemon.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;/opt/AMTU/Utilities/amtu_daemon start
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Security Vulnerability &#43; Free Assistance</title>
+      <link>http://example.com/magento/magento-security-vulnerability-free-assistance.html</link>
+      <pubDate>Tue, 10 Jul 2012 13:07:02 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-security-vulnerability-free-assistance.html</guid>
+      <description>&lt;p&gt;The magento platform is based on a PHP framework called Zend Framework.&lt;/p&gt;
+
+&lt;p&gt;Recently a bug was found in Zend Framework which potentially allows attackers to read any file on your server. This could mean they could gain access to your mysql server credentials for example.&lt;/p&gt;
+
+&lt;p&gt;You can read the full details &lt;a href=&#34;http://www.magentocommerce.com/blog/comments/update-zend-framework-vulnerability-security-update/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The actual bug details for Zend Framework are in this &lt;a href=&#34;http://framework.zend.com/security/advisory/ZF2012-01&#34;&gt;security advisory&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;Free Security Patching Service&lt;/h3&gt;
+
+&lt;p&gt;In a nutshell this represents a serious security hole that you need to plug as soon as possible. Fixing this issue is very simple indeed if you know what you are doing.&lt;/p&gt;
+
+&lt;p&gt;For this reason Edmonds Commerce are happy to offer &lt;b&gt;FREE&lt;/b&gt; assistance in applying this patch to any Magento store owner whether you are a current client or not. We will not charge you in any way for this service.&lt;/p&gt;
+
+&lt;p&gt;To request &lt;b&gt;FREE&lt;/b&gt; assistance &lt;a href=&#34;http://example.com/contact-us/?about=Free+Magento+Security+Fix&#34;&gt;&lt;b&gt;contact us today&lt;/b&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;Donation to Charity&lt;/h3&gt;
+If you choose to, you could make a donation to cover this service here:
+&lt;a href=&#34;http://www.justgiving.com/EdmondsCommerce&#34;&gt;http://www.justgiving.com/EdmondsCommerce&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;h3&gt;Please Note&lt;/h3&gt;
+We will need you to give us shell (otherwise known as SSH) access to your server if available.&lt;/p&gt;
+
+&lt;p&gt;If you are on a shared hosting service that is not able to supply shell access, we would suggest you ask your hosting company to help you with this issue. Feel free to refer them to this page.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Extending Mage Core Encryption Model to handle Legacy Passwords</title>
+      <link>http://example.com/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html</link>
+      <pubDate>Thu, 26 Apr 2012 12:35:29 +0000</pubDate>
+      
+      <guid>http://example.com/magento/extending-mage-core-encryption-model-to-handle-legacy-passwords.html</guid>
+      <description>&lt;p&gt;If you are migrating from an old ecommerce package into Magento, you may well want to extend Magento&amp;rsquo;s password hashing system so that it can understand the passwords that are hashed by the previous system and customers can log in using their old passwords without any hassle.&lt;/p&gt;
+
+&lt;p&gt;You would start off by overriding the Mage_Core_Model_Encryption class like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;class EdmondsCommerce_LegacyPassword_Model_Encryption extends Mage_Core_Model_Encryption {&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    /**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Validate hash against hashing method (with or without salt)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * Extended to support the legacy password hashing of the previous system&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param string $password&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @param string $hash&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return bool&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @throws Exception&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function validateHash($password, $hash) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if (/*password matches legacy pattern (as stored hash in DB)*/) {            &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            // create a hash of the plain text password and compare to the stored hash&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            return $hashed_pass == $hashval;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        //default magento hashing from here&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return parent::validateHash($password, $hash);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;However, you will find that the standard model override does not work and you may start vigorous hair pulling at this point.&lt;/p&gt;
+
+&lt;p&gt;The answer though is that your override XML is actually fine, but it isn&amp;rsquo;t being used. This is because of the getEncryptor model in Mage_Core_Helper_Data creates the model using &amp;lsquo;new&amp;rsquo; rather than getModel.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     * @return Mage_Core_Model_Encryption&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function getEncryptor()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        if ($this-&amp;gt;_encryptor === null) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            $encryptionModel = (string)Mage::getConfig()-&amp;gt;getNode(self::XML_PATH_ENCRYPTION_MODEL);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            if ($encryptionModel) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $this-&amp;gt;_encryptor = new $encryptionModel;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            } else {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;                $this-&amp;gt;_encryptor = Mage::getModel(&amp;#39;core/encryption&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;            $this-&amp;gt;_encryptor-&amp;gt;setHelper($this);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $this-&amp;gt;_encryptor;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The class name to use for the encryptor is stored in the config.xml for Mage_Core.&lt;/p&gt;
+
+&lt;p&gt;The solution here is to replicate this XML in your config.xml and also make your legacy module depend on Mage_Core so that it get loaded afterwards and can override the XML.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;modules&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;EdmondsCommerce_LegacyPassword&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.1.1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;depends&amp;gt;&lt;/span&gt;Mage_Core&lt;span class=&#34;nt&#34;&gt;&amp;lt;/depends&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/EdmondsCommerce_LegacyPassword&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/modules&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;models&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;core&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;rewrite&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;encryption&amp;gt;&lt;/span&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;span class=&#34;nt&#34;&gt;&amp;lt;/encryption&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/rewrite&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/core&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/models&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;helpers&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;core&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;encryption_model&amp;gt;&lt;/span&gt;EdmondsCommerce_LegacyPassword_Model_Encryption&lt;span class=&#34;nt&#34;&gt;&amp;lt;/encryption_model&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/core&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/helpers&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/global&amp;gt;&lt;/span&gt;    
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Easy once you understand. Another gotcha you have to look out for though!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Layout ignore=&#34;1&#34;</title>
+      <link>http://example.com/magento/magento-layout-ignore1.html</link>
+      <pubDate>Wed, 29 Feb 2012 17:17:15 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-layout-ignore1.html</guid>
+      <description>&lt;p&gt;If you are looking at your Layout XML when trying to debug missing blocks for example, you may see the attribute ignore=&amp;ldquo;1&amp;rdquo; being assigned to chunks of XML.&lt;/p&gt;
+
+&lt;p&gt;These are set when some module or other is using the remove syntax to remove a block.&lt;/p&gt;
+
+&lt;p&gt;For example I have just had some issues with Fontis Recaptcha and TBT Sweetooth extensions not playing nice together.&lt;/p&gt;
+
+&lt;p&gt;The reason is that the Fontis extension is removing the entire customer_form_register handle and replacing it with a custom one however the Sweettooth module is still referring to the core Magento handle which then means its layout updates are not having any effect.&lt;/p&gt;
+
+&lt;p&gt;The way to see this is find the layout sections with ignore=&amp;ldquo;1&amp;rdquo;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;core/text_list&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;left&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;as=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;left&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;ignore=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;1&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and search your files for a corresponding&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;remove&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;left&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The name attribute is the one you need to look for the correlation on.&lt;/p&gt;
+
+&lt;p&gt;For the sweettooth issue, the solutions was to simply add in the sweet tooth XML to the Fontis XML like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;lt;customer_account_create&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;remove&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;customer_form_register&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;reference&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;content&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;customer/form_register&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;recaptcha_form_register&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;template=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;fontis/recaptcha/register.phtml&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;core/template&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;recaptcha.box&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;as=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;recaptcha_box&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;template=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;fontis/recaptcha/recaptcha.phtml&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;rewardsref/field_register&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;rewards_referral&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;template=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;rewardsref/customer/register/fieldset.phtml&amp;quot;&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/reference&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/customer_account_create&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Inspiration from this &lt;a href=&#34;http://stackoverflow.com/questions/1087733/magento-my-account-layout-xml-problem&#34;&gt;Stack Overflow&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Custom Product Type as Configurable Product</title>
+      <link>http://example.com/magento/magento-custom-product-type-as-configurable-product.html</link>
+      <pubDate>Fri, 20 Jan 2012 15:36:02 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-custom-product-type-as-configurable-product.html</guid>
+      <description>&lt;p&gt;If you have created a new product type and need to enable it to be included with configurable products you need to let Magento know that it should allow your product type to work with configurable products. To do this open your config xml and add the following xml.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;catalog&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;product&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;type&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;configurable&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;translate=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;label&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;module=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;catalog&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;allow_product_types&amp;gt;&lt;/span&gt;
+                            &lt;span class=&#34;nt&#34;&gt;&amp;lt;custom_type_name/&amp;gt;&lt;/span&gt;
+                        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/allow_product_types&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/configurable&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/product&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/catalog&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/global&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This tells Magento to include your product type for use with configurable products.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Crawl an xml sitemap quality check 301 and 404</title>
+      <link>http://example.com/php/crawl-an-xml-sitemap-quality-check-301-and-404.html</link>
+      <pubDate>Tue, 03 Jan 2012 17:54:30 +0000</pubDate>
+      
+      <guid>http://example.com/php/crawl-an-xml-sitemap-quality-check-301-and-404.html</guid>
+      <description>&lt;p&gt;On occasion, google and other tools will tell you there&amp;rsquo;s errors with your sitemap.xml file and not give you the information of what exactly is wrong, so we wrote this little tool to crawl the sitemap and check for 301 redirections and 404 errors.&lt;/p&gt;
+
+&lt;p&gt;It is a noddy file and should have much more error handling etc but here&amp;rsquo;s the basic flow :-&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$screenwidth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;80&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;trimstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$maxlength&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$middle&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;...&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$screenwidth&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$maxlength&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;$maxlength&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$screenwidth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$maxlength&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;$partlength&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;round&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$maxlength&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$middle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;$leftpart&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;substr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$partlength&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;$rightpart&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;substr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$partlength&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$leftpart&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$middle&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$rightpart&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;// First we load the sitemap xml&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;simplexml_load_file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$argv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]);&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$counter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$threadcount&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;curl_multi_init&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$fourohfours&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$threeohones&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$twohundreds&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;urlset&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;die&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;Doesn&amp;#39;t look like a valid sitemap!&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$total_urls&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;children&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;// Then we iterate over it&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;children&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$child&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$child&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;url&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$child&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;children&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$subchild&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$subchild&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;loc&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+				&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Fetching : &amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;trimstr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$subchild&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$screenwidth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;12&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+				&lt;span class=&#34;nv&#34;&gt;$counter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+				&lt;span class=&#34;nx&#34;&gt;addurltostack&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$subchild&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+				&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$counter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;%&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$threadcount&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$counter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$total_urls&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+					&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+						&lt;span class=&#34;nb&#34;&gt;curl_multi_exec&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$running&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+					&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$running&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+					&lt;span class=&#34;nx&#34;&gt;processresults&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+					&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$counter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$total_urls&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39; urls checked - &amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$twohundreds&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39; 200s; &amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$threeohones&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39; 301s; &amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$fourohfours&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39; 404s.&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+				&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$fourohfours&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;The following urls were 404 returns :- &lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$fourohfoururls&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$threeohones&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;The following urls were 301 returns :- &lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$threeohoneurls&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;addurltostack&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$curls&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;curl_init&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+	&lt;span class=&#34;nv&#34;&gt;$curls&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;// Set the url path we want to call&lt;/span&gt;
+	&lt;span class=&#34;nb&#34;&gt;curl_setopt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;CURLOPT_URL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;// Make it so the data coming back is put into a string&lt;/span&gt;
+	&lt;span class=&#34;nb&#34;&gt;curl_setopt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;CURLOPT_RETURNTRANSFER&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; 
+	&lt;span class=&#34;nb&#34;&gt;curl_setopt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;CURLOPT_HEADER&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;TRUE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; 
+	&lt;span class=&#34;nb&#34;&gt;curl_setopt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;CURLOPT_NOBODY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;TRUE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// remove body &lt;/span&gt;
+	&lt;span class=&#34;nb&#34;&gt;curl_multi_add_handle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;processresults&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$curls&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$fourohfours&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$fourohfoururls&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$threeohones&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$threeohoneurls&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$twohundreds&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;global&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$curls&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;$httpCode&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;curl_getinfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;CURLINFO_HTTP_CODE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; 
+		&lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;curl_getinfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;CURLINFO_EFFECTIVE_URL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; 
+		&lt;span class=&#34;c1&#34;&gt;// Free up the resources $ch is using&lt;/span&gt;
+		&lt;span class=&#34;nb&#34;&gt;curl_multi_remove_handle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+		&lt;span class=&#34;nb&#34;&gt;curl_close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$ch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;switch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$httpCode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;case&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;400&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; 
+				&lt;span class=&#34;nv&#34;&gt;$fourohfours&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+				&lt;span class=&#34;nv&#34;&gt;$fourohfoururls&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;case&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;301&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; 
+				&lt;span class=&#34;nv&#34;&gt;$threeohones&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+				&lt;span class=&#34;nv&#34;&gt;$threeohoneurls&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;case&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;200&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$twohundreds&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;nb&#34;&gt;curl_multi_close&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+	&lt;span class=&#34;nv&#34;&gt;$multihandle&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;curl_multi_init&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+	&lt;span class=&#34;nv&#34;&gt;$curls&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The above takes about &amp;frac34; hour for an approximately 3000 link sitemap.  This script utilises curl_multi so it runs 5 requests at a time to the server.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP SimpleXML CData not loading &#43; solution</title>
+      <link>http://example.com/php/php-simplexml-cdata-not-loading-solution.html</link>
+      <pubDate>Mon, 12 Dec 2011 17:29:28 +0000</pubDate>
+      
+      <guid>http://example.com/php/php-simplexml-cdata-not-loading-solution.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+The php simpleXML object is my preferred way of working with XML, but it has some unusual quirks that can drive you up the wall. One of these is that, by default, it will not read CDATA within an XML file, and will just leave the node blank.&lt;/p&gt;
+
+&lt;p&gt;If you need to access this data then create your xml object like this&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+$xmlFile = &amp;ldquo;/path/to/xml/file.xml&amp;rdquo;;
+if (file_exists($xmlFile)) {
+$xml = simplexml_load_file($xmlFile,&amp;lsquo;SimpleXMLElement&amp;rsquo;, LIBXML_NOCDATA);
+echo $xml-&amp;gt;cDataNode;
+}
+&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Generic XML to CSV Converter</title>
+      <link>http://example.com/php/generic-xml-to-csv-converter.html</link>
+      <pubDate>Wed, 12 Oct 2011 11:02:59 +0000</pubDate>
+      
+      <guid>http://example.com/php/generic-xml-to-csv-converter.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+Some times you might have a legacy system that is built around csv or similar and you need to import an XML data source into this system.&lt;/p&gt;
+
+&lt;p&gt;Of course one possibility is to build full XML handling capabilities into the system. Perhaps a more sane solution is to simply convert the XML to CSV so that the legacy system does not have to be touched.&lt;/p&gt;
+
+&lt;p&gt;This little snippet will generally take an XML file and create a CSV file that should be useable. Of course its impossible to guarantee this for every XML file as its such a widely varied format, however in general this should work.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$xml = simplexml_load_file(&amp;#39;feed.xml&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$outstream = fopen(&amp;#39;feed.csv&amp;#39;,&amp;#39;w&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$header=false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;foreach($xml as $k=&amp;gt;$details){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if(!$header){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        fputcsv($outstream,array_keys(get_object_vars($details)));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $header=true;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    fputcsv($outstream,get_object_vars($details));&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;fclose($outstream);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Google Merchant Centre/Froogle/Google Shopping/Base Changes, Problems and Solutions</title>
+      <link>http://example.com/ecommerce/google-merchant-centrefrooglegoogle-shoppingbase-changes-problems-and-solutions.html</link>
+      <pubDate>Tue, 11 Oct 2011 17:05:20 +0000</pubDate>
+      
+      <guid>http://example.com/ecommerce/google-merchant-centrefrooglegoogle-shoppingbase-changes-problems-and-solutions.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+So now that everyone uses Google Shopping, Google are making life difficult for the merchants and they all have to jump through hoops.&lt;/p&gt;
+
+&lt;p&gt;The current push from Google is enforcing some things that are very difficult for small companies to conform with :-&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt; * EAN Numbers&lt;/strong&gt; - This is the BIG one, Google are making EAN Numbers required - for some retailers, they just don&amp;rsquo;t exist, and for a lot of older or cheaper shopping cart systems, they don&amp;rsquo;t have anywhere to enter them.
+&lt;strong&gt; * Google Category&lt;/strong&gt; - This is a fairly obvious one, they are attempting to enable shoppers to browse products and find a motherboard for instance with a 1156 socket rather than a CPU that fits an 1156 socket.  The answer is to add an extra field to a site&amp;rsquo;s category system to map site categories to Google categories, or to restructure your products into google&amp;rsquo;s categorisations.
+&lt;strong&gt; * Product Images&lt;/strong&gt; - Google are making this mandatory as well, which most people are getting round by using stock or illustration-only images.
+&lt;strong&gt; * Availability&lt;/strong&gt; - This one actually helps retailers, putting orderable products that are out of stock in front of customers, and is a small change to most scripts exporting to Google&lt;/p&gt;
+
+&lt;p&gt;The above changes are being phased in now but should your feed suddenly stop working, how big is the impact on your business?  Whilst some of the changes are little tweaks, such as the availability flag, others require fairly substantial changes in the back-end of many cart systems.  We are getting many aggrieved businesses contacting us asking for fast turnaround on their Google products feed as they are loosing money all the time that Google are rejecting their products.&lt;/p&gt;
+
+&lt;p&gt;What normally (given past changes) has been little tweaks for feeds to be compatible has lately become hours and hours of work both on developers and store-owners.  Are you ready to jump through the latest burning hoop Google is holding out for you?&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento Add Stylesheet to Head for Specific Category</title>
+      <link>http://example.com/magento/magento-add-stylesheet-to-head-for-specific-category.html</link>
+      <pubDate>Wed, 05 Oct 2011 12:12:05 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-add-stylesheet-to-head-for-specific-category.html</guid>
+      <description>&lt;p&gt;If you want to include a custom stylesheet for a particular category you can do this very cleanly by specifying custom layout xml in the category admin.&lt;/p&gt;
+
+&lt;p&gt;Simply find the category you want to apply this to and then hit the ```display settings
+ tab&lt;/p&gt;
+
+&lt;p&gt;Then in the custom layout update  box, paste something like this:&lt;/p&gt;
+
+&lt;p&gt;[xml]
+&lt;reference name=&#34;head&#34;&gt;
+&lt;action method=&#34;addCss&#34;&gt;&lt;stylesheet&gt;css/extra_styles.css&lt;/stylesheet&gt;&lt;/action&gt;
+&lt;/reference&gt;&lt;/p&gt;
+
+&lt;p&gt;```&lt;/p&gt;
+
+&lt;p&gt;clear your cache and this stylesheet should be included in the head section for this category.&lt;/p&gt;
+
+&lt;p&gt;You could of course do this in the layout XML files, however if you need somethign that the admin of the site can easily apply to any other new categories that needs the same treatment then this is a great solution.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Magento &#34;Products per Page on Grid Allowed Values&#34; Configuration Not Working &#43; Solution</title>
+      <link>http://example.com/magento/magento-products-per-page-on-grid-allowed-values-configuration-not-working-solution.html</link>
+      <pubDate>Thu, 01 Sep 2011 13:53:31 +0000</pubDate>
+      
+      <guid>http://example.com/magento/magento-products-per-page-on-grid-allowed-values-configuration-not-working-solution.html</guid>
+      <description>&lt;p&gt;If you are getting a &lt;i&gt;little bit frustrated&lt;/i&gt; trying to figure out why the admin configuration for the number of products to display on a page and the options in the products per page drop down are not working then this is quite possibly your soluiton.&lt;/p&gt;
+
+&lt;p&gt;The template file in question is in catalog/product/list/toolbar.phtml&lt;/p&gt;
+
+&lt;p&gt;You will see it refererences the block Mage_Catalog_Block_Product_List_Toolbar&lt;/p&gt;
+
+&lt;p&gt;So far so good, it all looks like it should be working but it just isn&amp;rsquo;t.&lt;/p&gt;
+
+&lt;p&gt;The issue can be that in your theme&amp;rsquo;s layout XML file, some values are being set for this with some XML that looks like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;setDefaultListPerPage&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;10&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;setDefaultGridPerPage&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;8&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;addPagerLimit&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;mode&amp;gt;&lt;/span&gt;list&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mode&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;10&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;addPagerLimit&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;mode&amp;gt;&lt;/span&gt;list&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mode&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;20&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;addPagerLimit&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&amp;lt;mode&amp;gt;&lt;/span&gt;list&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mode&amp;gt;&amp;lt;limit&amp;gt;&lt;/span&gt;30&lt;span class=&#34;nt&#34;&gt;&amp;lt;/limit&amp;gt;&amp;lt;/action&amp;gt;&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If that XML is there, then these actions are being called against your block object with these parameters, effectively overwriting your admin values.&lt;/p&gt;
+
+&lt;p&gt;To get the admin values to be respected, you need to comment out or totally remove this XML from your layout, clear your cache and you are in business.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

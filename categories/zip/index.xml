@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zip on Edmonds Commerce Dev Blog</title>
+    <link>http://example.com/categories/zip/</link>
+    <description>Recent content in Zip on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 13 Mar 2008 16:41:07 +0000</lastBuildDate>
+    <atom:link href="http://example.com/categories/zip/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP and Zip Files</title>
+      <link>http://example.com/php/zip/php-and-zip-files.html</link>
+      <pubDate>Thu, 13 Mar 2008 16:41:07 +0000</pubDate>
+      
+      <guid>http://example.com/php/zip/php-and-zip-files.html</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
+&lt;p&gt;
+If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
+or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+There aren&amp;rsquo;t many things you can&amp;rsquo;t do with PHP. One of the things you can do is deal with zip files.&lt;/p&gt;
+
+&lt;p&gt;PHP has a built in class for dealing with zip files which allows you to create them, unpack them, add and delete things from them and generally use them within your scripts.&lt;/p&gt;
+
+&lt;p&gt;Recently on a spidering / product feed integration job that I have been working on I needed to grab a load of image zip files and unpack them all into a folder called &amp;lsquo;images/&amp;rsquo; (surprisingly enough)&lt;/p&gt;
+
+&lt;p&gt;Here is how I did it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;function unpack_zips($directory, $destination = &amp;#39;images/&amp;#39;){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$files = dir_list($directory);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	//print_r($files);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$zips = array();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	foreach($files as $k=&amp;gt;$file){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		if(stristr($file, &amp;#39;.zip&amp;#39;)){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$zips[] = $directory . $file;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	print_r($zips);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	$zip = new ZipArchive;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	foreach($zips as $z){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		if ($zip-&amp;gt;open($z) === TRUE) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$zip-&amp;gt;extractTo($directory . $destination);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			$zip-&amp;gt;close();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			//echo &amp;quot;&amp;lt;h3&amp;gt;$z OK&amp;lt;/h3&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		} else {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			echo&amp;quot;&amp;lt;h3 style=\&amp;quot;color: red;\&amp;quot;&amp;gt;$z Failed&amp;lt;/h3&amp;gt;&amp;quot;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			bottom();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		}	&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;function dir_list($directory){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	echo $directory;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	if ($handle = opendir($directory)) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		while (false !== ($file = readdir($handle))) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			if($file != &amp;#39;.&amp;#39; &amp;amp;&amp;amp; $file != &amp;#39;..&amp;#39;){&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;				$return[] = $file;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;			}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		closedir($handle);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		return $return;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}else{		&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;		return false;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;	}&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;There are two functions. The first function is the one that deals with the Zip files. The second function is called by the first function and simply lists all files within a specified directory.&lt;/p&gt;
+
+&lt;p&gt;These two functions combined allowed me to find all zip files in a particular folder and then unpack them all into a destination folder.&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Related Resources&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.phpclasses.org/browse/package/945.html&#34; rel=&#34;nofollow&#34;&gt;&lt;a href=&#34;http://www.phpclasses.org/browse/package/945.html&#34; target=&#34;_blank&#34;&gt;http://www.phpclasses.org/browse/package/945.html&lt;/a&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a rel=&#34;nofollow&#34; href=&#34;http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/&#34;&gt;&lt;a href=&#34;http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/&#34; target=&#34;_blank&#34;&gt;http://www.phpit.net/article/creating-zip-tar-archives-dynamically-php/&lt;/a&gt;&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
