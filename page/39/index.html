@@ -105,6 +105,22 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://edmondscommerce.github.io/magento/magento-bug-custom-option-values-not-showing-in-backend.html">Magento bug: custom option values not showing in backend</a>
+            </h1>
+            <span class="post-date">Aug 22, 2012 &middot;
+                1 minute read
+      
+      <br/>
+      <a class="label" href="https://edmondscommerce.github.io/categories/magento">magento</a>
+      </span>
+            
+            It&rsquo;s a little bit annoying that such a core feature is just broken in many versions of magento - the headings for the custom options chosen, whilst fully working on the cart; checkout and emails to the customer, only show the heading and no content on the backend order. There are a couple of fixes : in app/code/core/Mage/Adminhtml/Block/Sales/Items/Column/Name.php there is no extending, so you can copy it to app/code/local/Mage/Adminhtml/Block/Sales/Items/Column/Name.php and add the following class method : public function getFormattedOption($value) { $_remainder = &#39;&#39;; $value = Mage::helper(&#39;core/string&#39;)-&gt;truncate($value, 55, &#39;&#39;, $_remainder); $result = array( &#39;value&#39; =&gt; nl2br($value), &#39;remainder&#39; =&gt; nl2br($_remainder) ); return $result; } and/or change the admin theme in app/design/adminhtml/default/default/template/sales/items/column/name.phtml around about line 44 from : &lt;?php $_option = $this-&gt;getFormattedOption($_option[&#39;value&#39;]); ?&gt; to &lt;?php if (!is_null($this-&gt;getFormattedOption($_option[&#39;value&#39;]))) { $_option = $this-&gt;getFormattedOption($_option[&#39;value&#39;]); } ?&gt; Then the custom options chosen by customers will happily show in the backend.
+            
+            
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://edmondscommerce.github.io/scraping/simple-php-scraping-with-jquery-like-selectors-using-simpledom.html">Simple PHP Scraping with jQuery Like Selectors using Simple HTML Dom</a>
             </h1>
             <span class="post-date">Aug 21, 2012 &middot;
@@ -180,22 +196,6 @@
             
             If you would like a quick summary of the IP addresses that are beating the **** out of your server by firing lots of requests for quite possibly malicious or otherwise nefarious reasons then try this little bash script: #!/bin/bash LOG_FILE=/var/www/vhosts/DOMAIN.co.uk/statistics/logs/access_log OUT_FILE=/tmp/spider_analysis #This generates a file with the top 20 IP addresses by number of requests cat $LOG_FILE | awk &#39;{print $1}&#39; | sort | uniq -c | sort -nr | head -n 20 &gt; $OUT_FILE echo &quot;Top 20 IP addresses by number of request&quot; cat $OUT_FILE #allow for loop to split on new line IFS_BAK=$IFS IFS=&quot; &quot; for i in `cat $OUT_FILE` do COUNT=`echo $i | awk &#39;{print $1}&#39;` IP_ADD=`echo $i | awk &#39;{print $2}&#39;` echo &quot;&quot; echo &quot;---------------------------------&quot; echo &quot;&quot; echo &quot;$IP_ADD has made $COUNT requests&quot; echo &quot;Whois Information&quot; whois $IP_ADD #lynx -dump http://who.cc/$IP_ADD # whois was blocked on the server i was using for some reason, use lynx as a work around echo &quot;&quot; echo &quot;---------------------------------&quot; echo &quot;&quot; done # set that back IFS=$IFS_BAK IFS_BAK= You would use this to give you some idea of which IPs are hitting the server a lot.
             <a href="https://edmondscommerce.github.io/linux/apache-access-logs-find-spiders-by-counting-requests-to-ip-addresses.html">Read On &rarr;</a>
-            
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://edmondscommerce.github.io/magento/magento-security-update.html">Magento Security Update Testimonials</a>
-            </h1>
-            <span class="post-date">Aug 17, 2012 &middot;
-                2 minute read
-      
-      <br/>
-      <a class="label" href="https://edmondscommerce.github.io/categories/magento">magento</a>
-      </span>
-            
-            If you run a Magento store or are otherwise familiar with the world of Magento then you have no doubt seen the urgent security patch that live stores needed to apply quickly. We opted to offer the security patching service for free to our existing clients and then also to the rest of the world. The process of applying the patch is quick and painless thanks to a nice Bash script we put together so there was really no problem in offering this service.
-            <a href="https://edmondscommerce.github.io/magento/magento-security-update.html">Read On &rarr;</a>
             
         </div>
         
