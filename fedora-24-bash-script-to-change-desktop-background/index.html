@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
-	<meta name="generator" content="Hugo 0.16" />
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title>Edmonds Commerce Dev Blog &middot; </title>
+  <title>Fedora 24 Bash Script to Change Desktop Background &middot; </title>
 
   
   <link rel="stylesheet" href="https://edmondscommerce.github.io/css/poole.css">
@@ -27,7 +26,7 @@
   
   
   
-  <link href="https://edmondscommerce.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Edmonds Commerce Dev Blog &middot; " />
+  
 
   <meta name="description" content="">
   <meta name="keywords" content="">
@@ -100,55 +99,42 @@
 
 
 <div class="content container">
-    <div class="posts">
-        
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://edmondscommerce.github.io/mysql/mysql-find-and-replace.html">MySQL Find and Replace</a>
-            </h1>
-            <span class="post-date">Feb 5, 2008 &middot;
-                1 minute read
-      
-      <br/>
-      <a class="label" href="https://edmondscommerce.github.io/categories/mysql">mysql</a>
-      </span>
-            
-            This is post is now quite old and the the information it contains may be out of date or innacurate. If you find any errors or have any suggestions to update the information please let us know or create a pull request on GitHub One of the most common things that needs to be done when tidying up a database is to bulk find and replace data in MySQL tables. This can be for things like spelling mistakes, changing categories of products or any other value held in a MySQL database table.
-            <a href="https://edmondscommerce.github.io/mysql/mysql-find-and-replace.html">Read On &rarr;</a>
-            
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://edmondscommerce.github.io/search-engine-optimisation/10-seo-myths.html">10 SEO Myths</a>
-            </h1>
-            <span class="post-date">Feb 4, 2008 &middot;
-                7 minute read
-      
-      <br/>
-      <a class="label" href="https://edmondscommerce.github.io/categories/search-engine-optimisation">search engine optimisation</a>
-      </span>
-            
-            This is post is now quite old and the the information it contains may be out of date or innacurate. If you find any errors or have any suggestions to update the information please let us know or create a pull request on GitHub The world of search engine optimisation or SEO for short is confusing to say the least. The main problem is that much of SEO knowledge is like a kind of religion.
-            <a href="https://edmondscommerce.github.io/search-engine-optimisation/10-seo-myths.html">Read On &rarr;</a>
-            
-        </div>
-        
-        <div class="pagination">
-            <nav role="pagination" class="post-list-pagination">
-                
-                <a class="btn btn-default" href="/page/143/">
-                    &lt; Previous Page
-                </a>
-                
-                <span class="post-list-pagination-item post-list-pagination-item-current">Page 144 of 144</span>
-                
-            </nav>
-        </div>
+  <div class="post">
+    <h1 class="post-title">Fedora 24 Bash Script to Change Desktop Background</h1>
+    <span class="post-date">Jul 19, 2016 &middot; 1 minute read
+    
+    <br/>
+      <strong>Category: </strong>
+    <a class="label" href="https://edmondscommerce.github.io/categories/fedora">Fedora</a>
+    </span>
+    
 
-    </div>
+<h2 id="bash-script-to-change-desktop-on-gnome-shell">Bash Script to Change Desktop on Gnome Shell</h2>
+
+<p>Previously on this blog I had a script that will change your desktop background and can be used on cron</p>
+
+<p>This is an updated version of that script, mainly the pgrep no longer works as the gdm login is matching as well so we need to be more specific when pulling out the process ID.</p>
+
+<p>Here is the script, copy paste into a bash script, edit the path for images and then add to your crontab and enjoy nice backgrounds of your choosing.</p>
+
+<p>I like to combine this with a transparent top panel for something a bit less bland and depressing than the solid black bar that we have by default. You can install this <a href="https://extensions.gnome.org/extension/358/activities-configurator/" target="_blank">gnome shell extension</a> to easily set transparency and also other tweaks.`</p>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span><span class="ch">#!/usr/bin/env bash</span>
+<span class="nv">PID</span><span class="o">=</span><span class="k">$(</span>ps waux <span class="p">|</span> grep <span class="o">[</span>g<span class="o">]</span>nome-session-binary <span class="p">|</span> grep -v gdm <span class="p">|</span> cut -d <span class="s1">&#39; &#39;</span> -f 5<span class="k">)</span>
+<span class="nb">export</span> <span class="nv">DBUS_SESSION_BUS_ADDRESS</span><span class="o">=</span><span class="k">$(</span>grep -z DBUS_SESSION_BUS_ADDRESS /proc/<span class="nv">$PID</span>/environ<span class="p">|</span>cut -d<span class="o">=</span> -f2-<span class="k">)</span>
+<span class="nv">GSETTINGS_BACKEND</span><span class="o">=</span>dconf 
+gsettings <span class="nb">set</span> org.gnome.desktop.background picture-uri <span class="s1">&#39;&quot;file://&#39;</span>/home/joseph/Pictures/Wallpapers/<span class="k">$(</span>ls /home/joseph/Pictures/Wallpapers/ <span class="p">|</span> shuf -n 1<span class="k">)</span><span class="s1">&#39;&quot;&#39;</span>
+</code></pre></div>
+
+  </div>
+  
+  <br/>
+  <strong>Tags: </strong>
+  <a class="label" href="https://edmondscommerce.github.io/tags/fedora">fedora</a><a class="label" href="https://edmondscommerce.github.io/tags/bash">bash</a><a class="label" href="https://edmondscommerce.github.io/tags/dconf">dconf</a><a class="label" href="https://edmondscommerce.github.io/tags/wallpaper">wallpaper</a><a class="label" href="https://edmondscommerce.github.io/tags/desktop">desktop</a><a class="label" href="https://edmondscommerce.github.io/tags/background">background</a>
+  
+  
 </div>
+
+
 
 
 <script src="https://edmondscommerce.github.io/js/highlight.pack.js"></script>
