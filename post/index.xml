@@ -6,8 +6,43 @@
     <description>Recent content in Posts on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 Jul 2016 20:05:32 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 20 Jul 2016 19:28:43 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Lenovo Carbon X1 Fedora 24 Wifi Issues &#43; Solution</title>
+      <link>https://edmondscommerce.github.io/lenovo-carbon-x1-fedora-24-wifi-issues-&#43;-solution/</link>
+      <pubDate>Wed, 20 Jul 2016 19:28:43 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/lenovo-carbon-x1-fedora-24-wifi-issues-&#43;-solution/</guid>
+      <description>&lt;p&gt;So my new Lenovo ultrabook is very nice, but trying to transfer a database dump over SCP was failing, every, time.&lt;/p&gt;
+
+&lt;p&gt;In my trade, transferring large files around is pretty much a requirement so I had to find a solution. A lot of Googling later and I did the following that seemed to fix it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;sudo &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;options iwlwifi 11n_disable=1&amp;quot;&lt;/span&gt;  &amp;gt;&amp;gt;  /etc/modprobe.d/iwlwifi.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;In order to test if the above fix works, I wrote this little script and placed in my ~/bin directory (called fixwifi)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env bash
+echo &amp;quot;f******g linux wifi...&amp;quot;
+sudo bash -c &amp;quot;modprobe -r iwlmvm; modprobe -r iwlwifi; modprobe iwlwifi 11n_disable=1; modprobe iwlmvm&amp;quot;
+echo &amp;quot;sorted&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Something else I did which I&amp;rsquo;m not sure if it has helped is to symlink the firmware specified in &lt;code&gt;modinfo iwlwifi&lt;/code&gt; to what seems to be a more up to date verion.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[joseph@josephlaptop ~] $ ll /lib/firmware/ | grep 8000C
+lrwxrwxrwx. 1 root root      22 Jul 20 17:06 iwlwifi-8000C-13.ucode -&amp;gt; iwlwifi-8000C-21.ucode
+-rw-r--r--. 1 root root 1745176 Jul 20 17:05 iwlwifi-8000C-13.ucode.bak
+-rw-r--r--. 1 root root 2351636 Jun  9 14:17 iwlwifi-8000C-16.ucode
+-rw-r--r--. 1 root root 2394060 Jun  9 14:17 iwlwifi-8000C-21.ucode
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When I did this, things did seem to improve but its hard to know if its just a coincidence. Its working fine now though so I&amp;rsquo;m leaving it that way.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve now repeatedly transferred large amounts of data using SCP and it has worked fine every time, so regarding this as solved :)&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Fedora 24 Bash Script to Change Desktop Background</title>
@@ -483,57 +518,6 @@ none            &lt;span class=&#34;m&#34;&gt;126892&lt;/span&gt;       &lt;span
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;This will list the total number of files in a given directory. You can change the path to work your way down the directory tree finding directories with lots of files. In the end we found excess of old logs which I was able to remove.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Repeating Behat Scenarios when Testing Magento with SmartStep</title>
-      <link>https://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html</link>
-      <pubDate>Wed, 15 Apr 2015 12:02:28 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html</guid>
-      <description>
-
-&lt;p&gt;When behat testing Magento I found myself repeating the same Homepage &amp;gt; Category &amp;gt; Product &amp;gt; Add-to-cart &amp;gt; Cart page scenario for a variety of tests - checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.&lt;/p&gt;
-
-&lt;p&gt;I didn&amp;rsquo;t want to copy-paste the whole procedure because if I changed, say the &lt;code&gt;.product-list&lt;/code&gt; class, I&amp;rsquo;d have to update each of the Scenarios. Bit of a kick in the face to &lt;a href=&#34;http://en.wikipedia.org/wiki/Don%27t_repeat_yourself&#34; target=&#34;_blank&#34;&gt;DRY&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step &lt;code&gt;Given I have added to cart&lt;/code&gt; or similar, but this defeats the object of using Gherkin to write the tests.&lt;/p&gt;
-
-&lt;p&gt;Fortunately KnpLabs have soled this problem with &lt;a href=&#34;https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md&#34; target=&#34;_blank&#34;&gt;SmartSteps&lt;/a&gt;. This allows you to create a Scanerio that you want to be repeatable by tagging it as a &lt;code&gt;@smartStep&lt;/code&gt;. Once it&amp;rsquo;s tagged, you can easily embed that scenario into a new one by having a step &lt;code&gt;Given [scenario name]&lt;/code&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;adding-smartsteps-to-your-behat-tests&#34;&gt;Adding SmartSteps to your behat tests&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;In &lt;code&gt;composer.json&lt;/code&gt;, add a new dependency
-&lt;code&gt;
-&amp;quot;knplabs/friendly-contexts&amp;quot;: &amp;quot;dev-master&amp;quot;
-&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;In &lt;code&gt;behat.yml&lt;/code&gt;
-```
-default:
-extensions:
-    Knp\FriendlyContexts\Extension:
-        smartTag: smartStep&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code&gt;- Tag your scenario
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;@smartStep
-  Scenario: I arrive on the site and add a product to cart
-    When I am on &amp;ldquo;/&amp;rdquo;
-    Then I follow &amp;ldquo;My category&amp;rdquo;
-    Then I follow &amp;ldquo;My product&amp;rdquo;
-    Then I press &amp;ldquo;Add to Cart&amp;rdquo;
-    And I should see &amp;ldquo;was added to your shopping cart&amp;rdquo;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;- And then use the Scenario in any other scenarios with
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Given I arrive on the site and add a product to cart
-```&lt;/p&gt;
 </description>
     </item>
     
