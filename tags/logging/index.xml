@@ -64,37 +64,5 @@ tail -f /path/to/file | sed -u G | grep -A 1 searchTerm
 </description>
     </item>
     
-    <item>
-      <title>Magento More Detailed Exception Log</title>
-      <link>https://edmondscommerce.github.io/magento/magento-more-detailed-exception-log.html</link>
-      <pubDate>Wed, 10 Jun 2009 12:52:59 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/magento-more-detailed-exception-log.html</guid>
-      <description>&lt;p&gt;Magento has a nice feature which logs exceptions to file and then generally displays a non scary message to the site user. Its not always true, some exceptions do get through and then generate reports.&lt;/p&gt;
-
-&lt;p&gt;For exceptions that are caught and logged though, (if you have logging enabled) you will find the exception log in the var/logs folder. However the exception log only contains the getTraceAsString info, which is heavily truncated and often pretty much useless. To get around this you can modify the logException method in Mage.php.&lt;/p&gt;
-
-&lt;p&gt;Note, editing Mage.php directly is not generally a good idea and any edits will get nuked every time you upgrade. However for local development work this little edit is OK I think.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt; public static function logException(Exception $e)&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        if (!self::getConfig()) {&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;            return;&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        }&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $file = Mage::getStoreConfig(&amp;#39;dev/log/exception_file&amp;#39;);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        //self::log(&amp;quot;n&amp;quot;.$e-&amp;gt;getTraceAsString(), Zend_Log::ERR, $file);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $exceptionString = &amp;quot;nnnLogged Exception:nn&amp;quot; . $e-&amp;gt;getMessage() . &amp;quot;nn&amp;quot; . $e-&amp;gt;getTraceAsString();&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        /*foreach($e-&amp;gt;getTrace() as $t){&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;            $exceptionString .= var_export($t, true);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        }*/&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        self::log($exceptionString, Zend_Log::ERR, $file);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;Note I experimented with echoing out each trace as detailed in &lt;a href=&#34;http://www.edmondscommerce.co.uk/blog/zend-framework/zend-framework-more-detailed-stack-trace/&#34;&gt;this post&lt;/a&gt;, however I found that this caused a fatal error due to some kind of recursion so I have commented it out. The only real change is that I have logged also the Exception message, which is generally the most useful bit of info and will actually help you understand what has gone wrong, in which file and on which line.&lt;/p&gt;
-
-&lt;p&gt;Hope this helps someone else out. If you have any suggestions on a cleaner or better way to do this please do post it / link it in the comments.&lt;/p&gt;
-</description>
-    </item>
-    
   </channel>
 </rss>

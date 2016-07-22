@@ -23,38 +23,5 @@ You should now be able to connect to connect to your database. This will also en
 </description>
     </item>
     
-    <item>
-      <title>SELinux Configuration for Alternative Document Root</title>
-      <link>https://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root.html</link>
-      <pubDate>Sat, 04 Oct 2014 12:19:52 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root.html</guid>
-      <description>&lt;p&gt;SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.&lt;/p&gt;
-
-&lt;p&gt;By default SELinux is configured expecting Apache to be using /var/www as its document root.&lt;/p&gt;
-
-&lt;p&gt;If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.&lt;/p&gt;
-
-&lt;p&gt;If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.&lt;/p&gt;
-
-&lt;p&gt;First of all you should double check what types http has:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -l &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep http
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;We specifically need read/write access so lets grep for that:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -l &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep http &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep rw
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;For me that shows the type: httpd_sys_rw_content_t&lt;/p&gt;
-
-&lt;p&gt;We now need to add this to our custom document root:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;/.*&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;?’
-restorecon -R -v /opt/Projects/
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux&lt;/p&gt;
-</description>
-    </item>
-    
   </channel>
 </rss>

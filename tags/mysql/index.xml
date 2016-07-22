@@ -55,58 +55,6 @@ You should now be able to connect to connect to your database. This will also en
     </item>
     
     <item>
-      <title>Simple Database Migrations</title>
-      <link>https://edmondscommerce.github.io/php/simple-database-migrations.html</link>
-      <pubDate>Mon, 28 Apr 2014 13:22:34 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/php/simple-database-migrations.html</guid>
-      <description>&lt;p&gt;Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.&lt;/p&gt;
-
-&lt;p&gt;It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.&lt;/p&gt;
-
-&lt;p&gt;Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.&lt;/p&gt;
-
-&lt;p&gt;Here is the code:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;mysql_fetch_assoc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;db_query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;select version from db_migrations order by version desc limit 0,1&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$current_version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;version&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;version&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$di&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;DirectoryIterator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/migrations&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$di&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;cm&#34;&gt;/* @var $f DirectoryIterator */&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;isDot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;())&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;continue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pathinfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getFilename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PATHINFO_EXTENSION&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;explode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#1 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;];&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;is_numeric&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#2 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$current_version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#3 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;empty&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;nb&#34;&gt;ksort&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SORT_NUMERIC&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;require&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/migrations/&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;nx&#34;&gt;h&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Database Migrations - running migration &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;nx&#34;&gt;db_query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;insert into db_migrations set version = &amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39; &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-</description>
-    </item>
-    
-    <item>
       <title>MySQL Substring not Returning Anything &#43; Solution</title>
       <link>https://edmondscommerce.github.io/mysql/mysql-substring-not-returning-anything-solution.html</link>
       <pubDate>Tue, 20 Aug 2013 10:54:20 +0000</pubDate>
@@ -133,20 +81,6 @@ SELECT SUBSTRING(column, 1, 10) as tenchars
     </item>
     
     <item>
-      <title>ERROR 1062 (23000) at line [Line No]: Duplicate entry for key &#39;[Key Name]&#39;</title>
-      <link>https://edmondscommerce.github.io/mysql/error-1062-23000-at-line-line-no-duplicate-entry-for-key-key-name.html</link>
-      <pubDate>Tue, 02 Jul 2013 14:09:53 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/mysql/error-1062-23000-at-line-line-no-duplicate-entry-for-key-key-name.html</guid>
-      <description>&lt;p&gt;Importing a database dump from one location using mysqldump, and them importing it into a blank database I received this error:&lt;/p&gt;
-
-&lt;p&gt;ERROR 1062 (23000) at line [Line No]: Duplicate entry for key &amp;lsquo;[Key Name]&amp;rsquo;&lt;/p&gt;
-
-&lt;p&gt;The issue here is that a constraint is set up to prevent two rows containing the same value. Although key checks are disabled, it still can&amp;rsquo;t add the rows. Sometimes as a useful technique to just get it running locally (obviously there&amp;rsquo;s an issue here which does need resolving), simply change the &amp;ldquo;INSERT INTO&amp;rdquo; statement to &amp;ldquo;INSERT IGNORE INTO&amp;rdquo;, which will skip that entry.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Magento Implementation of Jewellery Site (White Label)</title>
       <link>https://edmondscommerce.github.io/featured/magento-implementation-of-jewellery-site-white-label.html</link>
       <pubDate>Wed, 20 Feb 2013 20:19:01 +0000</pubDate>
@@ -157,26 +91,6 @@ SELECT SUBSTRING(column, 1, 10) as tenchars
 &lt;p&gt;The site required some customised functionality along with a full bespoke design implementation.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;https://edmondscommerce.github.io/images/screenshot-thumb1.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>SQLSTATE[28000]: Invalid authorization specification: 1045 Access denied for user &#43; Solution</title>
-      <link>https://edmondscommerce.github.io/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html</link>
-      <pubDate>Tue, 12 Feb 2013 18:03:29 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/mysql/sqlstate28000-invalid-authorization-specification-1045-access-denied-for-user-solution.html</guid>
-      <description>&lt;p&gt;I have recently been running some MySql scripts that wrote to a file.&lt;/p&gt;
-
-&lt;p&gt;These worked fine locally, but as soon as I deployed them I started to get the error above.&lt;/p&gt;
-
-&lt;p&gt;After much looking around I came across this solution.&lt;/p&gt;
-
-&lt;p&gt;When I was developing locally, I was connecting with a user that had global privileges. When I was running the code on the server I was connecting with a user that only had privileges for the database I was using.&lt;/p&gt;
-
-&lt;p&gt;The issue is that then FILE privilege is a Global setting, so the user did not have access to it, hence the access denied message.&lt;/p&gt;
-
-&lt;p&gt;Grant FILE privileges and you can connect as expected&lt;/p&gt;
 </description>
     </item>
     
@@ -534,6 +448,89 @@ Replace catalog_product* for catalog_category to get the values for a category. 
 &lt;p&gt;MySQL will also give you this error if you try to send a packet that is larger than the packet size defined. We had an application that was using MariaDB which has a default max allowed packet of 16M by default.&lt;/p&gt;
 
 &lt;p&gt;The application in question was sending large amounts of data to be stored and so the solution to the gone away issues was simply to increase the max_allowed_packet configuration in my.cnf, restart the mysql daemon and the problems are sorted.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Wondering what you&#39;re waiting for? Mytop tells all</title>
+      <link>https://edmondscommerce.github.io/mysql/wondering-what-youre-waiting-for-mytop-tells-all.html</link>
+      <pubDate>Tue, 14 Aug 2012 16:03:11 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/mysql/wondering-what-youre-waiting-for-mytop-tells-all.html</guid>
+      <description>&lt;p&gt;Mytop is a handy utility which shows what queries are currently being executed on your MySQL server - useful for those times when you&amp;rsquo;re not quite sure if it&amp;rsquo;s still on the job&lt;/p&gt;
+
+&lt;p&gt;Running mytop is easy, just run it from the command line and it&amp;rsquo;ll give you a top-like list of any queries currently being executed on the server
+You need to tell my top how it should connect to your database. You &lt;em&gt;can&lt;/em&gt; specify everything as parameters on the command, such as&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;$ mytop -u&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;myuser -p&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mypassword --db&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mydatabase -P&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3306
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;But chances are you&amp;rsquo;re not changing your database server &lt;em&gt;that&lt;/em&gt; often.&lt;/p&gt;
+
+&lt;h3&gt;Setting the default parameters for mytop&lt;/h3&gt;
+
+&lt;p&gt;If you want to save yourself the effort of repeatedly typing the same details over and over, just tell mytop what you want it to choose if you don&amp;rsquo;t tell it any parameters&lt;/p&gt;
+
+&lt;p&gt;All you need to do is let mytop know how to connect to your MySQL database in the form of a config file called .mytop in your home folder, with the following contents (replace as necessary):
+&lt;blockquote&gt;
+&lt;code&gt;
+     user=myuser
+         pass=
+         host=my.host.name
+         db=
+         delay=5
+         port=3306
+         socket=
+         batchmode=0
+         header=1
+         color=1
+         idle=1
+&lt;/code&gt;
+&lt;/blockquote&gt;&lt;/p&gt;
+
+&lt;p&gt;You can add as many or as few of these as you like for easy configuration, like specifying the db flag if you&amp;rsquo;re primarily accessing only one database. I like to leave the password field blank, and use the &amp;ndash;prompt flag to avoid any awkward leaks!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to restore a phpmyadmin magento backup</title>
+      <link>https://edmondscommerce.github.io/magento/how-to-restore-a-phpmyadmin-magento-backup.html</link>
+      <pubDate>Mon, 25 Jun 2012 12:20:33 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento/how-to-restore-a-phpmyadmin-magento-backup.html</guid>
+      <description>&lt;p&gt;So, if you&amp;rsquo;ve ever had the situation where the only backup of a magento database has been done through phpmyadmin (hint: don&amp;rsquo;t do this, use the inbuilt backup tool or lightbackup magento extension), you need to set up some magic at the top and bottom of the dump files :-&lt;/p&gt;
+
+&lt;p&gt;Add the following at the top :-
+&lt;code&gt;SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT;
+SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS;
+SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION;
+SET NAMES utf8;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=&amp;lsquo;NO_AUTO_VALUE_ON_ZERO&amp;rsquo;;
+SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;and the following at the bottom :
+&lt;code&gt;SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT;
+SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS;
+SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;
+SET SQL_NOTES=@OLD_SQL_NOTES;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;This can also be done if you use some other backup systems (we&amp;rsquo;ve seen a table-per-file system too), in that instance, we created 00-head.sql and zz-foot.sql containing the above and create a single backup with &amp;lsquo;cat *.sql &amp;gt; all.sql&amp;rsquo; before restoring.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Enable Category Pages to Display Subcategories</title>
+      <link>https://edmondscommerce.github.io/magento/enable-category-pages-to-display-subcategories.html</link>
+      <pubDate>Fri, 01 Jun 2012 15:12:22 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento/enable-category-pages-to-display-subcategories.html</guid>
+      <description>&lt;p&gt;Thinking of being able to set different Magento Categories to display its sub-categories which can be controllable in the Magento admin i.e. &lt;img src=&#34;https://edmondscommerce.github.io/images/Screenshot-New-Category-Manage-Categories-Categories-Catalog-Magento-Admin-Chromium-150x150.png&#34; alt=&#34;Image&#34; /&gt;
+&lt;/p&gt;
+You might be interested in using or viewing the zipped file here;&lt;a href=&#39;http://www.edmondscommerce.co.uk/wp-content/uploads/2012/06/subcat.zip&#39;&gt;subcat&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     

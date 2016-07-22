@@ -182,58 +182,6 @@ but you should have this done already&amp;hellip;&lt;/p&gt;
     </item>
     
     <item>
-      <title>Simple Database Migrations</title>
-      <link>https://edmondscommerce.github.io/php/simple-database-migrations.html</link>
-      <pubDate>Mon, 28 Apr 2014 13:22:34 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/php/simple-database-migrations.html</guid>
-      <description>&lt;p&gt;Some times you just need something simple to manage database versions. This few lines of PHP is something I have used on various projects to assist with database versioning.&lt;/p&gt;
-
-&lt;p&gt;It is definitely not a fully featured migrations system, there is no downgrade functionality, it is purely for versioning up a DB to the latest version.&lt;/p&gt;
-
-&lt;p&gt;Largely how it works is up to you as it is simply a way of requiring PHP files in numerical order.&lt;/p&gt;
-
-&lt;p&gt;Here is the code:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;mysql_fetch_assoc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;db_query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;select version from db_migrations order by version desc limit 0,1&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$current_version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;version&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;version&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$di&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;DirectoryIterator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/migrations&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$di&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;cm&#34;&gt;/* @var $f DirectoryIterator */&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;isDot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;())&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;continue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pathinfo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getFilename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(),&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;PATHINFO_EXTENSION&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;explode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#1 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$exp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;];&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;is_numeric&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#2 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$current_version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;#3 Invalid migration file &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; in &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;__FILE__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;empty&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;nb&#34;&gt;ksort&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SORT_NUMERIC&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$torun&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;require&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;__DIR__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/migrations/&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;nx&#34;&gt;h&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Database Migrations - running migration &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;nx&#34;&gt;db_query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;insert into db_migrations set version = &amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39; &amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Compare Text Chunks Quickly in PHPStorm</title>
       <link>https://edmondscommerce.github.io/phpstorm/compare-text-chunks-quickly-in-phpstorm.html</link>
       <pubDate>Wed, 26 Mar 2014 11:34:50 +0000</pubDate>
@@ -471,152 +419,111 @@ The problem is that you have used the standard PHP super globals and you would r
     </item>
     
     <item>
-      <title>Sylius E-Commerce based on Symfony</title>
-      <link>https://edmondscommerce.github.io/magento/sylius-e-commerce-based-on-symfony.html</link>
-      <pubDate>Tue, 23 Jul 2013 13:48:47 +0000</pubDate>
+      <title>Payment has failed... Magento and SagePay CE Error &#43; Solution</title>
+      <link>https://edmondscommerce.github.io/magento/payment-has-failed-magento-and-sagepay-ce-error-solution.html</link>
+      <pubDate>Wed, 22 May 2013 14:58:25 +0000</pubDate>
       
-      <guid>https://edmondscommerce.github.io/magento/sylius-e-commerce-based-on-symfony.html</guid>
-      <description>&lt;p&gt;As if there weren&amp;rsquo;t enough!&lt;/p&gt;
+      <guid>https://edmondscommerce.github.io/magento/payment-has-failed-magento-and-sagepay-ce-error-solution.html</guid>
+      <description>&lt;p&gt;I recently upgraded a magento store and installed the Sage Pay Suite CE module from EbizMarks.&lt;/p&gt;
 
-&lt;p&gt;There is a new contender for the open source e-commerce crown, a platform called &lt;b&gt;&lt;a href=&#34;http://sylius.com/features&#34; target=&#34;_blank&#34;&gt;Sylius&lt;/a&gt;&lt;/b&gt;. The thing that makes this one especially interesting is that rather than being built from scratch it is based upon a very well established PHP framework called Symfony. Some would argue that Symfony is the &amp;ldquo;other&amp;rdquo; PHP framework alongside Zend Framework. In fact there are many frameworks however it would be fair to say that Symfony and Zend Framework are the most well established and up to date.&lt;/p&gt;
+&lt;p&gt;The following error came up twice during the testing of the module, once in the frontend and once in the admin.&lt;/p&gt;
 
-&lt;p&gt;Basing an e-commerce platform upon an existing PHP framework has many advantages including transferrable skills, established best practice structure and also easier access to a wide range of functionality via library components and extensions.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Payment has failed, please reload checkout page and try again. Your card has not been charged&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;There is another e-commerce platform based upon a PHP framework. It is based upon Zend Framework - you might have heard of it - Magento.&lt;/p&gt;
+&lt;p&gt;The error itself is triggered from the saveAfter method in the Ebizmarts_SagePaySuite_Model_Observer_Sales class and is called every time an order is saved.&lt;/p&gt;
 
-&lt;p&gt;It does look very much like Sylius is still quite a new offering and it can not boast the level of maturity and establishment that Magento has achieved. That said, things move quickly in this industry and who knows what will be top dog in the next five years.&lt;/p&gt;
-
-&lt;p&gt;If you are considering Sylius for your e-commerce website and would like to find a UK Sylius developer to work with then do get in touch with Edmonds Commerce today.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>PHP SOAP Client Basic Template</title>
-      <link>https://edmondscommerce.github.io/php/php-soap-client-basic-template.html</link>
-      <pubDate>Mon, 08 Jul 2013 08:28:17 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/php/php-soap-client-basic-template.html</guid>
-      <description>&lt;p&gt;Often when integrating with SOAP services I find myself doing the same old moves. I have a deep suspicion of API&amp;rsquo;s written by others. They always tend to be in ASP.net, have error message pages that have default messages and generally be really badly documented and coded. Maybe I&amp;rsquo;m just unlucky?&lt;/p&gt;
-
-&lt;p&gt;In my experience decent API&amp;rsquo;s don&amp;rsquo;t use SOAP.&lt;/p&gt;
-
-&lt;p&gt;Anyway if I do have to use SOAP, starting out with this class as a template to get the ball rolling with some useful debugging methods (so you can email the API owners and show them that their API doesn&amp;rsquo;t work), I&amp;rsquo;ve blogged it for my own archive and retrieval reasons but if it helps anyone else out then that is great!&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt; * Class Template Soap Client Consuming Class&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt; */&lt;/span&gt;
-
-&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;EdmondsCommerceSoap&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-
-    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;edmondscommerce&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-
-    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pass&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;NotReallyMyPassw0rd&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-
-
-    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;test&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;connection_timeout&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;25&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;location&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
-        &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;trace&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;//this is important if you want to be able to use the soapDebug method&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$wsdl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setAuthHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;Method&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapFault&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;h1&amp;gt;SoapFault: &amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getMessage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;/h1&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;pre&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getTraceAsString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;/pre&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;h2&amp;gt;Debug Info:&amp;lt;/h2&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;nb&#34;&gt;var_dump&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;soapDebug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;p&gt;The error on the frontend was caused by a javascript error. Adding the following to the top of the sagePaySuite_Checkout.js file corrected it&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-javascript&#34; data-lang=&#34;javascript&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;typeof&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;sagePayIsMobile&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;undefined&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;sagePayIsMobile&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/BlackBerry/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
+            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/webOS/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
+            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/Android/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
+            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/iPhone/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
+            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/iPod/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
+            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/iPad/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
     &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt;    * This method is only a template, will change depending on the service you are using but its a good starting point demonstrating how to set headers&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt;    **/&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setAuthHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$auth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
-            &lt;span class=&#34;s1&#34;&gt;&amp;#39;username&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
-            &lt;span class=&#34;s1&#34;&gt;&amp;#39;MessageId&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;md5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()),&lt;/span&gt;
-            &lt;span class=&#34;s1&#34;&gt;&amp;#39;password&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;password&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$auth&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$k&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;SoapHeader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Header&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$v&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__setSoapHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt;     *  This method gathers all debug info into a handy array ready for var_dump, log etc etc&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt;     **/&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;soapDebug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;SoapClient&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;headers&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequestHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;request&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body_formatted&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;headers&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponseHeaders&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;response&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;body_formatted&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;__getLastResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$debug&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-
-    &lt;span class=&#34;sd&#34;&gt;/**&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt;     * This method is purely to assist the debug method and simply makes generated XML readable&lt;/span&gt;
-&lt;span class=&#34;sd&#34;&gt;     **/&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;formatXmlString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;preg_replace&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/(&amp;gt;)(&amp;lt;)(\/*)/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;$1&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;$2$3&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strtok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$xml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!==&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/.+&amp;lt;\/\w[^&amp;gt;]*&amp;gt;$/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
-                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/^&amp;lt;\/\w/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
-                &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;preg_match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/^&amp;lt;\w[^&amp;gt;]*[^\/]&amp;gt;.*$/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$matches&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
-                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
-                &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;endif&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;str_pad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strlen&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;STR_PAD_LEFT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;strtok&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$pad&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$indent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;endwhile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$result&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The error in the admin was caused by a different extension being called when the order was saved. Normally the extension ensures that the method is not called when it is not needed and this is done by checking the route and the registry. If an extension saves the order these checks are not triggered so you will need to add in your own. To do that you will need add the following code to the action that is saving the error&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;Mage::register(&amp;#39;skipSagePay&amp;#39;, TRUE);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and then change the following line in the Ebizmarts/SagePaySuite/Model/Observer/Sales.php file&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;if( (Mage::app()-&amp;gt;getRequest()-&amp;gt;getControllerModule() == &amp;#39;Mage_Api&amp;#39;) || Mage::registry(&amp;#39;current_shipment&amp;#39;) || Mage::registry(&amp;#39;sales_order&amp;#39;) || Mage::registry(&amp;#39;current_creditmemo&amp;#39;) || Mage::registry(&amp;#39;current_invoice&amp;#39;) || ($order-&amp;gt;getPayment()-&amp;gt;getMethod() == &amp;#39;sagepayrepeat&amp;#39;) ){&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;to&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;if( (Mage::app()-&amp;gt;getRequest()-&amp;gt;getControllerModule() == &amp;#39;Mage_Api&amp;#39;) || Mage::registry(&amp;#39;current_shipment&amp;#39;) || Mage::registry(&amp;#39;sales_order&amp;#39;) || Mage::registry(&amp;#39;current_creditmemo&amp;#39;) || Mage::registry(&amp;#39;current_invoice&amp;#39;) || ($order-&amp;gt;getPayment()-&amp;gt;getMethod() == &amp;#39;sagepayrepeat&amp;#39;) || Mage::registry(&amp;#39;skipSagePay&amp;#39;)){&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 </description>
     </item>
     
     <item>
-      <title>PHP PDO Fetch Object and Columns with Spaces</title>
-      <link>https://edmondscommerce.github.io/php/php-pdo-fetch-object-and-columns-with-spaces.html</link>
-      <pubDate>Fri, 24 May 2013 17:39:35 +0000</pubDate>
+      <title>PrestaShop - Developer Notes</title>
+      <link>https://edmondscommerce.github.io/prestashop/prestashop-developer-notes.html</link>
+      <pubDate>Tue, 19 Mar 2013 17:47:26 +0000</pubDate>
       
-      <guid>https://edmondscommerce.github.io/php/php-pdo-fetch-object-and-columns-with-spaces.html</guid>
-      <description>&lt;p&gt;If you use PDO and Fetch Object, it might not be clear exactly to access row properties that are based on columns that have spaces.&lt;/p&gt;
+      <guid>https://edmondscommerce.github.io/prestashop/prestashop-developer-notes.html</guid>
+      <description>&lt;p&gt;PrestaShop is a fully featured shopping platform and offers much of the functionality that other eCommerce shopping platforms do. Compared to, for example, Magento PrestaShop is significantly simpler to develop for.&lt;/p&gt;
 
-&lt;p&gt;I know I searched for things like:&lt;/p&gt;
+&lt;p&gt;Here is the run down of the key aspects that any one building a web site on PrestaShop should be aware of.&lt;/p&gt;
 
-&lt;p&gt;PDO Columns with spaces
-PDO::fetchObject spaces
-and PDO spaces in column names&lt;/p&gt;
+&lt;p&gt;&lt;h2&gt;Modules&lt;/h2&gt;
+PrestaShop is based around a modular design which is quite similar to Joomlas module system.
+A modules presence and position on the front end is defined by hooking the module into a particular section on the frontend. There are loads of hooks that can be used. Most modules will add them selves to the hook they think is most appropriate on install. The ordering of modules also defines the order they appear in a given hook.
+A key point of managing modules that can easily be over looked is that you can grab and drag modules in a given hook by clicking and holding the position change buttons.&lt;/p&gt;
 
-&lt;p&gt;I eventually found what I was looking for in the depths of the PHP.net comments however hopefully this post will be a little bit easier to find thanks to a bit of primitive SEO up there.&lt;/p&gt;
+&lt;p&gt;&lt;h2&gt;Themes&lt;/h2&gt;
+Off the shelf themes are usually not simply a new set of templates and CSS but also modules as well. Quite allot of themes are built around specific modules being in specific hooks some times in a specific order.&lt;/p&gt;
 
-&lt;p&gt;The solution to using columns with spaces is simply this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$sql=&amp;quot;select * from table_with_spaces_in_column_names &amp;quot;;&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;$statement = $myPDOObject-&amp;gt;prepare($sql);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;$statement-&amp;gt;execute();&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;$row = $statement-&amp;gt;fetchObject();&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;$ColumnWithSpaces = $row-&amp;gt;{&amp;#39;Column With Spaces&amp;#39;}&lt;/span&gt;
+&lt;p&gt;&lt;h2&gt;Creating your own module&lt;/h2&gt;
+Defining your own module is really straight forward:
+Create a folder in modules called my_module.
+Create a file called my_module.php, in this file create a class called My_module which extends Module.
+Create a config.xml with the following template:
+&amp;lt;?xml version=&amp;ldquo;1.0&amp;rdquo; encoding=&amp;ldquo;UTF-8&amp;rdquo; ?&amp;gt;
+&lt;module&gt;
+    &lt;name&gt;my_module&lt;/name&gt;
+    &lt;displayName&gt;My Module&lt;/displayName&gt;
+    &lt;version&gt;1&lt;/version&gt;
+    &lt;description&gt;A test module, it does nothing&lt;/description&gt;
+    &lt;author&gt;My self&lt;/author&gt;
+    &lt;tab&gt;front_office_features&lt;/tab&gt;
+    &lt;is_configurable&gt;0&lt;/is_configurable&gt;
+    &lt;need_instance&gt;1&lt;/need_instance&gt;
+&lt;/module&gt;
+Done, the module will appear in the module list but do nothing. You can look at the base module class to see all the function available that get called by PrestaShop are different times to do what you need to do.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP Weekly Email Newsletter Archive</title>
+      <link>https://edmondscommerce.github.io/php/php-weekly-email-newsletter-archive.html</link>
+      <pubDate>Tue, 19 Mar 2013 09:16:30 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/php/php-weekly-email-newsletter-archive.html</guid>
+      <description>&lt;p&gt;If you fancy some php reading and watching suggest you check out this PHP newsletter: &lt;a href=&#34;http://phpweekly.info/archive/&#34; target=&#34;_blank&#34;&gt;http://phpweekly.info/archive/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>PHP API Development Logging and Debugging</title>
+      <link>https://edmondscommerce.github.io/php/4145.html</link>
+      <pubDate>Thu, 14 Mar 2013 14:53:48 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/php/4145.html</guid>
+      <description>&lt;p&gt;If you are ever working with API integrations, either in or out bound, then it might be useful to set up a simple dumb logging system to assist you with developing and debugging things.&lt;/p&gt;
+
+&lt;p&gt;Here is a really simple snippet to help you along with that.&lt;/p&gt;
+
+&lt;p&gt;It literally takes exactly what it has received and logs it with no messing about. Brilliant!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;raw_input&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;file_get_contents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;php://input&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;_POST&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_POST&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;_GET&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_GET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;file_put_contents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;inboundXML.log&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;var_export&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 </description>
     </item>

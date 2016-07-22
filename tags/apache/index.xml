@@ -79,63 +79,6 @@ You should now be able to connect to connect to your database. This will also en
     </item>
     
     <item>
-      <title>SELinux Configuration for Alternative Document Root</title>
-      <link>https://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root.html</link>
-      <pubDate>Sat, 04 Oct 2014 12:19:52 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/linux/selinux-configuration-for-alternative-document-root.html</guid>
-      <description>&lt;p&gt;SELinux provides a secure and fine grained way of controlling permissions for applications running on Linux. It moves beyond simple users and groups to something a lot more granular.&lt;/p&gt;
-
-&lt;p&gt;By default SELinux is configured expecting Apache to be using /var/www as its document root.&lt;/p&gt;
-
-&lt;p&gt;If you are using an alternative document root then you might find that Apache is unable to write to folders, even though permissions are correctly configured.&lt;/p&gt;
-
-&lt;p&gt;If this is the case, you might think that you should disable SELinux, however a better solution is to correctly configure it.&lt;/p&gt;
-
-&lt;p&gt;First of all you should double check what types http has:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -l &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep http
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;We specifically need read/write access so lets grep for that:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -l &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep http &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep rw
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;For me that shows the type: httpd_sys_rw_content_t&lt;/p&gt;
-
-&lt;p&gt;We now need to add this to our custom document root:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;semanage fcontext -a -t httpd_sys_rw_content_t ‘/opt/Projects&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;/.*&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;?’
-restorecon -R -v /opt/Projects/
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;And then you should be able to run your sites from any folder you like without having to resort to disabling SELinux&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Apache Mod Rewrite and Escaped Hashes (and other characters)</title>
-      <link>https://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html</link>
-      <pubDate>Mon, 22 Apr 2013 13:57:49 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/apache/apache-mod-rewrite-and-escaped-hashes-and-other-characters.html</guid>
-      <description>&lt;p&gt;If you are having issues with mod rewrite apparently abandoning sections of variables after encoded hashes then this could be your solution.&lt;/p&gt;
-
-&lt;p&gt;The use case is particularly clear when using mod_rewrite in front of a search engine (such as Solr which I am really enjoying working with at the moment).&lt;/p&gt;
-
-&lt;p&gt;Imagine someone search for a partcode ABC#123&lt;/p&gt;
-
-&lt;p&gt;This gets encoded to search/abc%23123&lt;/p&gt;
-
-&lt;p&gt;Your rewritten search term will then be mangled by Apache and your search script will only actually see ABC. That is of course a problem and the solution is not really clear.&lt;/p&gt;
-
-&lt;p&gt;After a bit of searching around I found the solution is to add a B flag to your mod_rewrite rule so that mod_rewrite will escape these characters so that they are cleanly passed through.&lt;/p&gt;
-
-&lt;p&gt;For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;RewriteRule ^(.*)search/(.*)$ advanced_search_result.php?keywords=$2 [L,B]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Apache Mod Rewrite Escaped Slashes Problem &#43; Solution</title>
       <link>https://edmondscommerce.github.io/apache/apache-mod-rewrite-escaped-slashes-problem-solution.html</link>
       <pubDate>Thu, 11 Apr 2013 11:05:20 +0000</pubDate>
@@ -327,26 +270,6 @@ cat &lt;span class=&#34;nv&#34;&gt;$OUT_FILE&lt;/span&gt;
     </item>
     
     <item>
-      <title>Magento Performance Problems</title>
-      <link>https://edmondscommerce.github.io/magento/magento-performance-problems.html</link>
-      <pubDate>Mon, 16 Apr 2012 08:56:48 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/magento-performance-problems.html</guid>
-      <description>&lt;p&gt;If you are having performance issues with your Magento store and you are running on a dedicated or VPS server that you think should be up to the task of running your store properly but you continue to have performance problems then this post is for you.&lt;/p&gt;
-
-&lt;p&gt;Having decent server specification is only the first step on the road to having a high performance Magento store. Without proper configuration your server is not going to make the best use of its resources and that could make the difference of literally seconds or even tens of seconds of page load time.&lt;/p&gt;
-
-&lt;p&gt;The first and most important thing to check is that you are running a PHP opcode cacher such as APC. Opcode caching takes your PHP source code and compiles it to opcodes and then stores this in a cache. This opcode is actually what is run when people visit your store and the process of creating it, especially if you have a very large application with lots of file (like Magento), can be a real performance bottleneck. This problem is easily resolved by having APC installed and configured. If you are not sure, ring your hosting company and find out and if you don&amp;rsquo;t have it running, ask them to set it up for you.&lt;/p&gt;
-
-&lt;p&gt;The next thing to check is MySQL configuration. The standard MySQL configuration defaults were set when server hardware and memory was a tiny fraction of what it is today and that means that the configuration is generally way too sparse with allocation of memory for caching and other optimisations. Tweaking MySQL can be a little tricky, its definitely not something you should do if you are not sure, but it is well worth getting someone to optimise your MySQL configuration.&lt;/p&gt;
-
-&lt;p&gt;After that, the next major performance gain with Magento is to make proper use of block caching. Magento has a brilliant built in feature where every block (page section) can be cached so that next time someone visits the page, the logic used to generate that section of page (for example a best sellers list) does not have to be run, we simply redisplay the cached copy of that block&amp;rsquo;s HTML.&lt;/p&gt;
-
-&lt;p&gt;Beyond these three steps there are still many more things that can be done to improve the performance of your Magento store. If you would like professional help getting the best out of your server and Magento with a view to getting the lowest possible page load speeds then get in touch with Edmonds Commerce today.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>How 10,000 Geeks break the UK&#39;s biggest distributors, RS and Farnell (Raspberry Pi)</title>
       <link>https://edmondscommerce.github.io/ecommerce/how-10000-geeks-break-the-uks-biggest-distributors-rs-and-farnell-raspberry-pi.html</link>
       <pubDate>Wed, 29 Feb 2012 06:50:10 +0000</pubDate>
@@ -421,43 +344,31 @@ If your site has suddenly gone down and you are tearing your hair out because th
     </item>
     
     <item>
-      <title>Ubuntu 10.04 Broke XAMPP</title>
-      <link>https://edmondscommerce.github.io/ubuntu/ubuntu-10-04-broke-xampp.html</link>
-      <pubDate>Thu, 06 May 2010 10:37:47 +0000</pubDate>
+      <title>Plesk &#43; Mod Security</title>
+      <link>https://edmondscommerce.github.io/apache/plesk-mod-security.html</link>
+      <pubDate>Mon, 15 Jun 2009 09:55:37 +0000</pubDate>
       
-      <guid>https://edmondscommerce.github.io/ubuntu/ubuntu-10-04-broke-xampp.html</guid>
+      <guid>https://edmondscommerce.github.io/apache/plesk-mod-security.html</guid>
       <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
 &lt;p&gt;
 If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
 or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
 &lt;/p&gt;
 &lt;/div&gt;
-For some reason the upgrade seems to have installed Apache which then conflicts with my XAMPP apache.&lt;/p&gt;
+If you are trying to modify your mod_security configuration on a plesk server and have tried using htaccess files you have probably realised that it won&amp;rsquo;t work. That&amp;rsquo;s a good thing, it makes it harder for people to screw up your server by turning off this protection.&lt;/p&gt;
 
-&lt;p&gt;This prevents me from starting the XAMPP apache. To fix this simply search for apache in Synaptic package manager and uninstall it. XAMPP apache should then start fine.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Avoiding 777 Permissions</title>
-      <link>https://edmondscommerce.github.io/linux/avoiding-777-permissions.html</link>
-      <pubDate>Mon, 04 Jan 2010 15:15:31 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/linux/avoiding-777-permissions.html</guid>
-      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
-&lt;p&gt;
-If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
-or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-If you need to be able to write to a folder with PHP but you do not want to have to use 777 permissions then instead you have the option to use access control lists.&lt;/p&gt;
+&lt;p&gt;Instead the way to do it is to edit the vhost.conf file located in the conf folder in the domain / sub domain root (the folder containing the httpdocs folder).&lt;/p&gt;
 
-&lt;p&gt;This simple command will allow you to give permissions to Apache only, whilst keeping the standard permissions secure (eg 770)&lt;/p&gt;
+&lt;p&gt;You can apply any settings you want to this file and then run the following command to get Plesk to rebuild your httpd configuration including your new settings. This is working with Plesk the way it was intended to be used and is a better solution that the htaccess file approach.&lt;/p&gt;
+
+&lt;p&gt;The command to rebuild your Apache configuration when you make a change to the vhost.conf ssl_vhost.conf file is:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;
-setfacl -m u:apache:rwx directory/
+        /usr/local/psa/admin/bin/websrvmng -a -v
 
 &lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This rebuilds the configuration for ALL virtual hosts. It shouldn&amp;rsquo;t take more than a few seconds, obviously you then need to restart Apache.&lt;/p&gt;
 </description>
     </item>
     

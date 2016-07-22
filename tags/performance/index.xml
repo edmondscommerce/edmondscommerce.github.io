@@ -112,71 +112,6 @@ title &lt;span class=&#34;s2&#34;&gt;&amp;quot;IP Addresses for Top 3 User Agent
     </item>
     
     <item>
-      <title>Magento Block Caching Cache Key Helper Method - Generate Safe Unique Cache Keys</title>
-      <link>https://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</link>
-      <pubDate>Tue, 04 Dec 2012 12:21:44 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/magento-block-caching-cache-key-helper-method-generate-safe-unique-cache-keys.html</guid>
-      <description>&lt;p&gt;If you do any work at all on Magento performance optimisation with a view to making pages load faster then you must have come across block caching. To understand block caching you need to first of all understand that a Magento page is actually made up of a lot of nested chunks called blocks.&lt;/p&gt;
-
-&lt;p&gt;Blocks can have their HTML generated dynamically every time though it is also possible to make Magento cache the block HTML output so that it loads a LOT faster, especially with heavy and slow blocks such as best sellers etc.&lt;/p&gt;
-
-&lt;p&gt;When setting up block caching, you need to specify a cache key. If your cache key is not unique enough then there is a risk that you will display the wrong cache for a particular scenario.&lt;/p&gt;
-
-&lt;p&gt;For this reason I created a block caching helper with this method that can generate a very unique cache key based on the current block usage.
-/app/code/local/EdmondsCommerce/Helper/Data.php&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;     * Generate a nice unique block cache key&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;     *&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;     * @param Mage_Core_Block_Abstract $block&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;     * @return string&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;     */&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;    public function ecCacheKey(Mage_Core_Block_Abstract $block){&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $class = get_class($block);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $template = $block-&amp;gt;getTemplateFile();&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $md5 = md5(var_export($block-&amp;gt;getData(), true));&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $params = trim(implode(&amp;quot;,&amp;quot;, $block-&amp;gt;getRequest()-&amp;gt;getParams()), &amp;#39;,&amp;#39;);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $category=($block-&amp;gt;getCurrentCategory())?$block-&amp;gt;getCurrentCategory()-&amp;gt;getName():&amp;#39;no-category&amp;#39;;&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $store_id = Mage::app()-&amp;gt;getStore()-&amp;gt;getId();&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        return &amp;#39;edmondscommerce-&amp;#39;. $params . &amp;#39;-&amp;#39;. $category . &amp;#39;-&amp;#39; . $store_id . &amp;#39;-&amp;#39; . $class.&amp;#39;-&amp;#39;.$template.&amp;#39;-&amp;#39;.$md5;&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;You would use this in the following way:&lt;/p&gt;
-
-&lt;p&gt;In a block class, set up the following:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    public function _construct(){&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        parent::_construct();&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;addData(array(&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_lifetime&amp;#39; =&amp;gt; 999999999,&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_tags&amp;#39; =&amp;gt; array(Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG),&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;            &amp;#39;cache_key&amp;#39; =&amp;gt; Mage::helper(&amp;#39;blockcaching&amp;#39;)-&amp;gt;ecCacheKey($this)&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;        ));&lt;/span&gt;
-
-&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Extending a Modules CSS within a Theme in PrestaShop</title>
-      <link>https://edmondscommerce.github.io/prestashop/extending-a-modules-css-within-a-theme-in-prestashop.html</link>
-      <pubDate>Wed, 28 Nov 2012 17:26:39 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/prestashop/extending-a-modules-css-within-a-theme-in-prestashop.html</guid>
-      <description>&lt;p&gt;PrestaShop has a really nice structure for handling all the CSS that will appear in a site. It starts by splitting the CSS so that the CSS is split up per modules. There is a global CSS sheet but this should only be used for things that genuinely appear on all pages.&lt;/p&gt;
-
-&lt;p&gt;Extending the CSS of a module in PrestaShop is easy. All you need to do is create a CSS file that matches the naming convention of the module you are looking to extend.&lt;/p&gt;
-
-&lt;p&gt;For example if you wanted to change the CSS of the “Wishlist block” module (a.k.a. blockwishlist) in your theme, you would create the file themes/mytheme/css/modules/blockwishlist/blockwishlist.css. This file will then be included on every page that the CSS from the blockwishlist module appears on.&lt;/p&gt;
-
-&lt;p&gt;This system is good because it minimises the amount of CSS the browser has to load and also splits the concern of CSS into separate files making it much easier to manage. It also makes adding to a modules CSS with in a theme much easier.&lt;/p&gt;
-
-&lt;p&gt;One problem with this method of handling CSS is that by default a PrestaShop site may want the browser to download ten or more individual CSS files which is quite a overhead. Fortunately since PrestaShop 1.4 it has supported CCS merging (referred to as CCC in the admin) which causes the CSS for a page to be merged into a single file on the server to prevent the client having to download tens of CSS files.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>osCommerce PHP 5.2 Upgrade - You Really Should Get onto PHP 5.3 ASAP</title>
       <link>https://edmondscommerce.github.io/oscommerce/oscommerce-php-5-2-upgrade-you-really-should-get-onto-php-5-3-asap.html</link>
       <pubDate>Mon, 26 Nov 2012 17:36:22 +0000</pubDate>
@@ -215,26 +150,6 @@ title &lt;span class=&#34;s2&#34;&gt;&amp;quot;IP Addresses for Top 3 User Agent
 &lt;p&gt;Read the full blog story &lt;a href=&#34;http://www.fabrizio-branca.de/magento-profiler.html&#34; title=&#34;Fabrizio Branch blog&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;If you would like some help optimising the performance of your Magento store, feel free to get in touch with Edmonds Commerce today and we can assist in getting the very best performance from your Magento web site.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Magento Performance Problems</title>
-      <link>https://edmondscommerce.github.io/magento/magento-performance-problems.html</link>
-      <pubDate>Mon, 16 Apr 2012 08:56:48 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/magento-performance-problems.html</guid>
-      <description>&lt;p&gt;If you are having performance issues with your Magento store and you are running on a dedicated or VPS server that you think should be up to the task of running your store properly but you continue to have performance problems then this post is for you.&lt;/p&gt;
-
-&lt;p&gt;Having decent server specification is only the first step on the road to having a high performance Magento store. Without proper configuration your server is not going to make the best use of its resources and that could make the difference of literally seconds or even tens of seconds of page load time.&lt;/p&gt;
-
-&lt;p&gt;The first and most important thing to check is that you are running a PHP opcode cacher such as APC. Opcode caching takes your PHP source code and compiles it to opcodes and then stores this in a cache. This opcode is actually what is run when people visit your store and the process of creating it, especially if you have a very large application with lots of file (like Magento), can be a real performance bottleneck. This problem is easily resolved by having APC installed and configured. If you are not sure, ring your hosting company and find out and if you don&amp;rsquo;t have it running, ask them to set it up for you.&lt;/p&gt;
-
-&lt;p&gt;The next thing to check is MySQL configuration. The standard MySQL configuration defaults were set when server hardware and memory was a tiny fraction of what it is today and that means that the configuration is generally way too sparse with allocation of memory for caching and other optimisations. Tweaking MySQL can be a little tricky, its definitely not something you should do if you are not sure, but it is well worth getting someone to optimise your MySQL configuration.&lt;/p&gt;
-
-&lt;p&gt;After that, the next major performance gain with Magento is to make proper use of block caching. Magento has a brilliant built in feature where every block (page section) can be cached so that next time someone visits the page, the logic used to generate that section of page (for example a best sellers list) does not have to be run, we simply redisplay the cached copy of that block&amp;rsquo;s HTML.&lt;/p&gt;
-
-&lt;p&gt;Beyond these three steps there are still many more things that can be done to improve the performance of your Magento store. If you would like professional help getting the best out of your server and Magento with a view to getting the lowest possible page load speeds then get in touch with Edmonds Commerce today.&lt;/p&gt;
 </description>
     </item>
     
@@ -398,30 +313,6 @@ Some times you just have to accept  that your hardware or hosting is no up to sc
 &lt;p&gt;We are happy to provide for you a full VPS or dedicated server Magento optimisation service. Our Magento hosting optimisation service will ensure you are getting the best out of your current hosting package. It means that you are not required to move hosts if you are generally happy them, but you can be assured that you are running on a highly optimised Magento stack.&lt;/p&gt;
 
 &lt;p&gt;If that sounds interesting and you would like to discuss this in more detail, simply &lt;a href=&#34;https://edmondscommerce.github.io/contact-us/&#34;&gt;get in touch today&lt;/a&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Magento Block Caching - Get More Performance Easily in Magento</title>
-      <link>https://edmondscommerce.github.io/magento/magento-block-caching-get-more-performance-easily-in-magento.html</link>
-      <pubDate>Tue, 23 Nov 2010 14:22:22 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/magento-block-caching-get-more-performance-easily-in-magento.html</guid>
-      <description>&lt;p&gt;If you dig a little deeper into Magento you will notice that there is a fully featured caching system lurking in there. However, as standard, it is quite under utilized.&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;m sure that the primary reason for this is that caching dynamic systems can cause admin user confusion and generally make things trickier. However all the tools are there waiting to be used if you want to push things a bit further.&lt;/p&gt;
-
-&lt;p&gt;Pretty much any Magento block can be cached - its great for things like a &amp;ldquo;best sellers&amp;rdquo; block or anything else that requires some processing and doesn&amp;rsquo;t really need to be up to the minute accurate for every page request.&lt;/p&gt;
-
-&lt;p&gt;To use block caching for a particular block, you just need to set three properties or methods. Note Magento&amp;rsquo;s use of Magic methods allows us to mix and match properties and methods easily!&lt;/p&gt;
-
-&lt;p&gt;Check this out:&lt;/p&gt;
-
-&lt;script type=&#34;text/javascript&#34; src=&#34;http://snipt.net/embed/6188b31b89656245850183eaed4094ab&#34;&gt;&lt;/script&gt;
-
-&lt;p&gt;We get asked a lot about optimising Magento performance and the first bit of advice is always to upgrade to the latest version. After that there are all kinds of things that can be done and implementing block caching like this is just one of them.&lt;/p&gt;
-
-&lt;p&gt;If you want to discuss optimising your Magento store for more speed and performance without necessarily having to upgrade your hosting environment, get in touch with Edmonds Commerce today!&lt;/p&gt;
 </description>
     </item>
     

@@ -351,36 +351,6 @@ extensions:
     </item>
     
     <item>
-      <title>Intermittent PayPal IPN failure in Magento</title>
-      <link>https://edmondscommerce.github.io/magento/intermittent-paypal-ipn-failure-in-magento.html</link>
-      <pubDate>Wed, 15 Oct 2014 09:53:44 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/intermittent-paypal-ipn-failure-in-magento.html</guid>
-      <description>
-
-&lt;p&gt;On one or two store we had an issue with intermittent IPN failures. Some paypal orders would be stuck on the &amp;lsquo;Pending&amp;rsquo; status even if there was a sucessful paypal payment. In the exception logs there would be the following exception being thrown &amp;lsquo;PayPal IPN postback failure. See paypal_unknown_ipn.log for details.&amp;rsquo; on line 156 of app/code/core/Mage/Paypal/Model/Ipn.php.&lt;/p&gt;
-
-&lt;h3 id=&#34;what-the-issue-turned-out-to-be&#34;&gt;What the issue turned out to be&lt;/h3&gt;
-
-&lt;p&gt;The issue turned out to be curl adding in extra error. On occasions curl will send the following header &amp;lsquo;Expect: 100&amp;rsquo;. The idea behind that is that rather than curl just send the data. It will send a inital request just to check if the web server will accept the data. Curl will usually fall on this bahaviour if the request is above a certain size.&lt;/p&gt;
-
-&lt;p&gt;It turns out that the magento implementation assumes that the response will be consitant. But with the ocasional &amp;lsquo;Expect&amp;rsquo; header bing in the request this is not always the case.&lt;/p&gt;
-
-&lt;p&gt;In the _postBack method in the IPN class where it makes the curl post back is recived there is the following code near to the end of the method.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    $response = preg_split(&amp;#39;/^\r?$/m&amp;#39;, $response, 2);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;    $response = trim($response[1]);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;This code assumes the line position of where the &amp;lsquo;VERIFIED&amp;rsquo; line would occur. To resolve the header issue the following code should be used instead.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;    $response = preg_split(&amp;#39;/^\r?$/m&amp;#39;, $response);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;    $response = trim(end($response));&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;As the &amp;lsquo;VERIFIED&amp;rsquo; line will always be the last line in the response. Regardless of any extra headers being added. This should resolve the issue but of corse remeber to use the local method and copy the class to the local folder with the correct path before doing the modification.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Magento 1.9 &amp;amp; 1.14 released</title>
       <link>https://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released.html</link>
       <pubDate>Wed, 14 May 2014 11:12:02 +0000</pubDate>
@@ -509,24 +479,6 @@ extensions:
     </item>
     
     <item>
-      <title>Magento 1.8 released</title>
-      <link>https://edmondscommerce.github.io/magento/magento-1-8-released.html</link>
-      <pubDate>Mon, 30 Sep 2013 10:01:28 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/magento-1-8-released.html</guid>
-      <description>&lt;p&gt;Today I got a notification through that Magento 1.8 had finally been released.&lt;/p&gt;
-
-&lt;p&gt;This has been in beta since alpha since April, and contains server fixes that a lot of people have been waiting for.&lt;/p&gt;
-
-&lt;p&gt;The most important one for UK vendors is that the rounding issue in tax calculations has been fixed.&lt;/p&gt;
-
-&lt;p&gt;There are also improvements to caching and database performance. The full release notes can be seen &lt;a href=&#34;http://www.magentocommerce.com/knowledge-base/entry/ce-18-later-release-notes&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;These are issues that have affected merchants since that change in the VAT rate, so we would recommend upgrading for everyone at this time.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Disable JavaScript alerts for a page</title>
       <link>https://edmondscommerce.github.io/javascript/disable-javascript-alerts-for-a-page.html</link>
       <pubDate>Wed, 28 Aug 2013 09:21:30 +0000</pubDate>
@@ -535,6 +487,70 @@ extensions:
       <description>&lt;p&gt;If you encounter a webpage that is generating a lot of alerts, the following bookmark will prevent them from stealing focus but still allow you to see what is being said.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;javascript&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;alert&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;text&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;console&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;text&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>White Blank Page when Printing Packing Slips from Magento Admin</title>
+      <link>https://edmondscommerce.github.io/magento/white-blank-page-when-printing-packing-slips-from-magento-admin.html</link>
+      <pubDate>Mon, 01 Jul 2013 14:21:49 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento/white-blank-page-when-printing-packing-slips-from-magento-admin.html</guid>
+      <description>&lt;p&gt;If you&amp;rsquo;re having trouble printing packing slips, receiving a white blank page when selecting Print Packingslips from the Actions menu in Magento&amp;rsquo;s Sales Orders page, then it&amp;rsquo;s likely you&amp;rsquo;re having the same issue I&amp;rsquo;ve had.&lt;/p&gt;
+
+&lt;p&gt;I found that having error_reporting enabled wasn&amp;rsquo;t enough&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;error_reporting(E_ALL | E_STRICT);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You&amp;rsquo;ll also need to add this to your index.php:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+ini_set(&#39;display_errors&#39;, 1);
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;rsquo;ll then be shown the following fatal error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+Fatal error: Declaration of Zend_Pdf_FileParserDataSource_File::__construct() must be compatible with Zend_Pdf_FileParserDataSource::__construct() in /home8/stonecr2/public_html/newsite/lib/Zend/Pdf/FileParserDataSource/File.php on line 41
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The issue here is that the contructor of Zend_Pdf_FileParserDataSource_File requires a single paramter, $filePath, whereas its abstract class&amp;rsquo;s constructor does not. To resolve this, we need to make sure the abstract class matches its implementation, so make the following change&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;//from&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;abstract public function __construct();&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//to&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;abstract public function __construct($filePath);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Test your printing, and you should be provided with a PDF file.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Easily Test Mobile Version of your Site with Chrome</title>
+      <link>https://edmondscommerce.github.io/mobile-optimisation/easily-test-mobile-version-of-your-site-with-chrome.html</link>
+      <pubDate>Mon, 03 Jun 2013 15:33:27 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/mobile-optimisation/easily-test-mobile-version-of-your-site-with-chrome.html</guid>
+      <description>&lt;p&gt;If you have opted to have a customised mobile theme displayed for mobile users of your web site then it can be useful to be able to test this theme from the desktop. This is quite simple to do and there are plugins for most browsers. These days though Chrome users have this functionality built in, and quite nicely as well.&lt;/p&gt;
+
+&lt;p&gt;To access a mobile version of a site simply open Chrome and navigate to the site you would like to view in mobile version.&lt;/p&gt;
+
+&lt;p&gt;Then hit F12 to bring up the developer tools. Alternatively you can go to the right hand menu and select developer tools under the tools menu. This should bring up a screen looking similar to this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://edmondscommerce.github.io/images/Screenshot-from-2013-06-03-162921-600x475.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the bottom right hand corner of this screen you will see a little cog icon, please click that:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://edmondscommerce.github.io/images/Screenshot-from-2013-06-03-162956.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This gives you the overrides menu where you can select the phone you want to emulate. You can also tick the device metrics box so that the displayable area corresponds to that of the phone giving you a good emultation of the phone experience.&lt;img src=&#34;https://edmondscommerce.github.io/images/Screenshot-from-2013-06-03-163013-600x354.png&#34; alt=&#34;Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Tick the box next to User Agent and choose a phone.&lt;/p&gt;
+
+&lt;p&gt;Once you have selected the phone you want to emulate under the &amp;ldquo;user agent&amp;rdquo; section and also optionally ticked the box next to &amp;ldquo;Device metrics&amp;rdquo; then you can reload the page (hit [ctrl] + [f5]) and the page will be reloaded and should show you the mobile version of your site.&lt;/p&gt;
 </description>
     </item>
     
