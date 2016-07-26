@@ -6,8 +6,27 @@
     <description>Recent content in Linux on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 07 May 2015 10:32:04 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 26 Jul 2016 17:50:25 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Fixing Logrotate Rotating Its Own Files</title>
+      <link>https://edmondscommerce.github.io/fixing-logrotate-rotating-its-own-files/</link>
+      <pubDate>Tue, 26 Jul 2016 17:50:25 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/fixing-logrotate-rotating-its-own-files/</guid>
+      <description>&lt;p&gt;From time to time I come across a server that has had logRotate setup in such a way that it is rotating its own files creating hundreds of copies and increasing disk usage rather than controlling it&lt;/p&gt;
+
+&lt;p&gt;This is caused by a misconfiguration of the logrotate config file. The file that is causing the problems can normally be found be running the following command&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;user@host$ grep &lt;span class=&#34;s1&#34;&gt;&amp;#39;*&amp;#39;&lt;/span&gt; /etc/logrotate.d/*
+/etc/logrotate.d/misconfiguredFile:/path/to/logs/* &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Which should display all of the paths that include a wild card that are being checked and rotated. The problem happens when the file path end s with a wildcard, as on the next run the newly rotated files will be checked and rotated again.&lt;/p&gt;
+
+&lt;p&gt;The simple way to fix this is to either specify which files need to be rotated exactly, or add the expected suffix to the path (i.e. /path/to/dir/*log).&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Running out of disk space but df shows you have lots of space left</title>
@@ -511,63 +530,6 @@ to create and didn&amp;rsquo;t need to be cleared for my purposes&lt;/p&gt;
 &lt;li&gt;This will provide you with two files representing the database. Import first the Structure one, and then the Data one (or concatenate the two together)&lt;/li&gt;
 &lt;/ol&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Getting Skype Working on Fedora 20</title>
-      <link>https://edmondscommerce.github.io/fedora/getting-skype-working-on-fedora-20.html</link>
-      <pubDate>Fri, 17 Jan 2014 14:45:29 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/fedora/getting-skype-working-on-fedora-20.html</guid>
-      <description>&lt;p&gt;I recently needed to get Skype working on Fedora 20 and unfortunately the process wasn&amp;rsquo;t completely smooth, there were a few hoops I had to jump through.&lt;/p&gt;
-
-&lt;p&gt;I am making a note of these here for my own future reference and to help out any one else hitting problems like these.&lt;/p&gt;
-
-&lt;p&gt;To install Skype on Fedora 20 64bit, the first thing you need to do is download the &lt;a href=&#34;http://www.skype.com/en/download-skype/skype-for-linux/&#34; target=&#34;_blank&#34;&gt;Fedora 32bit RPM from Skype&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;To install this you should use Yum so that dependancies are handled properly:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;sudo yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;However I hit issues around the libvpx package. I have Chromium installed however it packages an incompatible version of libvpx which was blocking the installation.
-After a load of messing around the solution for me was so use Yum to remove that package, install the correct package and then install skype.
-One issue was that removing the package also removed programs that had it as a dependancy so after installing the correct version of libvpx, I had to reinstall those programs as well.&lt;/p&gt;
-
-&lt;p&gt;Here is the process in commands:&lt;/p&gt;
-
-&lt;p&gt;Firstly remove the package and install the i686 version&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;yum remove libvpx.x86_64
-yum install libvpx.i686
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Then install Skype&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt; yum install ~/Downloads/skype-4.2.0.11-fedora.i586.rpm
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Then reinstall the 64 bit version of libvpx&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt; yum install libvpx.x86_64 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Then reinstall the programs that were removed when I removed libvpx&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt; yum install firefox.x86_64 pidgin.x86_64 pidgin-libnotify.x86_64 php-gd.x86_64 shotwell.x86_64 gnome-shell-extension-pidgin.x86_64 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;That got Skype installed however testing it the audio was terrible. There is one last tweak that fixed this for me:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;sudo gnome-open /usr/share/applications/skype.desktop
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Change the line that reads &lt;strong&gt;Exec=skype %U&lt;/strong&gt; to the following:&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Exec=env PULSE_LATENCY_MSEC=30 skype %U&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;Restart Skype and the audio issues should be resolved.&lt;/p&gt;
 </description>
     </item>
     
