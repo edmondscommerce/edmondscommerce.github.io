@@ -6,8 +6,80 @@
     <description>Recent content in Magento2 on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 21 Jul 2016 16:02:34 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 16 Aug 2016 13:22:03 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/magento2/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento 2 Controller Output Types</title>
+      <link>https://edmondscommerce.github.io/magento-2-controller-output-types/</link>
+      <pubDate>Tue, 16 Aug 2016 13:22:03 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-2-controller-output-types/</guid>
+      <description>
+
+&lt;p&gt;Magento 2 now introduces the Framework result object for handing requests that will handling non page results such as JSON, redirects and other non html returns.&lt;/p&gt;
+
+&lt;p&gt;So to use the result factory in your controller in your controller construct simply have the following code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$this-&amp;gt;resultFactory = $context-&amp;gt;getResultFactory();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then in the run method simply write the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$result = $resultRedirect = $this-&amp;gt;resultFactory-&amp;gt;create($type);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;So the type value has to be one of the following constants:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_JSON&lt;/li&gt;
+&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_RAW&lt;/li&gt;
+&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT&lt;/li&gt;
+&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_FORWARD&lt;/li&gt;
+&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_LAYOUT&lt;/li&gt;
+&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_PAGE&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;json&#34;&gt;JSON&lt;/h2&gt;
+
+&lt;p&gt;This is for returning a JSON object from a controller with the correct mime type in the response. For returning json there are to methods:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setData([&amp;#39;variable&amp;#39;=&amp;gt;&amp;#39;value&amp;#39;]);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The first method allows you to pass a php associative array which Magento 2 framework will run the serialization for you.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setJsonData(&amp;#39;{&amp;quot;variable&amp;quot;: &amp;quot;value&amp;quot;}&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The second method allows for you to set a raw json string to respond with instead of letting Magento 2 handle serialization of the reponse.&lt;/p&gt;
+
+&lt;h2 id=&#34;raw&#34;&gt;Raw&lt;/h2&gt;
+
+&lt;p&gt;This is for setting raw string and binary contents. To use this simply run the following.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setHeader(&amp;#39;Content-Type&amp;#39;,&amp;#39;text/plain&amp;#39;)-&amp;gt;setContents(&amp;#39;string&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;redirect&#34;&gt;Redirect&lt;/h2&gt;
+
+&lt;p&gt;This is for redirecting a user to another page via a 301, 302 and 307 based redirects. To use this simply use the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setUrl(&amp;#39;https://www.google.co.uk&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setPath(&amp;#39;checkout&amp;#39;, [&amp;#39;_secure&amp;#39; =&amp;gt; true]);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;forward&#34;&gt;Forward&lt;/h2&gt;
+
+&lt;p&gt;Occasionaly you will want to do a internal redirect to a another controller without having the client to do a second request for this we have the forward type. To use this simply do the following.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setModule(&amp;#39;moduleName&amp;#39;)-&amp;gt;setController(&amp;#39;controller&amp;#39;)-&amp;gt;setParam([&amp;#39;id&amp;#39;=&amp;gt;1])-&amp;gt;view(&amp;#39;action&amp;#39;);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setController(&amp;#39;controller&amp;#39;)-&amp;gt;view(&amp;#39;action&amp;#39;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The convention is controller should be folder name inside your modules &amp;lsquo;Controller&amp;rsquo; folder and action should be the name of your action php file with out the php extension. As for moduleName you can normally find out what this should be in you routes.xml file and it should be the value set in frontName attribute set in your route declaration xml.&lt;/p&gt;
+
+&lt;p&gt;Please note if moduleName is not given then Magento 2 will assume that the module is the current one.&lt;/p&gt;
+
+&lt;h2 id=&#34;layout-and-page&#34;&gt;Layout and Page&lt;/h2&gt;
+
+&lt;p&gt;The last two is to simply use xml layout handling to render the contents. The only difference is that layout will not have a default layout handle so you will need to assign layout handles and Page will assign the default and controler specific handles. As expected Page extends the Layout object since there only difference is the fact that layout assumes no layout handlers to begin with.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Magento 2 Js Frameworks</title>
