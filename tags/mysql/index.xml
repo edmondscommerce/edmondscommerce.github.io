@@ -6,8 +6,92 @@
     <description>Recent content in Mysql on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 08 Dec 2014 12:52:03 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 18 Aug 2016 17:09:53 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/mysql/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Doctrine Create New Entity From Legacy Database Shell Script</title>
+      <link>https://edmondscommerce.github.io/doctrine-create-new-entity-from-legacy-database-shell-script/</link>
+      <pubDate>Thu, 18 Aug 2016 17:09:53 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/doctrine-create-new-entity-from-legacy-database-shell-script/</guid>
+      <description>&lt;p&gt;Here is a nice little script I have just written to help me with migration of a legacy application onto a Symfony based architecture, including Doctrine for entities.&lt;/p&gt;
+
+&lt;p&gt;In this scenario I have created a new database and am importing tables across from the legacy database as I bring them into the application.&lt;/p&gt;
+
+&lt;p&gt;The process is a little tricky and unfortunately I figured it out, then went on holiday and came back having totally forgotten how to do it. So I wrote a nice script to document and automate the process for me.&lt;/p&gt;
+
+&lt;p&gt;Here is the script:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/usr/bin/env bash&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;readonly&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;DIR&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt; dirname &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;BASH_SOURCE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[0]&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;pwd&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$DIR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; -e
+&lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; -u
+&lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; -o pipefail
+&lt;span class=&#34;nv&#34;&gt;standardIFS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$IFS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;IFS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;$&amp;#39;\n\t&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===========================================&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;hostname&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$0&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$@&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;===========================================&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;#Usage&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;((&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$#&lt;/span&gt; &amp;lt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;))&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;Usage:&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;./&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$0&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; [tableToCreateEntityFrom] {bundle - defaults to AppBundle}&lt;/span&gt;
+
+&lt;span class=&#34;s2&#34;&gt;    &amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;exit&lt;/span&gt; 1
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;#Parameters&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;tableToCreateEntityFrom&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$1&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;bundle&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;:-&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;AppBundle&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;camelCaseEntityName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$tableToCreateEntityFrom&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sed -r &lt;span class=&#34;s1&#34;&gt;&amp;#39;s/(^|_)([a-z])/\U\2/g&amp;#39;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;newDb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;NEW_DB_NAME_HERE
+
+&lt;span class=&#34;nv&#34;&gt;oldDb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;OLD_DB_NAME_HERE
+
+
+mysql &lt;span class=&#34;nv&#34;&gt;$newDb&lt;/span&gt; -e &lt;span class=&#34;se&#34;&gt;\&amp;quot;&lt;/span&gt;
+
+    drop table &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; exists &lt;span class=&#34;nv&#34;&gt;$newDb&lt;/span&gt;.&lt;span class=&#34;nv&#34;&gt;$tableToCreateEntityFrom&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+    create table &lt;span class=&#34;nv&#34;&gt;$newDb&lt;/span&gt;.&lt;span class=&#34;nv&#34;&gt;$tableToCreateEntityFrom&lt;/span&gt; like &lt;span class=&#34;nv&#34;&gt;$oldDb&lt;/span&gt;.&lt;span class=&#34;nv&#34;&gt;$tableToCreateEntityFrom&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+    insert into &lt;span class=&#34;nv&#34;&gt;$newDb&lt;/span&gt;.&lt;span class=&#34;nv&#34;&gt;$tableToCreateEntityFrom&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;select&lt;/span&gt; * from &lt;span class=&#34;nv&#34;&gt;$oldDb&lt;/span&gt;.&lt;span class=&#34;nv&#34;&gt;$tableToCreateEntityFrom&lt;/span&gt; ORDER BY
+    &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;   SELECT COLUMN_NAME
+        FROM information_schema.COLUMNS
+        WHERE &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;TABLE_SCHEMA&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;$oldDb&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+          AND &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;TABLE_NAME&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;$tableToCreateEntityFrom&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+          AND &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;COLUMN_KEY&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;PRI&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; DESC limit 0,500&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$DIR&lt;/span&gt;/../bin/console doctrine:mapping:import &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$bundle&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; annotation --filter&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;^&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$camelCaseEntityName&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;\$&amp;quot;&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;$DIR&lt;/span&gt;/../bin/console doctrine:generate:entities &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$bundle&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;:&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$camelCaseEntityName&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; --no-backup
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The script will take a single parameter which is the table name. If not importing to AppBundle, you can also specify a bundle name.&lt;/p&gt;
+
+&lt;p&gt;It will then create the Upper Camel Case version of the table name (as used by Doctrine).&lt;/p&gt;
+
+&lt;p&gt;Then it runs some SQL which will drop and recreate the table and then import the most recent 500 rows from that table as defined by the primary key.&lt;/p&gt;
+
+&lt;p&gt;Finally, we do a couple of doctrine commands to create the annotation class and then create the getters and setters. Notice the use of regex to prevent bringing in anything other than an exact match on the table name.&lt;/p&gt;
+
+&lt;p&gt;I think this is pretty slick and makes me love Doctrine that little bit more, hope you find it useful too!&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Bash Script to Kill Sleeping MySQL Processes</title>
@@ -519,18 +603,6 @@ SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;
 SET SQL_NOTES=@OLD_SQL_NOTES;&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;This can also be done if you use some other backup systems (we&amp;rsquo;ve seen a table-per-file system too), in that instance, we created 00-head.sql and zz-foot.sql containing the above and create a single backup with &amp;lsquo;cat *.sql &amp;gt; all.sql&amp;rsquo; before restoring.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Enable Category Pages to Display Subcategories</title>
-      <link>https://edmondscommerce.github.io/magento/enable-category-pages-to-display-subcategories.html</link>
-      <pubDate>Fri, 01 Jun 2012 15:12:22 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/enable-category-pages-to-display-subcategories.html</guid>
-      <description>&lt;p&gt;Thinking of being able to set different Magento Categories to display its sub-categories which can be controllable in the Magento admin i.e. &lt;img src=&#34;https://edmondscommerce.github.io/images/Screenshot-New-Category-Manage-Categories-Categories-Catalog-Magento-Admin-Chromium-150x150.png&#34; alt=&#34;Image&#34; /&gt;
-&lt;/p&gt;
-You might be interested in using or viewing the zipped file here;&lt;a href=&#39;http://www.edmondscommerce.co.uk/wp-content/uploads/2012/06/subcat.zip&#39;&gt;subcat&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     
