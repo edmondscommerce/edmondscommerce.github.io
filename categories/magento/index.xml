@@ -6,8 +6,132 @@
     <description>Recent content in Magento on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 Jul 2016 19:20:14 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 23 Aug 2016 10:12:48 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/categories/magento/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Allow Customers to Switch Between Mobile and Desktop Themes</title>
+      <link>https://edmondscommerce.github.io/magento-allow-customers-to-switch-between-mobile-and-desktop-themes/</link>
+      <pubDate>Tue, 23 Aug 2016 10:12:48 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-allow-customers-to-switch-between-mobile-and-desktop-themes/</guid>
+      <description>
+
+&lt;p&gt;In this post I&amp;rsquo;ll cover how to create a basic theme switcher for switching between mobile and
+desktop themes in Magento.&lt;/p&gt;
+
+&lt;p&gt;The basic steps for the theme switcher are as follows:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Customer clicks &amp;lsquo;switch to desktop site&amp;rsquo; link&lt;/li&gt;
+&lt;li&gt;Cookie is set saying the user has requested the desktop theme&lt;/li&gt;
+&lt;li&gt;The cookie is detected and the correct user agent is set in index.php.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;By using a cookie we can make the selection persistent so customers don&amp;rsquo;t need to click this link
+each time they visit the site.&lt;/p&gt;
+
+&lt;h2 id=&#34;switcher-block-and-template&#34;&gt;Switcher Block and Template&lt;/h2&gt;
+
+&lt;p&gt;First we want to create our switcher block and template.&lt;/p&gt;
+
+&lt;p&gt;NameSpace/ModuleName/Block/Switcher.php&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;class NameSpace_ModuleName_Block_Switcher&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    extends Mage_Core_Block_Template&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function setSwitchToTheme($switchToTheme)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;setData(&amp;#39;switch_to_theme&amp;#39;, $switchToTheme);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    public function getSwitchToTheme()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        return $this-&amp;gt;getData(&amp;#39;switch_to_theme&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;app/design/frontend/base/default/template/your/folder/structure/switcher.phtml&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&amp;lt;a id=&amp;quot;theme_switcher&amp;quot; href=&amp;quot;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Mage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;helper&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;core/url&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getCurrentUrl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&amp;quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    switch to &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getSwitchToTheme&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt; site&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;$viewDesktopTheme&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getSwitchToTheme&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;===&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;desktop&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;true&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;false&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;$maxAge&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;157680000&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;// 157680000 secs = 5 years (but set this to whatever you want)&lt;/span&gt;
+&lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;&amp;lt;script type=&amp;quot;text/javascript&amp;quot;&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $(&amp;#39;theme_switcher&amp;#39;).observe(&amp;#39;click&amp;#39;, function (e) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        document.cookie = &amp;#39;view_desktop_theme=&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$viewDesktopTheme&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;; max-age=&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$maxAge&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    });&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;By using the setter provided by our block within our layout.xml (we&amp;rsquo;ll see this later) we can use the
+same block and template for both our mobile and desktop themes.&lt;/p&gt;
+
+&lt;h2 id=&#34;add-block-to-page&#34;&gt;Add Block to Page&lt;/h2&gt;
+
+&lt;p&gt;Next we want to add our switcher block to both our mobile and desktop themes.&lt;/p&gt;
+
+&lt;p&gt;app/design/frontend/your/desktop/theme/layout/mobile_to_desktop_switcher.xml&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;layout&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;version=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;0.1.0&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;default&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;reference&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;where_you_want_the_switcher_to_go&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;mobile_to_desktop_switcher&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;namespace_modulename/switcher&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;template=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;your/folder/structure/switcher.phtml&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;setSwitchToTheme&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;switch_to_theme&amp;gt;&lt;/span&gt;mobile&lt;span class=&#34;nt&#34;&gt;&amp;lt;/switch_to_theme&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/action&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/reference&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/default&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/layout&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;app/design/frontend/your/mobile/theme/layout/mobile_to_desktop_switcher.xml&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;layout&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;version=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;0.1.0&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;default&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;reference&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;where_you_want_the_switcher_to_go&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;name=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;mobile_to_desktop_switcher&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;type=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;namespace_modulename/switcher&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;template=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;your/folder/structure/switcher.phtml&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;action&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;method=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;setSwitchToTheme&amp;quot;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;switch_to_theme&amp;gt;&lt;/span&gt;desktop&lt;span class=&#34;nt&#34;&gt;&amp;lt;/switch_to_theme&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/action&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/reference&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/default&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/layout&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This is where we make use of our blocks setter. By placing a layout.xml in each theme we can tell the
+block which theme we should switch to. In the desktop theme we pass &amp;lsquo;mobile&amp;rsquo;, in the mobile theme
+we pass &amp;lsquo;desktop&amp;rsquo;.&lt;/p&gt;
+
+&lt;p&gt;You can then add the switcher to your theme using:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getBlockHtml&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;mobile_to_desktop_switcher&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;add-switch-to-index-php&#34;&gt;Add Switch to index.php&lt;/h2&gt;
+
+&lt;p&gt;Finally we need to add code to index.php which checks for our cookie and sets the current user agent
+based on this.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/* Show theme based on view_desktop_theme cookie */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;if (isset($_COOKIE[&amp;#39;view_desktop_theme&amp;#39;])) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    if ($_COOKIE[&amp;#39;view_desktop_theme&amp;#39;] === &amp;#39;true&amp;#39;) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $_SERVER[&amp;#39;HTTP_USER_AGENT&amp;#39;]&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            = &amp;#39;Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    else if ($_COOKIE[&amp;#39;view_desktop_theme&amp;#39;] === &amp;#39;false&amp;#39;) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $_SERVER[&amp;#39;HTTP_USER_AGENT&amp;#39;]&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            = &amp;#39;Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And that&amp;rsquo;s it, now when your customers click the link they should be toggled between the mobile and
+desktop themes.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Magento 1.9.2.3 Fixes Php 5.6 Compatibility</title>
@@ -477,44 +601,6 @@ app/design/frontend/base/default/template/catalog/product/view/type/configurable
 &lt;p&gt;It does look very much like Sylius is still quite a new offering and it can not boast the level of maturity and establishment that Magento has achieved. That said, things move quickly in this industry and who knows what will be top dog in the next five years.&lt;/p&gt;
 
 &lt;p&gt;If you are considering Sylius for your e-commerce website and would like to find a UK Sylius developer to work with then do get in touch with Edmonds Commerce today.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>White Blank Page when Printing Packing Slips from Magento Admin</title>
-      <link>https://edmondscommerce.github.io/magento/white-blank-page-when-printing-packing-slips-from-magento-admin.html</link>
-      <pubDate>Mon, 01 Jul 2013 14:21:49 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/white-blank-page-when-printing-packing-slips-from-magento-admin.html</guid>
-      <description>&lt;p&gt;If you&amp;rsquo;re having trouble printing packing slips, receiving a white blank page when selecting Print Packingslips from the Actions menu in Magento&amp;rsquo;s Sales Orders page, then it&amp;rsquo;s likely you&amp;rsquo;re having the same issue I&amp;rsquo;ve had.&lt;/p&gt;
-
-&lt;p&gt;I found that having error_reporting enabled wasn&amp;rsquo;t enough&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;error_reporting(E_ALL | E_STRICT);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;You&amp;rsquo;ll also need to add this to your index.php:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;
-ini_set(&#39;display_errors&#39;, 1);
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You&amp;rsquo;ll then be shown the following fatal error:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;
-Fatal error: Declaration of Zend_Pdf_FileParserDataSource_File::__construct() must be compatible with Zend_Pdf_FileParserDataSource::__construct() in /home8/stonecr2/public_html/newsite/lib/Zend/Pdf/FileParserDataSource/File.php on line 41
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The issue here is that the contructor of Zend_Pdf_FileParserDataSource_File requires a single paramter, $filePath, whereas its abstract class&amp;rsquo;s constructor does not. To resolve this, we need to make sure the abstract class matches its implementation, so make the following change&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;//from&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;abstract public function __construct();&lt;/span&gt;
-
-&lt;span class=&#34;x&#34;&gt;//to&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;abstract public function __construct($filePath);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;Test your printing, and you should be provided with a PDF file.&lt;/p&gt;
 </description>
     </item>
     
