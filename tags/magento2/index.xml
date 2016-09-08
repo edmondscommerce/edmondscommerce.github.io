@@ -6,8 +6,1187 @@
     <description>Recent content in Magento2 on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 18 Aug 2016 11:49:53 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 05 Sep 2016 10:40:56 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/magento2/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento 2 Quick Start and Common Gotchas</title>
+      <link>https://edmondscommerce.github.io/magento-2-quick-start-and-common-gotchas/</link>
+      <pubDate>Mon, 05 Sep 2016 10:40:56 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-2-quick-start-and-common-gotchas/</guid>
+      <description>
+
+&lt;p&gt;This post is actually the content for a &lt;a href=&#34;http://www.meetup.com/PHP-E-Commerce-Leeds-Bradford-Meetup/events/233554811/&#34; target=&#34;_blank&#34;&gt;presentation&lt;/a&gt; I gave recently at the &lt;a href=&#34;http://www.meetup.com/PHP-E-Commerce-Leeds-Bradford-Meetup/&#34; target=&#34;_blank&#34;&gt;PHP E-Commerce Leeds/Bradford Meetup&lt;/a&gt;.
+&lt;a name=&#34;contents&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;contents&#34;&gt;Contents&lt;/h1&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#intro&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#installing_dependencies&#34;&gt;Installing Dependencies&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#preparing_install&#34;&gt;Preparing to Install Magento 2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#installing_magento2&#34;&gt;Installing and Configuring Magento 2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#further&#34;&gt;Further Notes and Tips&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;a name=&#34;intro&#34;&gt;&lt;/a&gt;&lt;a href=&#34;#contents&#34;&gt;back to top&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;In this presentation, we will be getting &lt;a href=&#34;https://magento.com/developers/magento2&#34; target=&#34;_blank&#34;&gt;Magento 2&lt;/a&gt; installed and working. There are many ways you can approach this including choice of Linux distribution, database, web server, PHP version and many more. The following is by no means the only way to approach this task, but it is the way we have chosen at &lt;a href=&#34;https://www.edmondscommerce.co.uk&#34; target=&#34;_blank&#34;&gt;Edmonds Commerce&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In summary here are our choices:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Option&lt;/th&gt;
+&lt;th&gt;Choice&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Linux Distribution&lt;/td&gt;
+&lt;td&gt;CentOS 7&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Web Server&lt;/td&gt;
+&lt;td&gt;Nginx&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Database&lt;/td&gt;
+&lt;td&gt;Percona 5.6&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;PHP Version&lt;/td&gt;
+&lt;td&gt;7 (not less than 7.0.6)&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;PHP SAPI&lt;/td&gt;
+&lt;td&gt;PHP-FPM&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;PHP OPcache&lt;/td&gt;
+&lt;td&gt;Zend OPcache&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Magento Version&lt;/td&gt;
+&lt;td&gt;Latest (2.1 at time of writing)&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Magento Installation Type&lt;/td&gt;
+&lt;td&gt;Integrator&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Magento Installation Method&lt;/td&gt;
+&lt;td&gt;Command Line&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;We will write the article on the basis of you already having a clean Centos 7 installation. This could be a Virtual Machine, LXC container or an actual virtual or dedicated server. If you aren&amp;rsquo;t sure, I&amp;rsquo;d suggest starting out with &lt;a href=&#34;https://www.virtualbox.org/&#34; target=&#34;_blank&#34;&gt;VirtualBox&lt;/a&gt; as the easiest cross platform way to create local Virtual Machines.&lt;/p&gt;
+
+&lt;p&gt;Unless otherwise specified, you can assume the commands provided are to be entered onto a BASH command line terminal on your Linux server.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; Where a command has a clear placeholder for your own value, you might want to copy/paste into a text editor and edit the command before you paste it into your terminal&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;a name=&#34;installing_dependencies&#34;&gt;&lt;/a&gt;&lt;a href=&#34;#contents&#34;&gt;back to top&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;installing-dependencies&#34;&gt;Installing Dependencies&lt;/h1&gt;
+
+&lt;p&gt;This section is all about getting you form a basic Linux installation (CentOS in this case) and installing everything that you will need to run Magento 2.&lt;/p&gt;
+
+&lt;p&gt;Magento provide some good documentation on &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/install-gde/system-requirements-tech.html&#34; target=&#34;_blank&#34;&gt;Magento 2 requirements&lt;/a&gt; which clearly describe what needs to be available. Here we are going to take our basic CentOS machine and get it ready with all the requirements in place.&lt;/p&gt;
+
+&lt;h2 id=&#34;basic-centos-setup&#34;&gt;Basic CentOS Setup&lt;/h2&gt;
+
+&lt;p&gt;The first thing I&amp;rsquo;d suggest you do with your CentoOS machine is run a full yum upgrade&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum -y upgrade
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Once this is done, it&amp;rsquo;s time to start installing some basics:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt;  the below is not a complete CentOS setup guide, its a taste of the kinds of things you might want to do. A full guide is beyond the scope of this article.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# some basics&lt;/span&gt;
+yum -y install epel-release
+
+yum -y install &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    htop &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    iftop &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    curl &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    wget &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    tar &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    vim &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    bash_completion &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    sudo &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    logrotate &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    p7zip &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    yum-utils &lt;span class=&#34;se&#34;&gt;\&lt;/span&gt;
+    openssl    
+
+&lt;span class=&#34;c1&#34;&gt;# cron install and start&lt;/span&gt;
+yum -y install crontabs
+service crond start
+chkconfig crond on
+
+&lt;span class=&#34;c1&#34;&gt;# install SSH - I leave securing it etc to you&lt;/span&gt;
+yum install openssh-server
+systemctl &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; sshd
+systemctl start sshd
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; For a production server, you will need to make sure that sufficient time and effort is put into &lt;strong&gt;properly locking it down and securing it&lt;/strong&gt;, or ensuring that your hosting company has done this for you.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;magento2-user&#34;&gt;Magento2 User&lt;/h2&gt;
+
+&lt;p&gt;We now need to create a user that will be the owner of the files of the Magento 2 site. For our purposes, I&amp;rsquo;m going to call this user magento2.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;useradd magento2 -p YOUR_PASSWORD_HERE
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We will use this user later on.&lt;/p&gt;
+
+&lt;h2 id=&#34;mysql&#34;&gt;MySQL&lt;/h2&gt;
+
+&lt;p&gt;Magento requires MySQL 5.6&lt;/p&gt;
+
+&lt;p&gt;This is quite a specific requirement and if you try to run it on another version you will see issues so it makes sense just to do what is recommended.&lt;/p&gt;
+
+&lt;p&gt;Rather than use original MySQL, we tend to prefer to use Percona which has a reputation for high performance.&lt;/p&gt;
+
+&lt;p&gt;Here are some commands to install Percona 5.6&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum -y install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+
+yum -y install Percona-Server-server-56
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then we need to fix an issue with the MySQL socket permissions.&lt;/p&gt;
+
+&lt;p&gt;Copy and paste all of the following into your terminal in one go:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mv /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysqld.orig
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;#&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;# Systemd service file for Percona Server&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;#&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;# # This service file is to start PS just with mysqld_safe&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;#&lt;/span&gt;
+
+&lt;span class=&#34;s1&#34;&gt;[Unit]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;Description=MySQL Percona Server&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;After=network.target&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;After=syslog.target&lt;/span&gt;
+
+&lt;span class=&#34;s1&#34;&gt;[Install]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;WantedBy=multi-user.target&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;Alias=mysql.service&lt;/span&gt;
+
+&lt;span class=&#34;s1&#34;&gt;[Service]&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;# Needed to create system tables etc.&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;ExecStartPre=/usr/bin/mysql-systemd pre&lt;/span&gt;
+
+&lt;span class=&#34;s1&#34;&gt;# Start main service&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;ExecStart=/usr/bin/mysqld_safe&lt;/span&gt;
+
+&lt;span class=&#34;s1&#34;&gt;# Dont signal startup success before a ping works&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;ExecStartPost=/usr/bin/mysql-systemd post&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;ExecStartPost=/bin/bash -c &amp;quot;chmod 777 /var/lib/mysql/mysql.sock&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;# Give up if ping dont get an answer&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;TimeoutSec=600&lt;/span&gt;
+
+&lt;span class=&#34;s1&#34;&gt;Restart=always&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;RestartSec=3&lt;/span&gt;
+&lt;span class=&#34;s1&#34;&gt;PrivateTmp=false&amp;#39;&lt;/span&gt; &amp;gt; /usr/lib/systemd/system/mysqld.service
+
+systemctl daemon-reload
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then get MySQL running&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;systemctl &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; mysqld
+
+systemctl start mysqld
+
+systemctl status mysqld
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then you need to secure your MySQL installation, set a root password etc. There is a simple way to do this, just run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mysql_secure_installation
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can just hit return for most quesions and accept the (sensible) default actions. The only thing you need to put in is the root password.&lt;/p&gt;
+
+&lt;p&gt;Keep track of your root password as you will need that next.&lt;/p&gt;
+
+&lt;p&gt;One you have done the MySQL secure installation, you should create a &lt;code&gt;.my.cnf&lt;/code&gt; file in the home folder of any users you want to be able to connect to mysql easily. For example &lt;code&gt;root&lt;/code&gt; and &lt;code&gt;magento&lt;/code&gt; users.&lt;/p&gt;
+
+&lt;p&gt;First - create a BASH variable with your MySQL root password.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;mysqlRootPassword&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;PUT_YOUR_ROOT_PASSWORD_HERE
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then run the following to create your &lt;code&gt;.my.cnf&lt;/code&gt; files&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;[client]&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;user=root&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;password=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$mysqlRootPassword&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;   &amp;gt; ~/.my.cnf
+chmod &lt;span class=&#34;m&#34;&gt;600&lt;/span&gt; ~/.my.cnf
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;[client]&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;user=root&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;password=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$mysqlRootPassword&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;   &amp;gt; /home/magento2/.my.cnf
+chown magento2:magento2 /home/magento2/.my.cnf
+chmod &lt;span class=&#34;m&#34;&gt;600&lt;/span&gt; /home/magento2/.my.cnf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;php-fpm&#34;&gt;PHP-FPM&lt;/h2&gt;
+
+&lt;p&gt;PHP-FPM (Fast Process Manager) is currently the best practice approach for installing PHP. Also, if you want to use Nginx then it is basically essential as there is no equivalent of Apache&amp;rsquo;s mod_php for Nginx.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+
+yum -y install php70w-fpm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;extensions&#34;&gt;Extensions&lt;/h3&gt;
+
+&lt;p&gt;We also need to make sure that a variety of PHP extensions are also installed. The following code snippet creates an array of extensions and then loops through and installs them. You need to copy and paste the whole snippet into your terminal.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;extensions&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=(&lt;/span&gt;
+curl
+dom
+gd
+mbstring
+mcrypt
+imap
+cli
+mysql
+opcache
+pdo
+soap
+xml
+intl
+bcmath
+process
+&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; extension in &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;extensions&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[@]&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    yum -y install php70w-&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;extension&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;We now have PHP installed and can run the following command to confirm:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;php -v
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;We should see something along the lines of:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span&gt;&lt;/span&gt;PHP 7.0.10 (cli) (built: Aug 20 2016 07:47:25) ( NTS )
+Copyright (c) 1997-2016 The PHP Group
+Zend Engine v3.0.0, Copyright (c) 1998-2016 Zend Technologies
+    with Zend OPcache v7.0.10, Copyright (c) 1999-2016, by Zend Technologies
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The important thing to note here is that we have a version of PHP 7 higher than 7.0.5&lt;/p&gt;
+
+&lt;h3 id=&#34;configuration&#34;&gt;Configuration&lt;/h3&gt;
+
+&lt;p&gt;We now need to modify PHP configuration to make sure the correct settings are in place.&lt;/p&gt;
+
+&lt;h4 id=&#34;timezone&#34;&gt;Timezone&lt;/h4&gt;
+
+&lt;p&gt;This needs to be set. If you are in the UK you probably want this to be set to
+Europe/London&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;date.timezone = Europe/London&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/php.ini
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&#34;memory-limit&#34;&gt;Memory Limit&lt;/h4&gt;
+
+&lt;p&gt;For development, compilation and other complex tasks, Magento needs a hefty memory limit. 2 GB is recommended. Obviously this means that you should be running this on a machine that has plenty of memory. If you are using Virtualbox or other virtualisation, make sure you allocate enough memory to your machine to be able to support it. We also need to get PHP configured with this memory limit.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;memory_limit = 2G&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/php.ini
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&#34;errors&#34;&gt;Errors&lt;/h4&gt;
+
+&lt;p&gt;For development, you need to get error reporting and displaying of errors set up. To do this you will need to open the file &lt;code&gt;/etc/php.ini&lt;/code&gt; and find the line &lt;code&gt;display_errors = Off&lt;/code&gt; and change the &lt;code&gt;Off&lt;/code&gt; to &lt;code&gt;On&lt;/code&gt;. There are other development related settings you might want to adjust as well.&lt;/p&gt;
+
+&lt;h3 id=&#34;php-fpm-backend&#34;&gt;PHP-FPM backend&lt;/h3&gt;
+
+&lt;p&gt;We need to have PHP-FPM listening for connections. There is a default &lt;code&gt;www&lt;/code&gt; pool however I generally prefer to create my own with just the config I need.&lt;/p&gt;
+
+&lt;p&gt;To create a pool, simply make a new file in &lt;code&gt;/etc/php-fpm.d/&lt;/code&gt; called &lt;code&gt;php-fpm-backend.conf&lt;/code&gt;. In this file you can put your own choice of configuration options.&lt;/p&gt;
+
+&lt;p&gt;You need to edit this file and enter in your chosen configuration. If you are not sure how to do this, you should probably install nano and use that as a command line text editor which is the easiest one to get started with.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum -y install nano
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /etc/php-fpm.d/
+nano php-fpm-backend.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then for the file contents you can put something along the lines of:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span&gt;&lt;/span&gt;[php-fpm-backend]
+
+listen = &amp;#39;/var/run/php-fcgi-php-fpm-backend.sock&amp;#39;
+listen.allowed_clients = 127.0.0.1
+listen.owner = nginx
+listen.group = nginx
+listen.mode = 0660
+
+user = magento2
+group = magento2
+
+pm = ondemand
+pm.max_children = 500
+pm.start_servers = 50
+pm.min_spare_servers = 50
+pm.max_spare_servers = 50
+pm.max_requests = 500
+
+request_terminate_timeout = 600
+;request_slowlog_timeout = 1
+;slowlog = /var/log/php-fpm/php-fpm-backend-slow.log
+
+catch_workers_output = yes
+
+php_admin_value[error_log] = /var/log/php-fpm/php-fpm-backend-error.log
+php_admin_flag[log_errors] = on
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; The user/group has been set to the magento2 user we created earlier&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I&amp;rsquo;d generally rename the default www pool so that it is disabled:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /etc/php-fpm.d
+mv www.conf www.conf.disabled
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can&amp;rsquo;t start PHP-FPM until we have installed Nginx, lets do that now.&lt;/p&gt;
+
+&lt;h2 id=&#34;nginx&#34;&gt;Nginx&lt;/h2&gt;
+
+&lt;p&gt;For the web server, the thing that actually receives and serves HTTP requests, we are going to use Nginx&lt;/p&gt;
+
+&lt;p&gt;To get the latest version, we will need to install the official Nginx repository&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;wget http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+yum -y install nginx-release-centos-7-0.el7.ngx.noarch.rpm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then to install Nginx we simply&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;yum -y install nginx
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;configuration-1&#34;&gt;Configuration&lt;/h3&gt;
+
+&lt;p&gt;Nginx requires the correct configuration to properly run a site and access PHP-FPM.&lt;/p&gt;
+
+&lt;p&gt;Nginx has a nice file include syntax which allows you to keep your configuration organised and stick to the DRY principle, especially if you are configuring more than one site.&lt;/p&gt;
+
+&lt;p&gt;I prefer to create a folder inside &lt;code&gt;/etc/nginx/&lt;/code&gt; called &lt;code&gt;includes&lt;/code&gt; which contains config files in the formant &lt;code&gt;filename.conf&lt;/code&gt;and then any configuration for specific vhosts can be included with the syntax &lt;code&gt;include includes/filename.conf;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;magento-2&#34;&gt;Magento 2&lt;/h4&gt;
+
+&lt;p&gt;Configuring Nginx can be a bit tricky if you are not used to it. Thankfully Magento have provided a pretty good &lt;a href=&#34;https://github.com/magento/magento2/blob/develop/nginx.conf.sample&#34; target=&#34;_blank&#34;&gt;baseline Nginx configuration template&lt;/a&gt; to use for your sites. This configuration file requires you to define a variable value and then the rest of the configuration is based upon that. You can save this file to your includes directory. Note there are things in there that you might want to adjust as you see fit, for example the memory limit, so open it and have a look.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mkdir -p /etc/nginx/includes
+
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /etc/nginx/includes
+
+wget https://raw.githubusercontent.com/magento/magento2/develop/nginx.conf.sample -O magento2.conf
+
+vim magento2.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&#34;php-fpm-backend-1&#34;&gt;PHP-FPM backend&lt;/h4&gt;
+
+&lt;p&gt;We need to let Nginx know about our PHP-FPM service, and we can add this with an &lt;code&gt;upstream&lt;/code&gt; block.&lt;/p&gt;
+
+&lt;p&gt;Edit &lt;code&gt;/etc/nginx/nginx.conf&lt;/code&gt; and somewhere before  &amp;lsquo;include /etc/nginx/conf.d/*.conf&amp;rsquo; we need to add the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span&gt;&lt;/span&gt;    upstream fastcgi_backend {
+            server unix:/var/run/php-fcgi-php-fpm-backend.sock;
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; the path to the socket is as you configured in your custom PHP-FPM pool above.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;vhost&#34;&gt;Vhost&lt;/h4&gt;
+
+&lt;p&gt;Finally we need to set Nginx up to actually serve a site on a particular domain name. Thanks to the fact that the majority of required config is handled by the Magento include, our Vhost configuration can be quite sparse.&lt;/p&gt;
+
+&lt;p&gt;The vhost configuration files live in &lt;code&gt;/etc/nginx/conf.d&lt;/code&gt; and by conventtion, the domain name should be reflected in the filename. For our purposes lets say the domain name is &lt;code&gt;www.magento2.local&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /etc/nginx/conf.d
+
+cat &lt;span class=&#34;s&#34;&gt;&amp;lt;&amp;lt; &amp;#39;EOF&amp;#39; &amp;gt;  www.magento2.local.conf&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;server {&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;    listen 80;&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;    server_name www.magento2.local;&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;    set $MAGE_ROOT /var/www/vhosts/www.magento2.local;&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;    include includes/magento2.conf;&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;    error_log /var/log/nginx/www.magento2.local.error.log info;&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;    access_log /var/log/nginx/www.magento2.local.access.log main;&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;EOF&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can disable the default Nginx site by doing:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mv default.conf default.conf.disabled
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Then you can make sure your Nginx configuration is correct by doing:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;nginx -t
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+&lt;h3 id=&#34;gotcha-nginx-pid-file-inconsistency&#34;&gt;&lt;em&gt;GOTCHA: Nginx PID file inconsistency&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;Unfortunatley the official Nginx repository installation has a mismatch between the &lt;code&gt;/etc/nginx/nginx.conf&lt;/code&gt; configuration and the systemd configuration in &lt;code&gt;/usr/lib/systemd/system/nginx.service&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;grep &lt;span class=&#34;s1&#34;&gt;&amp;#39;nginx.pid&amp;#39;&lt;/span&gt; /etc/nginx/nginx.conf
+&lt;span class=&#34;c1&#34;&gt;# pid        /var/run/nginx.pid;&lt;/span&gt;
+
+grep &lt;span class=&#34;s1&#34;&gt;&amp;#39;nginx.pid&amp;#39;&lt;/span&gt; /usr/lib/systemd/system/nginx.service
+&lt;span class=&#34;c1&#34;&gt;# PIDFile=/run/nginx.pid&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;We need the path the PID file to be the same in both files otherwise it won&amp;rsquo;t work. So to do this lets edit &lt;code&gt;/etc/nginx/nginx.conf&lt;/code&gt;, find the line &lt;code&gt;pid        /var/run/nginx.pid;&lt;/code&gt; and remove &lt;code&gt;/var&lt;/code&gt; so it becomes: &lt;code&gt;pid               /run/nginx.pid;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;You can do this using your choice of editor, eg nano&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nano /etc/nginx/nginx.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;start-the-nginx-and-php-fpm-services&#34;&gt;Start the Nginx and PHP-FPM Services&lt;/h3&gt;
+
+&lt;p&gt;Start Nginx&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;systemctl &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; nginx
+systemctl start nginx
+systemctl status nginx
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And then finally we need to start PHP-FPM&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;systemctl &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; php-fpm
+systemctl start php-fpm
+systemctl status php-fpm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;create-vhost-folder-and-test&#34;&gt;Create Vhost Folder and Test&lt;/h3&gt;
+
+&lt;p&gt;We need to make sure everything so far is working, so lets just do a phpinfo file.&lt;/p&gt;
+
+&lt;p&gt;Lets make the document root and create an index file that calls &lt;code&gt;phpinfo();&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mkdir -p /var/www/vhosts/www.magento2.local/pub
+echo &#39;&amp;lt;?php phpinfo();&#39; &amp;gt; /var/www/vhosts/www.magento2.local/pub/index.php
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now on your &lt;strong&gt;local machine&lt;/strong&gt;, you need to create a HOSTS file entry to point to this installation. That is platform dependent but on linux you might do something like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo echo &amp;quot;192.168.1.123 www.magento2.local&amp;quot; &amp;gt;&amp;gt; /etc/hosts
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Where &lt;code&gt;192.168.1.123&lt;/code&gt; is whatever IP address your CentOS machine has. To see the IP address of your CentOS machine you can run &lt;code&gt;ip addr&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;You should now be able to go to &lt;a href=&#34;http://www.magento2.local/&#34; target=&#34;_blank&#34;&gt;http://www.magento2.local/&lt;/a&gt; and see the PHP info page.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;a name=&#34;preparing_install&#34;&gt;&lt;/a&gt;&lt;a href=&#34;#contents&#34;&gt;back to top&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;preparing-to-install-magento-2&#34;&gt;Preparing to Install Magento 2&lt;/h1&gt;
+
+&lt;p&gt;This section is all about getting ready to actually install your Magento 2 site. There are a few options for installing Magento 2 however I have taken the liberty of choosing the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/install-gde/prereq/integrator_install.html&#34; target=&#34;_blank&#34;&gt;Integrator option&lt;/a&gt; using composer as that is the one that is most relevant to us.&lt;/p&gt;
+
+&lt;h2 id=&#34;composer&#34;&gt;Composer&lt;/h2&gt;
+
+&lt;p&gt;We are now nearly ready to start installing Magento 2 itself, there is one last tool we need to install: &lt;a href=&#34;https://getcomposer.org/&#34; target=&#34;_blank&#34;&gt;composer&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Composer has basically revolutionised PHP development, bringing us a solid and reliable dependency management system. It&amp;rsquo;s great that Magento haved decided to use it with Magento 2.&lt;/p&gt;
+
+&lt;p&gt;In the spirit of getting this done quickly, here are the commands to install Composer, just run them:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;expectedSignature&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;wget https://composer.github.io/installer.sig -O - -q&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+php -r &lt;span class=&#34;s2&#34;&gt;&amp;quot;copy(&amp;#39;https://getcomposer.org/installer&amp;#39;, &amp;#39;composer-setup.php&amp;#39;);&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;actualSignature&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;php -r &lt;span class=&#34;s2&#34;&gt;&amp;quot;echo hash_file(&amp;#39;SHA384&amp;#39;, &amp;#39;composer-setup.php&amp;#39;);&amp;quot;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$expectedSignature&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$actualSignature&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+    php composer-setup.php
+    rm composer-setup.php
+    mv composer.phar /bin/composer
+    composer --version
+&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+    &amp;gt;&lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;ERROR: Invalid installer signature&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;nb&#34;&gt;exit&lt;/span&gt; 1
+&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;marketplace-authentication&#34;&gt;Marketplace Authentication&lt;/h2&gt;
+
+&lt;p&gt;Before you can download Magento, you need to get access keys. There are full instructions &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/install-gde/prereq/connect-auth.html&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Ultimately, you need to log in and get to &lt;a href=&#34;https://marketplace.magento.com/customer/accessKeys/list/&#34; target=&#34;_blank&#34;&gt;this page&lt;/a&gt; where you will see a Public Key and a Private Key.&lt;/p&gt;
+
+&lt;p&gt;You have one set of keys by default. However you can generate as many as you need and I suggest you use this feature to give you a new set of keys for each project. This way, if ever a set of keys is compromised then you can simply remove the keys from your account.&lt;/p&gt;
+
+&lt;p&gt;For our purposes, lets hit the big orange Create a New Access Key button and for the name put - www.magento2.local.&lt;/p&gt;
+
+&lt;p&gt;This will then generate new keys for you. Take a note of these as we will need them later.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; Strongly advise you use separate access keys for each project. Why not just use the intended primary domain of the project as the key name.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;magento-file-owner&#34;&gt;Magento File Owner&lt;/h2&gt;
+
+&lt;p&gt;So far, the guide has assumed that you are running commands as the root user of your machine. However, any Linux or Unix user will tell you that doing everything as root is definitely not a good idea.&lt;/p&gt;
+
+&lt;p&gt;We need to change the owner of the vhost directory.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd /var/www/vhosts/www.magento2.local
+chown -R magento2:magento2 .
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And then we need to become the magento2 user:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;su magento2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;_&lt;strong&gt;Note:&lt;/strong&gt; Read these &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/config-guide/prod/prod_file-sys-perms.html&#34; target=&#34;_blank&#34;&gt;official docs&lt;/a&gt; which describe how to properly lock down permissions in production_&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;From here on we are now running as the magento2 Linux user and can move onto installing Magento 2.&lt;/p&gt;
+
+&lt;p&gt;First make sure you are the correct user:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;whoami
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You should be your magento2 user.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; Remember, from here you should not be running any commands as root, you should be the magento2 user&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;using-composer-create-project&#34;&gt;Using Composer Create Project&lt;/h2&gt;
+
+&lt;p&gt;Get your access keys on hand (otherwise known as username and password).&lt;/p&gt;
+
+&lt;p&gt;Firstly we need to clear out our pub directory and phpinfo file.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd /var/www/vhosts/www.magento2.local
+rm -rf pub
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then we are ready to use the composer create project to set up Magento 2:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition .
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You will be asked for a username and password.&lt;/p&gt;
+
+&lt;p&gt;The username is your &lt;strong&gt;Public Key&lt;/strong&gt; and the password is your &lt;strong&gt;Private Key&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Reminder, you can get these from &lt;a href=&#34;https://marketplace.magento.com/customer/accessKeys/list/&#34; target=&#34;_blank&#34;&gt;https://marketplace.magento.com/customer/accessKeys/list/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Once you run the command, you will have the option to store these credentials which I&amp;rsquo;d suggest is probably a good idea.&lt;/p&gt;
+
+&lt;p&gt;You should then see a load of composer output along the lines of:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Installing magento/project-community-edition (2.1.1)
+  - Installing magento/project-community-edition (2.1.1)
+    Downloading: 100%         
+
+Created project in .
+Loading composer repositories with package information
+Updating dependencies (including require-dev)
+  - Installing magento/magento-composer-installer (0.1.11)
+    Downloading: 100%         
+
+  - Installing symfony/process (v2.8.10)
+    Downloading: 100%         
+
+  - Installing magento/framework (100.1.1)
+    Downloading: 100%         
+
+  - Installing magento/language-zh_hans_cn (100.1.0)
+    Downloading: 100%         
+
+# ...(continues for quite some time)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And once that has completed you will see lots of suggestions of other things you might want to install with Composer, eg&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;magento/framework suggests installing ext-imagick (Use Image Magick &amp;gt;=3.0.0 as an optional alternative image processing library)
+magento/module-theme suggests installing magento/module-theme-sample-data (Sample Data version:100.1.*)
+magento/module-catalog suggests installing magento/module-catalog-sample-data (Sample Data version:100.1.*)
+# ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can ignore this for now&lt;/p&gt;
+
+&lt;h2 id=&#34;magento-2-database&#34;&gt;Magento 2 Database&lt;/h2&gt;
+
+&lt;p&gt;We need to create a MySQL database for Magento2 to use. Assuming you created a .my.cnf file in the home directory of your magento2 user, you can just run the following on the terminal:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;mysql -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;CREATE DATABASE magento2_database CHARACTER SET utf8 COLLATE utf8_general_ci;&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now we need to create a user for this database, feel free to set usernames and passwords as you see fit, and make sure you take note as you will need them later.&lt;/p&gt;
+
+&lt;p&gt;First set some variable values:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;dbUser&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;magento2_dbuser
+ &lt;span class=&#34;nv&#34;&gt;dbPass&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;YOUR_DB_USER_PASSWORD_HERE
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And then use them to create the user&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt; mysql -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;CREATE USER &amp;#39;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$dbUser&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39;@&amp;#39;localhost&amp;#39; IDENTIFIED BY &amp;#39;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$dbPass&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39; &amp;quot;&lt;/span&gt;
+ mysql -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;     GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;     ON magento2_database.* &lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;     TO &amp;#39;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$dbUser&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39;@&amp;#39;localhost&amp;#39; IDENTIFIED BY &amp;#39;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$dbPass&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39;;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt;     flush privileges;&lt;/span&gt;
+&lt;span class=&#34;s2&#34;&gt; &amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And then double check its worked&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt; mysql -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;SHOW GRANTS FOR &amp;#39;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$dbUser&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39;@&amp;#39;localhost&amp;#39;&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you want to change the database name to something more meaningful then of course you are free to replace &lt;code&gt;magento2_database&lt;/code&gt; with whatever you would like, same goes for the user &lt;code&gt;magento2_dbuser&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;permissions&#34;&gt;Permissions&lt;/h2&gt;
+
+&lt;p&gt;Magento 2 developer documentation goes into a nice clear level of detail about how you might want ot set up permissions. You can read the relevant section &lt;a href=&#34;http://devdocs.magento.com/guides/v2.0/install-gde/prereq/file-system-perms.html#perms-private&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;ve simplified our permissions by configuring PHP-FPM to run this pool as our magento2 user so the instructions aren&amp;rsquo;t completely relevant to our configuration, but are worth being aware of.&lt;/p&gt;
+
+&lt;p&gt;One command we do need to run though is this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;chmod 700 bin/magento
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which makes the CLI tool executable.&lt;/p&gt;
+
+&lt;p&gt;You are now ready to actually install Magento2&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;a name=&#34;installing_magento2&#34;&gt;&lt;/a&gt;&lt;a href=&#34;#contents&#34;&gt;back to top&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;installing-and-configuring-magento-2&#34;&gt;Installing and Configuring Magento 2&lt;/h1&gt;
+
+&lt;p&gt;This section takes us through the installation process and basic post install configuration&lt;/p&gt;
+
+&lt;h2 id=&#34;command-line-install&#34;&gt;Command Line Install&lt;/h2&gt;
+
+&lt;p&gt;We are going to use the command line installer which is nicely documented on the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/install-gde/install/cli/install-cli.html&#34; target=&#34;_blank&#34;&gt;official documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The command line tool in Magento is likely to be something we use a lot so lets add it to our PATH.&lt;/p&gt;
+
+&lt;p&gt;Then update your &lt;code&gt;~/.bashrc&lt;/code&gt; file to extend your PATH:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;PATH=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$PATH&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;:/var/www/vhosts/www.magento2.local/bin&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; ~/.bashrc
+&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; ~/.bashrc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now you need to move into the project root directory&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd /var/www/vhosts/www.magento2.local
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We are going to prepare an installation script and then run it, so run the following command to create the script&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cat &amp;lt;&amp;lt; &#39;EOF&#39; &amp;gt; bin/installScript.bash
+#!/usr/bin/env bash
+magento setup:install \
+    --admin-firstname &amp;quot;ADMIN_FIRSTNAME_HERE&amp;quot; \
+    --admin-lastname &amp;quot;ADMIN_LASTNAME_HERE&amp;quot; \
+    --admin-email &amp;quot;ADMIN_EMAIL_HERE&amp;quot; \
+    --admin-user &amp;quot;ADMIN_USERNAME_HERE&amp;quot; \
+    --admin-password &amp;quot;ADMIN_PASSWORD_HERE&amp;quot; \
+    --db-host &amp;quot;localhost&amp;quot; \
+    --db-name &amp;quot;magento2_database&amp;quot; \
+    --db-user &amp;quot;magento2_dbuser&amp;quot; \
+    --db-password &amp;quot;DB_PASSWORD_HERE&amp;quot; \
+    --db-prefix &amp;quot;&amp;quot; \
+    --base-url &amp;quot;http://www.magento2.local/&amp;quot; \
+    --use-secure &amp;quot;0&amp;quot; \
+    --language &amp;quot;en_GB&amp;quot; \
+    --currency &amp;quot;GBP&amp;quot; \
+    --timezone &amp;quot;Europe/London&amp;quot; \
+    --use-rewrites 1 \
+    --backend-frontname &amp;quot;admin&amp;quot;;
+EOF
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then edit your script and replace the UPPER_CASE variables. If you previously installed nano then you can use that.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; Your password must be at least 7 characters and your password must include both numeric and alphabetic characters.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;nano bin/installScript.bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once you are done, you can make it executable&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;chmod 700 bin/installScript.bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finally, you are ready to run the install&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;./bin/installScript.bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once that has completed you should be able to see the front end on&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.magento2.local/&#34; target=&#34;_blank&#34;&gt;http://www.magento2.local/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;and the admin on&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.magento2.local/admin&#34; target=&#34;_blank&#34;&gt;http://www.magento2.local/admin&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;reinstallation-of-magento-2&#34;&gt;Reinstallation of Magento 2&lt;/h2&gt;
+
+&lt;p&gt;Should there be any problems and you want to reinstall, you&amp;rsquo;ve now created a nice easy to use script to repeat the process without having to remember lots of parameters.&lt;/p&gt;
+
+&lt;p&gt;To reinstall, simply:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql -e &amp;quot;DROP DATABASE IF EXISTS magento2_database;&amp;quot;
+mysql -e &amp;quot;CREATE DATABASE magento2_database CHARACTER SET utf8 COLLATE utf8_general_ci;&amp;quot;
+./bin/installScript.bash
+chmod 700 bin/magento
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; This will totally wipe out the database (warning, that&amp;rsquo;s destructive). You might want to backup the database first just in case.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;post-install-tasks&#34;&gt;Post Install Tasks&lt;/h2&gt;
+
+&lt;p&gt;There are some other tasks you probably want to do once you have the installation working:&lt;/p&gt;
+
+&lt;h3 id=&#34;setup-cron-jobs&#34;&gt;Setup Cron Jobs&lt;/h3&gt;
+
+&lt;p&gt;Cron jobs run on a schedule in the background and handle things like updating indexes and other background tasks. You can read more about the cron tasks on the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.0/config-guide/cli/config-cli-subcommands-cron.html#config-cli-cron-bkg&#34; target=&#34;_blank&#34;&gt;official docs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;We need to set up a crontab for our magento2 user with the correct entries.&lt;/p&gt;
+
+&lt;p&gt;My preferred way to do this is to have a a &lt;code&gt;_crontab_temp&lt;/code&gt; file which is tracked in the project and can then be used to easily track and possibly revert any changes to cron configuration.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd /var/www/vhosts/www.magento2.local
+cat &amp;lt;&amp;lt; &#39;EOF&#39; &amp;gt; _crontab_temp
+* * * * * /usr/bin/php /var/www/vhosts/www.magento2.local/bin/magento cron:run | grep -v &amp;quot;Ran jobs by schedule&amp;quot; &amp;gt;&amp;gt; /var/www/magento2/var/log/magento.cron.log
+* * * * * /usr/bin/php /var/www/vhosts/www.magento2.local/update/cron.php &amp;gt;&amp;gt; /var/www/magento2/var/log/update.cron.log
+* * * * * /usr/bin/php /var/www/vhosts/www.magento2.local/bin/magento setup:cron:run &amp;gt;&amp;gt; /var/www/magento2/var/log/setup.cron.log
+EOF
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then to actually add this to the crontab, simply&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;crontab _crontab_temp
+
+crontab -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;reindex&#34;&gt;Reindex&lt;/h3&gt;
+
+&lt;p&gt;As described in the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.0/config-guide/cli/config-cli-subcommands-index.html&#34; target=&#34;_blank&#34;&gt;official docs&lt;/a&gt;, you can reindex on the command line easily using the magento command.&lt;/p&gt;
+
+&lt;p&gt;Assuming you have already added the bin directory to your PATH, you can just run&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;magento indexer:reindex
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And you should see output along the lines of :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Design Config Grid index has been rebuilt successfully in 00:00:00
+Customer Grid index has been rebuilt successfully in 00:00:00
+Category Products index has been rebuilt successfully in 00:00:00
+Product Categories index has been rebuilt successfully in 00:00:00
+Product Price index has been rebuilt successfully in 00:00:00
+Product EAV index has been rebuilt successfully in 00:00:00
+Stock index has been rebuilt successfully in 00:00:00
+Catalog Rule Product index has been rebuilt successfully in 00:00:00
+Catalog Product Rule index has been rebuilt successfully in 00:00:00
+Catalog Search index has been rebuilt successfully in 00:00:00
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;change-modes&#34;&gt;Change Modes&lt;/h3&gt;
+
+&lt;p&gt;Magento2 can run in one of three modes, production, default and developer. You want to run in production for live sites. For development locally, you probably want to be in developer mode.&lt;/p&gt;
+
+&lt;p&gt;You can see your current mode by running&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;magento deploy:mode:show
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By default, Magento 2 is in the aptly named mode &amp;ldquo;default&amp;rdquo;. This is a compromise and should not be used, you really want to be in either production or developer modes.&lt;/p&gt;
+
+&lt;p&gt;You can change to developer mode by running these commands:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd /var/www/vhosts/www.magento2.local
+rm -rf /var/di/*
+rm -rf /var/generation/* 
+magento deploy:mode:set developer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Read more about modes &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/config-guide/cli/config-cli-subcommands-mode.html&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt; and also &lt;a href=&#34;http://devdocs.magento.com/guides/v2.0/config-guide/bootstrap/magento-modes.html&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;compile&#34;&gt;Compile&lt;/h3&gt;
+
+&lt;p&gt;Magento2 makes heavy use of compiled code PHP code. This takes your source PHP and creates &amp;ldquo;compiled&amp;rdquo; PHP code which is actually used in production.&lt;/p&gt;
+
+&lt;p&gt;You can read about the compilation process on the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/config-guide/cli/config-cli-subcommands-compiler.html&#34; target=&#34;_blank&#34;&gt;official docs&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;In a nutshell though, you simply need to run this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;magento setup:di:compile
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once this has completed you should see output along the lines of:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Compilation was started.
+%message% 0/7 [&amp;gt;---------------------------]   0% 1 sec 40.0 MiB%message% 0/7 [&amp;gt;---------------------------]   0% 1 sec 40.0 MiBProxies code generation... 0/7 [&amp;gt;---------------------------]   0% 1 sec 40.0 MiB
+Proxies code generation... 1/7 [====&amp;gt;-----------------------]  14% 1 sec 42.0 MiB
+Repositories code generation... 1/7 [====&amp;gt;-----------------------]  14% 1 sec 42.0 MiB
+Repositories code generation... 2/7 [========&amp;gt;-------------------]  28% 13 secs 132.0 MiB
+Service data attributes generation... 2/7 [========&amp;gt;-------------------]  28% 13 secs 132.0 MiB
+Service data attributes generation... 3/7 [============&amp;gt;---------------]  42% 13 secs 134.0 MiB
+Application code generator... 3/7 [============&amp;gt;---------------]  42% 13 secs 134.0 MiB
+Application code generator... 4/7 [================&amp;gt;-----------]  57% 29 secs 150.0 MiB
+Interceptors generation... 4/7 [================&amp;gt;-----------]  57% 29 secs 150.0 MiB
+Interceptors generation... 5/7 [====================&amp;gt;-------]  71% 45 secs 168.0 MiB
+Area configuration aggregation... 5/7 [====================&amp;gt;-------]  71% 45 secs 168.0 MiB
+Area configuration aggregation... 6/7 [========================&amp;gt;---]  85% 2 mins 238.0 MiB
+Interception cache generation... 6/7 [========================&amp;gt;---]  85% 2 mins 238.0 MiB
+Interception cache generation... 7/7 [============================] 100% 2 mins 238.0 MiB
+Generated code and dependency injection configuration successfully.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;a name=&#34;further&#34;&gt;&lt;/a&gt;&lt;a href=&#34;#contents&#34;&gt;back to top&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;further-notes-and-tips&#34;&gt;Further Notes and Tips&lt;/h1&gt;
+
+&lt;h2 id=&#34;documentation-versions&#34;&gt;Documentation Versions&lt;/h2&gt;
+
+&lt;p&gt;If you search Google, you will probably find the docs for version 2.0 in the results. You can see this in the URL &lt;code&gt;http://devdocs.magento.com/guides/v2.0/....&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Actually, you need to be looking at the documentation for the version you are working with, currently 2.1. If you do find a page in the results, you can generally just change the version number in the URL to make sure you are looking at the right version, eg &lt;code&gt;http://devdocs.magento.com/guides/v2.1/...&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Often, there will be no difference, but occasionally there are signficant differences and you can end up going down the rabbit hole if you are reading the wrong docs.&lt;/p&gt;
+
+&lt;p&gt;On the flip side, you might find that the documentation for your version is incomplete and so you need to use the previous documentation. That&amp;rsquo;s fine, but I&amp;rsquo;d strongly suggest you check for up to date docs first and then use legacy docs as required.&lt;/p&gt;
+
+&lt;h2 id=&#34;installing-the-sample-data&#34;&gt;Installing the Sample Data&lt;/h2&gt;
+
+&lt;p&gt;Magento 1 had an option to install a set of sample data which was really handy. It gave you a nice representation of the different kinds of products, categories and configurations you might expect to see on a real store. The other advantage was that everyone could base their customisations on the default theme with this sample data and if it worked with this then there was a good chance it would work in general.&lt;/p&gt;
+
+&lt;p&gt;That concept has been carried over into Magento 2 and so, depending on the type of project you are working on, you might want to install the sample data.&lt;/p&gt;
+
+&lt;p&gt;You can read the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/install-gde/install/sample-data.html&#34; target=&#34;_blank&#34;&gt;official docs&lt;/a&gt; (incomplete at the time of writing). We will be using the composer method for which there is a magento CLI tool command.&lt;/p&gt;
+
+&lt;p&gt;To fully install the sample data, run the following commands&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;magento sampledata:deploy
+magento setup:upgrade
+magento setup:di:compile
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; You must be in developer mode to install the sample data&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;As the docs say though, you should not build a production site from a database that has had the sample data. Your main use case for using the sample data is for generic theme/module development that you expect to be used on multiple client sites.&lt;/p&gt;
+
+&lt;h2 id=&#34;flushing-caches-and-indexes&#34;&gt;Flushing Caches and Indexes&lt;/h2&gt;
+
+&lt;p&gt;When developing, it&amp;rsquo;s likely that you will want to flush caches and reindex on a fairly regular basis. Thankfully the new CLI tool makes this simple&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;magento cache:clean
+magento indexer:reindex
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;updating&#34;&gt;Updating&lt;/h2&gt;
+
+&lt;p&gt;As Magento 2 is using composer, you can update all of the library and framework code using the standard composer syntax, simply:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd /var/www/vhosts/www.magento2.local
+composer update
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will check all of the packages in the project for updated versions and will then update them. Finally it will update the &lt;code&gt;composer.lock&lt;/code&gt; file with these updated versions.&lt;/p&gt;
+
+&lt;h2 id=&#34;removing-index-php-from-front-end-urls&#34;&gt;Removing index.php From Front End URls&lt;/h2&gt;
+
+&lt;p&gt;We don&amp;rsquo;t want index.php in our front end URLs and as we are using Nginx there is no need to.&lt;/p&gt;
+
+&lt;p&gt;To remove them we need to log into the Magento admin and then go to&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;STORES -&amp;gt; configuration -&amp;gt; GENERAL -&amp;gt; Web -&amp;gt; Search Engine Optimisation&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;In here there is a drop down option for Use Web Server Rewrites. Set this to Yes, then flush all caches and the index.php should be gone from URLs.&lt;/p&gt;
+
+&lt;h2 id=&#34;varnish-cache&#34;&gt;Varnish Cache&lt;/h2&gt;
+
+&lt;p&gt;Varnish is a full page caching system that sits in front of your normal web server as a reverse proxy. This is something that you can do with Nginx on it&amp;rsquo;s own. What Varnish does which is also allows elements of the page to still be dynamic, pulling in just those elements using a technique called Edge Side Includes or ESI.&lt;/p&gt;
+
+&lt;p&gt;Magento 1 does not officially support Varnish but most production sites these days will be using it thanks to third party extentions that provide Varnish support.&lt;/p&gt;
+
+&lt;p&gt;For Magento 2, Varnish support has been baked in and is something that you almost certainly want to enable to get the best performance.&lt;/p&gt;
+
+&lt;p&gt;You can read the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/config-guide/varnish/config-varnish.html&#34; target=&#34;_blank&#34;&gt;offical documentation&lt;/a&gt; about Varnish to understand more about it.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;The following commands should be run as the root user&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;For us to install Varnish, we firstly need to make sure that we are going to get a compatible version.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; for Magento 2, you really want to be running Varnish 4&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;To find out exactly what version you would install you can run this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;yum info varnish
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which should give us something along the lines of:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: centos.mirroring.pulsant.co.uk
+ * epel: fr.mirror.babylon.network
+ * extras: mirror.econdc.com
+ * updates: mirror.ukhost4u.com
+ * webtatic: uk.repo.webtatic.com
+Available Packages
+Name        : varnish
+Arch        : x86_64
+Version     : 4.0.3
+Release     : 3.el7
+Size        : 421 k
+Repo        : epel/x86_64
+Summary     : High-performance HTTP accelerator
+URL         : http://www.varnish-cache.org/
+Licence     : BSD
+Description : This is Varnish Cache, a high-performance HTTP accelerator.
+            : Documentation wiki and additional information about Varnish is
+            : available on the following web site: http://www.varnish-cache.org/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note the bit we care about - &lt;code&gt;Version     : 4.0.3&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;install-varnish&#34;&gt;Install Varnish&lt;/h3&gt;
+
+&lt;p&gt;After we have confirmed that we will definitely get Varnish 4 from yum, we can do the install&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;yum -y install varnish
+varnishd -V
+systemctl enable varnish
+systemctl start varnish
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;configure-varnish-and-nginx&#34;&gt;Configure Varnish and Nginx&lt;/h3&gt;
+
+&lt;p&gt;One thing that needs to be understood is that Varnish is a web server and listens to HTTP connections in exactly the same was as Nginx. We need to decide which of the two services is going to be the one that external browsers are actually hitting.&lt;/p&gt;
+
+&lt;p&gt;Another factor in here is that Varnish does not support SSL, so if you are planning to use HTTPS (and you really should) then you will need Nginx to be the server that clients connect to on port 80 (for redirecting to SSL) and port 443 (for the actual SSL web traffic).&lt;/p&gt;
+
+&lt;p&gt;Here is how we are going to lay this out:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;center&#34;&gt;Port&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;Public&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;Server&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;Connects To&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;80 (http)&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;yes&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Nginx&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Varnish (6081)&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;443 (https)&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;yes&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Nginx&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Varnish (6081)&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;6081&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;no&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Varnish&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Nginx (8080)&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;8080&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;no&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Nginx&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;PHP-FPM (socket)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;As this article has more of a development focus, we will not worry about the https 443 for now.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note:&lt;/strong&gt; this differs from the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/config-guide/varnish/config-varnish-configure.html&#34; target=&#34;_blank&#34;&gt;official documentation&lt;/a&gt; which recommends that you have Varnish listening on port 80.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The first thing we need to do is get our main Magento server listening on port 8080. To do this we need to edit the file &lt;code&gt;/etc/nginx/conf.d/www.magneto2.local.conf&lt;/code&gt; and change &lt;code&gt;listen 80;&lt;/code&gt; to &lt;code&gt;listen 127.0.0.1:8080;&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nano /etc/nginx/conf.d/www.magento2.local.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We also need to add a new server block in this file which will actually listen on port 80 (and optionally also 443) and will then pass the request to Varnish.&lt;/p&gt;
+
+&lt;p&gt;Run the following command to add a new server block which is listening on port 80 and 443 and proxy passing to Varnish on 6081&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cat &amp;lt;&amp;lt; &#39;EOF&#39; &amp;gt;&amp;gt; /etc/nginx/conf.d/www.magento2.local.conf
+server{
+    listen 80;
+    #uncomment the below 4 lines and update the paths to your SSL keys to enable SSL
+    #listen 443 ssl http2;
+    #ssl_certificate      /etc/nginx/ssl/domain.com.crt;
+    #ssl_certificate_key  /etc/nginx/ssl/domain.com.key;
+    #ssl_trusted_certificate /etc/nginx/ssl/domain.com.crt;
+    server_name www.magento2.local;
+    location / {
+        proxy_pass            http://127.0.0.1:6081;
+        proxy_read_timeout    90;
+        proxy_connect_timeout 90;
+        proxy_redirect        off;
+        proxy_max_temp_file_size 0;
+        proxy_buffering off;
+        proxy_request_buffering off;
+        #Enable Keepalives
+        proxy_http_version 1.1;
+        proxy_set_header Connection &amp;quot;&amp;quot;;
+        
+        proxy_set_header      X-Real-IP $remote_addr;
+        proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header      X-Forwarded-Proto http;
+        proxy_set_header      X-Forwarded-Port 80;
+        proxy_set_header      Host $host;
+    }
+    error_log /var/log/nginx/public.www.magento2.local.error.log info;
+    access_log /var/log/nginx/public.www.magento2.local.access.log main;
+}
+EOF
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once this is done we need to test and then reload nginx config&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nginx -t
+
+systemctl reload nginx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And after this, you should be able to access the site in your browser. You might notice it is a lot faster.&lt;/p&gt;
+
+&lt;h3 id=&#34;configure-magento-to-use-varnish&#34;&gt;Configure Magento to Use Varnish&lt;/h3&gt;
+
+&lt;p&gt;You can read the &lt;a href=&#34;http://devdocs.magento.com/guides/v2.1/config-guide/varnish/config-varnish-magento.html&#34; target=&#34;_blank&#34;&gt;official documentation&lt;/a&gt; which covers what needs to be done.&lt;/p&gt;
+
+&lt;p&gt;Some of the config might not be obvious though, here is what I would suggest for starters:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;center&#34;&gt;Option&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;Value&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;Caching Application&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Varnish&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;TTL for public content&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Use system value&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;Access list&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;localhost&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;Backend host&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;localhost&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;Backend port&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;8080&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Once you have filled this out, you will need to hit the orange Save Config button in the top right.&lt;/p&gt;
+
+&lt;p&gt;Once the config is saved, you can export the VCL file. You need to hit the button Export VCL for Varnish 4. This will download a file to your &lt;strong&gt;local machine&lt;/strong&gt; which you should open in a text editor.&lt;/p&gt;
+
+&lt;p&gt;We need to take the contents of this file and get them onto a file on your server. For now lets just copy and paste the contents.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Local Machine:&lt;/strong&gt; open the downloaded vcl file, select all and copy the contents&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Server:&lt;/strong&gt; run the following commands and then paste the contents, save and close&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd /etc/varnish
+mv default.vcl default.vcl.backup
+nano default.vcl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Paste in the contents and save the file, then we need to restart Varnish&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;systemctl restart varnish
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For some reason I found that Varnish cache was not clearing unless I also ran the following:&lt;/p&gt;
+
+&lt;p&gt;Run the following as the &lt;strong&gt;magento2&lt;/strong&gt; user:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;magento setup:config:set --http-cache-hosts=127.0.0.1:6081
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This was mentioned on &lt;a href=&#34;http://devdocs.magento.com/guides/v2.0/config-guide/varnish/use-varnish-cache.html#use-varnish-magento-purge&#34; target=&#34;_blank&#34;&gt;this page of the official docs&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;After running this command, doing &lt;code&gt;magento cache:clean&lt;/code&gt; will flush the Varnish cache&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Magento 2 SSH Library</title>
