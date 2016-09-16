@@ -6,8 +6,88 @@
     <description>Recent content in Php on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 15 Jun 2015 16:25:22 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 16 Sep 2016 10:37:59 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/categories/php/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Php Cli Progress Bar</title>
+      <link>https://edmondscommerce.github.io/php-cli-progress-bar/</link>
+      <pubDate>Fri, 16 Sep 2016 10:37:59 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/php-cli-progress-bar/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been doing a lot of data manipulation on the command line recently, and one of bugbears that I ran into was that my commands gave no indication of how long they were going to take to complete.&lt;/p&gt;
+
+&lt;p&gt;Sick and tired of just looking at the blank screen I put together a small progress bar class that can be used indicate how many items have been processed.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class ProgressBar 
+{
+
+    protected $_spinners = [&#39;|&#39;, &#39;/&#39;, &#39;-&#39;, &#39;\\&#39;, &#39;|&#39;, &#39;/&#39;, &#39;-&#39;, &#39;\\&#39;];
+
+    /**
+     * This is used to echo the progress of a task on the command line.
+     * Pass in the current row that you are on and the number of rows that need to be processed and this will echo out
+     * a progress bar like this
+     *
+     * Progress: [-----------------\                                           ]
+     *
+     * It is possible to change the width of the bar by passing in an int as the $steps param, otherwise this default
+     * to 60
+     *
+     * Once the process is complete pass in the $last param as true to finish the the process bar
+     *
+     * @param      $totalDone - The number of rows that have been processed so far
+     * @param      $total     - The total number of rows to be processed
+     * @param bool $last      - If the process has been completed
+     * @param bool $steps     - How wide the process bar should be
+     */
+    public function echoProgress($totalDone, $total, $last = false, $steps = false)
+    {
+        if (PHP_SAPI != &#39;cli&#39;) {
+            return;
+        }
+        $steps = ($steps == false) ? 60 : $steps;
+        if ($last === true) {
+            $display = &amp;quot;Progress: [&amp;quot; . str_repeat(&#39;-&#39;, $steps + 1) . &amp;quot;]\r&amp;quot;;
+        } else {
+            $toGo        = floor((1 - ($totalDone / $total)) * $steps);
+            $progressBar = str_repeat(&#39;-&#39;, $steps - $toGo);
+            $emptySpace  = str_repeat(&#39; &#39;, $toGo);
+            $index       = $totalDone % 8;
+            $display     = &amp;quot;Progress: [&amp;quot; . $progressBar . $this-&amp;gt;_spinners[$index] . $emptySpace . &amp;quot;]\r&amp;quot;;
+        }
+        // @codingStandardsIgnoreStart - There&#39;s nothing wrong with using echo on the CLI
+        echo $display;
+        // @codingStandardsIgnoreEnd
+    }
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can then be used like so&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$totalDone = 0;
+$rowsToProcess = $this-&amp;gt;getRowsToProcess();
+$numberOfRowsToProcess = count($rowsToProcess);
+$processBar = new ProcessBar();
+foreach ($rowsToProcess as $row) {
+    $this-&amp;gt;processRow($row);
+    $processBar-&amp;gt;echoProgress(++$totalDone, $numberOfRowsToProcess);
+}
+$processBar-&amp;gt;echoProgress(++$totalDone, $numberOfRowsToProcess, true);
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which will give the following output when run&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ross@ross:~/localhost/tests $ php importData.php
+starting the import of EdmondsCommerce\ProductImport\Model\OptionValues
+starting the import of EdmondsCommerce\ProductImport\Model\Products
+starting the import of EdmondsCommerce\ProductImport\Model\Combinations
+Progress: [-----------------\                                           ]
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Preparing Fedora for development with PHP Storm</title>
@@ -552,47 +632,6 @@ and PDO spaces in column names&lt;/p&gt;
 &lt;p&gt;This will calculate the smallest value that will be allowed based upon php.ini settings.&lt;/p&gt;
 
 &lt;p&gt;You can then incorporate this into your form logic and display so that users have a clear understanding of how large a file they can upload.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Uploading Multiple Files - Nothing in _POST, _FILES or _REQUEST &#43;Solution</title>
-      <link>https://edmondscommerce.github.io/php/uploading-multiple-files-nothing-in-_post-_files-or-_request-solution.html</link>
-      <pubDate>Mon, 17 Dec 2012 15:27:14 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/php/uploading-multiple-files-nothing-in-_post-_files-or-_request-solution.html</guid>
-      <description>&lt;p&gt;When you&amp;rsquo;re uploading multiple files (HTML5 feature - remember IE as yet STILL does not support this), it may not be the fact you&amp;rsquo;re uploading multiple files that&amp;rsquo;s actually causing the problem.&lt;/p&gt;
-
-&lt;p&gt;The problem often is actually caused by the various php memory limits in play, one way to avoid getting caught by this is using the following snippet in the form&amp;rsquo;s php to remind you which restrictions are in play (note the min_by_key() function is from the php.net comments) :-&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
-&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;min_by_key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$arr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
-    &lt;span class=&#34;nv&#34;&gt;$min&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$arr&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;isset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;is_array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$min2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;min_by_key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$min&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$min2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;isset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;is_array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;elseif&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;isset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-            &lt;span class=&#34;nv&#34;&gt;$min&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;min&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;array_keys&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$min&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-
-&lt;span class=&#34;nv&#34;&gt;$arrayMaxes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
-    &lt;span class=&#34;s1&#34;&gt;&amp;#39;upload_max_filesize&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;intval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;ini_get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;upload_max_filesize&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)),&lt;/span&gt;
-    &lt;span class=&#34;s1&#34;&gt;&amp;#39;post_max_size&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;intval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;ini_get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;post_max_size&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)),&lt;/span&gt;
-    &lt;span class=&#34;s1&#34;&gt;&amp;#39;memory_limit&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;intval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;ini_get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;memory_limit&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;nv&#34;&gt;$maxUploadSize&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;min&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$arrayMaxes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-&lt;span class=&#34;k&#34;&gt;foreach&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$arrayMaxes&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$key&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$value&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;min&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$arrayMaxes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;nv&#34;&gt;$minimumOfThree&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;&amp;lt;p&amp;gt;Max filesize &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$maxUploadSize&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;M Maximum filesize due to server setting &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$minimumOfThree&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cp&#34;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt; in php.ini&amp;lt;/p&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 </description>
     </item>
     

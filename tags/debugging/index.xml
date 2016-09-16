@@ -6,8 +6,88 @@
     <description>Recent content in Debugging on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 21 Nov 2012 20:07:40 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 16 Sep 2016 10:37:59 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/debugging/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Php Cli Progress Bar</title>
+      <link>https://edmondscommerce.github.io/php-cli-progress-bar/</link>
+      <pubDate>Fri, 16 Sep 2016 10:37:59 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/php-cli-progress-bar/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been doing a lot of data manipulation on the command line recently, and one of bugbears that I ran into was that my commands gave no indication of how long they were going to take to complete.&lt;/p&gt;
+
+&lt;p&gt;Sick and tired of just looking at the blank screen I put together a small progress bar class that can be used indicate how many items have been processed.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class ProgressBar 
+{
+
+    protected $_spinners = [&#39;|&#39;, &#39;/&#39;, &#39;-&#39;, &#39;\\&#39;, &#39;|&#39;, &#39;/&#39;, &#39;-&#39;, &#39;\\&#39;];
+
+    /**
+     * This is used to echo the progress of a task on the command line.
+     * Pass in the current row that you are on and the number of rows that need to be processed and this will echo out
+     * a progress bar like this
+     *
+     * Progress: [-----------------\                                           ]
+     *
+     * It is possible to change the width of the bar by passing in an int as the $steps param, otherwise this default
+     * to 60
+     *
+     * Once the process is complete pass in the $last param as true to finish the the process bar
+     *
+     * @param      $totalDone - The number of rows that have been processed so far
+     * @param      $total     - The total number of rows to be processed
+     * @param bool $last      - If the process has been completed
+     * @param bool $steps     - How wide the process bar should be
+     */
+    public function echoProgress($totalDone, $total, $last = false, $steps = false)
+    {
+        if (PHP_SAPI != &#39;cli&#39;) {
+            return;
+        }
+        $steps = ($steps == false) ? 60 : $steps;
+        if ($last === true) {
+            $display = &amp;quot;Progress: [&amp;quot; . str_repeat(&#39;-&#39;, $steps + 1) . &amp;quot;]\r&amp;quot;;
+        } else {
+            $toGo        = floor((1 - ($totalDone / $total)) * $steps);
+            $progressBar = str_repeat(&#39;-&#39;, $steps - $toGo);
+            $emptySpace  = str_repeat(&#39; &#39;, $toGo);
+            $index       = $totalDone % 8;
+            $display     = &amp;quot;Progress: [&amp;quot; . $progressBar . $this-&amp;gt;_spinners[$index] . $emptySpace . &amp;quot;]\r&amp;quot;;
+        }
+        // @codingStandardsIgnoreStart - There&#39;s nothing wrong with using echo on the CLI
+        echo $display;
+        // @codingStandardsIgnoreEnd
+    }
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can then be used like so&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$totalDone = 0;
+$rowsToProcess = $this-&amp;gt;getRowsToProcess();
+$numberOfRowsToProcess = count($rowsToProcess);
+$processBar = new ProcessBar();
+foreach ($rowsToProcess as $row) {
+    $this-&amp;gt;processRow($row);
+    $processBar-&amp;gt;echoProgress(++$totalDone, $numberOfRowsToProcess);
+}
+$processBar-&amp;gt;echoProgress(++$totalDone, $numberOfRowsToProcess, true);
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which will give the following output when run&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ross@ross:~/localhost/tests $ php importData.php
+starting the import of EdmondsCommerce\ProductImport\Model\OptionValues
+starting the import of EdmondsCommerce\ProductImport\Model\Products
+starting the import of EdmondsCommerce\ProductImport\Model\Combinations
+Progress: [-----------------\                                           ]
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Register Shutdown Function not Working in Magento &#43; Solution</title>

@@ -6,8 +6,88 @@
     <description>Recent content on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 15 Sep 2016 17:29:23 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 16 Sep 2016 10:37:59 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Php Cli Progress Bar</title>
+      <link>https://edmondscommerce.github.io/php-cli-progress-bar/</link>
+      <pubDate>Fri, 16 Sep 2016 10:37:59 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/php-cli-progress-bar/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been doing a lot of data manipulation on the command line recently, and one of bugbears that I ran into was that my commands gave no indication of how long they were going to take to complete.&lt;/p&gt;
+
+&lt;p&gt;Sick and tired of just looking at the blank screen I put together a small progress bar class that can be used indicate how many items have been processed.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class ProgressBar 
+{
+
+    protected $_spinners = [&#39;|&#39;, &#39;/&#39;, &#39;-&#39;, &#39;\\&#39;, &#39;|&#39;, &#39;/&#39;, &#39;-&#39;, &#39;\\&#39;];
+
+    /**
+     * This is used to echo the progress of a task on the command line.
+     * Pass in the current row that you are on and the number of rows that need to be processed and this will echo out
+     * a progress bar like this
+     *
+     * Progress: [-----------------\                                           ]
+     *
+     * It is possible to change the width of the bar by passing in an int as the $steps param, otherwise this default
+     * to 60
+     *
+     * Once the process is complete pass in the $last param as true to finish the the process bar
+     *
+     * @param      $totalDone - The number of rows that have been processed so far
+     * @param      $total     - The total number of rows to be processed
+     * @param bool $last      - If the process has been completed
+     * @param bool $steps     - How wide the process bar should be
+     */
+    public function echoProgress($totalDone, $total, $last = false, $steps = false)
+    {
+        if (PHP_SAPI != &#39;cli&#39;) {
+            return;
+        }
+        $steps = ($steps == false) ? 60 : $steps;
+        if ($last === true) {
+            $display = &amp;quot;Progress: [&amp;quot; . str_repeat(&#39;-&#39;, $steps + 1) . &amp;quot;]\r&amp;quot;;
+        } else {
+            $toGo        = floor((1 - ($totalDone / $total)) * $steps);
+            $progressBar = str_repeat(&#39;-&#39;, $steps - $toGo);
+            $emptySpace  = str_repeat(&#39; &#39;, $toGo);
+            $index       = $totalDone % 8;
+            $display     = &amp;quot;Progress: [&amp;quot; . $progressBar . $this-&amp;gt;_spinners[$index] . $emptySpace . &amp;quot;]\r&amp;quot;;
+        }
+        // @codingStandardsIgnoreStart - There&#39;s nothing wrong with using echo on the CLI
+        echo $display;
+        // @codingStandardsIgnoreEnd
+    }
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can then be used like so&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$totalDone = 0;
+$rowsToProcess = $this-&amp;gt;getRowsToProcess();
+$numberOfRowsToProcess = count($rowsToProcess);
+$processBar = new ProcessBar();
+foreach ($rowsToProcess as $row) {
+    $this-&amp;gt;processRow($row);
+    $processBar-&amp;gt;echoProgress(++$totalDone, $numberOfRowsToProcess);
+}
+$processBar-&amp;gt;echoProgress(++$totalDone, $numberOfRowsToProcess, true);
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which will give the following output when run&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ross@ross:~/localhost/tests $ php importData.php
+starting the import of EdmondsCommerce\ProductImport\Model\OptionValues
+starting the import of EdmondsCommerce\ProductImport\Model\Products
+starting the import of EdmondsCommerce\ProductImport\Model\Combinations
+Progress: [-----------------\                                           ]
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>&#39;command failed: tar&#39; when running &#39;npm install phantomjs&#39;</title>
@@ -1814,55 +1894,6 @@ files hosted on our GitHub repo
 &lt;h3 id=&#34;underscore&#34;&gt;Underscore&lt;/h3&gt;
 
 &lt;p&gt;This provides some useful Javascript functions to manipulate Javascript arrays, functions, objects and collections. This library is not required for you to use but provides a great alternative to rolling your own functions for dealing with arrays.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Jira Release With Git Tag</title>
-      <link>https://edmondscommerce.github.io/jira-release-with-git-tag/</link>
-      <pubDate>Thu, 21 Jul 2016 11:10:42 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/jira-release-with-git-tag/</guid>
-      <description>
-
-&lt;h2 id=&#34;create-jira-release&#34;&gt;Create Jira Release&lt;/h2&gt;
-
-&lt;p&gt;When on the Kanban board for your current project:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Ensure all tasks you wish to be included in your release are marked as &amp;lsquo;Done&amp;rsquo;.&lt;/li&gt;
-&lt;li&gt;Click the &amp;lsquo;Release&amp;hellip;&amp;rsquo; link in the top right corner of the board.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;You should now be presented with a form asking you to enter details about this
-release (the version number you add into &amp;lsquo;Version name&amp;rsquo; will be used later
-for the Git tag).&lt;/p&gt;
-
-&lt;p&gt;Once the release has been created you need to navigate to the releases page
-using the ship icon on the left. Select your release. You should now see
-a &amp;lsquo;Release Notes&amp;rsquo; link.&lt;/p&gt;
-
-&lt;p&gt;In order to get a nice markdown version of your release notes you&amp;rsquo;ll want to
-convert the HTML version into markdown (you can use:
-&lt;a href=&#34;https://domchristie.github.io/to-markdown/&#34; target=&#34;_blank&#34;&gt;domchristie.github.io/to-markdown&lt;/a&gt;).&lt;/p&gt;
-
-&lt;h2 id=&#34;create-git-tag&#34;&gt;Create Git Tag&lt;/h2&gt;
-
-&lt;p&gt;Now you have your pretty release notes it&amp;rsquo;s time to create your Git tag for
-this release.&lt;/p&gt;
-
-&lt;p&gt;To create the tag run:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;git tag -a &amp;lt;release version number&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;You should now be in you editor of choice; paste the markdown release notes
-we just created into there (be sure to remove any &amp;lsquo;#&amp;rsquo; characters as they will
-be interpreted as comments).&lt;/p&gt;
-
-&lt;p&gt;Save the notes and that&amp;rsquo;s it. You can now view the tag for this release
-using:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;git show &amp;lt;release version number&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 </description>
     </item>
     
