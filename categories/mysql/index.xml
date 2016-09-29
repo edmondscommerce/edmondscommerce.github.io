@@ -6,8 +6,57 @@
     <description>Recent content in Mysql on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 03 Dec 2013 12:40:04 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 29 Sep 2016 11:04:50 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/categories/mysql/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Using Mysql Dump to Create Fixtures with Where Conditions</title>
+      <link>https://edmondscommerce.github.io/using-mysql-dump-to-create-fixtures-with-where-conditions/</link>
+      <pubDate>Thu, 29 Sep 2016 11:04:50 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/using-mysql-dump-to-create-fixtures-with-where-conditions/</guid>
+      <description>&lt;p&gt;When running unit tests it is generally advisable to have a test database that has a limited but known set of data.&lt;/p&gt;
+
+&lt;p&gt;The idea is that before each test run, the test database is recreated. So that this process is not too slow we then tend to use a small subset of the real live database - perhaps 100 records or entities rather than however many are on the live site.&lt;/p&gt;
+
+&lt;p&gt;In order to build this test database, we then use something call fixtures. This can be all kinds of things - some times the fixtures are created using PHP code. For absolute speed though, I prefer to use fixtures that are raw SQL files that can be very quickly loaded into a database.&lt;/p&gt;
+
+&lt;p&gt;To create the fixtures, the very simplest way is to use &lt;code&gt;mysqldump&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;However, the issue with mysql dump in the way we normally use it is that it will dump an entire database - the opposite of what we are trying to achieve here.&lt;/p&gt;
+
+&lt;p&gt;The trick here is to use the &lt;code&gt;--where&lt;/code&gt; option to mysqldump to limit the data that is actually dumped.&lt;/p&gt;
+
+&lt;p&gt;Lets take a simple database with an &lt;code&gt;orders&lt;/code&gt;, &lt;code&gt;orders_products&lt;/code&gt; and an &lt;code&gt;orders_status_history table&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;First we will dump the orders into an SQL file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysqldump database_name  orders --where=&amp;quot;1 order by orders_id desc limit 0,100&amp;quot; --no-create-info &amp;gt; /tmp/orders.sql
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then we need to calculate what the lowest order ID would be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;lowestOrderId=$(mysql -N database_name -e &amp;quot;select min(t.orders_id) from (select orders_id from orders order by orders_id DESC limit 0,100) as t&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then we can run mysqldump on the other tables and dump their data:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysqldump database_name  orders_products --where=&amp;quot;orders_id &amp;gt; $lowestOrderId&amp;quot; --no-create-info &amp;gt;&amp;gt; /tmp/orders.sql
+
+
+mysqldump database_name  orders_status_history --where=&amp;quot;orders_id &amp;gt; $lowestOrderId&amp;quot; --no-create-info &amp;gt;&amp;gt; /tmp/orders.sql
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And thats it, you now have an orders.sql file with the data for your 100 most recent orders in a format that can easily be imported into a test database simple with&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mysql test_db_name &amp;lt; orders.sql
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Sorting Results Arbitrarily in MySQL</title>
@@ -455,28 +504,6 @@ If you are struggling to get some foreign keys set up on your MySQL InnoDB datab
 &lt;p&gt;I had issues in Magento creating foreign keys against the customer_entity and sales_flat_order tables (entity_id columns). Turns out the issue was that these columns were set to UNSIGNED on the Magento tables, yet my tables columns did not have this attribute.&lt;/p&gt;
 
 &lt;p&gt;Set your columns to UNSIGNED (and otherwise double check the datatypes are the same) and I bet it will all work for you.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Slow Truncating InnoDB Tables that have Foreign Keys set on them</title>
-      <link>https://edmondscommerce.github.io/mysql/slow-truncating-innodb-tables-that-have-foreign-keys-set-on-them.html</link>
-      <pubDate>Tue, 10 Aug 2010 17:12:34 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/mysql/slow-truncating-innodb-tables-that-have-foreign-keys-set-on-them.html</guid>
-      <description>&lt;p&gt;&lt;div class=&#34;oldpost&#34;&gt;&lt;h4&gt;This is post is now quite old and the the information it contains may be out of date or innacurate.&lt;/h4&gt;
-&lt;p&gt;
-If you find any errors or have any suggestions to update the information &lt;a href=&#34;http://edmondscommerce.github.io/contact-us/index.html&#34;&gt;please let us know&lt;/a&gt;
-or &lt;a href=&#34;https://github.com/edmondscommerce/edmondscommerce.github.io&#34;&gt;create a pull request on GitHub&lt;/a&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-One of the advantages of using InnoDB as your storage engine in MySQL is that you can create a database structure that will automatically keep itself clean and tidy, by having deletes cascade through your tables as soon as you delete the main entity.&lt;/p&gt;
-
-&lt;p&gt;However, if you need to empty a large table, you will find that this process is really slow.&lt;/p&gt;
-
-&lt;p&gt;The solution is to first of all truncate all of the tables that have foreign key relations set on the main table and then only empty the main table once those child tables are emptied.&lt;/p&gt;
-
-&lt;p&gt;Yes this defeats the object a bit, but if you want speed, this is the solution. It is incredibly fast in comparison, and the end result is the same.&lt;/p&gt;
 </description>
     </item>
     

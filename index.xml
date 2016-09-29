@@ -6,8 +6,57 @@
     <description>Recent content on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 21 Sep 2016 16:39:24 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 29 Sep 2016 11:04:50 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Using Mysql Dump to Create Fixtures with Where Conditions</title>
+      <link>https://edmondscommerce.github.io/using-mysql-dump-to-create-fixtures-with-where-conditions/</link>
+      <pubDate>Thu, 29 Sep 2016 11:04:50 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/using-mysql-dump-to-create-fixtures-with-where-conditions/</guid>
+      <description>&lt;p&gt;When running unit tests it is generally advisable to have a test database that has a limited but known set of data.&lt;/p&gt;
+
+&lt;p&gt;The idea is that before each test run, the test database is recreated. So that this process is not too slow we then tend to use a small subset of the real live database - perhaps 100 records or entities rather than however many are on the live site.&lt;/p&gt;
+
+&lt;p&gt;In order to build this test database, we then use something call fixtures. This can be all kinds of things - some times the fixtures are created using PHP code. For absolute speed though, I prefer to use fixtures that are raw SQL files that can be very quickly loaded into a database.&lt;/p&gt;
+
+&lt;p&gt;To create the fixtures, the very simplest way is to use &lt;code&gt;mysqldump&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;However, the issue with mysql dump in the way we normally use it is that it will dump an entire database - the opposite of what we are trying to achieve here.&lt;/p&gt;
+
+&lt;p&gt;The trick here is to use the &lt;code&gt;--where&lt;/code&gt; option to mysqldump to limit the data that is actually dumped.&lt;/p&gt;
+
+&lt;p&gt;Lets take a simple database with an &lt;code&gt;orders&lt;/code&gt;, &lt;code&gt;orders_products&lt;/code&gt; and an &lt;code&gt;orders_status_history table&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;First we will dump the orders into an SQL file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysqldump database_name  orders --where=&amp;quot;1 order by orders_id desc limit 0,100&amp;quot; --no-create-info &amp;gt; /tmp/orders.sql
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then we need to calculate what the lowest order ID would be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;lowestOrderId=$(mysql -N database_name -e &amp;quot;select min(t.orders_id) from (select orders_id from orders order by orders_id DESC limit 0,100) as t&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then we can run mysqldump on the other tables and dump their data:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysqldump database_name  orders_products --where=&amp;quot;orders_id &amp;gt; $lowestOrderId&amp;quot; --no-create-info &amp;gt;&amp;gt; /tmp/orders.sql
+
+
+mysqldump database_name  orders_status_history --where=&amp;quot;orders_id &amp;gt; $lowestOrderId&amp;quot; --no-create-info &amp;gt;&amp;gt; /tmp/orders.sql
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And thats it, you now have an orders.sql file with the data for your 100 most recent orders in a format that can easily be imported into a test database simple with&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;
+mysql test_db_name &amp;lt; orders.sql
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Google Apps Review blocked sign-in attempt problem and solution</title>
@@ -1835,25 +1884,6 @@ mysql &lt;span class=&#34;nv&#34;&gt;$newDb&lt;/span&gt; -e &lt;span class=&#34;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;I tried a few techniques before settling on this one as by far the cleanest and easiest. Original credit goes to this &lt;a href=&#34;http://superuser.com/a/978182/573510&#34; target=&#34;_blank&#34;&gt;answer on superuser.com&lt;/a&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Fixing Logrotate Rotating Its Own Files</title>
-      <link>https://edmondscommerce.github.io/fixing-logrotate-rotating-its-own-files/</link>
-      <pubDate>Tue, 26 Jul 2016 17:50:25 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/fixing-logrotate-rotating-its-own-files/</guid>
-      <description>&lt;p&gt;From time to time I come across a server that has had logRotate setup in such a way that it is rotating its own files creating hundreds of copies and increasing disk usage rather than controlling it&lt;/p&gt;
-
-&lt;p&gt;This is caused by a misconfiguration of the logrotate config file. The file that is causing the problems can normally be found be running the following command&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;user@host$ grep &lt;span class=&#34;s1&#34;&gt;&amp;#39;*&amp;#39;&lt;/span&gt; /etc/logrotate.d/*
-/etc/logrotate.d/misconfiguredFile:/path/to/logs/* &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;Which should display all of the paths that include a wild card that are being checked and rotated. The problem happens when the file path end s with a wildcard, as on the next run the newly rotated files will be checked and rotated again.&lt;/p&gt;
-
-&lt;p&gt;The simple way to fix this is to either specify which files need to be rotated exactly, or add the expected suffix to the path (i.e. /path/to/dir/*log).&lt;/p&gt;
 </description>
     </item>
     

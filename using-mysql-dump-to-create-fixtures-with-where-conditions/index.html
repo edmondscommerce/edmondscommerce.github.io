@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title>Testing &middot; </title>
+  <title>Using Mysql Dump to Create Fixtures with Where Conditions &middot; </title>
 
   
   <link rel="stylesheet" href="https://edmondscommerce.github.io/css/poole.css">
@@ -26,7 +26,7 @@
   
   
   
-  <link href="https://edmondscommerce.github.io/tags/testing/index.xml" rel="alternate" type="application/rss+xml" title="Edmonds Commerce Dev Blog &middot; " />
+  
 
   <meta name="description" content="">
   <meta name="keywords" content="">
@@ -104,66 +104,67 @@
 
 
 <div class="content container">
-  <ul class="posts">
-  
-    <li><a href="https://edmondscommerce.github.io/using-mysql-dump-to-create-fixtures-with-where-conditions/">Using Mysql Dump to Create Fixtures with Where Conditions</a>
+  <div class="post">
+    <h1 class="post-title">Using Mysql Dump to Create Fixtures with Where Conditions</h1>
+    <span class="post-date">Sep 29, 2016 &middot; 2 minute read
     
-    &middot;
+    <br/>
+      <strong>Category: </strong>
     <a class="label" href="https://edmondscommerce.github.io/categories/mysql">mysql</a>
     </span>
-    &middot; <time>Sep 29, 2016</time></li>
+    <p>When running unit tests it is generally advisable to have a test database that has a limited but known set of data.</p>
+
+<p>The idea is that before each test run, the test database is recreated. So that this process is not too slow we then tend to use a small subset of the real live database - perhaps 100 records or entities rather than however many are on the live site.</p>
+
+<p>In order to build this test database, we then use something call fixtures. This can be all kinds of things - some times the fixtures are created using PHP code. For absolute speed though, I prefer to use fixtures that are raw SQL files that can be very quickly loaded into a database.</p>
+
+<p>To create the fixtures, the very simplest way is to use <code>mysqldump</code></p>
+
+<p>However, the issue with mysql dump in the way we normally use it is that it will dump an entire database - the opposite of what we are trying to achieve here.</p>
+
+<p>The trick here is to use the <code>--where</code> option to mysqldump to limit the data that is actually dumped.</p>
+
+<p>Lets take a simple database with an <code>orders</code>, <code>orders_products</code> and an <code>orders_status_history table</code>:</p>
+
+<p>First we will dump the orders into an SQL file:</p>
+
+<pre><code>mysqldump database_name  orders --where=&quot;1 order by orders_id desc limit 0,100&quot; --no-create-info &gt; /tmp/orders.sql
+
+</code></pre>
+
+<p>Then we need to calculate what the lowest order ID would be:</p>
+
+<pre><code>lowestOrderId=$(mysql -N database_name -e &quot;select min(t.orders_id) from (select orders_id from orders order by orders_id DESC limit 0,100) as t&quot;)
+</code></pre>
+
+<p>Then we can run mysqldump on the other tables and dump their data:</p>
+
+<pre><code>mysqldump database_name  orders_products --where=&quot;orders_id &gt; $lowestOrderId&quot; --no-create-info &gt;&gt; /tmp/orders.sql
+
+
+mysqldump database_name  orders_status_history --where=&quot;orders_id &gt; $lowestOrderId&quot; --no-create-info &gt;&gt; /tmp/orders.sql
+
+</code></pre>
+
+<p>And thats it, you now have an orders.sql file with the data for your 100 most recent orders in a format that can easily be imported into a test database simple with</p>
+
+<pre><code>
+mysql test_db_name &lt; orders.sql
+
+</code></pre>
+
+  </div>
   
-    <li><a href="https://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html">Repeating Behat Scenarios when Testing Magento with SmartStep</a>
-    
-    &middot;
-    <a class="label" href="https://edmondscommerce.github.io/categories/behat">behat</a>
-    </span>
-    &middot; <time>Apr 15, 2015</time></li>
+  <br/>
+  <strong>Tags: </strong>
+  <a class="label" href="https://edmondscommerce.github.io/tags/mysql">mysql</a><a class="label" href="https://edmondscommerce.github.io/tags/fixtures">fixtures</a><a class="label" href="https://edmondscommerce.github.io/tags/mysqldump">mysqldump</a><a class="label" href="https://edmondscommerce.github.io/tags/testing">testing</a><a class="label" href="https://edmondscommerce.github.io/tags/sql">sql</a>
   
-    <li><a href="https://edmondscommerce.github.io/behat/behat.html">Behat</a>
-    
-    &middot;
-    <a class="label" href="https://edmondscommerce.github.io/categories/behat">behat</a>
-    </span>
-    &middot; <time>Apr 1, 2015</time></li>
   
-    <li><a href="https://edmondscommerce.github.io/load-testing/using-apache-jmeter-for-load-testing.html">Using Apache JMeter For Load Testing</a>
-    
-    &middot;
-    <a class="label" href="https://edmondscommerce.github.io/categories/load-testing">load testing</a>
-    </span>
-    &middot; <time>May 27, 2014</time></li>
-  
-    <li><a href="https://edmondscommerce.github.io/chrome/chrome-auto-populate-form-fields-form-fuzzer.html">Chrome Auto Populate Form Fields - Form Fuzzer</a>
-    
-    &middot;
-    <a class="label" href="https://edmondscommerce.github.io/categories/chrome">chrome</a>
-    </span>
-    &middot; <time>Sep 13, 2012</time></li>
-  
-    <li><a href="https://edmondscommerce.github.io/virtualbox/virtualbox-images-for-download-of-various-linux-and-other-open-source-systems.html">VirtualBox Images For Download of Various Linux and Other Open Source Systems</a>
-    
-    &middot;
-    <a class="label" href="https://edmondscommerce.github.io/categories/virtualbox">virtualbox</a>
-    </span>
-    &middot; <time>Feb 23, 2012</time></li>
-  
-    <li><a href="https://edmondscommerce.github.io/netbeans/phpunit-lamp-magento-and-netbeans.html">PHPUnit, LAMP, Magento and Netbeans</a>
-    
-    &middot;
-    <a class="label" href="https://edmondscommerce.github.io/categories/netbeans">netbeans</a>
-    </span>
-    &middot; <time>Jan 10, 2012</time></li>
-  
-    <li><a href="https://edmondscommerce.github.io/php/selenium-web-application-testing-platform.html">Selenium Web Application Testing Platform</a>
-    
-    &middot;
-    <a class="label" href="https://edmondscommerce.github.io/categories/php">php</a>
-    </span>
-    &middot; <time>Jan 29, 2009</time></li>
-  
-  </ul>
 </div>
+
+
+
+
 <script src="https://edmondscommerce.github.io/js/highlight.pack.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 </body>
