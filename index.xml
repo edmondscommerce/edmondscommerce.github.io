@@ -6,8 +6,67 @@
     <description>Recent content on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 03 Oct 2016 18:54:20 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 04 Oct 2016 14:52:11 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Smtppro Gmail Issue &#43; Solution</title>
+      <link>https://edmondscommerce.github.io/magento-smtppro-gmail-issue-&#43;-solution/</link>
+      <pubDate>Tue, 04 Oct 2016 14:52:11 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-smtppro-gmail-issue-&#43;-solution/</guid>
+      <description>&lt;p&gt;If you Magento site has stopped sending emails via SMTP Pro then you will want to have a look in your exception log - &lt;code&gt;var/log/exception.log&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;If you see messages in there along the lines of&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;2016-10-04T14:27:52+00:00 ERR (3): 
+exception &#39;Zend_Mail_Protocol_Exception&#39; with message &#39;5.7.14 &amp;lt;https://accounts.google.com/signin/continue?AKgnsbu-
+ 5.7.14 Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123
+ 5.7.14 Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123
+ 5.7.14 Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123
+ 5.7.14 Abc123Abc123Abc123&amp;gt; Please log in via your web browser and
+ 5.7.14 then try again.
+ 5.7.14  Learn more at
+ 5.7.14  https://support.google.com/mail/answer/78754 103sm1699291ioi.29 - gsmtp
+&#39; in /var/www/vhosts/www.indigopreciousmetals.com/public/lib/Zend/Mail/Protocol/Abstract.php:431
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then the solution is to log into the gmail web interface, but via your server&amp;rsquo;s IP address.&lt;/p&gt;
+
+&lt;p&gt;Not really the easiest thing to do, and there are a few ways of approaching this. The one that worked for me was to install Squid and use this.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y install squid
+
+sudo echo &amp;quot;
+acl ec src 194.12.9.18
+http_access allow ec
+&amp;quot; &amp;gt;&amp;gt; /etc/squid/squid.conf
+
+sudo systemctl start squid
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;note you might need to open up firewall ports as well&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Once that is running then you can connect to your squid proxy using a local browser.&lt;/p&gt;
+
+&lt;p&gt;Using firefox, you need to go to preferences / advanced / network and the proxy&lt;/p&gt;
+
+&lt;p&gt;Set up your server IP as the proxy IP, set the port to &lt;code&gt;3128&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;You should now be able to browse the web via firefox and the requests are routed via your server.&lt;/p&gt;
+
+&lt;p&gt;You can check this by searching google for &lt;code&gt;ip&lt;/code&gt; and you should get your servers IP address.&lt;/p&gt;
+
+&lt;p&gt;Once you have this working, simply sign into gmail itself and then the issue should be sorted.&lt;/p&gt;
+
+&lt;p&gt;Once it is working, then make sure you remember to close down squid and close down any firewall ports you opended&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo systemctl stop squid
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Adding new less imports in Magento 2 in Development mode</title>
@@ -1813,78 +1872,6 @@ mysql &lt;span class=&#34;nv&#34;&gt;$newDb&lt;/span&gt; -e &lt;span class=&#34;
 &lt;span class=&#34;x&#34;&gt;Stream::register()&lt;/span&gt;
 &lt;span class=&#34;x&#34;&gt;$txt = fopen(&amp;#39;sftp://user:pass@host.com:/home/user/file.txt&amp;#39;);&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Magento 2 Controller Output Types</title>
-      <link>https://edmondscommerce.github.io/magento-2-controller-output-types/</link>
-      <pubDate>Tue, 16 Aug 2016 13:22:03 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento-2-controller-output-types/</guid>
-      <description>
-
-&lt;p&gt;Magento 2 now introduces the Framework result object for handing requests that will handling non page results such as JSON, redirects and other non html returns.&lt;/p&gt;
-
-&lt;p&gt;So to use the result factory in your controller in your controller construct simply have the following code:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$this-&amp;gt;resultFactory = $context-&amp;gt;getResultFactory();&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;Then in the run method simply write the following:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$result = $resultRedirect = $this-&amp;gt;resultFactory-&amp;gt;create($type);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;So the type value has to be one of the following constants:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_JSON&lt;/li&gt;
-&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_RAW&lt;/li&gt;
-&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT&lt;/li&gt;
-&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_FORWARD&lt;/li&gt;
-&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_LAYOUT&lt;/li&gt;
-&lt;li&gt;\Magento\Framework\Controller\ResultFactory::TYPE_PAGE&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;json&#34;&gt;JSON&lt;/h2&gt;
-
-&lt;p&gt;This is for returning a JSON object from a controller with the correct mime type in the response. For returning json there are to methods:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setData([&amp;#39;variable&amp;#39;=&amp;gt;&amp;#39;value&amp;#39;]);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;The first method allows you to pass a php associative array which Magento 2 framework will run the serialization for you.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setJsonData(&amp;#39;{&amp;quot;variable&amp;quot;: &amp;quot;value&amp;quot;}&amp;#39;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;The second method allows for you to set a raw json string to respond with instead of letting Magento 2 handle serialization of the reponse.&lt;/p&gt;
-
-&lt;h2 id=&#34;raw&#34;&gt;Raw&lt;/h2&gt;
-
-&lt;p&gt;This is for setting raw string and binary contents. To use this simply run the following.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setHeader(&amp;#39;Content-Type&amp;#39;,&amp;#39;text/plain&amp;#39;)-&amp;gt;setContents(&amp;#39;string&amp;#39;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;h2 id=&#34;redirect&#34;&gt;Redirect&lt;/h2&gt;
-
-&lt;p&gt;This is for redirecting a user to another page via a 301, 302 and 307 based redirects. To use this simply use the following:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setUrl(&amp;#39;https://www.google.co.uk&amp;#39;);&lt;/span&gt;
-&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setPath(&amp;#39;checkout&amp;#39;, [&amp;#39;_secure&amp;#39; =&amp;gt; true]);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;h2 id=&#34;forward&#34;&gt;Forward&lt;/h2&gt;
-
-&lt;p&gt;Occasionaly you will want to do a internal redirect to a another controller without having the client to do a second request for this we have the forward type. To use this simply do the following.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setModule(&amp;#39;moduleName&amp;#39;)-&amp;gt;setController(&amp;#39;controller&amp;#39;)-&amp;gt;setParam([&amp;#39;id&amp;#39;=&amp;gt;1])-&amp;gt;view(&amp;#39;action&amp;#39;);&lt;/span&gt;
-
-&lt;span class=&#34;x&#34;&gt;return $result-&amp;gt;setController(&amp;#39;controller&amp;#39;)-&amp;gt;view(&amp;#39;action&amp;#39;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;The convention is controller should be folder name inside your modules &amp;lsquo;Controller&amp;rsquo; folder and action should be the name of your action php file with out the php extension. As for moduleName you can normally find out what this should be in you routes.xml file and it should be the value set in frontName attribute set in your route declaration xml.&lt;/p&gt;
-
-&lt;p&gt;Please note if moduleName is not given then Magento 2 will assume that the module is the current one.&lt;/p&gt;
-
-&lt;h2 id=&#34;layout-and-page&#34;&gt;Layout and Page&lt;/h2&gt;
-
-&lt;p&gt;The last two is to simply use xml layout handling to render the contents. The only difference is that layout will not have a default layout handle so you will need to assign layout handles and Page will assign the default and controler specific handles. As expected Page extends the Layout object since there only difference is the fact that layout assumes no layout handlers to begin with.&lt;/p&gt;
 </description>
     </item>
     

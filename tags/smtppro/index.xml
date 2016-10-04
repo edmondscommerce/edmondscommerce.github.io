@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Smtppro on Edmonds Commerce Dev Blog</title>
+    <link>https://edmondscommerce.github.io/tags/smtppro/</link>
+    <description>Recent content in Smtppro on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 04 Oct 2016 14:52:11 +0000</lastBuildDate>
+    <atom:link href="https://edmondscommerce.github.io/tags/smtppro/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Smtppro Gmail Issue &#43; Solution</title>
+      <link>https://edmondscommerce.github.io/magento-smtppro-gmail-issue-&#43;-solution/</link>
+      <pubDate>Tue, 04 Oct 2016 14:52:11 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-smtppro-gmail-issue-&#43;-solution/</guid>
+      <description>&lt;p&gt;If you Magento site has stopped sending emails via SMTP Pro then you will want to have a look in your exception log - &lt;code&gt;var/log/exception.log&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;If you see messages in there along the lines of&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;2016-10-04T14:27:52+00:00 ERR (3): 
+exception &#39;Zend_Mail_Protocol_Exception&#39; with message &#39;5.7.14 &amp;lt;https://accounts.google.com/signin/continue?AKgnsbu-
+ 5.7.14 Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123
+ 5.7.14 Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123
+ 5.7.14 Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123Abc123
+ 5.7.14 Abc123Abc123Abc123&amp;gt; Please log in via your web browser and
+ 5.7.14 then try again.
+ 5.7.14  Learn more at
+ 5.7.14  https://support.google.com/mail/answer/78754 103sm1699291ioi.29 - gsmtp
+&#39; in /var/www/vhosts/www.indigopreciousmetals.com/public/lib/Zend/Mail/Protocol/Abstract.php:431
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then the solution is to log into the gmail web interface, but via your server&amp;rsquo;s IP address.&lt;/p&gt;
+
+&lt;p&gt;Not really the easiest thing to do, and there are a few ways of approaching this. The one that worked for me was to install Squid and use this.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo yum -y install squid
+
+sudo echo &amp;quot;
+acl ec src 194.12.9.18
+http_access allow ec
+&amp;quot; &amp;gt;&amp;gt; /etc/squid/squid.conf
+
+sudo systemctl start squid
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;note you might need to open up firewall ports as well&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Once that is running then you can connect to your squid proxy using a local browser.&lt;/p&gt;
+
+&lt;p&gt;Using firefox, you need to go to preferences / advanced / network and the proxy&lt;/p&gt;
+
+&lt;p&gt;Set up your server IP as the proxy IP, set the port to &lt;code&gt;3128&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;You should now be able to browse the web via firefox and the requests are routed via your server.&lt;/p&gt;
+
+&lt;p&gt;You can check this by searching google for &lt;code&gt;ip&lt;/code&gt; and you should get your servers IP address.&lt;/p&gt;
+
+&lt;p&gt;Once you have this working, simply sign into gmail itself and then the issue should be sorted.&lt;/p&gt;
+
+&lt;p&gt;Once it is working, then make sure you remember to close down squid and close down any firewall ports you opended&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo systemctl stop squid
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
