@@ -6,8 +6,124 @@
     <description>Recent content in Magento on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 04 Oct 2016 14:52:11 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 13 Oct 2016 10:19:52 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/magento/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Supee-8788 Supee-1533 Conflict Fixed</title>
+      <link>https://edmondscommerce.github.io/magento-supee-8788-supee-1533-conflict-fixed/</link>
+      <pubDate>Thu, 13 Oct 2016 10:19:52 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-supee-8788-supee-1533-conflict-fixed/</guid>
+      <description>
+
+&lt;p&gt;TL;DR Run the script at the bottom.&lt;/p&gt;
+
+&lt;h1 id=&#34;the-issue&#34;&gt;The Issue&lt;/h1&gt;
+
+&lt;p&gt;If you&amp;rsquo;ve previously applied the SUPEE-1533 patch to your Magento site, then when you
+try to apply the SUPEE-8788 patch you&amp;rsquo;ll see the following error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;checking file app/code/core/Mage/Adminhtml/controllers/DashboardController.php
+Hunk #1 FAILED at 91.
+1 out of 1 hunk FAILED
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is caused by the fact that the SUPEE-8788 patch seems to have been taken against an
+un-patched version of Magento. This can be seen from the following:&lt;/p&gt;
+
+&lt;p&gt;The SUPEE-8788 patch contains:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@@ -91,7 +91,7 @@ class Mage_Adminhtml_DashboardController extends Mage_Adminhtml_Controller_Actio
+         if ($gaData &amp;amp;&amp;amp; $gaHash) {
+             $newHash = Mage::helper(&#39;adminhtml/dashboard_data&#39;)-&amp;gt;getChartDataHash($gaData);
+-            if ($newHash == $gaHash) {
++            if (hash_equals($newHash, $gaHash)) {
+                 if ($params = unserialize(base64_decode(urldecode($gaData)))) {
+                     $response = $httpClient-&amp;gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL)
+                             -&amp;gt;setParameterGet($params)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The important line here is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;                 if ($params = unserialize(base64_decode(urldecode($gaData)))) {
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which is supposed to match up with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;        if ($gaData &amp;amp;&amp;amp; $gaHash) {
+            $newHash = Mage::helper(&#39;adminhtml/dashboard_data&#39;)-&amp;gt;getChartDataHash($gaData);
+            if ($newHash == $gaHash) {
+                $params = json_decode(base64_decode(urldecode($gaData)), true);
+                if ($params) {
+                    $response = $httpClient-&amp;gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL)
+                            -&amp;gt;setParameterGet($params)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The important lines here are:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;                $params = json_decode(base64_decode(urldecode($gaData)), true);
+                if ($params) {
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now they don&amp;rsquo;t match because of the change made in SUPEE-1533:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;         if ($gaData &amp;amp;&amp;amp; $gaHash) {
+             $newHash = Mage::helper(&#39;adminhtml/dashboard_data&#39;)-&amp;gt;getChartDataHash($gaData);
+             if ($newHash == $gaHash) {
+-                if ($params = unserialize(base64_decode(urldecode($gaData)))) {
++                $params = json_decode(base64_decode(urldecode($gaData)), true);
++                if ($params) {
+                     $response = $httpClient-&amp;gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL)
+                             -&amp;gt;setParameterGet($params)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;the-fix&#34;&gt;The Fix&lt;/h1&gt;
+
+&lt;p&gt;In order to apply SUPEE-8788 we need to temporarily revert the changes made to
+&lt;code&gt;DashboardController.php&lt;/code&gt; by SUPEE-1533. We can then apply the patch and restore
+the SUPEE-1533 changes.&lt;/p&gt;
+
+&lt;p&gt;[NOTE: It&amp;rsquo;s really important you restore the SUPEE-1533 changes as the use of
+json_encode here protects against the &lt;a href=&#34;https://magento.com/security-patch&#34; target=&#34;_blank&#34;&gt;Shoplift Bug&lt;/a&gt;]&lt;/p&gt;
+
+&lt;p&gt;To install the patch copy the following script into a .sh file in the root of your
+Magento install (along with the SUPEE-8788 patch) and run the script.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/usr/bin/env bash&lt;/span&gt;
+
+&lt;span class=&#34;nv&#34;&gt;dashboard_controller&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;app/code/core/Mage/Adminhtml/controllers/DashboardController.php&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# Remove &amp;#39;if ($params) {&amp;#39;&lt;/span&gt;
+sed -i &lt;span class=&#34;s1&#34;&gt;&amp;#39;96d&amp;#39;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$dashboard_controller&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# Replace json_encode line with serialize line&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;json_encode_line&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;$params = json_decode(base64_decode(urldecode($gaData)), true);&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;serialize_line&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;if ($params = unserialize(base64_decode(urldecode($gaData)))) {&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+sed -i -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;s/&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$json_encode_line&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$serialize_line&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/&amp;quot;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$dashboard_controller&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# This now puts the code in the state expected by the patch&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# Apply SUPEE-8788 patch&lt;/span&gt;
+sh PATCH_SUPEE-8788_CE_1.8.1.0_v1-2016-10-11-06-54-44.sh
+
+&lt;span class=&#34;c1&#34;&gt;# Add back &amp;#39;if ($params) {&amp;#39;&lt;/span&gt;
+sed -i &lt;span class=&#34;s1&#34;&gt;&amp;#39;96i\                if ($params) {&amp;#39;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$dashboard_controller&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# Add back json_encode line&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;serialize_line&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;if ($params = unserialize(base64_decode(urldecode($gaData)))) {&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;json_encode_line&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;$params = json_decode(base64_decode(urldecode($gaData)), true);&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+sed -i -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;s/&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$serialize_line&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$json_encode_line&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;/&amp;quot;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$dashboard_controller&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&#34;handy-links&#34;&gt;Handy Links&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://magento.stackexchange.com/questions/140550/security-patch-supee-8788-possible-problems&#34; target=&#34;_blank&#34;&gt;SUPEE-8788 Stackoverflow thread&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://magento.com/security/patches/supee-8788&#34; target=&#34;_blank&#34;&gt;Official SUPEE-8788 page&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Magento Smtppro Gmail Issue Solution</title>
@@ -1787,30 +1903,6 @@ extensions:
       
       <guid>https://edmondscommerce.github.io/magento/supee-3941-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html</guid>
       <description>&lt;p&gt;This post was published with the incorrect vulnerability code; &lt;a href=&#34;https://edmondscommerce.github.io/magento/supee-5344-a-new-patch-for-magento-community-1-dot-6-1-dot-7-1-dot-8-and-1-dot-9-enterprise-1-dot-11-1-dot-12-1-dot-13-and-1-dot-14.html&#34;&gt;this article has been moved to this post&lt;/a&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Magento 1.9 &amp;amp; 1.14 released</title>
-      <link>https://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released.html</link>
-      <pubDate>Wed, 14 May 2014 11:12:02 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/magento-1-dot-9-and-1-dot-14-released.html</guid>
-      <description>&lt;p&gt;Magento has released the latest version of both CE and EE.&lt;/p&gt;
-
-&lt;p&gt;The big changes that are included are as follows&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Responsive design included as default&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;Both editions now come with a responsive theme. This introduces jQuery, SASS, and Compass into native Magento and should allow for easier customisation in the future.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Bill Me Later&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;The PayPal integration has been upgraded to include the &lt;a href=&#34;https://www.paypal.com/webapps/mpp/promotional-financing&#34; target=&#34;_blank&#34;&gt;Bill Me Later&lt;/a&gt; financing option. This allows customer to pay for products over six months whilst the merchant gets paid straight away.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Other security fix and performance fixes&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;The full list of changes can be seen &lt;a href=&#34;http://www.magentocommerce.com/knowledge-base/entry/new-features-ce19-ee114&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     
