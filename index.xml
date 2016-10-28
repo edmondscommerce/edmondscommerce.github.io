@@ -6,8 +6,49 @@
     <description>Recent content on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 27 Oct 2016 16:14:45 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 28 Oct 2016 08:08:38 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Portable System Update on Shutdown</title>
+      <link>https://edmondscommerce.github.io/portable-system-update-on-shutdown/</link>
+      <pubDate>Fri, 28 Oct 2016 08:08:38 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/portable-system-update-on-shutdown/</guid>
+      <description>
+
+&lt;h1 id=&#34;another-update-on-shutdown-solution&#34;&gt;Another Update on Shutdown Solution?&lt;/h1&gt;
+
+&lt;p&gt;While the other solutions on this blog (&lt;a href=&#34;https://edmondscommerce.github.io/auto-update-fedora-on-shutdown/&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;
+and &lt;a href=&#34;https://edmondscommerce.github.io/add-keybinding-to-dnf-upgrade-and-shutdown-to-gnome-shell/&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;)
+are probably more elegant they have dependencies on either the desktop (Gnome) or systemd.
+This solution should be portable across Linux distros and desktops.&lt;/p&gt;
+
+&lt;h1 id=&#34;the-solution&#34;&gt;The Solution&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://specifications.freedesktop.org/desktop-entry-spec/latest/&#34; target=&#34;_blank&#34;&gt;freedesktop.org&lt;/a&gt; define a specification
+for application launchers. These launchers will run on all compatible desktops (which means almost all
+Linux desktops).&lt;/p&gt;
+
+&lt;p&gt;The desktop launcher for update on shutdown can be created using the following command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cat &amp;lt;&amp;lt;&#39;EOF&#39; | bash
+echo &amp;quot;[Desktop Entry]
+Name=Shutdown
+Exec=gnome-terminal --command=\&amp;quot;sudo bash -c &#39;dnf -y upgrade; shutdown now&#39;\&amp;quot;
+Type=Application
+Terminal=true&amp;quot; &amp;gt; ~/.local/share/applications/shutdown.desktop;
+chmod u+x ~/.local/share/applications/shutdown.desktop;
+ln -s ~/.local/share/applications/shutdown.desktop ~/Desktop/shutdown.desktop
+EOF
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This should give you a launcher on your desktop as well as in your normal application menu.&lt;/p&gt;
+
+&lt;p&gt;To make this work for your distribution you may need to change &lt;code&gt;dnf -y upgrade&lt;/code&gt; to something
+else like &lt;code&gt;apt-get update; apt-get upgrade -y;&lt;/code&gt; for Debian based distros.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Auto-update Fedora on Shutdown</title>
@@ -610,54 +651,6 @@ Progress: [-----------------\                                           ]
 &lt;p&gt;Turns out because the file was a bzip one, it was trying to execute &lt;code&gt;bzip2&lt;/code&gt; within &lt;code&gt;tar&lt;/code&gt;, hence why it seemed like &lt;code&gt;tar&lt;/code&gt; was failing.&lt;/p&gt;
 
 &lt;p&gt;Simple answer: &lt;code&gt;yum/dnf/apt-get install bzip2&lt;/code&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Lxc Bash Completion For Fedora</title>
-      <link>https://edmondscommerce.github.io/lxc-bash-completion-for-fedora/</link>
-      <pubDate>Thu, 15 Sep 2016 09:39:04 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/lxc-bash-completion-for-fedora/</guid>
-      <description>&lt;p&gt;LXC is great, I&amp;rsquo;m really loving it.&lt;/p&gt;
-
-&lt;p&gt;However I also love Fedora and work almost exclusively in the Red Hat, Centos, Fedora ecosphere - so the Ubuntu centric nature of LXC is sometimes a bit of a hindrance.&lt;/p&gt;
-
-&lt;p&gt;One thing is that the LXC implementation on Ubuntu and Fedora differs in how the commands are run, eg Ubuntu: &lt;code&gt;lxc start -n containerName&lt;/code&gt; and Fedora: &lt;code&gt;lxc-start -n containerName&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;This means that I can&amp;rsquo;t easily use the LXC bash completion I found &lt;a href=&#34;https://github.com/arges/lxd/blob/7a33c43deeca38cd77ed38eb84f12a2f4efa90ca/config/bash/lxc.in&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;I love bash completion, it&amp;rsquo;s awesome and really quite easy to get working&lt;/p&gt;
-
-&lt;p&gt;Here is something quick I threw together for working with LXC on Fedora:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;
-#!/usr/bin/env bash
-
-_lxc-containers(){
-    local cur
-    local -a toks
-    cur=&amp;quot;${COMP_WORDS[COMP_CWORD]}&amp;quot;
-    toks=( $(  ls /var/lib/lxc | grep &amp;quot;$cur&amp;quot; ))
-    COMPREPLY=( &amp;quot;${toks[@]}&amp;quot; )
-    return 0
-}
-complete -F _lxc-containers -o nospace lxc-start
-complete -F _lxc-containers -o nospace lxc-stop
-complete -F _lxc-containers -o nospace lxc-attach
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I also use the following aliases to make life a bit easier:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;alias lxc-start=&amp;quot;sudo lxc-start -n &amp;quot;
-alias lxc-stop=&amp;quot;sudo lxc-stop -n &amp;quot;
-alias lxc-attach=&amp;quot;sudo lxc-attach -n &amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And now if I add both of the above to my &lt;code&gt;~/.bashrc&lt;/code&gt; file, I get completion on start, stop and attach. I&amp;rsquo;ve deliberately excluded the destroy command from this, just in case.&lt;/p&gt;
-
-&lt;p&gt;Note the use of &lt;code&gt;sudo&lt;/code&gt; meaning that you avoid issues around not being root (haven&amp;rsquo;t got around unpriviledged containers yet) and also avoid the temptation of keeping a root terminal open&lt;/p&gt;
 </description>
     </item>
     
