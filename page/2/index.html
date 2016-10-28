@@ -110,6 +110,22 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://edmondscommerce.github.io/magento-supee-8788-supee-1533-conflict-fixed/">Magento Supee-8788 Supee-1533 Conflict Fixed</a>
+            </h1>
+            <span class="post-date">Oct 13, 2016 &middot;
+                2 minute read
+      
+      <br/>
+      <a class="label" href="https://edmondscommerce.github.io/categories/magento">magento</a>
+      </span>
+            
+            TL;DR Run the script at the bottom. The Issue If you&rsquo;ve previously applied the SUPEE-1533 patch to your Magento site, then when you try to apply the SUPEE-8788 patch you&rsquo;ll see the following error: checking file app/code/core/Mage/Adminhtml/controllers/DashboardController.php Hunk #1 FAILED at 91. 1 out of 1 hunk FAILED This is caused by the fact that the SUPEE-8788 patch seems to have been taken against an un-patched version of Magento. This can be seen from the following: The SUPEE-8788 patch contains: @@ -91,7 +91,7 @@ class Mage_Adminhtml_DashboardController extends Mage_Adminhtml_Controller_Actio if ($gaData &amp;&amp; $gaHash) { $newHash = Mage::helper('adminhtml/dashboard_data')-&gt;getChartDataHash($gaData); - if ($newHash == $gaHash) { + if (hash_equals($newHash, $gaHash)) { if ($params = unserialize(base64_decode(urldecode($gaData)))) { $response = $httpClient-&gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL) -&gt;setParameterGet($params) The important line here is: if ($params = unserialize(base64_decode(urldecode($gaData)))) { Which is supposed to match up with: if ($gaData &amp;&amp; $gaHash) { $newHash = Mage::helper('adminhtml/dashboard_data')-&gt;getChartDataHash($gaData); if ($newHash == $gaHash) { $params = json_decode(base64_decode(urldecode($gaData)), true); if ($params) { $response = $httpClient-&gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL) -&gt;setParameterGet($params) The important lines here are: $params = json_decode(base64_decode(urldecode($gaData)), true); if ($params) { Now they don&rsquo;t match because of the change made in SUPEE-1533: if ($gaData &amp;&amp; $gaHash) { $newHash = Mage::helper('adminhtml/dashboard_data')-&gt;getChartDataHash($gaData); if ($newHash == $gaHash) { - if ($params = unserialize(base64_decode(urldecode($gaData)))) { + $params = json_decode(base64_decode(urldecode($gaData)), true); + if ($params) { $response = $httpClient-&gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL) -&gt;setParameterGet($params) The Fix In order to apply SUPEE-8788 we need to temporarily revert the changes made to DashboardController.php by SUPEE-1533.
+            <a href="https://edmondscommerce.github.io/magento-supee-8788-supee-1533-conflict-fixed/">Read On &rarr;</a>
+            
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://edmondscommerce.github.io/highlighting-empty-hrefs-in-links-using-css/">Highlighting Empty Hrefs in Links Using Css</a>
             </h1>
             <span class="post-date">Oct 5, 2016 &middot;
@@ -185,22 +201,6 @@
             
             When running unit tests it is generally advisable to have a test database that has a limited but known set of data. The idea is that before each test run, the test database is recreated. So that this process is not too slow we then tend to use a small subset of the real live database - perhaps 100 records or entities rather than however many are on the live site.
             <a href="https://edmondscommerce.github.io/using-mysql-dump-to-create-fixtures-with-where-conditions/">Read On &rarr;</a>
-            
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://edmondscommerce.github.io/google-apps-review-blocked-sign-in-attempt-problem-and-solution/">Google Apps Review blocked sign-in attempt problem and solution</a>
-            </h1>
-            <span class="post-date">Sep 21, 2016 &middot;
-                1 minute read
-      
-      <br/>
-      <a class="label" href="https://edmondscommerce.github.io/categories/googleapps">googleapps</a>
-      </span>
-            
-            When using SMTP Pro&rsquo;s Self Test function against our development Google Apps inbox, I noticed it repeatedly blocked outgoing emails, with the slightly cryptic error &ldquo;5.7.14 Please log in via your web browser and 5.7.14 then try again&rdquo; I logged into the inbox to find an email with the subject &ldquo;Review blocked sign-in attempt&rdquo; telling me I was using &ldquo;an app that doesn&rsquo;t meet modern security standards&rdquo;. I&rsquo;m not sure what these modern security standards are (it talks about them here) but lo and behold all of Google&rsquo;s apps are apparently compliant.
-            <a href="https://edmondscommerce.github.io/google-apps-review-blocked-sign-in-attempt-problem-and-solution/">Read On &rarr;</a>
             
         </div>
         
