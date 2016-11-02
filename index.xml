@@ -6,8 +6,44 @@
     <description>Recent content on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 28 Oct 2016 11:30:16 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 02 Nov 2016 15:55:15 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Basic Clustat and Clusvcadm Usage</title>
+      <link>https://edmondscommerce.github.io/basic-clustat-and-clusvcadm-usage/</link>
+      <pubDate>Wed, 02 Nov 2016 15:55:15 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/basic-clustat-and-clusvcadm-usage/</guid>
+      <description>
+
+&lt;p&gt;I had to work on one of UKFasts clustered servers today and learnt a few new commands. I wanted to record
+these here mainly for my future self but hopefully you&amp;rsquo;ll find them useful too.&lt;/p&gt;
+
+&lt;h1 id=&#34;clustat&#34;&gt;clustat&lt;/h1&gt;
+
+&lt;p&gt;This is the first command you&amp;rsquo;ll want to run (as root) on the server. This will give you the current
+status of all the cluster nodes and services.&lt;/p&gt;
+
+&lt;h1 id=&#34;clusvcadm&#34;&gt;clusvcadm&lt;/h1&gt;
+
+&lt;p&gt;This is the command you&amp;rsquo;ll use to managage services (such as mysql).&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;-r &amp;ndash; relocate service. On UKFasts setup this will move the service to the other running node
+(there are only 2).&lt;/li&gt;
+&lt;li&gt;-e &amp;ndash; enable service. This is how you manually start services.&lt;/li&gt;
+&lt;li&gt;-d &amp;ndash; disable service. This is how you manually stop services.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;useful-links&#34;&gt;Useful Links&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://linux.die.net/man/8/clustat&#34; target=&#34;_blank&#34;&gt;clustat man page&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://linux.die.net/man/8/clusvcadm&#34; target=&#34;_blank&#34;&gt;clusvcadm man page&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Magento Api Logging</title>
@@ -571,86 +607,6 @@ mysql test_db_name &amp;lt; orders.sql
 &lt;p&gt;Then create a template in &lt;code&gt;app/design/frontend/&amp;lt;your_vendor&amp;gt;/&amp;lt;your_theme&amp;gt;/Magento_Theme/path/to/template.phtml&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;Remember to flush all caches.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Php Cli Progress Bar</title>
-      <link>https://edmondscommerce.github.io/php-cli-progress-bar/</link>
-      <pubDate>Fri, 16 Sep 2016 10:37:59 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/php-cli-progress-bar/</guid>
-      <description>&lt;p&gt;I&amp;rsquo;ve been doing a lot of data manipulation on the command line recently, and one of bugbears that I ran into was that my commands gave no indication of how long they were going to take to complete.&lt;/p&gt;
-
-&lt;p&gt;Sick and tired of just looking at the blank screen I put together a small progress bar class that can be used indicate how many items have been processed.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;class ProgressBar 
-{
-
-    protected $_spinners = [&#39;|&#39;, &#39;/&#39;, &#39;-&#39;, &#39;\\&#39;, &#39;|&#39;, &#39;/&#39;, &#39;-&#39;, &#39;\\&#39;];
-
-    /**
-     * This is used to echo the progress of a task on the command line.
-     * Pass in the current row that you are on and the number of rows that need to be processed and this will echo out
-     * a progress bar like this
-     *
-     * Progress: [-----------------\                                           ]
-     *
-     * It is possible to change the width of the bar by passing in an int as the $steps param, otherwise this default
-     * to 60
-     *
-     * Once the process is complete pass in the $last param as true to finish the the process bar
-     *
-     * @param      $totalDone - The number of rows that have been processed so far
-     * @param      $total     - The total number of rows to be processed
-     * @param bool $last      - If the process has been completed
-     * @param bool $steps     - How wide the process bar should be
-     */
-    public function echoProgress($totalDone, $total, $last = false, $steps = false)
-    {
-        if (PHP_SAPI != &#39;cli&#39;) {
-            return;
-        }
-        $steps = ($steps == false) ? 60 : $steps;
-        if ($last === true) {
-            $display = &amp;quot;Progress: [&amp;quot; . str_repeat(&#39;-&#39;, $steps + 1) . &amp;quot;]\r&amp;quot;;
-        } else {
-            $toGo        = floor((1 - ($totalDone / $total)) * $steps);
-            $progressBar = str_repeat(&#39;-&#39;, $steps - $toGo);
-            $emptySpace  = str_repeat(&#39; &#39;, $toGo);
-            $index       = $totalDone % 8;
-            $display     = &amp;quot;Progress: [&amp;quot; . $progressBar . $this-&amp;gt;_spinners[$index] . $emptySpace . &amp;quot;]\r&amp;quot;;
-        }
-        // @codingStandardsIgnoreStart - There&#39;s nothing wrong with using echo on the CLI
-        echo $display;
-        // @codingStandardsIgnoreEnd
-    }
-
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This can then be used like so&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$totalDone = 0;
-$rowsToProcess = $this-&amp;gt;getRowsToProcess();
-$numberOfRowsToProcess = count($rowsToProcess);
-$processBar = new ProcessBar();
-foreach ($rowsToProcess as $row) {
-    $this-&amp;gt;processRow($row);
-    $processBar-&amp;gt;echoProgress(++$totalDone, $numberOfRowsToProcess);
-}
-$processBar-&amp;gt;echoProgress(++$totalDone, $numberOfRowsToProcess, true);
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Which will give the following output when run&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;ross@ross:~/localhost/tests $ php importData.php
-starting the import of EdmondsCommerce\ProductImport\Model\OptionValues
-starting the import of EdmondsCommerce\ProductImport\Model\Products
-starting the import of EdmondsCommerce\ProductImport\Model\Combinations
-Progress: [-----------------\                                           ]
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
