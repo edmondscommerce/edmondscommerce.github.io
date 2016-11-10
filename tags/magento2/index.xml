@@ -40,6 +40,400 @@ running &lt;code&gt;setup:di:compile&lt;/code&gt;. A temporary fix for this is t
     </item>
     
     <item>
+      <title>Magento 2 Migrations</title>
+      <link>https://edmondscommerce.github.io/magento-2-migrations/</link>
+      <pubDate>Fri, 04 Nov 2016 14:00:49 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-2-migrations/</guid>
+      <description>
+
+&lt;h1 id=&#34;contents&#34;&gt;Contents&lt;/h1&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#intro&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#m1mig&#34;&gt;Magento 1.x Migrations&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#m2mig&#34;&gt;Magento 2.x Migrations&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#ecmig&#34;&gt;Edmonds Commerce Migrations&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;a name=&#34;intro&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;&lt;a name=&#34;mig&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;database-migrations&#34;&gt;Database Migrations&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;See also: &lt;a href=&#34;https://en.wikipedia.org/wiki/Schema_migration&#34; target=&#34;_blank&#34;&gt;https://en.wikipedia.org/wiki/Schema_migration&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Database migrations are a way of setting database state pragmatically, it is used in various frameworks, platforms and ORMs like Laravel&amp;rsquo;s Eloquent, Symfony&amp;rsquo;s Doctrine among many.&lt;/p&gt;
+
+&lt;p&gt;There are many different use cases for migrations during development, they can be used to reduce the technical debt to a database during development allowing it to be a decoupled part of the project.
+Internally we use migrations for newer projects to bootstrap different parts of a Magento store before it is launched, like CMS pages, blocks and configuration of the store itself.&lt;/p&gt;
+
+&lt;p&gt;This has the benefit of having a new store set up become much easier to manage, all the content is present and the only steps remaining for launch is to update DNS to the new platform.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&#34;m1mig&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;magento-1-s-migrations&#34;&gt;Magento 1&amp;rsquo;s migrations&lt;/h1&gt;
+
+&lt;p&gt;In Magento 1.x there is a system where by all changes in database structure and content is done incrementally using version numbering and a database table to track the status of database in comparison to a module&amp;rsquo;s version.&lt;/p&gt;
+
+&lt;h2 id=&#34;install-upgrades-and-versioning&#34;&gt;Install, Upgrades and Versioning&lt;/h2&gt;
+
+&lt;p&gt;There are two sides to Magento setup and migration scripts, structure (known as sql internally) and data.
+When Magento encounters a new or updated module it will check if there are any changes to the database structure or contents by searching for a corresponding script in the sql and data directories.
+The version number of the module triggers this when it is greater than the version number that Magento has stored, Magento will then automatically trigger the structure change and data updates in turn.&lt;/p&gt;
+
+&lt;h2 id=&#34;application-flow&#34;&gt;Application Flow&lt;/h2&gt;
+
+&lt;p&gt;Here is a detailed breakdown of how Magento 1 performs updates of the database&lt;/p&gt;
+
+&lt;div&gt;
+&lt;ul&gt;
+    &lt;li&gt;Boot&lt;/li&gt;
+    &lt;li&gt;Check for if any modules have increased in version number &lt;br/&gt;
+        &lt;a href=&#34;https://github.com/OpenMage/magento-mirror/blob/magento-1.9/app/code/core/Mage/Core/Model/Resource/Setup.php#L314&#34;&gt;Code&lt;/a&gt;
+        &lt;ul&gt;
+            &lt;li&gt;
+                Found a higher/lower version module
+                &lt;ul&gt;
+                    &lt;li&gt;Find SQL/Data scripts to run to reach target version &lt;br/&gt;
+                        &lt;a href=&#34;https://github.com/OpenMage/magento-mirror/blob/magento-1.9/app/code/core/Mage/Core/Model/Resource/Setup.php#L616&#34;&gt;Code&lt;/a&gt;
+                        &lt;ul&gt;
+                            &lt;li&gt;Start update process&lt;/li&gt;
+                            &lt;li&gt;
+                                Execute SQL/Data scripts in sequence
+                                &lt;ul&gt;
+                                    &lt;li&gt;
+                                        Run script from version X to version Y or run initial install script &lt;br/&gt;
+                                        &lt;a href=&#34;https://github.com/OpenMage/magento-mirror/blob/magento-1.9/app/code/core/Mage/Catalog/data/catalog_setup/data-install-1.6.0.0.php&#34;&gt;Example Install&lt;/a&gt;&lt;br /&gt;
+                                        &lt;a href=&#34;https://github.com/OpenMage/magento-mirror/blob/magento-1.9/app/code/core/Mage/Catalog/data/catalog_setup/data-upgrade-1.6.0.0.4-1.6.0.0.5.php&#34;&gt;Example Update&lt;/a&gt;
+                                    &lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                            &lt;li&gt;End update process&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/li&gt;
+            &lt;li&gt;Return to normal application flow&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/li&gt;
+    &lt;li&gt;Return output&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&#34;structure&#34;&gt;Structure&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Core Mage Catalog Setup Structure (Snippet)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span&gt;&lt;/span&gt;.
+├── data
+│   └── catalog_setup
+│       ├── data-install-1.6.0.0.php
+│       ├── data-upgrade-1.6.0.0.12-1.6.0.0.13.php
+│       ├── data-upgrade-1.6.0.0.13-1.6.0.0.14.php
+│       ├── data-upgrade-1.6.0.0.4-1.6.0.0.5.php
+│       └── data-upgrade-1.6.0.0.8-1.6.0.0.9.php
+├── etc
+│   ├── config.xml
+└── sql
+    └── catalog_setup
+        ├── install-1.6.0.0.php
+        ├── mysql4-data-upgrade-0.7.57-0.7.58.php
+        ├── mysql4-data-upgrade-0.7.63-0.7.64.php
+        ├── mysql4-data-upgrade-1.4.0.0.28-1.4.0.0.29.php
+        ├── mysql4-data-upgrade-1.4.0.0.42-1.4.0.0.43.php
+        ├── mysql4-install-0.7.0.php
+        ├── mysql4-install-1.4.0.0.0.php
+        ├── mysql4-upgrade-0.6.40-0.7.0.php
+        ├── mysql4-upgrade-0.7.0-0.7.1.php
+        ├── mysql4-upgrade-0.7.1-0.7.2.php
+        ├── mysql4-upgrade-0.7.11-0.7.12.php
+        ├── mysql4-upgrade-0.7.12-0.7.13.php
+        ├── mysql4-upgrade-0.7.13-0.7.14.php
+        ├── mysql4-upgrade-0.7.14-0.7.15.php
+        ├── mysql4-upgrade-0.7.15-0.7.16.php
+        ├── mysql4-upgrade-0.7.16-0.7.17.php
+        ├── mysql4-upgrade-0.7.17-0.7.18.php
+        ├── mysql4-upgrade-0.7.18-0.7.19.php
+        ├── mysql4-upgrade-0.7.19-0.7.20.php
+        ├── mysql4-upgrade-0.7.20-0.7.21.php
+        ├── mysql4-upgrade-0.7.2-0.7.3.php
+        ├── upgrade-1.6.0.0.10-1.6.0.0.11.php
+        ├── upgrade-1.6.0.0.11-1.6.0.0.12.php
+        ├── upgrade-1.6.0.0.1-1.6.0.0.2.php
+        ├── upgrade-1.6.0.0.14-1.6.0.0.15.php
+        ├── upgrade-1.6.0.0.15-1.6.0.0.18.php
+        ├── upgrade-1.6.0.0-1.6.0.0.1.php
+        ├── upgrade-1.6.0.0.18-1.6.0.0.19.php
+        ├── upgrade-1.6.0.0.19.1.1-1.6.0.0.19.1.2.php
+        ├── upgrade-1.6.0.0.2-1.6.0.0.3.php
+        ├── upgrade-1.6.0.0.3-1.6.0.0.4.php
+        ├── upgrade-1.6.0.0.4-1.6.0.0.5.php
+        ├── upgrade-1.6.0.0.5-1.6.0.0.6.php
+        ├── upgrade-1.6.0.0.6-1.6.0.0.7.php
+        ├── upgrade-1.6.0.0.7-1.6.0.0.8.php
+        └── upgrade-1.6.0.0.9-1.6.0.0.10.php
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;configuring-structure-changes&#34;&gt;Configuring Structure Changes&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span&gt;&lt;/span&gt;        &lt;span class=&#34;c&#34;&gt;&amp;lt;!-- app/code/core/Mage/Catalog/etc/config.xml --&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;config&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;global&amp;gt;&lt;/span&gt;
+        ...
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;resources&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;catalog_setup&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;setup&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;module&amp;gt;&lt;/span&gt;Mage_Catalog&lt;span class=&#34;nt&#34;&gt;&amp;lt;/module&amp;gt;&lt;/span&gt;
+                    &lt;span class=&#34;nt&#34;&gt;&amp;lt;class&amp;gt;&lt;/span&gt;Mage_Catalog_Model_Resource_Setup&lt;span class=&#34;nt&#34;&gt;&amp;lt;/class&amp;gt;&lt;/span&gt;
+                &lt;span class=&#34;nt&#34;&gt;&amp;lt;/setup&amp;gt;&lt;/span&gt;
+            &lt;span class=&#34;nt&#34;&gt;&amp;lt;/catalog_setup&amp;gt;&lt;/span&gt;
+        &lt;span class=&#34;nt&#34;&gt;&amp;lt;/resources&amp;gt;&lt;/span&gt;
+        ...
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/global&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/config&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;examples&#34;&gt;Examples&lt;/h2&gt;
+
+&lt;p&gt;Below are a few examples from Magento core modules that the data and structure of the database&lt;/p&gt;
+
+&lt;h4 id=&#34;catalog-data-snippet-examples&#34;&gt;Catalog Data Snippet Examples&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;// Create Root Catalog Node&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;Mage::getModel(&amp;#39;catalog/category&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;load(1)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setId(1)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setStoreId(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setPath(1)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setLevel(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setPosition(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setChildrenCount(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setName(&amp;#39;Root Catalog&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setInitialSetupFlag(true)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;save();&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;//Add Category Attribute Groups&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$groups = array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    &amp;#39;display&amp;#39;   =&amp;gt; array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;name&amp;#39;  =&amp;gt; &amp;#39;Display Settings&amp;#39;,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;sort&amp;#39;  =&amp;gt; 20,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;id&amp;#39;    =&amp;gt; null&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    ),&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    &amp;#39;design&amp;#39;    =&amp;gt; array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;name&amp;#39;  =&amp;gt; &amp;#39;Custom Design&amp;#39;,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;sort&amp;#39;  =&amp;gt; 30,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;id&amp;#39;    =&amp;gt; null&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    )&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;foreach ($groups as $k =&amp;gt; $groupProp) {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $installer-&amp;gt;addAttributeGroup($entityTypeId, $attributeSetId, $groupProp[&amp;#39;name&amp;#39;], $groupProp[&amp;#39;sort&amp;#39;]);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    $groups[$k][&amp;#39;id&amp;#39;] = $installer-&amp;gt;getAttributeGroupId($entityTypeId, $attributeSetId, $groupProp[&amp;#39;name&amp;#39;]);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&#34;reviews-setup-snippets&#34;&gt;Reviews Setup Snippets&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * Create table &amp;#39;review/review_entity&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$table = $installer-&amp;gt;getConnection()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;newTable($installer-&amp;gt;getTable(&amp;#39;review/review_entity&amp;#39;))&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;addColumn(&amp;#39;entity_id&amp;#39;, Varien_Db_Ddl_Table::TYPE_SMALLINT, null, array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;identity&amp;#39;  =&amp;gt; true,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;unsigned&amp;#39;  =&amp;gt; true,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;nullable&amp;#39;  =&amp;gt; false,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;primary&amp;#39;   =&amp;gt; true,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ), &amp;#39;Review entity id&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;addColumn(&amp;#39;entity_code&amp;#39;, Varien_Db_Ddl_Table::TYPE_TEXT, 32, array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;nullable&amp;#39;  =&amp;gt; false&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ), &amp;#39;Review entity code&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setComment(&amp;#39;Review entities&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$installer-&amp;gt;getConnection()-&amp;gt;createTable($table);&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;/**&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; * Create table &amp;#39;review/review_status&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$table = $installer-&amp;gt;getConnection()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;newTable($installer-&amp;gt;getTable(&amp;#39;review/review_status&amp;#39;))&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;addColumn(&amp;#39;status_id&amp;#39;, Varien_Db_Ddl_Table::TYPE_SMALLINT, null, array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;identity&amp;#39;  =&amp;gt; true,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;unsigned&amp;#39;  =&amp;gt; true,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;nullable&amp;#39;  =&amp;gt; false,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;primary&amp;#39;   =&amp;gt; true,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ), &amp;#39;Status id&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;addColumn(&amp;#39;status_code&amp;#39;, Varien_Db_Ddl_Table::TYPE_TEXT, 32, array(&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &amp;#39;nullable&amp;#39;  =&amp;gt; false,&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ), &amp;#39;Status code&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    -&amp;gt;setComment(&amp;#39;Review statuses&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;$installer-&amp;gt;getConnection()-&amp;gt;createTable($table);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;workflow&#34;&gt;Workflow&lt;/h2&gt;
+
+&lt;p&gt;As mentioned in the introduction, we use migrations to bootstrap new stores (or existing stores) from install all the way through to being transactional.
+In the case of Magento, we rarely use the SQL install scripts and tend to use data scripts (as that is what we are working with).&lt;/p&gt;
+
+&lt;p&gt;Quite often we find that we are repeating ourselves when generating different content, like product attributes and over time we created a small module that standardises the creation of these elements.
+We aptly named the new module &amp;ldquo;migrations&amp;rdquo; and from there we have added more functionality over time to speed up the creation of new sites and passing this benefit on to clients.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&#34;m2mig&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;magento-2-migrations&#34;&gt;Magento 2 Migrations&lt;/h1&gt;
+
+&lt;h2 id=&#34;differences-to-magento-1&#34;&gt;Differences to Magento 1&lt;/h2&gt;
+
+&lt;p&gt;In Magento 2 there is a big shift in workflow, there are no version numbers in file names and the number of setup scripts does not increase as the module matures but the size of the scripts will do.
+This is one of the many stumbling blocks M1 developers will encounter when moving to Magento 2.&lt;/p&gt;
+
+&lt;p&gt;There is no concrete workflow on how setup scripts have to be done as there was in Magento 1, this can be confusing at first but allows a developer to define how they would like migrations to be run.&lt;/p&gt;
+
+&lt;h3 id=&#34;idempotent-setup&#34;&gt;Idempotent Setup&lt;/h3&gt;
+
+&lt;p&gt;One concept that prevails from this new approach is that migrations can now be idempotent out of the box.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Wikipedia: &lt;a href=&#34;https://en.wikipedia.org/wiki/Idempotence&#34; target=&#34;_blank&#34;&gt;https://en.wikipedia.org/wiki/Idempotence&lt;/a&gt;
+&amp;gt; Idempotence is the property of certain operations in mathematics and computer science, that can be applied multiple times without changing the result beyond the initial application.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This approach will emphasize that checks on the current database state has to be checked before changes are made, examples include checking that we do not recreate an attribute or other element that does not exist and visa versa when removing data or modify existing tables
+Developers will need to be more cautious and test different variations of the setup script, it would also be a good idea to shard large setup files in to smaller categorised chunks for ease of use when making further changes.&lt;/p&gt;
+
+&lt;h3 id=&#34;abstraction-and-dependency-injection&#34;&gt;Abstraction and Dependency Injection&lt;/h3&gt;
+
+&lt;p&gt;In Magento 2 dependency injection and &lt;code&gt;ObjectManager&lt;/code&gt; has replaced the much loved super object &lt;code&gt;Mage&lt;/code&gt; meaning we now have more control over what is instantiated a class constructor.
+This has also had an impact on how we approach setup scripts and migrations in that we can now abstract away reusable chunks of code and tailor them to our module.&lt;/p&gt;
+
+&lt;p&gt;An example of this would be needing to create attributes in different ways, we could create a new class and inject the setup class used (as shown in the example above) or we could extend the setup class to add our new logic&lt;/p&gt;
+
+&lt;p&gt;From here we could allow the use of file based system to load content like static blocks/pages and allow faster iteration of content (instead of using the Magento admin which takes donkey&amp;rsquo;s years).
+An example of what this could look like:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span&gt;&lt;/span&gt;./app/code/vendor/module
+  ├── etc
+  ├── registration.php
+  ├── Setup
+  │   ├── CategorySetup.php
+  │   ├── InstallData.php
+  │   ├── InstallSchema.php
+  │   ├── UpgradeData.php
+  │   ├── UpgradeSchema.php
+  │   ├── UpgradeSchema.php
+  │   └── Cms
+  │       ├── Blocks
+  │       │   ├── Contact.phtml
+  │       │   └── Delivery.phtml
+  │       │    ...
+  │       ├── Pages
+  │       │   ├── Home.phtml
+  │       │   └── About.phtml
+  │       │    ...  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;structure-and-examples&#34;&gt;Structure and Examples&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Magento 2 Catalog&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;./vendor/magento/module-catalog
+  ├── etc
+  │   ├── config.xml
+  │   ├── di.xml
+  │   ├── module.xml
+  ├── registration.php
+  ├── Setup
+  │   ├── CategorySetup.php
+  │   ├── InstallData.php
+  │   ├── InstallSchema.php
+  │   ├── UpgradeData.php
+  │   └── UpgradeSchema.php
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/blockquote&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;$categorySetup-&amp;gt;installEntities();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        // Create Root Catalog Node&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $categorySetup-&amp;gt;createCategory()&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;load($rootCategoryId)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setId($rootCategoryId)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setStoreId(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setPath($rootCategoryId)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setLevel(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setPosition(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setChildrenCount(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setName(&amp;#39;Root Catalog&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setInitialSetupFlag(true)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;save();&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;        // Create Default Catalog Node&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category = $categorySetup-&amp;gt;createCategory();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $category-&amp;gt;load($defaultCategoryId)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setId($defaultCategoryId)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setStoreId(0)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setPath($rootCategoryId . &amp;#39;/&amp;#39; . $defaultCategoryId)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setName(&amp;#39;Default Category&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setDisplayMode(&amp;#39;PRODUCTS&amp;#39;)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setIsActive(1)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setLevel(1)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setInitialSetupFlag(true)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;setAttributeSetId($category-&amp;gt;getDefaultAttributeSetId())&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            -&amp;gt;save();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;a name=&#34;ecmig&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;ec-database-migrations-module&#34;&gt;EC Database Migrations Module&lt;/h1&gt;
+
+&lt;p&gt;As mentioned previously we have a database migrations module internally that we tend to reuse and have started to migrate to Magento 2.
+The purpose of the module is to bootstrap tasks that are repeated across Magento 2 projects and allow for changes to be idempotent at the same time.&lt;/p&gt;
+
+&lt;p&gt;The module is still very young and is still under development but is shaping up to be a useful tool. There are still active issues that are being tackled
+and we are embracing the open source approach to the development of the module to improve the development experience of every one involved.&lt;/p&gt;
+
+&lt;h2 id=&#34;install-guide&#34;&gt;Install Guide&lt;/h2&gt;
+
+&lt;p&gt;From the root of your Magento 2 project, install the composer dependency.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;composer require edmondscommerce/magento2-migrations@dev
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;examples-1&#34;&gt;Examples&lt;/h3&gt;
+
+&lt;p&gt;From with in your Magento 2 module&amp;rsquo;s setup/upgrade scripts you can now inject one of the many different interfaces available from the migrations module.
+For the time being we have split larger parts of Magento&amp;rsquo;s infrastructure in to smaller interfaces for ease of management.&lt;/p&gt;
+
+&lt;p&gt;Lets take a look at changing an arbitrary config change&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;class InstallData implements InstallDataInterface {&lt;/span&gt;
+
+&lt;span class=&#34;x&#34;&gt;    public function __construct(EavSetupFactory $eavSetupFactory, \EdmondsCommerce\Migrations\Contracts\Config\GeneralContract $generalConfig)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;generalConfig = $generalConfig;   &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    public function install(...)&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    {&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $setup-&amp;gt;startSetup();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ...&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $this-&amp;gt;generalConfig-&amp;gt;setStoreName(&amp;#39;My Magento 2 Store&amp;#39;);&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;           &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        ...&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;            &lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;        $setup-&amp;gt;endSetup();&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;    }&lt;/span&gt;
+&lt;span class=&#34;x&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;With the use of database migrations we can remove the complexity of keeping environments in sync during development and reduce the value of the database when moving between environments.
+From this we can always explicitly declare what should and should not be present in the database on any environment whether that be production or active development.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Magento 2: How to add new tabs to the product page</title>
       <link>https://edmondscommerce.github.io/magento-2-how-to-add-new-tabs-to-the-product-page/</link>
       <pubDate>Tue, 18 Oct 2016 17:52:21 +0000</pubDate>
