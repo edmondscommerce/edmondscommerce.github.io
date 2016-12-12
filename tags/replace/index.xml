@@ -6,8 +6,191 @@
     <description>Recent content in Replace on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 06 Dec 2013 11:35:58 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 12 Dec 2016 18:13:32 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/replace/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Replacing Failed Drive in Zfs Zpool (on Proxmox)</title>
+      <link>https://edmondscommerce.github.io/replacing-failed-drive-in-zfs-zpool-on-proxmox/</link>
+      <pubDate>Mon, 12 Dec 2016 18:13:32 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/replacing-failed-drive-in-zfs-zpool-on-proxmox/</guid>
+      <description>
+
+&lt;p&gt;Recently we had one of our Proxmox machines suffer a failed disk drive.&lt;/p&gt;
+
+&lt;p&gt;Thankfully, replacing a failed disk in a ZFS zpool is remarkably simple if you know how.&lt;/p&gt;
+
+&lt;p&gt;In this example, we are using the ZFS configuration as per the Proxmox installer which also creates a boot partition which is not part of the zpool. Seems like a pretty sensible idea to me.&lt;/p&gt;
+
+&lt;p&gt;Here is how we can look at the status of our zpool and see that it has a failed disk:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@cluster1 zpool status -v
+  pool: rpool
+ state: DEGRADED
+status: One or more devices could not be used because the label is missing or
+    invalid.  Sufficient replicas exist for the pool to continue
+    functioning in a degraded state.
+action: Replace the device using &#39;zpool replace&#39;.
+   see: http://zfsonlinux.org/msg/ZFS-8000-4J
+  scan: none requested
+config:
+
+    NAME                      STATE     READ WRITE CKSUM
+    rpool                     DEGRADED     0     0     0
+      raidz1-0                DEGRADED     0     0     0
+        sdb2                  ONLINE       0     0     0
+        sdc2                  ONLINE       0     0     0
+        sdd2                  ONLINE       0     0     0
+        14456048953908038050  FAULTED      0     0     0  was /dev/sdd2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So you can see that &lt;code&gt;/dev/sdd2&lt;/code&gt; has died and is no longer available. The numeric ID that is in place of sdd2 is important so make sure you have note of it.&lt;/p&gt;
+
+&lt;p&gt;Now lets assume that you have figured out which drive the failed one is, whipped it out and slotted in a shiny new replacement drive that is at least as big as the one it is replacing. The next step is to actually add in the new drive.&lt;/p&gt;
+
+&lt;h1 id=&#34;step-one-know-your-drive-ids&#34;&gt;Step one: Know your Drive IDs&lt;/h1&gt;
+
+&lt;p&gt;To avoid misery, you need to make absolutely sure you know which drives are which. If you replace a drive then the IDs (sda etc) can get shuffled around, so you need to double check.&lt;/p&gt;
+
+&lt;p&gt;The easiest way I think is to look in &lt;code&gt;/dev/disk/by-id&lt;/code&gt; and in there you should notice one disk that has no partitions - that is your new one.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@cluster1 cd /dev/disk/by-id/
+/dev/disk/by-id
+root@cluster1 ll
+total 0
+drwxr-xr-x 2 root root 560 Dec 12 12:08 .
+drwxr-xr-x 6 root root 120 Dec 12 12:08 ..
+lrwxrwxrwx 1 root root   9 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRREL -&amp;gt; ../../sdd
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRREL-part1 -&amp;gt; ../../sdd1
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRREL-part2 -&amp;gt; ../../sdd2
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRREL-part9 -&amp;gt; ../../sdd9
+lrwxrwxrwx 1 root root   9 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRS0J -&amp;gt; ../../sdc
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRS0J-part1 -&amp;gt; ../../sdc1
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRS0J-part2 -&amp;gt; ../../sdc2
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRS0J-part9 -&amp;gt; ../../sdc9
+lrwxrwxrwx 1 root root   9 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRV9T -&amp;gt; ../../sdb
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRV9T-part1 -&amp;gt; ../../sdb1
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRV9T-part2 -&amp;gt; ../../sdb2
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRV9T-part9 -&amp;gt; ../../sdb9
+lrwxrwxrwx 1 root root   9 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YE995W -&amp;gt; ../../sda
+lrwxrwxrwx 1 root root   9 Dec 12 12:08 wwn-0x5000c50090cca172 -&amp;gt; ../../sdc
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cca172-part1 -&amp;gt; ../../sdc1
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cca172-part2 -&amp;gt; ../../sdc2
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cca172-part9 -&amp;gt; ../../sdc9
+lrwxrwxrwx 1 root root   9 Dec 12 12:08 wwn-0x5000c50090cd24c4 -&amp;gt; ../../sdb
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd24c4-part1 -&amp;gt; ../../sdb1
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd24c4-part2 -&amp;gt; ../../sdb2
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd24c4-part9 -&amp;gt; ../../sdb9
+lrwxrwxrwx 1 root root   9 Dec 12 12:08 wwn-0x5000c50090cd2ff2 -&amp;gt; ../../sdd
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd2ff2-part1 -&amp;gt; ../../sdd1
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd2ff2-part2 -&amp;gt; ../../sdd2
+lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd2ff2-part9 -&amp;gt; ../../sdd9
+lrwxrwxrwx 1 root root   9 Dec 12 12:08 wwn-0x5000c50092c1f5b2 -&amp;gt; ../../sda
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So in our example, the new disk is &lt;code&gt;sda&lt;/code&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;step-two-partitions&#34;&gt;Step two: Partitions&lt;/h1&gt;
+
+&lt;p&gt;We need to get our drive set up with the right partition table. Thankfully this is easy enough because we can just copy this from a healthy drive.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;Warning - make sure you have the next command right before running it&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;# Use these variables to make sure you have this the right way around
+
+newDisk=&#39;/dev/sda&#39;
+
+healthyDisk=&#39;/dev/sdb&#39;
+
+sgdisk -R &amp;quot;$newDisk&amp;quot; &amp;quot;$healthyDisk&amp;quot;
+sgdisk -G &amp;quot;$newDisk
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;step-three-boot-partition&#34;&gt;Step three: Boot partition&lt;/h1&gt;
+
+&lt;p&gt;In our example, partition one is boot and can be just copied directly from a healthy disk (we will sort out ZFS partition later)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# Use these variables to make sure you have this the right way around
+
+newDiskBootPartition=&#39;/dev/sda1&#39;
+
+healthyDiskBootPartition=&#39;/dev/sdb1&#39;
+
+dd if=&amp;quot;$healthyDiskBootPartition&amp;quot; of=&amp;quot;$newDiskBootPartition&amp;quot; bs=512
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;step-four-add-to-zpool&#34;&gt;Step four: Add to zpool&lt;/h1&gt;
+
+&lt;p&gt;Now we are going to add the new disk to the zpool and replace the failed one.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;newDiskZFSPartition=&#39;/dev/sda2`
+#Put your failed disk ID here - as reported in `zpool status -v` - eg 14456048953908038050
+failedDiskPartitionID=&#39;&#39;
+
+zpool replace rpool &amp;quot;$failedDiskPartitionID&amp;quot; &amp;quot;$newDiskZFSPartition&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That should give you the warning:
+&lt;em&gt;Make sure to wait until resilver is done before rebooting.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;You can keep track of the reslivering process by running &lt;code&gt;zpool status -v&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;eg&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@cluster1 zpool status -v
+  pool: rpool
+ state: DEGRADED
+status: One or more devices is currently being resilvered.  The pool will
+    continue to function, possibly in a degraded state.
+action: Wait for the resilver to complete.
+  scan: resilver in progress since Mon Dec 12 12:14:43 2016
+    91.9M scanned out of 1.87T at 7.66M/s, 71h0m to go
+    22.6M resilvered, 0.00% done
+config:
+
+    NAME                        STATE     READ WRITE CKSUM
+    rpool                       DEGRADED     0     0     0
+      raidz1-0                  DEGRADED     0     0     0
+        sdb2                    ONLINE       0     0     0
+        sdc2                    ONLINE       0     0     0
+        sdd2                    ONLINE       0     0     0
+        replacing-3             UNAVAIL      0     0     0
+          14456048953908038050  FAULTED      0     0     0  was /dev/sdd2
+          sda2                  ONLINE       0     0     0  (resilvering)
+
+errors: No known data errors
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;Note on this, the time to go (eg 71h0m) was wildly pessimistic - actually took around 4 hours&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&#34;step-five-reboot&#34;&gt;Step five: Reboot&lt;/h1&gt;
+
+&lt;p&gt;Once the reslivering process has finished, you can reboot the machine to make sure that everything is back to normal health&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;root@cluster1 zpool status -v
+  pool: rpool
+ state: ONLINE
+  scan: resilvered 456G in 4h42m with 0 errors on Mon Dec 12 16:57:37 2016
+config:
+
+    NAME        STATE     READ WRITE CKSUM
+    rpool       ONLINE       0     0     0
+      raidz1-0  ONLINE       0     0     0
+        sdc2    ONLINE       0     0     0
+        sdd2    ONLINE       0     0     0
+        sde2    ONLINE       0     0     0
+        sdb2    ONLINE       0     0     0
+
+errors: No known data errors
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Wrapping a List in Quotes in PHPStorm</title>
