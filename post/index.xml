@@ -6,8 +6,35 @@
     <description>Recent content in Posts on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 20 Jan 2017 12:39:15 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 23 Jan 2017 18:23:49 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PHP File /tmp/ Does Not Exist</title>
+      <link>https://edmondscommerce.github.io/php-file-/tmp/-does-not-exist/</link>
+      <pubDate>Mon, 23 Jan 2017 18:23:49 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/php-file-/tmp/-does-not-exist/</guid>
+      <description>&lt;p&gt;Recently I ran into an issue with a upload issue in Akeneo when trying to include an image with a product, however the issue could happen with any PHP script.&lt;/p&gt;
+
+&lt;p&gt;I had provided a file path of /path/to/file.jpg in the upload, but was getting an error message of &lt;code&gt;Attribute or field &amp;quot;picture&amp;quot; expects a valid pathname as data, &amp;quot;/tmp/path/to/file.jpg&amp;quot; given (for setter media)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;I was surprised to see that the path had been changed to /tmp/path/to/file.jpg, but a put a copy of the file into the /tmp/ directory and tried again. This produced the same error message.&lt;/p&gt;
+
+&lt;p&gt;At this point I assumed that the issue had to be permissions related, so as the PHP and Nginx user made sure that I could read the file. Slightly stumped I made sure that I was working on the correct container and found that I was.&lt;/p&gt;
+
+&lt;p&gt;I then inserted an extra bit of debugging code to write the exception to a file in /tmp/uploadError.txt. I tried the upload again, got the same error, but could not find the newly created file.&lt;/p&gt;
+
+&lt;p&gt;After confirming that this logging was in the right place, I decided to scan the entire file system to see where the file had been saved, and got the following result:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;root@desktop-container$ find / -type f -iname &lt;span class=&#34;s1&#34;&gt;&amp;#39;uploadError.txt&amp;#39;&lt;/span&gt; 
+/tmp/systemd-private-c5c2073fc98d4581bb08fe6013321d9e-php-fpm.service-i9QqcK/tmp/uploadError.txt
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;A bit of googling indicated that this is a security feature of systemd. It can be disabled, if necessary, by editing the PHP service file ( found here &lt;code&gt;/usr/lib/systemd/system/php-fpm.service&lt;/code&gt; and setting PrivateTmp to false.&lt;/p&gt;
+
+&lt;p&gt;After doing this you&amp;rsquo;ll need to reload the systemd daemon by running &lt;code&gt;systemctl daemon-reload&lt;/code&gt; and restart PHP.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Phpstorm and Mysql Scratch Files</title>
@@ -1554,47 +1581,6 @@ either changing core files, adding code to index.php or setting up a proxy.&lt;/
 Mage_Api. In order to log all API calls I simply needed to rewrite the controllers, add my logging
 code and then call the original controller. I&amp;rsquo;ve created a module that does just this and added it to
 GitHub &lt;a href=&#34;https://github.com/edmondscommerce/Magento-API-Logger&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Portable System Update on Shutdown</title>
-      <link>https://edmondscommerce.github.io/portable-system-update-on-shutdown/</link>
-      <pubDate>Fri, 28 Oct 2016 08:08:38 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/portable-system-update-on-shutdown/</guid>
-      <description>
-
-&lt;h1 id=&#34;another-update-on-shutdown-solution&#34;&gt;Another Update on Shutdown Solution?&lt;/h1&gt;
-
-&lt;p&gt;While the other solutions on this blog (&lt;a href=&#34;https://edmondscommerce.github.io/auto-update-fedora-on-shutdown/&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;
-and &lt;a href=&#34;https://edmondscommerce.github.io/add-keybinding-to-dnf-upgrade-and-shutdown-to-gnome-shell/&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;)
-are probably more elegant they have dependencies on either the desktop (Gnome) or systemd.
-This solution should be portable across Linux distros and desktops.&lt;/p&gt;
-
-&lt;h1 id=&#34;the-solution&#34;&gt;The Solution&lt;/h1&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://specifications.freedesktop.org/desktop-entry-spec/latest/&#34; target=&#34;_blank&#34;&gt;freedesktop.org&lt;/a&gt; define a specification
-for application launchers. These launchers will run on all compatible desktops (which means almost all
-Linux desktops).&lt;/p&gt;
-
-&lt;p&gt;The desktop launcher for update on shutdown can be created using the following command:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;cat &amp;lt;&amp;lt;&#39;EOF&#39; | bash
-echo &amp;quot;[Desktop Entry]
-Name=Shutdown
-Exec=gnome-terminal --command=\&amp;quot;sudo bash -c &#39;dnf -y upgrade; shutdown now&#39;\&amp;quot;
-Type=Application
-Terminal=true&amp;quot; &amp;gt; ~/.local/share/applications/shutdown.desktop;
-chmod u+x ~/.local/share/applications/shutdown.desktop;
-ln -s ~/.local/share/applications/shutdown.desktop ~/Desktop/shutdown.desktop
-EOF
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This should give you a launcher on your desktop as well as in your normal application menu.&lt;/p&gt;
-
-&lt;p&gt;To make this work for your distribution you may need to change &lt;code&gt;dnf -y upgrade&lt;/code&gt; to something
-else like &lt;code&gt;apt-get update; apt-get -y upgrade;&lt;/code&gt; for Debian based distros.&lt;/p&gt;
 </description>
     </item>
     
