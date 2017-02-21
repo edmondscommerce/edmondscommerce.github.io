@@ -6,8 +6,96 @@
     <description>Recent content in Magento on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 29 Nov 2016 10:31:29 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 21 Feb 2017 14:13:42 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/magento/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Upgrade From Magento Magemonkey to Mailchimp</title>
+      <link>https://edmondscommerce.github.io/upgrade-from-magento-magemonkey-to-mailchimp/</link>
+      <pubDate>Tue, 21 Feb 2017 14:13:42 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/upgrade-from-magento-magemonkey-to-mailchimp/</guid>
+      <description>&lt;p&gt;Upgrading from MageMonkey to MailChimp unfortunately isn&amp;rsquo;t as simple as just installing the new module.&lt;/p&gt;
+
+&lt;p&gt;You need to purge the old module completely using:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/usr/bin/env bash&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# Remove all MageMonkey files (taken from https://www.dropbox.com/s/fx9p0w7hqeb0zwi/uninstall_magemonkey.sh?dl=0)&lt;/span&gt;
+rm app/etc/modules/Ebizmarts_MageMonkey.xml
+rm app/etc/modules/Ebizmarts_Mandrill.xml
+rm app/etc/modules/Ebizmarts_Autoresponder.xml
+rm app/etc/modules/Ebizmarts_AbandonedCart.xml
+rm app/etc/modules/Ebizmarts_SweetMonkey.xml
+rm -r app/locale/nl_NL/template/email/ebizmarts
+rm app/locale/nl_NL/Ebizmarts_MageMonkey.csv
+rm app/locale/nl_NL/Ebizmarts_SweetMonkey.csv
+rm app/locale/nl_NL/Ebizmarts_AbandonedCart.csv
+rm app/locale/en_US/Ebizmarts_Mandrill.csv
+rm -r app/locale/en_US/template/email/ebizmarts
+rm app/locale/en_US/Ebizmarts_Autoresponder.csv
+rm app/locale/en_US/Ebizmarts_MageMonkey.csv
+rm app/locale/en_US/Ebizmarts_SweetMonkey.csv
+rm app/locale/en_US/Ebizmarts_AbandonedCart.csv
+rm -r app/code/community/Ebizmarts
+rm app/design/adminhtml/default/default/layout/magemonkey.xml
+rm -r app/design/adminhtml/default/default/layout/ebizmarts
+rm -r app/design/adminhtml/default/default/template/ebizmarts
+rm -r app/design/adminhtml/default/default/template/magemonkey
+rm -r app/design/adminhtml/default/default/template/sweetmonkey
+rm app/design/frontend/base/default/layout/magemonkey.xml
+rm -r app/design/frontend/base/default/layout/ebizmarts
+rm -r app/design/frontend/base/default/template/ebizmarts
+rm -r app/design/frontend/base/default/template/magemonkey
+rm -r app/design/frontend/base/default/template/ebizmarts_abandonedcart
+rm -r js/ebizmarts
+rm -r skin/adminhtml/default/default/abandonedcart
+rm -r skin/adminhtml/default/default/ebizmarts
+rm -r skin/adminhtml/default/default/magemonkey
+rm -r skin/frontend/base/default/magemonkey
+rm -r lib/Mandrill
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This was taken from &lt;a href=&#34;https://www.dropbox.com/s/fx9p0w7hqeb0zwi/uninstall_magemonkey.sh?dl=0&#34; target=&#34;_blank&#34;&gt;uninstall_magemonkey.sh&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You also need to drop the following tables.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;ch&#34;&gt;#!/usr/bin/env bash&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# Drop all MageMonkey tables (taken from https://ebizmarts.com/forums/topics/view/19381#19491)&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;host&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;user&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;password&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;dbname&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;declare&lt;/span&gt; -a &lt;span class=&#34;nv&#34;&gt;tables&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=(&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;magemonkey_mails_sent&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;ebizmarts_abandonedcart_popup&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;ebizmarts_abandonedcart_abtesting&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;ebizmarts_autoresponder_unsubscribe&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;ebizmarts_autoresponder_visited&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;ebizmarts_autoresponder_review&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;ebizmarts_autoresponder_backtostock&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;ebizmarts_autoresponder_backtostock_alert&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;magemonkey_api_debug&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;magemonkey_ecommerce360&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;magemonkey_bulksync_export&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;magemonkey_bulksync_import&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;magemonkey_async_subscribers&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;magemonkey_async_orders&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;s2&#34;&gt;&amp;quot;magemonkey_last_order&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; table in &lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;tables&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[@]&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+    mysql -h &lt;span class=&#34;nv&#34;&gt;$host&lt;/span&gt; -u &lt;span class=&#34;nv&#34;&gt;$user&lt;/span&gt; --password&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$password&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$dbname&lt;/span&gt; -e &lt;span class=&#34;s2&#34;&gt;&amp;quot;drop table &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$table&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;These tables were taken from the following &lt;a href=&#34;https://ebizmarts.com/forums/topics/view/19381#19491&#34; target=&#34;_blank&#34;&gt;Ebizmarts post&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Once you&amp;rsquo;ve done this you can install the new module by following the instructions contained within it&amp;rsquo;s
+README.md.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Magento 2 Vendor Module and App/code Issues</title>
@@ -1890,57 +1978,6 @@ such as the module within the namespace.&lt;/p&gt;
     border-color:#0095D3;
 }
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Repeating Behat Scenarios when Testing Magento with SmartStep</title>
-      <link>https://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html</link>
-      <pubDate>Wed, 15 Apr 2015 12:02:28 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/behat/repeating-behat-scenarios-when-testing-magento-with-smartstep.html</guid>
-      <description>
-
-&lt;p&gt;When behat testing Magento I found myself repeating the same Homepage &amp;gt; Category &amp;gt; Product &amp;gt; Add-to-cart &amp;gt; Cart page scenario for a variety of tests - checking that a category page has products; checking that items are added to the cart; testing the checkout itself etc etc.&lt;/p&gt;
-
-&lt;p&gt;I didn&amp;rsquo;t want to copy-paste the whole procedure because if I changed, say the &lt;code&gt;.product-list&lt;/code&gt; class, I&amp;rsquo;d have to update each of the Scenarios. Bit of a kick in the face to &lt;a href=&#34;http://en.wikipedia.org/wiki/Don%27t_repeat_yourself&#34; target=&#34;_blank&#34;&gt;DRY&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The standard Behat way is to create a method in the Context class which performs the add-to-cart procedure under the Step &lt;code&gt;Given I have added to cart&lt;/code&gt; or similar, but this defeats the object of using Gherkin to write the tests.&lt;/p&gt;
-
-&lt;p&gt;Fortunately KnpLabs have soled this problem with &lt;a href=&#34;https://github.com/KnpLabs/FriendlyContexts/blob/master/doc/feature-smartStep.md&#34; target=&#34;_blank&#34;&gt;SmartSteps&lt;/a&gt;. This allows you to create a Scanerio that you want to be repeatable by tagging it as a &lt;code&gt;@smartStep&lt;/code&gt;. Once it&amp;rsquo;s tagged, you can easily embed that scenario into a new one by having a step &lt;code&gt;Given [scenario name]&lt;/code&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;adding-smartsteps-to-your-behat-tests&#34;&gt;Adding SmartSteps to your behat tests&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;In &lt;code&gt;composer.json&lt;/code&gt;, add a new dependency
-&lt;code&gt;
-&amp;quot;knplabs/friendly-contexts&amp;quot;: &amp;quot;dev-master&amp;quot;
-&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;In &lt;code&gt;behat.yml&lt;/code&gt;
-```
-default:
-extensions:
-    Knp\FriendlyContexts\Extension:
-        smartTag: smartStep&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code&gt;- Tag your scenario
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;@smartStep
-  Scenario: I arrive on the site and add a product to cart
-    When I am on &amp;ldquo;/&amp;rdquo;
-    Then I follow &amp;ldquo;My category&amp;rdquo;
-    Then I follow &amp;ldquo;My product&amp;rdquo;
-    Then I press &amp;ldquo;Add to Cart&amp;rdquo;
-    And I should see &amp;ldquo;was added to your shopping cart&amp;rdquo;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;- And then use the Scenario in any other scenarios with
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Given I arrive on the site and add a product to cart
-```&lt;/p&gt;
 </description>
     </item>
     
