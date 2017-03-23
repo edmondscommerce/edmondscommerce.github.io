@@ -6,8 +6,53 @@
     <description>Recent content in Php on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 02 Mar 2017 10:48:46 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 23 Mar 2017 12:23:44 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/tags/php/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento 1 Php7 Core Bug and Fix</title>
+      <link>https://edmondscommerce.github.io/magento-1-php7-core-bug-and-fix/</link>
+      <pubDate>Thu, 23 Mar 2017 12:23:44 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-1-php7-core-bug-and-fix/</guid>
+      <description>&lt;p&gt;We recently came across an issue with a client that had previously upgraded to PHP7 from PHP5.x for their Magento 1 CE store.
+The issue came to light when the client tried to create a new store in the admin and found that their store name was left blank when they hit the save button.&lt;/p&gt;
+
+&lt;p&gt;No errors were displayed as the site was in production mode and the logs did not give any useful information.
+After looking in to this locally with developer mode I found that a core Magento class was still using deprecated code even after using a PHP7 compatibility module.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately there are only two ways of fixing the issue discovered, the first and correct option is to update Magento as the bug is present in all versions of Magento prior to Magento 1.9.1.0,
+there does not seem to be any patches that resolve the issue officially.&lt;/p&gt;
+
+&lt;p&gt;The second faster (and possibly safer depending on how big your site is) is to directly edit the core file (!!).&lt;/p&gt;
+
+&lt;p&gt;As all developers know, editing the core is taboo but in this case we are looking at bringing code from a later version of Magento that has fixed the issue.&lt;/p&gt;
+
+&lt;p&gt;The issue boils down to the use of the &lt;code&gt;preg_replace&lt;/code&gt; function with the &lt;code&gt;e&lt;/code&gt; modifier, the code is used across the entire installation when calling the &lt;code&gt;removeTags&lt;/code&gt; method on any helper that extends from &lt;code&gt;Mage_Core_Helper_Abstract&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;To fix the issue without doing a Magento upgrade, replace the &lt;code&gt;removeTags()&lt;/code&gt; method with the updated version&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public function removeTags($html)
+    {
+        $html = preg_replace_callback(
+            &amp;quot;# &amp;lt;(?![/a-z]) | (?&amp;lt;=\s)&amp;gt;(?![a-z]) #xi&amp;quot;,
+            function ($matches) {
+                return htmlentities($matches[0]);
+            },
+            $html
+        );
+        $html =  strip_tags($html);
+        return htmlspecialchars_decode($html);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Always be sure to test your changes before deploying to production, it is also recommended you comment your edit loudly so the change is not overlooked.
+E.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;############### Edit Made #################
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Test If Your Magento Site Is Php7 Ready</title>
@@ -1674,47 +1719,6 @@ The problem is that you have used the standard PHP super globals and you would r
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;And that&amp;rsquo;s it, another crazy API defeated and bent to my will!&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Payment has failed... Magento and SagePay CE Error &#43; Solution</title>
-      <link>https://edmondscommerce.github.io/magento/payment-has-failed-magento-and-sagepay-ce-error-solution.html</link>
-      <pubDate>Wed, 22 May 2013 14:58:25 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/magento/payment-has-failed-magento-and-sagepay-ce-error-solution.html</guid>
-      <description>&lt;p&gt;I recently upgraded a magento store and installed the Sage Pay Suite CE module from EbizMarks.&lt;/p&gt;
-
-&lt;p&gt;The following error came up twice during the testing of the module, once in the frontend and once in the admin.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Payment has failed, please reload checkout page and try again. Your card has not been charged&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;The error itself is triggered from the saveAfter method in the Ebizmarts_SagePaySuite_Model_Observer_Sales class and is called every time an order is saved.&lt;/p&gt;
-
-&lt;p&gt;The error on the frontend was caused by a javascript error. Adding the following to the top of the sagePaySuite_Checkout.js file corrected it&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-javascript&#34; data-lang=&#34;javascript&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;typeof&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;sagePayIsMobile&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;undefined&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;kd&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;sagePayIsMobile&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;function&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/BlackBerry/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
-            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/webOS/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
-            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/Android/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
-            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/iPhone/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
-            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/iPod/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt;
-            &lt;span class=&#34;nx&#34;&gt;navigator&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;userAgent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;/iPad/i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
-    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;The error in the admin was caused by a different extension being called when the order was saved. Normally the extension ensures that the method is not called when it is not needed and this is done by checking the route and the registry. If an extension saves the order these checks are not triggered so you will need to add in your own. To do that you will need add the following code to the action that is saving the error&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;Mage::register(&amp;#39;skipSagePay&amp;#39;, TRUE);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;and then change the following line in the Ebizmarts/SagePaySuite/Model/Observer/Sales.php file&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;if( (Mage::app()-&amp;gt;getRequest()-&amp;gt;getControllerModule() == &amp;#39;Mage_Api&amp;#39;) || Mage::registry(&amp;#39;current_shipment&amp;#39;) || Mage::registry(&amp;#39;sales_order&amp;#39;) || Mage::registry(&amp;#39;current_creditmemo&amp;#39;) || Mage::registry(&amp;#39;current_invoice&amp;#39;) || ($order-&amp;gt;getPayment()-&amp;gt;getMethod() == &amp;#39;sagepayrepeat&amp;#39;) ){&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;to&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;x&#34;&gt;if( (Mage::app()-&amp;gt;getRequest()-&amp;gt;getControllerModule() == &amp;#39;Mage_Api&amp;#39;) || Mage::registry(&amp;#39;current_shipment&amp;#39;) || Mage::registry(&amp;#39;sales_order&amp;#39;) || Mage::registry(&amp;#39;current_creditmemo&amp;#39;) || Mage::registry(&amp;#39;current_invoice&amp;#39;) || ($order-&amp;gt;getPayment()-&amp;gt;getMethod() == &amp;#39;sagepayrepeat&amp;#39;) || Mage::registry(&amp;#39;skipSagePay&amp;#39;)){&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 </description>
     </item>
     

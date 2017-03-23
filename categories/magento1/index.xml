@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Magento1 on Edmonds Commerce Dev Blog</title>
+    <link>https://edmondscommerce.github.io/categories/magento1/</link>
+    <description>Recent content in Magento1 on Edmonds Commerce Dev Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 23 Mar 2017 12:23:44 +0000</lastBuildDate>
+    <atom:link href="https://edmondscommerce.github.io/categories/magento1/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento 1 Php7 Core Bug and Fix</title>
+      <link>https://edmondscommerce.github.io/magento-1-php7-core-bug-and-fix/</link>
+      <pubDate>Thu, 23 Mar 2017 12:23:44 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-1-php7-core-bug-and-fix/</guid>
+      <description>&lt;p&gt;We recently came across an issue with a client that had previously upgraded to PHP7 from PHP5.x for their Magento 1 CE store.
+The issue came to light when the client tried to create a new store in the admin and found that their store name was left blank when they hit the save button.&lt;/p&gt;
+
+&lt;p&gt;No errors were displayed as the site was in production mode and the logs did not give any useful information.
+After looking in to this locally with developer mode I found that a core Magento class was still using deprecated code even after using a PHP7 compatibility module.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately there are only two ways of fixing the issue discovered, the first and correct option is to update Magento as the bug is present in all versions of Magento prior to Magento 1.9.1.0,
+there does not seem to be any patches that resolve the issue officially.&lt;/p&gt;
+
+&lt;p&gt;The second faster (and possibly safer depending on how big your site is) is to directly edit the core file (!!).&lt;/p&gt;
+
+&lt;p&gt;As all developers know, editing the core is taboo but in this case we are looking at bringing code from a later version of Magento that has fixed the issue.&lt;/p&gt;
+
+&lt;p&gt;The issue boils down to the use of the &lt;code&gt;preg_replace&lt;/code&gt; function with the &lt;code&gt;e&lt;/code&gt; modifier, the code is used across the entire installation when calling the &lt;code&gt;removeTags&lt;/code&gt; method on any helper that extends from &lt;code&gt;Mage_Core_Helper_Abstract&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;To fix the issue without doing a Magento upgrade, replace the &lt;code&gt;removeTags()&lt;/code&gt; method with the updated version&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public function removeTags($html)
+    {
+        $html = preg_replace_callback(
+            &amp;quot;# &amp;lt;(?![/a-z]) | (?&amp;lt;=\s)&amp;gt;(?![a-z]) #xi&amp;quot;,
+            function ($matches) {
+                return htmlentities($matches[0]);
+            },
+            $html
+        );
+        $html =  strip_tags($html);
+        return htmlspecialchars_decode($html);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Always be sure to test your changes before deploying to production, it is also recommended you comment your edit loudly so the change is not overlooked.
+E.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;############### Edit Made #################
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
