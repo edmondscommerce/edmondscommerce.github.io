@@ -6,8 +6,111 @@
     <description>Recent content on Edmonds Commerce Dev Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 10 Apr 2017 17:17:06 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 11 May 2017 07:43:39 +0000</lastBuildDate>
     <atom:link href="https://edmondscommerce.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magento Module Version Checker</title>
+      <link>https://edmondscommerce.github.io/magento-module-version-checker/</link>
+      <pubDate>Thu, 11 May 2017 07:43:39 +0000</pubDate>
+      
+      <guid>https://edmondscommerce.github.io/magento-module-version-checker/</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/edmondscommerce/magento-module-version-checker&#34; target=&#34;_blank&#34;&gt;Magento Module Version Checker&lt;/a&gt;
+(mmv) is a simple script to check
+&lt;a href=&#34;https://www.magentocommerce.com/magento-connect/&#34; target=&#34;_blank&#34;&gt;Magento Connect&lt;/a&gt;
+(or other custom sources) for the latest version of a module.&lt;/p&gt;
+
+&lt;h3 id=&#34;installation&#34;&gt;Installation&lt;/h3&gt;
+
+&lt;p&gt;Install via composer&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span&gt;&lt;/span&gt;git clone git@github.com:edmondscommerce/magento-module-version-checker.git
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; magento-module-version-checker
+composer install
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;configuration&#34;&gt;Configuration&lt;/h3&gt;
+
+&lt;p&gt;You need to configure the modules you wish to check and the page from which
+to get the modules version. You do this in a &lt;code&gt;json&lt;/code&gt; file with the following
+format:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;quot;https://www.magentocommerce.com/magento-connect/&amp;lt;module&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;&amp;lt;Module_Name&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;quot;https://www.magentocommerce.com/magento-connect/aoe-scheduler.html&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;quot;Aoe_Scheduler&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+
+    &lt;span class=&#34;err&#34;&gt;...&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;running&#34;&gt;Running&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;./mmv &amp;lt;path/to/config.json&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;custom-sources&#34;&gt;Custom Sources&lt;/h3&gt;
+
+&lt;p&gt;In order to add a custom source you need implement a &lt;code&gt;Module&lt;/code&gt; class and add the class to the &lt;code&gt;ModuleFactory&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;implementing-module&#34;&gt;Implementing Module&lt;/h4&gt;
+
+&lt;p&gt;I&amp;rsquo;ve created a template &lt;code&gt;Module&lt;/code&gt; class for you to base yours on &lt;a href=&#34;https://github.com/edmondscommerce/magento-module-version-checker/blob/master/src/Module.php.template&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You simply need to make the following changes:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;EdmondsCommerce\MagentoModuleVersions&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;YourSource&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Module&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;extends&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;AbstractModule&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getSelector&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;// Here you need to add a css selector to grab the&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;// version data from the page.&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;cleanVersionNumber&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$versionNumber&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;// Here you need to add some clean up code that takes the&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;// selected version and strips out only the version number.&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$versionNumber&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can see an example of this
+&lt;a href=&#34;https://github.com/edmondscommerce/magento-module-version-checker/blob/master/src/MagentoConnectModule.php&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;adding-module-to-module-factory&#34;&gt;Adding Module to Module Factory&lt;/h4&gt;
+
+&lt;p&gt;Once you&amp;rsquo;ve implemented a &lt;code&gt;Module&lt;/code&gt; class you need to add it to the
+&lt;a href=&#34;https://github.com/edmondscommerce/magento-module-version-checker/blob/master/src/ModuleFactory.php&#34; target=&#34;_blank&#34;&gt;&lt;code&gt;ModuleFactory&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;ModuleFactory&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$dom&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$page&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;...&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;switch&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$host&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;case&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;www.magentocommerce.com&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;MagentoConnectModule&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$dom&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$page&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;case&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;www.your-modules-domain.com&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;YourSource&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Module&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$dom&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$page&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+                &lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;default&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+                &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Exception&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;quot;Invalid host &amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;$host&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Once that&amp;rsquo;s done you should be able to add your new modules to the config &lt;code&gt;json&lt;/code&gt; and run the script.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Exploring Streets Of York and Participation in First Ever PHP Yorkshire conference</title>
@@ -1643,189 +1746,6 @@ module.&lt;/p&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/magento/magento2/blob/2.1/app/code/Magento/Ui/view/base/web/js/lib/core/collection.js&#34; target=&#34;_blank&#34;&gt;View-Model&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/magento/magento2/blob/2.1/app/code/Magento/Ui/view/base/ui_component/templates/listing/default.xhtml&#34; target=&#34;_blank&#34;&gt;Template&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Replacing Failed Drive in Zfs Zpool (on Proxmox)</title>
-      <link>https://edmondscommerce.github.io/replacing-failed-drive-in-zfs-zpool-on-proxmox/</link>
-      <pubDate>Mon, 12 Dec 2016 18:13:32 +0000</pubDate>
-      
-      <guid>https://edmondscommerce.github.io/replacing-failed-drive-in-zfs-zpool-on-proxmox/</guid>
-      <description>
-
-&lt;p&gt;Recently we had one of our Proxmox machines suffer a failed disk drive.&lt;/p&gt;
-
-&lt;p&gt;Thankfully, replacing a failed disk in a ZFS zpool is remarkably simple if you know how.&lt;/p&gt;
-
-&lt;p&gt;In this example, we are using the ZFS configuration as per the Proxmox installer which also creates a boot partition which is not part of the zpool. Seems like a pretty sensible idea to me.&lt;/p&gt;
-
-&lt;p&gt;Here is how we can look at the status of our zpool and see that it has a failed disk:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;root@cluster1 zpool status -v
-  pool: rpool
- state: DEGRADED
-status: One or more devices could not be used because the label is missing or
-    invalid.  Sufficient replicas exist for the pool to continue
-    functioning in a degraded state.
-action: Replace the device using &#39;zpool replace&#39;.
-   see: http://zfsonlinux.org/msg/ZFS-8000-4J
-  scan: none requested
-config:
-
-    NAME                      STATE     READ WRITE CKSUM
-    rpool                     DEGRADED     0     0     0
-      raidz1-0                DEGRADED     0     0     0
-        sdb2                  ONLINE       0     0     0
-        sdc2                  ONLINE       0     0     0
-        sdd2                  ONLINE       0     0     0
-        14456048953908038050  FAULTED      0     0     0  was /dev/sdd2
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;So you can see that &lt;code&gt;/dev/sdd2&lt;/code&gt; has died and is no longer available. The numeric ID that is in place of sdd2 is important so make sure you have note of it.&lt;/p&gt;
-
-&lt;p&gt;Now lets assume that you have figured out which drive the failed one is, whipped it out and slotted in a shiny new replacement drive that is at least as big as the one it is replacing. The next step is to actually add in the new drive.&lt;/p&gt;
-
-&lt;h1 id=&#34;step-one-know-your-drive-ids&#34;&gt;Step one: Know your Drive IDs&lt;/h1&gt;
-
-&lt;p&gt;To avoid misery, you need to make absolutely sure you know which drives are which. If you replace a drive then the IDs (sda etc) can get shuffled around, so you need to double check.&lt;/p&gt;
-
-&lt;p&gt;The easiest way I think is to look in &lt;code&gt;/dev/disk/by-id&lt;/code&gt; and in there you should notice one disk that has no partitions - that is your new one.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;root@cluster1 cd /dev/disk/by-id/
-/dev/disk/by-id
-root@cluster1 ll
-total 0
-drwxr-xr-x 2 root root 560 Dec 12 12:08 .
-drwxr-xr-x 6 root root 120 Dec 12 12:08 ..
-lrwxrwxrwx 1 root root   9 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRREL -&amp;gt; ../../sdd
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRREL-part1 -&amp;gt; ../../sdd1
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRREL-part2 -&amp;gt; ../../sdd2
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRREL-part9 -&amp;gt; ../../sdd9
-lrwxrwxrwx 1 root root   9 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRS0J -&amp;gt; ../../sdc
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRS0J-part1 -&amp;gt; ../../sdc1
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRS0J-part2 -&amp;gt; ../../sdc2
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRS0J-part9 -&amp;gt; ../../sdc9
-lrwxrwxrwx 1 root root   9 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRV9T -&amp;gt; ../../sdb
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRV9T-part1 -&amp;gt; ../../sdb1
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRV9T-part2 -&amp;gt; ../../sdb2
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YCRV9T-part9 -&amp;gt; ../../sdb9
-lrwxrwxrwx 1 root root   9 Dec 12 12:08 ata-ST1000DX001-1NS162_Z4YE995W -&amp;gt; ../../sda
-lrwxrwxrwx 1 root root   9 Dec 12 12:08 wwn-0x5000c50090cca172 -&amp;gt; ../../sdc
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cca172-part1 -&amp;gt; ../../sdc1
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cca172-part2 -&amp;gt; ../../sdc2
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cca172-part9 -&amp;gt; ../../sdc9
-lrwxrwxrwx 1 root root   9 Dec 12 12:08 wwn-0x5000c50090cd24c4 -&amp;gt; ../../sdb
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd24c4-part1 -&amp;gt; ../../sdb1
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd24c4-part2 -&amp;gt; ../../sdb2
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd24c4-part9 -&amp;gt; ../../sdb9
-lrwxrwxrwx 1 root root   9 Dec 12 12:08 wwn-0x5000c50090cd2ff2 -&amp;gt; ../../sdd
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd2ff2-part1 -&amp;gt; ../../sdd1
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd2ff2-part2 -&amp;gt; ../../sdd2
-lrwxrwxrwx 1 root root  10 Dec 12 12:08 wwn-0x5000c50090cd2ff2-part9 -&amp;gt; ../../sdd9
-lrwxrwxrwx 1 root root   9 Dec 12 12:08 wwn-0x5000c50092c1f5b2 -&amp;gt; ../../sda
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;So in our example, the new disk is &lt;code&gt;sda&lt;/code&gt;&lt;/p&gt;
-
-&lt;h1 id=&#34;step-two-partitions&#34;&gt;Step two: Partitions&lt;/h1&gt;
-
-&lt;p&gt;We need to get our drive set up with the right partition table. Thankfully this is easy enough because we can just copy this from a healthy drive.&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;&lt;em&gt;Warning - make sure you have the next command right before running it&lt;/em&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;pre&gt;&lt;code&gt;# Use these variables to make sure you have this the right way around
-
-newDisk=&#39;/dev/sda&#39;
-
-healthyDisk=&#39;/dev/sdb&#39;
-
-sgdisk -R &amp;quot;$newDisk&amp;quot; &amp;quot;$healthyDisk&amp;quot;
-sgdisk -G &amp;quot;$newDisk
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;step-three-boot-partition&#34;&gt;Step three: Boot partition&lt;/h1&gt;
-
-&lt;p&gt;In our example, partition one is boot and can be just copied directly from a healthy disk (we will sort out ZFS partition later)&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# Use these variables to make sure you have this the right way around
-
-newDiskBootPartition=&#39;/dev/sda1&#39;
-
-healthyDiskBootPartition=&#39;/dev/sdb1&#39;
-
-dd if=&amp;quot;$healthyDiskBootPartition&amp;quot; of=&amp;quot;$newDiskBootPartition&amp;quot; bs=512
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;step-four-add-to-zpool&#34;&gt;Step four: Add to zpool&lt;/h1&gt;
-
-&lt;p&gt;Now we are going to add the new disk to the zpool and replace the failed one.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;newDiskZFSPartition=&#39;/dev/sda2`
-#Put your failed disk ID here - as reported in `zpool status -v` - eg 14456048953908038050
-failedDiskPartitionID=&#39;&#39;
-
-zpool replace rpool &amp;quot;$failedDiskPartitionID&amp;quot; &amp;quot;$newDiskZFSPartition&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;That should give you the warning:
-&lt;em&gt;Make sure to wait until resilver is done before rebooting.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;You can keep track of the reslivering process by running &lt;code&gt;zpool status -v&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;eg&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;root@cluster1 zpool status -v
-  pool: rpool
- state: DEGRADED
-status: One or more devices is currently being resilvered.  The pool will
-    continue to function, possibly in a degraded state.
-action: Wait for the resilver to complete.
-  scan: resilver in progress since Mon Dec 12 12:14:43 2016
-    91.9M scanned out of 1.87T at 7.66M/s, 71h0m to go
-    22.6M resilvered, 0.00% done
-config:
-
-    NAME                        STATE     READ WRITE CKSUM
-    rpool                       DEGRADED     0     0     0
-      raidz1-0                  DEGRADED     0     0     0
-        sdb2                    ONLINE       0     0     0
-        sdc2                    ONLINE       0     0     0
-        sdd2                    ONLINE       0     0     0
-        replacing-3             UNAVAIL      0     0     0
-          14456048953908038050  FAULTED      0     0     0  was /dev/sdd2
-          sda2                  ONLINE       0     0     0  (resilvering)
-
-errors: No known data errors
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;&lt;em&gt;Note on this, the time to go (eg 71h0m) was wildly pessimistic - actually took around 4 hours&lt;/em&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h1 id=&#34;step-five-reboot&#34;&gt;Step five: Reboot&lt;/h1&gt;
-
-&lt;p&gt;Once the reslivering process has finished, you can reboot the machine to make sure that everything is back to normal health&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;root@cluster1 zpool status -v
-  pool: rpool
- state: ONLINE
-  scan: resilvered 456G in 4h42m with 0 errors on Mon Dec 12 16:57:37 2016
-config:
-
-    NAME        STATE     READ WRITE CKSUM
-    rpool       ONLINE       0     0     0
-      raidz1-0  ONLINE       0     0     0
-        sdc2    ONLINE       0     0     0
-        sdd2    ONLINE       0     0     0
-        sde2    ONLINE       0     0     0
-        sdb2    ONLINE       0     0     0
-
-errors: No known data errors
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
