@@ -110,6 +110,22 @@
         
         <div class="post">
             <h1 class="post-title">
+                <a href="https://edmondscommerce.github.io/portable-system-update-on-shutdown/">Portable System Update on Shutdown</a>
+            </h1>
+            <span class="post-date">Oct 28, 2016 &middot;
+                1 minute read
+      
+      <br/>
+      <a class="label" href="https://edmondscommerce.github.io/categories/linux">linux</a>
+      </span>
+            
+            Another Update on Shutdown Solution? While the other solutions on this blog (here and here) are probably more elegant they have dependencies on either the desktop (Gnome) or systemd. This solution should be portable across Linux distros and desktops. The Solution freedesktop.org define a specification for application launchers. These launchers will run on all compatible desktops (which means almost all Linux desktops). The desktop launcher for update on shutdown can be created using the following command: cat &lt;&lt;'EOF' | bash echo &quot;[Desktop Entry] Name=Shutdown Exec=gnome-terminal --command=\&quot;sudo bash -c 'dnf -y upgrade; shutdown now'\&quot; Type=Application Terminal=true&quot; &gt; ~/.local/share/applications/shutdown.desktop; chmod u+x ~/.local/share/applications/shutdown.desktop; ln -s ~/.local/share/applications/shutdown.desktop ~/Desktop/shutdown.desktop EOF This should give you a launcher on your desktop as well as in your normal application menu.
+            <a href="https://edmondscommerce.github.io/portable-system-update-on-shutdown/">Read On &rarr;</a>
+            
+        </div>
+        
+        <div class="post">
+            <h1 class="post-title">
                 <a href="https://edmondscommerce.github.io/auto-update-fedora-on-shutdown/">Auto-update Fedora on Shutdown</a>
             </h1>
             <span class="post-date">Oct 27, 2016 &middot;
@@ -185,22 +201,6 @@
             
             TL;DR Run the script at the bottom. The Issue If you&rsquo;ve previously applied the SUPEE-1533 patch to your Magento site, then when you try to apply the SUPEE-8788 patch you&rsquo;ll see the following error: checking file app/code/core/Mage/Adminhtml/controllers/DashboardController.php Hunk #1 FAILED at 91. 1 out of 1 hunk FAILED This is caused by the fact that the SUPEE-8788 patch seems to have been taken against an un-patched version of Magento. This can be seen from the following: The SUPEE-8788 patch contains: @@ -91,7 +91,7 @@ class Mage_Adminhtml_DashboardController extends Mage_Adminhtml_Controller_Actio if ($gaData &amp;&amp; $gaHash) { $newHash = Mage::helper('adminhtml/dashboard_data')-&gt;getChartDataHash($gaData); - if ($newHash == $gaHash) { + if (hash_equals($newHash, $gaHash)) { if ($params = unserialize(base64_decode(urldecode($gaData)))) { $response = $httpClient-&gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL) -&gt;setParameterGet($params) The important line here is: if ($params = unserialize(base64_decode(urldecode($gaData)))) { Which is supposed to match up with: if ($gaData &amp;&amp; $gaHash) { $newHash = Mage::helper('adminhtml/dashboard_data')-&gt;getChartDataHash($gaData); if ($newHash == $gaHash) { $params = json_decode(base64_decode(urldecode($gaData)), true); if ($params) { $response = $httpClient-&gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL) -&gt;setParameterGet($params) The important lines here are: $params = json_decode(base64_decode(urldecode($gaData)), true); if ($params) { Now they don&rsquo;t match because of the change made in SUPEE-1533: if ($gaData &amp;&amp; $gaHash) { $newHash = Mage::helper('adminhtml/dashboard_data')-&gt;getChartDataHash($gaData); if ($newHash == $gaHash) { - if ($params = unserialize(base64_decode(urldecode($gaData)))) { + $params = json_decode(base64_decode(urldecode($gaData)), true); + if ($params) { $response = $httpClient-&gt;setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL) -&gt;setParameterGet($params) The Fix In order to apply SUPEE-8788 we need to temporarily revert the changes made to DashboardController.php by SUPEE-1533.
             <a href="https://edmondscommerce.github.io/magento-supee-8788-supee-1533-conflict-fixed/">Read On &rarr;</a>
-            
-        </div>
-        
-        <div class="post">
-            <h1 class="post-title">
-                <a href="https://edmondscommerce.github.io/highlighting-empty-hrefs-in-links-using-css/">Highlighting Empty Hrefs in Links Using Css</a>
-            </h1>
-            <span class="post-date">Oct 5, 2016 &middot;
-                1 minute read
-      
-      <br/>
-      <a class="label" href="https://edmondscommerce.github.io/categories/css">css</a>
-      </span>
-            
-            While developing a site, you often put a pile of placeholder links in with a plain &lt;a href=&quot;&quot;&gt;Link&lt;/a&gt;. These can sometimes sneak through because they&rsquo;re so easily forgotten about. A simple CSS block will automatically highlight these for you, so you don&rsquo;t forget: a[href='']:after { content:'!'; background:red; color:#FFFFFF; padding-left:3px; padding-right:3px; opacity:0.3; white-space: nowrap; } a[href='']:hover:after { content:'empty link'; opacity:1.0; } You can adjust the selector if you use href=&quot;#&quot; instead of blank ones.
-            
             
         </div>
         
